@@ -541,7 +541,7 @@ class PlayController(object):
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         # Move the camera based on mouse movement
         if not self.zooming:
-            if buttons == mouse.RIGHT:
+            if buttons == mouse.RIGHT or modifiers & key.MOD_SHIFT:
                 self.camera.move_by(euclid.Vector3(0,-dy,0))
                 if self.camera.pos.y <= 10: self.camera._pos.y = 10
                 elif self.camera.pos.y >= 25: self.camera._pos.y = 25
