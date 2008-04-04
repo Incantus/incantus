@@ -91,10 +91,14 @@ isPermanent = RoleMatch(CardRoles.Permanent)
 isLegendaryPermanent = isPermanent.with_condition(lambda c: c.supertype == "Legendary")
 isCreature = RoleMatch(CardRoles.Creature)
 isLand = RoleMatch(CardRoles.Land)
+isBasicLand = isLand.with_condition(lambda l: l.supertype == "Basic")
+isNonBasicLand = isLand.with_condition(lambda l: not l.supertype == "Basic")
 isArtifact = RoleMatch(CardRoles.Artifact)
 isToken = RoleMatch(CardRoles.TokenCreature)
 isEnchantment = RoleMatch(CardRoles.Enchantment)
+isEquipment = RoleMatch(CardRoles.Equipment)
 isAura = RoleMatch(CardRoles.Aura)
+isAttachment = RoleMatch(CardRoles.Attachment)
 
 class PlayerOrCreatureMatch(ObjMatch):
     def match(self, obj):
@@ -109,6 +113,7 @@ isCreatureType = RoleMatch(CardRoles.Creature, use_in_play=True)
 isLandType = RoleMatch(CardRoles.Land, use_in_play=True)
 isArtifactType = RoleMatch(CardRoles.Artifact, use_in_play=True)
 isEnchantmentType = RoleMatch(CardRoles.Enchantment, use_in_play=True)
+isEquipmentType = RoleMatch(CardRoles.Equipment, use_in_play=True)
 isAuraType = RoleMatch(CardRoles.Aura, use_in_play=True)
 
 class nonLandType(CardMatch):
