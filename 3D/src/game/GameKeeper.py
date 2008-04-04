@@ -194,6 +194,7 @@ class GameKeeper(MtGObject):
         for player in players:
             for aura in player.play.get(Match.isAura):
                 if not aura.attached_to or not (aura.attached_to.zone == players[0].play or aura.attached_to.zone == players[1].play) or not aura.target_types.match(aura.attached_to):
+                    aura.unattach()
                     player.moveCard(aura, player.play, aura.owner.graveyard)
                     actions += 1
         # 420.5e If two or more legendary permanents with the same name are in play, all are put into their owners' graveyards. This is called the "legend rule." If only one of those permanents is legendary, this rule doesn't apply.

@@ -163,7 +163,7 @@ class Permanent(MtGObject):
     def leavingPlay(self):
         self.continuously_in_play = False
         for role in self.subroles: role.leavingPlay()
-        for attached in self.attachments: attached.unattach()
+        for attached in self.attachments: attached.attachedLeavingPlay()
     def copy(self):
         import copy
         # This doesn't create new lists for triggered abilities and static abilities
@@ -372,15 +372,19 @@ class Attachment(object):
     def attach(self, target):
         if self.attached_to != None: self.unattach()
         self.attached_to = target
-        self.attached_to.attachments.append(self)
+        self.attached_to.attachments.append(self.perm.card)
         for a in self.perm.attached_abilities: a.enteringPlay()
         self.send(AttachedEvent(), attached=self.attached_to)
         return True
     def unattach(self):
         if self.attached_to:
             for a in self.perm.attached_abilities: a.leavingPlay()
-            self.attached_to.attachments.remove(self)
+            self.attached_to.attachments.remove(self.perm.card)
             self.send(UnAttachedEvent(), unattached=self.attached_to)
+        self.attached_to = None
+    def attachedLeavingPlay(self):
+        for a in self.perm.attached_abilities: a.leavingPlay()
+        self.send(UnAttachedEvent(), unattached=self.attached_to)
         self.attached_to = None
     def leavingPlay(self):
         self.unattach()

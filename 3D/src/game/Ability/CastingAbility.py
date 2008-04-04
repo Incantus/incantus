@@ -20,6 +20,7 @@ class CastSpell(object):
 class PermanentSpell(CastSpell):
     def __init__(self, card, cost="0", target=None, effects=[], limit=None, copy_targets=True):
         super(CastSpell, self).__init__(card, cost=cost,target=target,effects=effects, limit=limit, copy_targets=copy_targets, zone="hand")
+    # Auras break if I put it into play afterward
     def preresolve(self):
         # The card is put into play before any effects resolve
         controller = self.card.controller #self.setup_card_controller()
