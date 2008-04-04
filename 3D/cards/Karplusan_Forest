@@ -1,0 +1,22 @@
+name = 'Karplusan Forest'
+cardnum = 354
+expansion = '10E'
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ['T Add 1 to your mana pool.', 'T Add R or G to your mana pool. Karplusan Forest deals 1 damage to you.']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
+                          ManaAbility(card, cost=TapCost(), effects=[ManaChoice(["R", "G"]), DealDamage(1)])
+]
+
+#################################

@@ -1,0 +1,27 @@
+name = 'Crucible of Worlds'
+cardnum = 319
+expansion = '10E'
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3'
+color = characteristic(['C'])
+text = ['You may play land cards from your graveyard.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+
+def check_zone(self, card=card):
+    return self.card.zone == card.controller.graveyard
+
+from Action import PlayLand
+subrole.static_abilities = [GlobalStaticAbility(card,
+                                  effects=OverrideGlobal(check_zone, "check_zone", PlayLand, combiner=logical_or, expire=False))]
+
+#################################

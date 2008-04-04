@@ -1,0 +1,24 @@
+name = 'Staff of Domination'
+cardnum = 156
+expansion = "Fifth Dawn"
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3'
+color = characteristic(['C'])
+text = ['1: Untap Staff of Domination.', '2, T You gain 1 life.', '3, T Untap target creature.', '4, T Tap target creature.', '5, T Draw a card.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, cost="1", target=Target(targeting="self"), effects=UntapTargetPermanent()),
+		     ActivatedAbility(card, cost=MultipleCosts([ManaCost("2"), TapCost()]), target=Target(targeting="controller"), effects=ChangeLife(1)),
+		     ActivatedAbility(card, cost=MultipleCosts([ManaCost("3"), TapCost()]), target=Target(target_types=isCreature), effects=UntapTargetPermanent()),
+		     ActivatedAbility(card, cost=MultipleCosts([ManaCost("4"), TapCost()]), target=Target(target_types=isCreature), effects=TapTargetPermanent()),
+		     ActivatedAbility(card, cost=MultipleCosts([ManaCost("5"), TapCost()]), target=Target(targeting="controller"), effects=DrawCard(1)),
+]
+
+#################################

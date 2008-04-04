@@ -1,0 +1,25 @@
+name = 'Whispersilk Cloak'
+cardnum = 345
+expansion = '10E'
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic(['Equipment'])
+cost = '3'
+color = characteristic(['C'])
+text = ['Equipped creature is unblockable and has shroud.', 'Equip 2']
+
+subrole = Equipment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [EquipAbility(card, "2")]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+subrole.attached_abilities = [EquipmentStaticAbility(card,
+                                        effects=[GiveKeyword(unblockable, expire=False, keyword="unblockable"),
+                                                 GiveKeyword(shroud, expire=False, keyword="shroud")])
+]
+
+#################################

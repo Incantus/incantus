@@ -1,0 +1,20 @@
+name = 'Composite Golem'
+cardnum = 318
+expansion = '10E'
+type = characteristic(['Creature', 'Artifact'])
+supertype = characteristic('')
+subtypes = characteristic(['Golem'])
+cost = '6'
+color = characteristic(['C'])
+text = ['Sacrifice Composite Golem: Add WUBRG to your mana pool.']
+
+subrole = Creature(4, 4)
+
+in_play_role = Permanent(card, [subrole, Artifact()])
+
+#################################
+
+subrole.abilities = [ManaAbility(card, SacrificeCost(), effects=AddMana("WUBRG"))]
+
+#################################
+

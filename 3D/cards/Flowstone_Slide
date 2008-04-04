@@ -1,0 +1,16 @@
+name = 'Flowstone Slide'
+cardnum = 203
+expansion = '10E'
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'X2RR'
+color = characteristic(['R'])
+text = ['All creatures get +X/-X until end of turn.']
+
+mc = ManaCost(cost)
+# XXX This is a bit ugly - maybe there is a way to propagate integer lazyness with multiply
+out_play_role.abilities = [CastNonPermanentSpell(card, mc,
+				target=AllPermanentTargets(target_types=isCreature),
+				effects=ForEach(AugmentPowerToughness(power=mc.X, toughness=LazyInt(lambda mc=mc:-1*mc.X))))
+]

@@ -1,0 +1,28 @@
+name = 'Furnace of Rath'
+cardnum = 204
+expansion = '10E'
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1RRR'
+color = characteristic(['R'])
+text = ['If a source would deal damage to a creature or player, it deals double that damage to that creature or player instead.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+def doubleDamage(self, amt, source, combat=False):
+    '''Furnace of Rath - double damage'''
+    self.assignDamage(2*amt, source, combat)
+
+from Player import Player
+subrole.static_abilities = [GlobalStaticAbility(card,
+                                effects=[OverrideGlobalReplacement(doubleDamage, "assignDamage", Creature, expire=False),
+                                         OverrideGlobalReplacement(doubleDamage, "assignDamage", Player, expire=False)])
+]
+
+#################################
+

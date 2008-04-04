@@ -1,0 +1,28 @@
+name = 'Cephalid Constable'
+cardnum = 72
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Cephalid', 'Wizard'])
+cost = '1UU'
+color = characteristic(['U'])
+text = ["Whenever Cephalid Constable deals combat damage to a player, return up to that many target permanents that player controls to their owners' hands."]
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+trigger = DealCombatDamageTrigger(sender=card)
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                   trigger = trigger,
+                                   match_condition = lambda to: isPlayer(to),
+                                   ability = Ability(card, target=Target(targeting=lambda t=trigger: t.to),
+                                                 effects=MoveCards(from_zone="play", to_zone="hand", number=LazyInt(lambda t=trigger: t.amount), card_types=isPermanent)))]
+
+#################################
+
+
+
+

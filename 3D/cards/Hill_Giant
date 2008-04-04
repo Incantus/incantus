@@ -1,0 +1,21 @@
+name = 'Hill Giant'
+cardnum = 212
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Giant'])
+cost = '3R'
+color = characteristic(['R'])
+text = []
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

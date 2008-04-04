@@ -1,0 +1,24 @@
+name = 'Dragon Roost'
+cardnum = 197
+expansion = '10E'
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '4RR'
+color = characteristic(['R'])
+text = ['5RR: Put a 5/5 red Dragon creature token with flying into play.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+token_role = TokenCreature(5,5)
+flying(token_role)
+token_info = {"name": "Dragon", "type": "Creature", "subtypes": ["Dragon"], "color": "R", "role": token_role}
+subrole.abilities = [ActivatedAbility(card, ManaCost("5RR"), effects=CreateToken(token_info))]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

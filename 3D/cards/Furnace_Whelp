@@ -1,0 +1,25 @@
+name = 'Furnace Whelp'
+cardnum = 205
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Dragon'])
+cost = '2RR'
+color = characteristic(['R'])
+text = ['Flying', 'R: Furnace Whelp gets +1/+0 until end of turn.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flying(subrole)
+subrole.abilities = [ActivatedAbility(card, "R",
+                          target=Target(targeting="self"),
+                          effects=AugmentPowerToughness(power=1,toughness=0))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

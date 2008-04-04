@@ -1,0 +1,15 @@
+name = 'Boomerang'
+cardnum = 70
+expansion = '10E'
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'UU'
+color = characteristic(['U'])
+text = ["Return target permanent to its owner's hand."]
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+				target=Target(target_types=isPermanent),
+				effects=ChangeZoneFromPlay(to_zone="hand"))
+]
+

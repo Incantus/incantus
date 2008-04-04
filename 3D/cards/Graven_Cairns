@@ -1,0 +1,24 @@
+name = 'Graven Cairns'
+cardnum = 0
+expansion = 'Future Sight'
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ['T: Add 1 to your mana pool.', '(B/R),T: Add BB, BR, or RR to your mana pool.']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+# XXX To do hybrid mana I have to completely redo the way mana works (can't use a pool of mana)
+
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
+                     ManaAbility(card, cost=MultipleCosts([ManaCost("BR"), TapCost()]), effects=ManaChoice(["BB", "BR", "RR"]))
+]
+
+#################################

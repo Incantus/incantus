@@ -1,0 +1,33 @@
+name = 'Goblin Warchief'
+cardnum = 97
+expansion = 'Scourge'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin'])
+cost = '1RR'
+color = characteristic(['R'])
+text = ['Goblin spells you play cost 1 less to play.','Goblin creatures you control have haste.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+
+goblin_filter = isSpell.with_condition(lambda c: c.subtypes == "Goblin")
+def compute(self, card, player, s=card, goblin_filter=goblin_filter):
+    if player == s.controller and goblin_filter(card):
+        self.final_cost[-1] -= 1
+    return True
+
+subrole.static_abilities = [PermanentTrackingAbility(card,
+                                        enter_condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.subtypes == "Goblin"),
+                                        leave_condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.subtypes == "Goblin"),
+                                        effects = GiveKeyword(haste, expire=False, keyword='haste')),
+			    GlobalStaticAbility(card,
+                               effects=OverrideGlobal(compute, "compute", ManaCost, logical_and, reverse=False, expire=False))]
+
+#################################

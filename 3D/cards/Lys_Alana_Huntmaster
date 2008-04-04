@@ -1,0 +1,28 @@
+name = 'Lys Alana Huntmaster'
+cardnum = 229
+expansion = 'Lorwyn'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf', 'Warrior'])
+cost = '2GG'
+color = characteristic(['G'])
+text = ["Whenever you play an Elf spell, you may put a 1/1 green Elf Warrior creature token into play."]
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                      trigger=CardTrigger(event=PlaySpellEvent()),
+                                      match_condition=CardMatch(lambda card, self=card: card.controller == self.controller and card.subtypes == "Elf"),
+                                      ability=ChoiceAbility(card, "0", msg="put 1/1 green Elf Warrior token into play?",
+                                                 effects=CreateToken(token_info={"name": "Elf Warrior", "type": "Creature", "subtypes": ["Elf", "Warrior"], "color": "G", "role": TokenCreature(1,1)})))
+]
+subrole.static_abilities = []
+
+#################################
+

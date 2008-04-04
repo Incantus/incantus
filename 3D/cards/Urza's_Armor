@@ -1,0 +1,23 @@
+name = 'Urza\'s Armor'
+cardnum = 318
+expansion = '8E'
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '6'
+color = characteristic(['C'])
+text = ['If a source would deal damage to you, prevent 1 of that damage.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = [GlobalStaticAbility(card,
+                                        effects= GiveKeyword(lambda target: prevent_damage(target, 1, "Urza's Armor - prevent 1 damage", next=False), expire=False))
+]
+
+#################################

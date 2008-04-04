@@ -1,0 +1,14 @@
+name = "Warrior's Honor"
+cardnum = 58
+expansion = '10E'
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2W'
+color = characteristic(['W'])
+text = ['Creatures you control get +1/+1 until end of turn.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+                                target=AllPermanentTargets(target_types=isCreature.with_condition(lambda c, self=card: c.controller==self.controller)),
+                                effects=ForEach(AugmentPowerToughness(1,1)))
+]

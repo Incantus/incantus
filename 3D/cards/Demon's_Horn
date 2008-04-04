@@ -1,0 +1,25 @@
+name = "Demon's Horn"
+cardnum = 320
+expansion = '10E'
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2'
+color = characteristic(['C'])
+text = ['Whenever a player plays a black spell, you may gain 1 life.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = CardTrigger(event=PlaySpellEvent()),
+                                        match_condition = CardMatch(lambda card: card.color == "B"),
+                                        ability = ChoiceAbility(card, effects = ChangeLife(1)))
+]
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,23 @@
+name = 'Mind Stone'
+cardnum = 335
+expansion = '10E'
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2'
+color = characteristic(['C'])
+text = ['T Add 1 to your mana pool.', '1, T, Sacrifice Mind Stone: Draw a card.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana("1")),
+                     ActivatedAbility(card, MultipleCosts([ManaCost("1"), TapCost(), SacrificeCost()]),                                effects=DrawCard(1))
+]
+
+#################################
+
+

@@ -1,0 +1,28 @@
+name = 'Yavimaya Dryad'
+cardnum = 235
+expansion = 'Time Spiral'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Dryad'])
+cost = '1GG'
+color = characteristic(['G'])
+text = ["Forestwalk", "When Yavimaya Dryad comes into play, you may search your library for a Forest card and put it into play tapped under target player's control. If you do, shuffle your library."]
+
+subrole = Creature(2, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+forestwalk(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                      trigger = EnterTrigger("play"),
+                                      match_condition=SelfMatch(card),
+                                      ability=ChoiceAbility(card, cost="0", msg="search library for Forest to put into play under target player's control?",
+						effects=MoveCards(from_zone="library", to_zone="play", card_types=isLandType.with_condition(lambda l: l.subtypes == "Forest"), number=1, func=lambda card: card.tap())))
+]
+subrole.static_abilities = []
+
+#################################
+

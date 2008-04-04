@@ -1,0 +1,30 @@
+name = 'Sculpting Steel'
+cardnum = 342
+expansion = '10E'
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3'
+color = characteristic(['C'])
+text = ['As Sculpting Steel comes into play, you may choose an artifact in play. If you do, Sculpting Steel comes into play as a copy of that artifact.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+# XXX This doesn't do the comes into play properly
+# see http://ww2.wizards.com/gatherer/CardDetails.aspx?&id=135241
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = EnteringTrigger("play"),
+                                        match_condition = SelfMatch(card),
+                                        ability = ChoiceAbility(card, 0, msg="clone artifact in play?",
+                                                choice_target = Target(targeting="controller"),
+                                                target = Target(target_types=isArtifact),
+                                                effects = Clone()))
+]
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,33 @@
+name = 'Windborn Muse'
+cardnum = 60
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Spirit'])
+cost = '3W'
+color = characteristic(['W'])
+text = ['Flying', "Creatures can't attack you unless their controller pays 2 for each creature he or she controls that's attacking you."]
+
+subrole = Creature(2, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flying(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+
+def computeAttackCost(self, s=card):
+    player = self.perm.card.controller
+    if not player == s.controller:
+        self.attack_cost.append(ManaCost("2"))
+    return True
+
+subrole.static_abilities = [GlobalStaticAbility(card,
+                                  effects=OverrideGlobal(computeAttackCost, "computeAttackCost", Creature, combiner=logical_and, expire=False))
+]
+
+#################################
+
+

@@ -1,0 +1,28 @@
+name = 'Dehydration'
+cardnum = 78
+expansion = '10E'
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic(['Aura'])
+cost = '3U'
+color = characteristic(['U'])
+text = ['Enchant creature', "Enchanted creature doesn't untap during its controller's untap step."]
+
+target_type = isCreature
+out_play_role.abilities = [CastPermanentSpell(card, cost,
+                               target=Target(target_types=target_type),
+                               effects=AttachToPermanent())]
+subrole = Aura(target_type)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+subrole.attached_abilities = [AuraStaticAbility(card,
+                                        effects=GiveKeyword(lambda role: override(role, "canUntap", lambda self: False), keyword="Doesn't untap", expire=False))
+]
+
+#################################

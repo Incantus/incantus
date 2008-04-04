@@ -1,0 +1,26 @@
+name = 'Thieving Magpie'
+cardnum = 115
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Bird'])
+cost = '2UU'
+color = characteristic(['U'])
+text = ['Flying', 'Whenever Thieving Magpie deals damage to an opponent, you draw a card.']
+
+subrole = Creature(1, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = DealDamageTrigger(sender=card),
+                                        match_condition = lambda sender, to: isPlayer(to) and not to == sender.controller,                        
+                                        ability = Ability(card, target=Target(targeting="controller"),
+                                                    effects=DrawCard(1)))
+]
+subrole.static_abilities = []
+
+#################################

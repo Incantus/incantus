@@ -1,0 +1,22 @@
+name = 'Starlight Invoker'
+cardnum = 47
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Cleric', 'Mutant'])
+cost = '1W'
+color = characteristic(['W'])
+text = ['7W: You gain 5 life.']
+
+subrole = Creature(1, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, "7W",
+                                effects=ChangeLife(5))]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

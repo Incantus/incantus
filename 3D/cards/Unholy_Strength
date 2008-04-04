@@ -1,0 +1,28 @@
+name = 'Unholy Strength'
+cardnum = 185
+expansion = '10E'
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic(['Aura'])
+cost = 'B'
+color = characteristic(['B'])
+text = ['Enchant creature', 'Enchanted creature gets +2/+1.']
+
+target_type = isCreature
+out_play_role.abilities = [CastPermanentSpell(card, cost,
+                               target=Target(target_types=target_type),
+                               effects=AttachToPermanent())]
+subrole = Aura(target_type)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+subrole.attached_abilities = [AuraStaticAbility(card,
+                                        effects=AugmentPowerToughness(power=2,toughness=1,expire=False))
+]
+
+#################################

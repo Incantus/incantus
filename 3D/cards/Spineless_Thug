@@ -1,0 +1,23 @@
+name = 'Spineless Thug'
+cardnum = 180
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Zombie', 'Mercenary'])
+cost = '1B'
+color = characteristic(['B'])
+text = ["Spineless Thug can't block."]
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+def canBlock(self): return False
+override(subrole, "canBlock", canBlock)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

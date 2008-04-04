@@ -1,0 +1,24 @@
+name = 'Elven Riders'
+cardnum = 259
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf'])
+cost = '3GG'
+color = characteristic(['G'])
+text = ["Elven Riders can't be blocked except by Walls and/or creatures with flying."]
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+def canBeBlockedBy(self, blocker): return "flying" in blocker.keywords or blocker.subtypes == "Wall"
+override(subrole, "canBeBlockedBy", canBeBlockedBy)
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,23 @@
+name = 'Karplusan Strider'
+cardnum = 272
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Yeti'])
+cost = '3G'
+color = characteristic(['G'])
+text = ["Karplusan Strider can't be the target of blue or black spells."]
+
+subrole = Creature(3, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+def canBeTargetedBy(self, targeter): return not (isSpell(targeter) and (targeter.color == "U" or targeter.color == "B"))
+override(subrole, "canBeTargetedBy", canBeTargetedBy)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

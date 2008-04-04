@@ -1,0 +1,12 @@
+name = 'Harmonize'
+cardnum = 149
+expansion = 'Planar Chaos'
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2GG'
+color = characteristic(['U'])
+text = ['Draw three cards.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost, effects=DrawCard(3))
+]

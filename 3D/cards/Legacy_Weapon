@@ -1,0 +1,29 @@
+name = 'Legacy Weapon'
+cardnum = 330
+expansion = '10E'
+type = characteristic('Legendary Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '7'
+color = characteristic(['C'])
+text = ['WUBRG: Remove target permanent from the game.', "If Legacy Weapon would be put into a graveyard from anywhere, reveal Legacy Weapon and shuffle it into its owner's library instead."]
+
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+# XXX Doesn't do the move to graveyard as a replacement
+subrole.abilities = [ActivatedAbility(card, "WUBRG",
+                           target=Target(target_types=isPermanent),
+                           effects=ChangeZoneFromPlay(to_zone="removed")),
+]
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger=EnterTrigger(zone="graveyard"),
+                                        match_condition=SelfMatch(card),
+                                        always_on=True,
+                                        ability=Ability(card, target=[Target(targeting="controller"), Target(targeting="self")],
+                                                effects=[RevealCard(), ShuffleIntoLibrary()]))]
+subrole.static_abilities = []
+
+#################################

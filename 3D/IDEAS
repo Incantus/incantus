@@ -1,0 +1,11 @@
+
+from Nico:
+
+Transparent console log, accessible by TAB key
+Card hand moves too quickly, scale by mouse acceleration
+Too easy to accidentally play a zero cost card, make playing require a double click
+Add turn stops
+
+Long term - 
+
+Integrate the way abilities are resolved so there is no duplication of code (see resolve.txt)

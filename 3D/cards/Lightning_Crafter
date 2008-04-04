@@ -1,0 +1,22 @@
+name = "Lightning Crafter"
+cardnum = 93
+expansion = 'Morningtide'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin', 'Shaman'])
+cost = '3R'
+color = characteristic(['R'])
+text = ['Champion a Goblin or Shaman', 'T: Lightning Crafter deals 3 damage to target creature or player.']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, TapCost(), target=Target(target_types=isPlayerOrCreature), effects=DealDamage(3))]
+subrole.triggered_abilities = []
+champion(subrole, card)
+subrole.static_abilities = []
+
+#################################

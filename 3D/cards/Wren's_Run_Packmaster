@@ -1,0 +1,26 @@
+name = "Wren's Run Packmaster"
+cardnum = 244
+expansion = 'Lorwyn'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf', 'Warrior'])
+cost = '3G'
+color = characteristic(['G'])
+text = ['Champion an Elf', '2G: Put a 2/2 green Wolf creature token into play.', 'Each Wolf you control has deathtouch.']
+
+subrole = Creature(5, 5)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, "2G", effects=CreateToken(token_info={"name": "Wolf", "type": "Creature", "subtypes": ["Wolf"], "color": "G", "role": TokenCreature(2,2)}))]
+subrole.triggered_abilities = []
+champion(subrole, card, subtypes="Elf")
+subrole.static_abilities = [PermanentTrackingAbility(card,
+                                        enter_condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.subtypes == "Wolf"),
+                                        leave_condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.subtypes == "Wolf"),
+                                        effects = GiveKeyword(lambda role: deathtouch(role, in_play=True), expire=False))
+]
+
+#################################

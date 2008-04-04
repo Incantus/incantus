@@ -1,0 +1,24 @@
+name = 'Pendelhaven'
+cardnum = 120
+expansion = 'Legends'
+type = characteristic('Land')
+supertype = characteristic('Legendary')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ["T: Add G to your mana pool.", "T: Target 1/1 creature gets +1/+2 until end of turn."]
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('G')),
+                     ActivatedAbility(card, cost=TapCost(),
+                           target=Target(target_types=isCreature.with_condition(lambda c: c.power == 1 and c.toughness == 1)),
+                           effects=AugmentPowerToughness(power=1,toughness=2))
+]
+
+#################################

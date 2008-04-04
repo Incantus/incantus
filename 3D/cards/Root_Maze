@@ -1,0 +1,30 @@
+name = 'Root Maze'
+cardnum = 292
+expansion = '10E'
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'G'
+color = characteristic(['G'])
+text = ['Artifacts and lands come into play tapped.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+
+# XXX This isn't quite right, because it will cause a tap event
+
+def after_card_added(self, card):
+    if card.type == "Artifact" or card.type == "Land":
+        card.tap() #trigger=False)
+
+from Zone import Play
+subrole.static_abilities = [GlobalStaticAbility(card,
+                                  effects=OverrideGlobal(after_card_added, "after_card_added", Play, combiner=logical_or, expire=False))]
+
+#################################

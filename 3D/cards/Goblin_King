@@ -1,0 +1,26 @@
+name = 'Goblin King'
+cardnum = 207
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin'])
+cost = '1RR'
+color = characteristic(['R'])
+text = ['Other Goblin creatures get +1/+1 and have mountainwalk.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = [PermanentTrackingAbility(card,
+                                        enter_condition = isCreature.with_condition(lambda c, self=card: not c == self and c.subtypes == "Goblin"),
+                                        leave_condition = isCreature.with_condition(lambda c, self=card: not c == self and c.subtypes == "Goblin"),
+                                        effects = [AugmentPowerToughness(power=1, toughness=1, expire=False),
+                                                   GiveKeyword(mountainwalk, expire=False)])
+]
+
+#################################

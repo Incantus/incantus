@@ -1,0 +1,44 @@
+name = 'Hostility'
+cardnum = 176
+expansion = 'Lorwyn'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental', 'Incarnation'])
+cost = '3RRR'
+color = characteristic(['R'])
+text = ["Haste", "If a spell you control would deal damage to an opponent, prevent that damage. Put a 3/1 red Elemental Shaman creature token with haste into play for each 1 damage prevented this way.", "When Hostility is put into a graveyard from anywhere, shuffle it into its owner's library."]
+
+subrole = Creature(6, 6)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+haste(subrole)
+
+subrole.abilities = []
+
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger=EnterTrigger(zone="graveyard"),
+                                        match_condition=SelfMatch(card),
+                                        always_on=True,
+                                        ability=Ability(card, target=Target(targeting="self"),
+                                                effects=ShuffleIntoLibrary()))
+]
+
+def condition(amt, source, combat, card=card):
+    return isSpell(source) and source.controller == card.controller
+
+def replaceDamage(self, amt, source, combat=False, card=card):
+    '''Hostility - damage becomes tokens'''
+    c = TokenCreature(3, 1)
+    haste(c)
+    effect = CreateToken(number=amt, token_info={"name": "Elemental Shaman", "type": "Creature", "subtypes": ["Elemental", "Shaman"], "color": "R", "role": c})
+    effect(card,card.controller)
+
+from Player import Player
+subrole.static_abilities = [GlobalStaticAbility(card,
+                                         OverrideGlobalReplacement(replaceDamage, "assignDamage", Player, expire=False, condition=condition))]
+
+#################################
+

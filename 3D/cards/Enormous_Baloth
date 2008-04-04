@@ -1,0 +1,21 @@
+name = 'Enormous Baloth'
+cardnum = 263
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Beast'])
+cost = '6G'
+color = characteristic(['G'])
+text = []
+
+subrole = Creature(7, 7)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

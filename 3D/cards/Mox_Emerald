@@ -1,0 +1,27 @@
+name = 'Mox Emerald'
+cardnum = 262
+expansion = 'Beta'
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '0'
+color = characteristic(['C'])
+text = ['T Add G to your mana pool.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana("G"))]
+
+#################################
+
+
+
+
+
+
+
+

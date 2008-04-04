@@ -1,0 +1,32 @@
+name = "Serra's Embrace"
+cardnum = 40
+expansion = '10E'
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic(['Aura'])
+cost = '2WW'
+color = characteristic(['W'])
+text = ['Enchant creature', 'Enchanted creature gets +2/+2 and has flying and vigilance.']
+
+target_type = isCreature
+out_play_role.abilities = [CastPermanentSpell(card, cost,
+                               target=Target(target_types=target_type),
+                               effects=AttachToPermanent())]
+subrole = Aura(target_type)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+subrole.attached_abilities = [AuraStaticAbility(card,
+                                        effects=AugmentPowerToughness(power=2,toughness=2,expire=False)),
+                                 AuraStaticAbility(card,
+                                        effects=GiveKeyword(flying, keyword="flying", expire=False)),
+                                 AuraStaticAbility(card,
+                                        effects=GiveKeyword(vigilance, keyword="vigilance", expire=False))
+]                                               
+
+#################################

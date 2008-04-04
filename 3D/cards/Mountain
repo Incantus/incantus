@@ -1,0 +1,20 @@
+name = 'Mountain'
+cardnum = 379
+expansion = '10E'
+type = characteristic('Land')
+supertype = characteristic('Basic')
+subtypes = characteristic(['Mountain'])
+cost = ''
+color = characteristic(['R'])
+text = ['[R]']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('R'))]
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+
+#################################

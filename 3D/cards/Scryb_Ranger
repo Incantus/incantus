@@ -1,0 +1,29 @@
+name = 'Scryb Ranger'
+cardnum = 215
+expansion = 'Time Spiral'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Faerie'])
+cost = '1G'
+color = characteristic(['G'])
+text = ["Flash", "Flying", "Protection from blue", "Return a Forest you control to its owner's hand: Untap target creature. Play this ability only once each turn."]
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flash(card)
+flying(subrole)
+protection_from_blue(subrole)
+
+subrole.abilities = [ActivatedAbility(card, cost=ReturnToHandCost(cardtypes=isLand.with_condition(lambda c: c.subtypes=="Forest")),
+				target=Target(target_types=isCreature),
+				effects=UntapTargetPermanent(),
+				limit=CountLimit(card, 1))]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################
+

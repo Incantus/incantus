@@ -1,0 +1,28 @@
+name = 'Hypnotic Specter'
+cardnum = 151
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Specter'])
+cost = '1BB'
+color = characteristic(['B'])
+text = ['Flying', 'Whenever Hypnotic Specter deals damage to an opponent, that player discards a card at random.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flying(subrole)
+subrole.abilities = []
+trigger = DealDamageTrigger(sender=card)
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = trigger,
+                                        match_condition = lambda to, card=card: isPlayer(to) and not to == card.controller,
+                                        ability = Ability(card, target=Target(targeting=lambda t=trigger:t.to),
+                                                    effects=DiscardCard(1, random=True)))
+]
+subrole.static_abilities = []
+
+#################################

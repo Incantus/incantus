@@ -1,0 +1,25 @@
+name = 'Primal Rage'
+cardnum = 286
+expansion = '10E'
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1G'
+color = characteristic(['G'])
+text = ['Creatures you control have trample.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = [PermanentTrackingAbility(card,
+                                        enter_condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller),
+                                        leave_condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller),
+                                        effects = GiveKeyword(trample, keyword="trample", expire=False))
+]
+
+#################################

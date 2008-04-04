@@ -1,0 +1,22 @@
+name = 'Plague Beetle'
+cardnum = 168
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Insect'])
+cost = 'B'
+color = characteristic(['B'])
+text = ['Swampwalk']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+swampwalk(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

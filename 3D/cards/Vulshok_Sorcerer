@@ -1,0 +1,23 @@
+name = 'Vulshok Sorcerer'
+cardnum = 80
+expansion = 'Fifth Dawn'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Shaman'])
+cost = '1RR'
+color = characteristic(['R'])
+text = ['Haste', 'T Vulshok Sorcerer deals 1 damage to target creature or player.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+haste(subrole)
+subrole.abilities = [ActivatedAbility(card, TapCost(), target=Target(target_types=isCreatureOrPlayer), effects=DealDamage(1))]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################
+

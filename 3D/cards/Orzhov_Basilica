@@ -1,0 +1,33 @@
+name = 'Orzhov Basilica'
+cardnum = 161
+expansion = 'Guildpact'
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ['Orzhov Basilica comes into play tapped.','When Orzhov Basilica comes into play, return a land you control to its owner\'s hand.','T: Add WB to your mana pool.']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+in_play_role.tapped = True
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('WB')),]
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                      trigger = EnterTrigger("play"),
+                                      match_condition=SelfMatch(card),
+                                      ability=PostponedAbility(card, target=Target(target_types=isLand, zone_limit="controller", required=True),
+                                                effects=ChangeZoneFromPlay(to_zone="hand")))]
+
+#################################
+
+
+
+
+
+
+

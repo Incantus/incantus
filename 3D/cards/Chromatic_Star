@@ -1,0 +1,29 @@
+name = 'Chromatic Star'
+cardnum = 314
+expansion = '10E'
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1'
+color = characteristic(['C'])
+text = ['1, T, Sacrifice Chromatic Star: Add one mana of any color to your mana pool.', 'When Chromatic Star is put into a graveyard from play, draw a card.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ManaAbility(card,
+                        cost=MultipleCosts([ManaCost("1"), TapCost(), SacrificeCost()]),
+                        effects=ManaChoice(["W","B","G","U","R"]))]
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                    trigger=EnterFromTrigger(from_zone="play", to_zone="graveyard"),
+                                    match_condition=SelfMatch(card),
+                                    ability=Ability(card, effects=DrawCard(1)))
+]
+
+#################################
+
+
+

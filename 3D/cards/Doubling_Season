@@ -1,0 +1,28 @@
+name = 'Doubling Season'
+cardnum = 158
+expansion = 'Ravnica'
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '4G'
+color = characteristic(['G'])
+text = ["If an effect would put one or more tokens into play under your control, it puts twice that many of those tokens into play instead.", "If an effect would place one or more counters on a permanent you control, it places twice that many of those counters on that permanent instead."]
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+# XXX This doesn't work exactly as planned, unless I use the Effects class for cards that come into play
+# with counters
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = [GlobalStaticAbility(card,
+                                        effects=OverrideGlobalReplacement(lambda self: 2*self.number, "get_number", CreateToken, expire=False)),
+			    GlobalStaticAbility(card,
+                                        effects=OverrideGlobalReplacement(lambda self: 2*self.number, "get_number", AddCounter, expire=False)),
+]
+
+#################################

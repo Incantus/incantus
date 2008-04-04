@@ -1,0 +1,27 @@
+name = 'Howling Mine'
+cardnum = 325
+expansion = '10E'
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2'
+color = characteristic(['C'])
+text = ["At the beginning of each player's draw step, if Howling Mine is untapped, that player draws a card."]
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger=Trigger(event=DrawStepEvent()),
+                                        match_condition=lambda sender, card=card: not card.tapped,
+                                        ability=Ability(card,
+                                                target=Target("current_player"),
+                                                effects=DrawCard(1)))
+]
+subrole.static_abilities = []
+
+#################################

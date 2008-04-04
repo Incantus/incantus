@@ -1,0 +1,40 @@
+name = 'Sengir Vampire'
+cardnum = 176
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Vampire'])
+cost = '3BB'
+color = characteristic(['B'])
+text = ['Flying', 'Whenever a creature dealt damage by Sengir Vampire this turn is put into a graveyard, put a +1/+1 counter on Sengir Vampire.']
+
+subrole = Creature(4, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flying(subrole)
+subrole.abilities = []
+te = TriggerEffect()
+t = ReceiveDamageTrigger()
+# This isn't quite right, because if a card leaves play in between being damaged and going to the graveyard
+# the Sengir Vampire will still trigger, and it only works for one creature
+
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = t,
+                                        match_condition = lambda sender, source, c=card, te=te: source == c and te.setData(("sender",sender)),
+                                        ability = StacklessAbility(card, effects=te)),
+                                    TriggeredAbility(card,
+                                        trigger=EnterTrigger(card.owner.opponent.graveyard),
+                                        match_condition = lambda card, te=te: te.trigger and card == te.sender,
+                                        ability = Ability(card, target=Target(targeting="self"),
+                                                effects = AugmentPowerToughness(power=1,toughness=1,expire=False))),
+                                    TriggeredAbility(card,
+                                        trigger = Trigger(event=CleanupEvent()),
+                                        match_condition = lambda sender, te=te: te.trigger,
+                                        ability = StacklessAbility(card, effects=NullEffect(lambda s, t, te=te: te.reset())))
+]
+subrole.static_abilities = []
+
+#################################

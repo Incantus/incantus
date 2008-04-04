@@ -1,0 +1,28 @@
+name = 'Troll Ascetic'
+cardnum = 305
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Troll', 'Shaman'])
+cost = '1GG'
+color = characteristic(['G'])
+text = ["Troll Ascetic can't be the target of spells or abilities your opponents control.", '1G: Regenerate Troll Ascetic.']
+
+subrole = Creature(3, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+def canBeTargetedBy(self, targeter, card=card):
+    return targeter.controller == card.controller
+
+override(subrole, "canBeTargetedBy", canBeTargetedBy)
+
+subrole.abilities = [ActivatedAbility(card, "1G",
+                                target=Target(targeting="self"),
+                                effects=GiveKeyword(regenerate, keyword="regenerate"))]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

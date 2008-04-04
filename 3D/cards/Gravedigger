@@ -1,0 +1,25 @@
+name = 'Gravedigger'
+cardnum = 146
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Zombie'])
+cost = '3B'
+color = characteristic(['B'])
+text = ['When Gravedigger comes into play, you may return target creature card from your graveyard to your hand.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger=EnterTrigger("play"),
+                                        match_condition = SelfMatch(card),
+                                        ability = ChoiceAbility(card, effects=MoveCards(from_zone="graveyard", to_zone="hand", card_types=isCreatureType, number=1)))
+]
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,22 @@
+name = 'Goblin Sledder'
+cardnum = 209
+expansion = 'Onslaught'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin'])
+cost = 'R'
+color = characteristic(['R'])
+text = ['Sacrifice a Goblin: Target creature gets +1/+1 until end of turn.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, SacrificeCost(cardtype=isCreature.with_condition(lambda c: c.subtypes == "Goblin")), target=Target(target_types=isCreature), effects=AugmentPowerToughness(1, 1, expire=True))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

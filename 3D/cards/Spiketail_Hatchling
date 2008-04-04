@@ -1,0 +1,26 @@
+name = 'Spiketail Hatchling'
+cardnum = 111
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Drake'])
+cost = '1U'
+color = characteristic(['U'])
+text = ['Flying', 'Sacrifice Spiketail Hatchling: Counter target spell unless its controller pays 1.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flying(subrole)
+subrole.abilities = [DoOrAbility(card, cost=SacrificeCost(),
+                                target=Target(targeting="opponent"),
+                                failure_target=CounterTarget(target_types=isSpellAbility),
+                                effects=PayExtraCost("1"),
+                                failed=CounterAbility())]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

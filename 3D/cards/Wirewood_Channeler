@@ -1,0 +1,31 @@
+name = 'Wirewood Channeler'
+cardnum = 144
+expansion = "Legions"
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf', 'Druid'])
+cost = '3G'
+color = characteristic(['G'])
+text = ['T Add X mana of any one color to your mana pool, where X is the number of Elves in play.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+def num_elves(card=card):
+    num = len(card.controller.play.get(isPermanent.with_condition(lambda p: p.subtypes == "Elf")))
+    num2 = len(card.controller.opponent.play.get(isPermanent.with_condition(lambda p: p.subtypes == "Elf")))
+    return [c*(num+num2) for c in "RGBWU"]
+
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=ManaChoice(num_elves))]
+
+#################################
+
+
+
+
+
+
+

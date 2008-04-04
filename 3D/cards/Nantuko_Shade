@@ -1,0 +1,27 @@
+name = 'Nantuko Shade'
+cardnum = 74
+expansion = 'Torment'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Insect','Shade'])
+cost = 'BB'
+color = characteristic(['B'])
+text = ['B: Nantuko Shade gets +1/+1 until end of turn.']
+
+subrole = Creature(2, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, "B",
+                                target=Target(targeting="self"),
+                                effects=AugmentPowerToughness(power=1,toughness=1))]
+
+#################################
+
+
+
+
+
+

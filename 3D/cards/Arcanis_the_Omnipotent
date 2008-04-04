@@ -1,0 +1,23 @@
+name = 'Arcanis the Omnipotent'
+cardnum = 66
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('Legendary')
+subtypes = characteristic(['Wizard'])
+cost = '3UUU'
+color = characteristic(['U'])
+text = ['T Draw three cards.', "2UU: Return Arcanis the Omnipotent to its owner's hand."]
+
+subrole = Creature(3, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, TapCost(), effects=DrawCard(3)),
+                     ActivatedAbility(card, "2UU", target=Target("self"), effects=ChangeZoneFromPlay(to_zone="hand"))
+]
+
+#################################
+
+

@@ -1,0 +1,27 @@
+name = 'Briarhorn'
+cardnum = 199
+expansion = 'Lorwyn'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental'])
+cost = '3G'
+color = characteristic(['G'])
+text = ['Flash', 'When Briarhorn comes into play, target creature gets +3/+3 until end of turn.', 'Evoke 1G']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flash(card)
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                      trigger = EnterTrigger("play"),
+                                      match_condition=SelfMatch(card),
+                                      ability=Ability(card, target=Target(target_types=isCreature, required=True),
+                                                 effects=AugmentPowerToughness(3,3)))
+]
+evoke(subrole, card, "1G")
+
+#################################
+

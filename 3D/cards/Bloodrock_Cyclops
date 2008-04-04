@@ -1,0 +1,20 @@
+name = 'Bloodrock Cyclops'
+cardnum = 192
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Cyclops'])
+cost = '2R'
+color = characteristic(['R'])
+text = ['Bloodrock Cyclops attacks each turn if able.']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+must_attack(subrole)
+
+#################################
+

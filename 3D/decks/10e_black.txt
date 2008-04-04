@@ -1,0 +1,21 @@
+17  Swamp
+1  Ascendant Evincar
+1  Bottle Gnomes
+1  Dross Crocodile
+1  Drudge Skeletons
+1  Gravedigger
+1  Looming Shade
+1  Mass of Ghouls
+1  Mortivore
+2  Severed Legion
+1  Thrull Surgeon
+2  Vampire Bats
+1  Assassinate
+1  Consume Spirit
+1  Cruel Edict
+1  Demon's Horn
+1  Diabolic Tutor
+1  Essence Drain
+2  Mind Rot
+1  Terror
+1  Unholy Strength

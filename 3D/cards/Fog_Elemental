@@ -1,0 +1,34 @@
+name = 'Fog Elemental'
+cardnum = 85
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental'])
+cost = '2U'
+color = characteristic(['U'])
+text = ['Flying', 'When Fog Elemental attacks or blocks, sacrifice it at end of combat.']
+
+subrole = Creature(4, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flying(subrole)
+te = TriggerEffect()
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = Trigger(AttackerDeclaredEvent()),
+                                        match_condition = SelfMatch(card),
+                                        ability = StacklessAbility(card, effects=te)),
+                                    TriggeredAbility(card,
+                                        trigger = Trigger(BlockerDeclaredEvent()),
+                                        match_condition = SelfMatch(card),
+                                        ability = StacklessAbility(card, effects=te)),
+                                    TriggeredAbility(card,
+                                        trigger = Trigger(event=EndCombatEvent()),
+                                        match_condition = lambda sender, t=te: t.trigger==True,
+                                        ability = Ability(card, effects=SacrificeSelf()))
+]
+
+#################################
+

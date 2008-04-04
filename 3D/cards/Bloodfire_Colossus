@@ -1,0 +1,23 @@
+name = 'Bloodfire Colossus'
+cardnum = 191
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Giant'])
+cost = '6RR'
+color = characteristic(['R'])
+text = ['R, Sacrifice Bloodfire Colossus: Bloodfire Colossus deals 6 damage to each creature and each player.']
+
+subrole = Creature(6, 6)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, cost=MultipleCosts([ManaCost("R"), SacrificeCost()]),
+                                target=[AllPlayerTargets(), AllPermanentTargets(target_types=isCreature)],
+                                effects=[ForEach(DealDamage(6)),ForEach(DealDamage(6))])
+]
+
+#################################
+

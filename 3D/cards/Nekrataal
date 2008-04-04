@@ -1,0 +1,28 @@
+name = 'Nekrataal'
+cardnum = 163
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Assassin'])
+cost = '2BB'
+color = characteristic(['B'])
+text = ['First strike', "When Nekrataal comes into play, destroy target nonartifact, nonblack creature. That creature can't be regenerated."]
+
+subrole = Creature(2, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+first_strike(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger=EnterTrigger("play"),
+                                        match_condition = SelfMatch(card),
+                                        ability=Ability(card,
+                                                  target=Target(target_types=isCreature.with_condition(lambda creature: not creature.color == "B" and not creature.type == "Artifact"), required=True),
+                                                  effects=DestroyNoRegenerate()))
+]
+subrole.static_abilities = []
+
+#################################

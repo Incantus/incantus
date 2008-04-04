@@ -1,0 +1,26 @@
+name = 'Nomad Mythmaker'
+cardnum = 30
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Nomad', 'Cleric'])
+cost = '2W'
+color = characteristic(['W'])
+text = ['W, T: Put target Aura card in a graveyard into play attached to a creature you control.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+# XXX Selecting the creature to target occurs when the effect resolves, not when it is put on the stack
+
+target = Target(target_types=isCreature.with_condition(lambda c, self=card: c.controller==self.controller))
+subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("W"), TapCost()]),
+				target=[Target(target_types=isAuraType.with_condition(lambda aura: aura.in_play_role.target_types == isCreature), zone="graveyard"), target],
+				effects=[ChangeZone(from_zone="graveyard", to_zone="play", func=lambda aura, target=target: aura.attach(target.target)), NullEffect()],
+				 copy_targets=False)]
+subrole.static_abilities = []
+
+#################################

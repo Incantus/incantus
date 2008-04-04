@@ -1,0 +1,29 @@
+name = 'Mox Jet'
+cardnum = 263
+expansion = 'Beta'
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '0'
+color = characteristic(['C'])
+text = ['T Add B to your mana pool.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana("B"))]
+
+#################################
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,26 @@
+name = 'Quirion Dryad'
+cardnum = 287
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Dryad'])
+cost = '1G'
+color = characteristic(['G'])
+text = ['Whenever you play a white, blue, black, or red spell, put a +1/+1 counter on Quirion Dryad.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = CardTrigger(event=PlaySpellEvent()),
+                                        match_condition = CardMatch(lambda card, colors=["W", "U", "B", "R"], self=card: card.color in colors and card.controller == self.controller),
+							ability = Ability(card, target=Target(targeting="self"),
+                                                        effects = AddPowerToughnessCounter(power=1,toughness=1)))
+]
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,31 @@
+name = 'Stampeding Wildebeests'
+cardnum = 300
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Antelope', 'Beast'])
+cost = '2GG'
+color = characteristic(['G'])
+text = ['Trample', "At the beginning of your upkeep, return a green creature you control to its owner's hand."]
+
+subrole = Creature(5, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+trample(subrole)
+# XXX The triggered ability shouldn't be targeted (see http://ww2.wizards.com/gatherer/CardDetails.aspx?&id=135264)
+# Also PostponeTargeting has been redefined as a mixin
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                      trigger = PlayerTrigger(event=UpkeepStepEvent()),
+                                      match_condition = lambda player, card=card: player == card.controller,
+                                      ability = PostponedAbility(card,
+                                                        target=Target(target_types=isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.color == "G"), required=True, untargeted=True),
+                                                        effects=ChangeZoneFromPlay(to_zone="hand")))
+]
+
+subrole.static_abilities = []
+
+#################################

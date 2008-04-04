@@ -1,0 +1,22 @@
+name = 'Elvish Berserker'
+cardnum = 260
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf', 'Berserker'])
+cost = 'G'
+color = characteristic(['G'])
+text = ['Whenever Elvish Berserker becomes blocked, it gets +1/+1 until end of turn for each creature blocking it.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+berserker(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

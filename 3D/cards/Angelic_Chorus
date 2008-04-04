@@ -1,0 +1,27 @@
+name = 'Angelic Chorus'
+cardnum = 4
+expansion = '10E'
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3WW'
+color = characteristic(['W'])
+text = ['Whenever a creature comes into play under your control, you gain life equal to its toughness.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+trigger = EnterTrigger("play")
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                      trigger=trigger,
+                                      match_condition=isCreature,
+                                      #match_condition = lambda card, self=card: isCreature(card) and card.controller==self.controller,
+                                      ability=Ability(card, target=Target("controller"),
+                                                 effects=ChangeLife(lambda l, t=trigger:l+t.matched_card.toughness)))]
+
+#################################
+
+

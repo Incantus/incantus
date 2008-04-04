@@ -1,0 +1,24 @@
+name = 'Drudge Skeletons'
+cardnum = 139
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Skeleton'])
+cost = '1B'
+color = characteristic(['B'])
+text = ['B: Regenerate Drudge Skeletons.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, "B",
+                                target=Target(targeting="self"),
+                                effects=GiveKeyword(regenerate, keyword="regenerate"))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

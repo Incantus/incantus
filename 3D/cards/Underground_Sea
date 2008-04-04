@@ -1,0 +1,27 @@
+name = 'Underground Sea'
+cardnum = 286
+expansion = 'Beta'
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic(['Island','Swamp'])
+cost = ''
+color = characteristic(['C'])
+text = ['T Add U or B to your mana pool.']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=ManaChoice(["U", "B"]))]
+
+#################################
+
+
+
+
+
+
+

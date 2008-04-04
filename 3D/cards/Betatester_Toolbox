@@ -1,0 +1,64 @@
+name = 'Betatester Toolbox'
+cardnum = 1
+expansion = 'Testing'
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '0'
+color = characteristic(['C'])
+text = ['0 Target player draws a card', '0 Target player discards a card', '0 Add one mana of any color to your mana pool', "0 Return target card from any graveyard to its owner's hand", "0 Return target permanent to its owner's hand", '0 Take an extra turn after this one']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+token_info = {"name": "Elf", "type": "Creature", "subtypes": ["Elf"], "color": "G", "role": TokenCreature(2,2)}
+
+subrole.abilities = [
+  ManaAbility(card, cost="0", effects=AddMana(amt="BBBBBWWWWWGGGGGUUUUURRRRR")),
+  ActivatedAbility(card, cost="0", effects=CreateToken(token_info, number=4)),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=TapTargetPermanent()),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=UntapTargetPermanent()),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=Destroy()),
+  ActivatedAbility(card, cost="0", target=AllPermanentTargets(), effects=ForEach(Destroy())),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=DestroyNoRegenerate()),
+  ActivatedAbility(card, cost="0", target=Target(target_types=[isCreature, isPlayer]), effects=DealDamage(amount=1)),
+  ActivatedAbility(card, cost="0", target=Target(target_types=[isCreature, isPlayer]), effects=DealDamage(amount=11)),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=GiveKeyword(haste, keyword="haste")),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=GiveKeyword(regenerate, keyword="regenerate")),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=AddPowerToughnessCounter(1, 1)),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=AddCounter(Counter("time"), number=4)),
+  ActivatedAbility(card, cost="0", target=CounterTarget(target_types=isAbility), effects=CounterAbility()),
+  ActivatedAbility(card, cost="0", target=Target(targeting="controller"), effects=MoveCards("library", "hand")),
+  ActivatedAbility(card, cost="0", target=Target(targeting="controller"), effects=MoveCards("library", "play")),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPlayer), effects=MoveCards(from_zone="graveyard", to_zone="play", card_types=isPermanentType)),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=ChangeZoneFromPlay(to_zone="hand")),
+  ActivatedAbility(card, cost="0", target=Target(targeting="controller"), effects=MoveCards(from_zone="graveyard", to_zone="hand", number=1)),
+  ActivatedAbility(card, cost="0", target=Target(targeting="controller"), effects=MoveCards(from_zone="hand", to_zone="library", to_position="top", number=2)),
+  ActivatedAbility(card, cost="0", target=Target(targeting="controller"), effects=MoveCards(from_zone="hand", to_zone="library", to_position="bottom", number=2)),
+  ActivatedAbility(card, cost="0", target=Target(targeting="controller"), effects=MoveCards(from_zone="library", to_zone="graveyard", from_position="top", number=LazyInt(lambda c=card: len(c.controller.library)/2))),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPlayer), effects=DiscardCard(1)),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPlayer), effects=DiscardCard(-1)),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPlayer), effects=DrawCard(1)),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=ChangeController()),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=RemoveSubRoles()),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=Clone()),
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################
+
+
+
+
+
+
+
+
+
+
+
+

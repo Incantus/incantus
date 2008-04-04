@@ -1,0 +1,28 @@
+name = 'Mortivore'
+cardnum = 161
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Lhurgoyf'])
+cost = '2BB'
+color = characteristic(['B'])
+text = ["Mortivore's power and toughness are each equal to the number of creature cards in all graveyards.", 'B: Regenerate Mortivore.']
+
+subrole = Creature(-1, -1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+num_in_graveyard = LazyInt(lambda c=card: len(c.controller.graveyard.get(isCreatureType)) + len(c.controller.opponent.graveyard.get(isCreatureType)))
+
+subrole.base_power = num_in_graveyard
+subrole.base_toughness = num_in_graveyard
+subrole.abilities = [ActivatedAbility(card, "B",
+                                target=Target(targeting="self"),
+                                effects=GiveKeyword(regenerate, keyword="regenerate"))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

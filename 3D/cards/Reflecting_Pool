@@ -1,0 +1,38 @@
+name = 'Reflecting Pool'
+cardnum = 351
+expansion = 'Shadowmoor'
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ['Add to your mana pool one mana of any type that a land you control could produce.']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+def mana_in_play(card=card):
+    lands = card.controller.play.get(isLand)
+    mana = set()
+    for land in lands:
+        if land.name == "Reflecting Pool": continue
+        for ability in land.abilities:
+            if ability.is_mana_ability():
+                for effect in ability.effects:
+                    if isinstance(effect, AddMana): mana.update(effect.amt)
+                    elif isinstance(effect, ManaChoice): mana.update(effect.choices)
+    # Handle colorless
+    for m in mana:
+        if m in "123456789":
+            mana.add('1')
+            break
+    return [m for m in mana if m in '1RGBUW']
+
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=ManaChoice(mana_in_play))]
+
+
+#################################

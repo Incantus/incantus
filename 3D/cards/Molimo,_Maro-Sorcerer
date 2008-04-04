@@ -1,0 +1,26 @@
+name = 'Molimo, Maro-Sorcerer'
+cardnum = 280
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('Legendary')
+subtypes = characteristic(['Elemental'])
+cost = '4GGG'
+color = characteristic(['G'])
+text = ['Trample', "Molimo, Maro-Sorcerer's power and toughness are each equal to the number of lands you control."]
+
+subrole = Creature(-1, -1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+numlands = LazyInt(lambda c=card: len(c.controller.play.get(isLand)))
+subrole.base_power = numlands
+subrole.base_toughness = numlands
+trample(subrole)
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

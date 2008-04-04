@@ -1,0 +1,23 @@
+name = 'Tangle Spider'
+cardnum = 303
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Spider'])
+cost = '4GG'
+color = characteristic(['G'])
+text = ['Flash', 'Reach']
+
+subrole = Creature(3, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flash(card)
+reach(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

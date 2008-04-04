@@ -1,0 +1,25 @@
+name = "Gaea's Herald"
+cardnum = 265
+expansion = '10E'
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf'])
+cost = '1G'
+color = characteristic(['G'])
+text = ["Creature spells can't be countered."]
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+def can_be_countered(self): return not self.card.type == "Creature"
+subrole.static_abilities = [GlobalStaticAbility(card,
+                                        effects=OverrideGlobal(can_be_countered, "can_be_countered", CastPermanentSpell, combiner=logical_and, expire=False))
+]
+
+#################################
+

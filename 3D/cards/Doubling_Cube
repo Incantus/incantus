@@ -1,0 +1,26 @@
+name = 'Doubling Cube'
+cardnum = 321
+expansion = '10E'
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2'
+color = characteristic(['C'])
+text = ['3, T Double the amount of each type of mana in your mana pool.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+def double_mana(card, target): target.manapool.addMana(target.manapool._mana)
+
+subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("3"), TapCost()]),
+                                target=Target(targeting="controller"),
+                                effects=NullEffect(double_mana))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################
