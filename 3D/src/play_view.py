@@ -118,6 +118,7 @@ class PlayView(Widget):
         def fget(self):
             for c in self.creatures: yield c
             for c in self.other_perms: yield c
+            for c in self.attached: yield c
             for l in self.lands.values():
                 for c in l: yield c
         return locals()
@@ -130,10 +131,12 @@ class PlayView(Widget):
 
         self.lands = dict([(land,[]) for land in ['Forest', 'Mountain', 'Swamp', 'Plains', 'Island', 'Other']])
         self.creatures = []
+        self.attached = []
         self.other_perms = []
     def clear(self):
         self.creatures = []
         self.other_perms = []
+        self.attached = []
         self.lands = dict([(land,[]) for land in ['Forest', 'Mountain', 'Swamp', 'Plains', 'Island', 'Other']])
     def add_card(self, card, startt):
         guicard = CardLibrary.CardLibrary.getPlayCard(card)
@@ -147,34 +150,50 @@ class PlayView(Widget):
                     break
             else: self.lands['Other'].append(guicard)
         else: self.other_perms.insert(0, guicard)
-        self.layout()
         guicard._orientation.set(euclid.Quaternion.new_rotate_axis(-math.pi/2, euclid.Vector3(1,0,0)))
         if self.is_opponent_view: guicard.orientation *= euclid.Quaternion.new_rotate_axis(math.pi, euclid.Vector3(0,0,1))
         if card.tapped: guicard.tap()
+        self.layout()
+
         if startt != 0: guicard.visible = anim.animate(0,1,dt=startt, method="step")
         guicard.size = anim.animate(0.005, 0.010, dt=0.2, method="sine")
         guicard.alpha = anim.animate(0.5, 1,startt=startt, dt=1.0, method="ease_out_circ")
-        # XXX Now set by the card itself
         guicard._orientation.set_transition(dt=0.3, method="sine")
-        #guicard._pos.set_transition(dt=0.4, method="ease_out_circ") #"ease_out_back")
-        #guicard._pos.y = anim.animate(guicard._pos.y, guicard._pos.y, dt=0.4, method="ease_out")
+        guicard._pos.set_transition(dt=0.4, method="ease_out_circ") #"ease_out_back")
+        guicard._pos.y = anim.animate(guicard._pos.y, guicard._pos.y, dt=0.4, method="ease_out")
         return guicard
     def remove_card(self, card, clock):
         guicard = CardLibrary.CardLibrary.getPlayCard(card)
         guicard.leaving_play()
-        #if Match.isCreature(card): cardlist = self.creatures
-        #elif Match.isLand(card):
-        #    for key in self.lands.keys():
-        #        if card.subtypes == key:
-        #            cardlist = self.lands[key]
-        #            break
-        #    else: cardlist = self.lands['Other']
-        #else: cardlist = self.other_perms
-        for cardlist in [self.creatures]+self.lands.values()+[self.other_perms]:
+        for cardlist in [self.creatures,self.other_perms,self.attached]+self.lands.values():
             if guicard in cardlist: break
         guicard.alpha = anim.animate(1, 0.25, dt=1.5, method="ease_in_circ")
-        # XXX This breaks if a card from one list (like an artifact) gains the creature role, and is removed from play before losing the role
         clock.schedule_once(lambda t: cardlist.remove(guicard) or self.layout(), 1.5)
+    def card_attached(self, sender, attached):
+        attachment = CardLibrary.CardLibrary.getPlayCard(sender)
+        attached = CardLibrary.CardLibrary.getPlayCard(attached)
+        if attachment in self.other_perms: # Not coming into play, (Equipments)
+            self.other_perms.remove(attachment)
+            self.attached.append(attachment)
+            if Match.isBasicLand(attached.gamecard):
+                for landtype in self.lands.values():
+                    if attached in landtype:
+                        break
+                landtype.remove(attached)
+                self.lands["Other"].append(attached)
+            self.layout()
+    def card_unattached(self, sender, unattached):
+        attachment = CardLibrary.CardLibrary.getPlayCard(sender)
+        unattached = CardLibrary.CardLibrary.getPlayCard(unattached)
+        if attachment in self.attached:
+            self.attached.remove(attachment)
+            self.other_perms.append(attachment)
+            if Match.isBasicLand(unattached.gamecard):
+                self.lands["Other"].remove(unattached)
+                for landtype in self.lands.values():
+                    if attached in landtype:
+                        landtype.append(unattached)
+            self.layout()
     def card_tapped(self, sender):
         card = CardLibrary.CardLibrary.getPlayCard(sender)
         if card in self.cards:
@@ -199,16 +218,49 @@ class PlayView(Widget):
             x = 0
             max_row_height = 0
             positions = []
+            cards = []
             for card in cardlist:
                 if not card.can_layout: continue
-                halfx = size*card.spacing*0.5
+                #halfx = size*card.spacing*0.5
+                #x += halfx
+                #pos = euclid.Vector3(x, y, row)
+                #positions.append(pos)
+                #cards.append(card)
+                #x += halfx
+                #y += y_incr
+                #max_row_height = compare(max_row_height, size*card.height)
+                #for i, attachment in enumerate(card.gamecard.attachments):
+                #    halfz = 0.1*size*card.height
+                #    halfx = 0.1*size*card.
+                #    attachment = self.get_card(attachment)
+                #    attachpos = pos - euclid.Vector3(halfx, y, halfz)*(i+1)
+                #    positions.append(attachpos)
+                #    cards.append(attachment)
+
+                z = 0
+                big_halfx = size*card.spacing*0.5
+                if not len(card.gamecard.attachments): halfx = big_halfx
+                else:
+                    x += big_halfx
+                    halfx = 0.1*size*card.spacing*0.5
+                for attachment in card.gamecard.attachments[::-1]:
+                    attachment = self.get_card(attachment)
+                    x += halfx
+                    positions.append(euclid.Vector3(x, y, row+z))
+                    cards.append(attachment)
+                    x += halfx
+                    z += 0.1*size*card.height
+                    y += y_incr
+                    max_row_height = compare(max_row_height, z+size*card.height)
                 x += halfx
-                positions.append(euclid.Vector3(x, y, row))
-                x += halfx
+                positions.append(euclid.Vector3(x, y, row+z))
+                cards.append(card)
                 y += y_incr
-                max_row_height = compare(max_row_height, size*card.height)
+                max_row_height = compare(max_row_height, z+size*card.height)
+                x += big_halfx
+
             if positions: avgx = sum([p.x for p in positions])/len(positions)
-            for pos, card in zip(positions, cardlist):
+            for pos, card in zip(positions, cards):
                 if not card.can_layout: continue
                 card.pos = pos - euclid.Vector3(avgx, 0, 0)
             return (y,max_row_height)
@@ -217,6 +269,7 @@ class PlayView(Widget):
         row += max_row_height
         y, max_row_height = layout_subset(self.other_perms, y, row)
         row += max_row_height
+
         x = 0.
         max_row_height = 0
         positions = []
@@ -248,18 +301,7 @@ class PlayView(Widget):
                 i += 1
         lands = self.lands["Other"]
         row += max_row_height
-        positions = []
-        for card in lands:
-            if not card.can_layout: continue
-            halfx = size*card.spacing*0.5
-            x += halfx
-            positions.append(euclid.Vector3(x, y, row))
-            x += halfx
-            y += y_incr
-        if positions: avgx = sum([p.x for p in positions])/len(positions)
-        for pos,card in zip(positions, lands):
-            if not card.can_layout: continue
-            card.pos = pos - euclid.Vector3(avgx,0,0)
+        y, max_row_height = layout_subset(lands, y, row)
     def get_card(self, gamecard):
         for card in self.cards:
             if card.gamecard == gamecard: return card

@@ -619,6 +619,10 @@ class GameWindow(window.Window):
         dispatcher.connect(self.otherplay.card_tapped, signal=game.GameEvent.CardTapped(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.mainplay.card_untapped, signal=game.GameEvent.CardUntapped(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.otherplay.card_untapped, signal=game.GameEvent.CardUntapped(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplay.card_attached, signal=game.GameEvent.AttachedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplay.card_attached, signal=game.GameEvent.AttachedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplay.card_unattached, signal=game.GameEvent.UnAttachedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplay.card_unattached, signal=game.GameEvent.UnAttachedEvent(), priority=dispatcher.UI_PRIORITY)
 
         dispatcher.connect(self.priority_stop, signal=game.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.phase_stop, signal=game.GameEvent.GameStepEvent(), priority=dispatcher.UI_PRIORITY)
