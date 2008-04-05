@@ -705,10 +705,12 @@ class AugmentPowerToughness(Effect):
         self.expire = expire
     def __call__(self, card, target):
         PT = self.PowerToughnessCounter(self.power, self.toughness)
-        target.PT_modifiers.append(PT)
+        if self.expire: modifiers_list = target.PT_other_modifiers
+        else: modifiers_list = target.PT_static_modifiers
+        modifiers_list.append(PT)
         target.send(PowerToughnessChangedEvent())
         def remove():
-            target.PT_modifiers.remove(PT)
+            modifiers_list.remove(PT)
             target.send(PowerToughnessChangedEvent())
         if self.expire: target.register(remove, CleanupEvent(), weak=False, expiry=1)
         return remove

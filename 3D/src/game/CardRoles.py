@@ -181,7 +181,6 @@ class Role(object):
         self.abilities = []
         self.triggered_abilities = []
         self.static_abilities = []
-        #self.counters = []          # Any counters on permanent
     def send(self, *args, **named):
         self.perm.card.send(*args, **named)
     def enteringPlay(self, perm):
@@ -230,28 +229,36 @@ class Creature(Role):
     def power():
         def fget(self):
             # Calculate layering rules
-            modifier = sum([t.power for t in self.PT_modifiers])
-            modifier2 = sum([t.power for t in self.perm.counters if hasattr(t,"power")])
-            return self.base_power + modifier + modifier2
+            base = self.base_power
+            if len(self.PT_setters): base = self.PT_setters[-1].power # layer 6a
+            layer6b = sum([t.power for t in self.PT_other_modifiers])
+            layer6c = sum([t.power for t in self.perm.counters if hasattr(t,"power")])
+            layer6d = sum([t.power for t in self.PT_static_modifiers])
+            return base+layer6b+layer6c+layer6d
         return locals()
     power = property(**power())
     def toughness():
         def fget(self):
-            modifier = sum([t.toughness for t in self.PT_modifiers])
-            modifier2 = sum([t.toughness for t in self.perm.counters if hasattr(t,"toughness")])
-            return self.base_toughness + modifier + modifier2
+            base = self.base_toughness
+            if len(self.PT_setters): base = self.PT_setters[-1].toughness # layer 6a
+            layer6b = sum([t.toughness for t in self.PT_other_modifiers])
+            layer6c = sum([t.toughness for t in self.perm.counters if hasattr(t,"toughness")])
+            layer6d = sum([t.toughness for t in self.PT_static_modifiers])
+            return base+layer6b+layer6c+layer6d
         return locals()
     toughness = property(**toughness())
     def __init__(self, power, toughness):
         super(Creature,self).__init__()
-        # XXX These are immutable - should be properties so they can be decorated with counters
+        # These are immutable and come from the card
         self.base_power = power
         self.base_toughness = toughness
 
         # Only accessed internally
         self.__damage = 0
 
-        self.PT_modifiers = [] #PTModifiers(self)
+        self.PT_setters = [] # layer 6a - characteristic defining
+        self.PT_other_modifiers # layyer 6b - other modifiers
+        self.PT_static_modifiers = [] # layer 6c - static modifiers
         self.in_combat = False
         self.attacking = False
         self.blocking = False
