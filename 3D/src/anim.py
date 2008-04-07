@@ -112,7 +112,10 @@ class InterpolatedAnimator(Animator):
         self.extend = extend
         self.one_over_dt = 1./float(self.endt-self.startt)
         self.set_method(method,args)
-        self.prev_x = self.start
+        #self.prev_x = self.start
+        self.cached_x = self.end
+        if self.extend is constant: self.get = self.get_dirty
+        else: self.get = self.get_always
     def set_method(self, method, args):
         self._interpolate = method
         self._args = args
@@ -123,12 +126,21 @@ class InterpolatedAnimator(Animator):
         dt = self.endt - self.startt
         self.startt = _time
         self.endt = self.startt + dt
-    def get(self):
+        if self.extend is constant: self.get = self.get_dirty
+        else: self.get = self.get_always
+    def get_saved(self):
+        return self.cached_x
+    def get_always(self):
         t = self.extend((_time-self.startt)*self.one_over_dt)
-        x =  (self.end-self.start)*self._interpolate(t)+self.start
-        self.dx = x - self.prev_x
-        self.prev_x = x
-        self.dv = self.dx*self.one_over_dt
+        x = (self.end-self.start)*self._interpolate(t)+self.start
+        return x
+    def get_dirty(self):
+        t = self.extend((_time-self.startt)*self.one_over_dt)
+        x = (self.end-self.start)*self._interpolate(t)+self.start
+        if t == 1: self.get = self.get_saved
+        #self.dx = x - self.prev_x
+        #self.prev_x = x
+        #self.dv = self.dx*self.one_over_dt
         return x
 
 class ChainedAnimator(Animator):
