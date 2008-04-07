@@ -301,6 +301,7 @@ class ZoneView(CardView):
         if is_opponent: self.dir = -1
         else: self.dir = 1
         for card in zone: self.add_card(card)
+        self.orig_order = dict([(c.gamecard.key, i) for i, c in enumerate(self.cards)])
         self.focus_idx = 0
         self.layout()
     def focus_next(self):
@@ -330,7 +331,6 @@ class ZoneView(CardView):
             self.layout()
         else:
             self.sorted = True
-            self.orig_order = dict([(c.gamecard.key, i) for i, c in enumerate(self.cards)])
             self.cards.sort(key=lambda c: str(c))
             self.layout()
     def add_card(self, card):
@@ -350,6 +350,18 @@ class ZoneView(CardView):
         elif self.focus_idx < 0: self.focus_idx = 0
         self.layout()
         self.layout_selected()
+    def deselect_card(self, card):
+        self.selected.remove(card)
+        self.cards.insert(0, card) # Find the right position to reinsert
+        self.layout()
+        self.layout_selected()
+    def handle_click(self, x, y):
+        size = self.focus_size / 4.
+        for card in self.selected:
+            sx, sy, sw, sh = card.pos.x, card.pos.y, card.width*size, card.height*size
+            if x > sx-sw and x < sx+sw and y >= sy-sh and y <= sy+sh:
+                return card
+        else: return None
     def show(self):
         super(ZoneView,self).show()
     def hide(self):

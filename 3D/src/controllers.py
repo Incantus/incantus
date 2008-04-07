@@ -167,6 +167,19 @@ class CardSelector(object):
             self.zone_view.toggle_sort()
             return True
     def on_mouse_press(self, x, y, button, modifiers):
+        x -= self.zone_view.pos.x
+        y -= self.zone_view.pos.y
+        result = self.zone_view.handle_click(x, y)
+        if result:
+            self.zone_view.deselect_card(result)
+        else:
+            if len(self.zone_view.cards):
+                if self.number == 1: 
+                    self.window.user_action = Action.MultipleSelected([self.zone_view.focused.gamecard])
+                    self.deactivate()
+                else:
+                    if len(self.zone_view.selected) < self.number:
+                        self.zone_view.select_card()
         return True
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         return True
@@ -180,13 +193,6 @@ class CardSelector(object):
             self.zone_view.focus_previous()
         return True
     def on_mouse_release(self, x, y, button, modifiers):
-        if len(self.zone_view.cards):
-            if self.number == 1: 
-                self.window.user_action = Action.MultipleSelected([self.zone_view.focused.gamecard])
-                self.deactivate()
-            else:
-                if len(self.zone_view.selected) < self.number:
-                    self.zone_view.select_card()
         return True
 
 class DamageSelector(object):
@@ -606,6 +612,14 @@ class HandController(object):
     def on_mouse_press(self, x, y, button, modifiers):
         return True
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        if modifiers & key.MOD_SHIFT:
+            min_size = 0.2
+            max_size = 1.0
+            self.tmp_dx += dx
+            if self.tmp_dx >= 400: self.tmp_dx = 400
+            elif self.tmp_dx <= -400: self.tmp_dx = -400
+            self.player_hand.small_size = 0.6 + (max_size-min_size)*self.tmp_dx/(2*400.)
+            self.player_hand.layout()
         return True
     def on_mouse_release(self, x, y, button, modifiers):
         if button == mouse.LEFT:

@@ -21,7 +21,7 @@ class MessageDialog(Widget):
         self.visible = anim.animate(1., 0.0, dt=0.1)
     def handle_click(self, x, y):
         for item, val in [(self.ok, True), (self.cancel, False)]:
-            sx, sy, sw, sh = item.pos.x, item.pos.y, item.width, item.height
+            sx, sy, sw, sh = item.pos.x, item.pos.y, item.width/2., item.height/2.
             if x > sx and x < sx+sw and y >= sy and y <= sy+sh: return val
         else: return -1
     def construct(self, prompt, msg_type="ask"):
@@ -133,7 +133,7 @@ class SelectionList(Widget):
             return [self.options[i][1] for i in range(number-1,-1,-1)]
     def handle_click(self, x, y):
         for item, val in self.options:
-            sx, sy, sw, sh = item.pos.x, item.pos.y, item.width, item.height
+            sx, sy, sw, sh = item.pos.x, item.pos.y, item.width/2., item.height/2.
             if x > sx and x < sx+sw and y >= sy and y <= sy+sh: return val
         else: return -1
     def render_after_transform(self):
@@ -396,7 +396,7 @@ class StatusView(Widget):
         x -= self.pos.x
         y -= self.pos.y
         for status, item in self.symbols.items():
-            sx, sy, sw, sh = item.pos.x, item.pos.y, item.width/2, item.height/2
+            sx, sy, sw, sh = item.pos.x, item.pos.y, item.width/2., item.height/2.
             if x > sx-sw and x < sx+sw and y >= sy-sh and y <= sy+sh:
                 return status
         else: return None
@@ -560,7 +560,7 @@ class PhaseStatus(Widget):
         for key, (i, val) in self.state_map.items(): #state in self.states:
             state = self.states[i]
             if state.visible == 0: continue
-            sx, sy, sw, sh = state.pos.x, state.pos.y, state.width/2, state.height/2
+            sx, sy, sw, sh = state.pos.x, state.pos.y, state.width/2., state.height/2.
             if x > sx-sw and x < sx+sw and y >= sy-sh and y <= sy+sh:
                 return key, state, self.state_labels[i]
         else: return None
