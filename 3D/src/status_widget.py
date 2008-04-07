@@ -500,6 +500,7 @@ class PhaseStatus(Widget):
             ('Main2','Main (postcombat)'),
             ('EndPhase','End of turn'),
             ('Cleanup','Cleanup')]
+        self.group = [0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0]
         self.state_map = dict([(key, (i, val)) for i,(key,val) in enumerate(states)])
         self.states = [Image(key) for key, val in states]
         self.state_labels = [Label(val, size=20, valign="center", shadow=False) for key, val in states]
@@ -565,45 +566,56 @@ class PhaseStatus(Widget):
         else: return None
     def layout_big(self):
         y = 0
+        i = 0
         for symbol, label in zip(self.states, self.state_labels):
             symbol.alpha = 1.0
             symbol.scale = 1.0
             symbol.color = (1, 1, 1)
             hh = symbol.height / 2
+            if self.group[i] == 1: y -= hh*.5
             y -= hh
             x = self.dir*symbol.width
             symbol.pos = euclid.Vector3(0, y, 0)
             label.pos = euclid.Vector3(1.1*x/2, y, 0)
             label.scale = 0.8
             y -= hh
+            i += 1
         self.height = -y
         self.turn_label.pos = euclid.Vector3(0, 0, 0) # This is because the untap symbol is hidden
     def layout_small(self):
         y = 0
+        i = 0
         for symbol in self.states:
             symbol.alpha = 0.35
             symbol.scale = 0.75
             hh = symbol.height / 2
+            if self.group[i] == 1: y -= hh*.5
             y -= hh
             symbol.pos = euclid.Vector3(-symbol.width/2, y, 0)
             y -= hh
+            i += 1
         self.height = -y
     def layout(self):
         y = 0
         dir = self.dir
+        i = 0
         for symbol in self.states[:self.current]:
             symbol.alpha = 0.35
             symbol.scale = 0.75
             symbol.color = (1, 1, 1)
             hh = symbol.height / 2
+            if self.group[i] == 1: y -= hh*.75
             y -= hh
             symbol.pos = euclid.Vector3(dir*symbol.width/2, y, 0)
             y -= hh
+            i += 1
         curr_state = self.states[self.current]
         curr_state.alpha = 1.0
         curr_state.scale = 1.25
         curr_state.color = self.marker_color
         nhh = curr_state.height/2
+        if self.group[i] == 1: y -= nhh*.75
+        i += 1
         y -= nhh
         x = dir*curr_state.width
         curr_state.pos = euclid.Vector3(x/2, y, 0)
@@ -613,10 +625,12 @@ class PhaseStatus(Widget):
             symbol.alpha = 0.35
             symbol.scale = 0.75
             hh = symbol.height / 2
+            if self.group[i] == 1: y -= hh*.75
             y -= hh
             symbol.pos = euclid.Vector3(dir*symbol.width/2, y, 0)
             symbol.color = (1, 1, 1)
             y -= hh
+            i += 1
         self.height = -y
     def render_game(self):
         for state in self.states: state.render()
