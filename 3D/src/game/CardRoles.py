@@ -257,7 +257,7 @@ class Creature(Role):
         self.__damage = 0
 
         self.PT_setters = [] # layer 6a - characteristic defining
-        self.PT_other_modifiers # layyer 6b - other modifiers
+        self.PT_other_modifiers = [] # layer 6b - other modifiers
         self.PT_static_modifiers = [] # layer 6c - static modifiers
         self.in_combat = False
         self.attacking = False

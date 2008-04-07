@@ -783,7 +783,7 @@ class ShuffleIntoLibrary(Effect):
         player.library.shuffle()
         return True
     def __str__(self):
-        return "Return to library"
+        return "Shuffle into library"
 
 class ShuffleLibrary(Effect):
     def __call__(self, card, target):
