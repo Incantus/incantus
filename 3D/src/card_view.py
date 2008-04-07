@@ -290,6 +290,7 @@ class ZoneView(CardView):
     def __init__(self, pos=euclid.Vector3(0,0,0)):
         super(ZoneView,self).__init__(pos,reverse_draw=True)
         self._pos.set_transition(dt=0.001)
+        self.sorted = False
         self.dir = 1
         points = [(0.0, 0.0), (26.0, 244.0), (184.0, 368.0), (400.0, 226.0)]
         self.path = BezierPath(*[euclid.Point2(v[0], v[1]) for v in points])
@@ -322,6 +323,16 @@ class ZoneView(CardView):
             self.layout()
             return True
         else: return False
+    def toggle_sort(self):
+        if self.sorted:
+            self.sorted = False
+            self.cards.sort(key=lambda c: self.orig_order[c.gamecard.key])
+            self.layout()
+        else:
+            self.sorted = True
+            self.orig_order = dict([(c.gamecard.key, i) for i, c in enumerate(self.cards)])
+            self.cards.sort(key=lambda c: str(c))
+            self.layout()
     def add_card(self, card):
         newcard = CardLibrary.CardLibrary.getCardCopy(card)
         newcard._pos.set_transition(dt=0.5, method=self.pos_transition)

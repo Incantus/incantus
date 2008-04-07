@@ -157,8 +157,15 @@ class CardSelector(object):
             if not self.required: self.window.user_action = Action.CancelAction()
             self.deactivate()
             return True
-        elif symbol == key.LEFT: self.zone_view.focus_previous()
-        elif symbol == key.RIGHT: self.zone_view.focus_next()
+        elif symbol == key.LEFT:
+            self.zone_view.focus_previous()
+            return True
+        elif symbol == key.RIGHT:
+            self.zone_view.focus_next()
+            return True
+        elif symbol == key.UP:
+            self.zone_view.toggle_sort()
+            return True
     def on_mouse_press(self, x, y, button, modifiers):
         return True
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
