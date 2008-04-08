@@ -198,11 +198,17 @@ class HandView(CardView):
 
 from game.Ability.CastingAbility import CastSpell
 class StackView(CardView):
+    width = anim.Animatable()
+    height = anim.Animatable()
     def __init__(self, pos=euclid.Vector3(0,0,0)):
         super(StackView,self).__init__(pos)
         self.is_focused = False
-        self.visible = 1.0
+        self.visible = anim.constant(0)
+        self.header = Label("Stack", halign="left", valign="top")
+        self.header.pos = euclid.Vector3(0,0,0)
         self.text = Label("", halign="left", valign="center", background=True)
+        self.width = anim.animate(0, 0, dt=0.4, method="sine")
+        self.height = anim.animate(0, 0, dt=0.4, method="sine")
         self.layout()
     def add_ability(self, ability, startt=0):
         if ability.card == "Assign Damage":
@@ -245,18 +251,34 @@ class StackView(CardView):
     def unfocused_layout(self):
         size = 0.25
         self.text.visible = anim.animate(0.0, 0.0, dt=0.1)
-        for i, card in enumerate(self.cards):
-            card.size = size
-            x,y  = card.width*size*0.15, card.height*size*0.10
-            card.pos = euclid.Vector3(x*i,-y*i, 0.001*i)
+        if len(self.cards):
+            self.visible = 1.0
+            self.header.visible = 1.0
+            card = self.cards[0]
+            x_incr, y_incr = card.width*size*0.15, -card.height*size*0.10
+            x, y = card.width*size/2, -self.header.height-card.height*size/2
+            z = 0
+            for card in self.cards:
+                card.size = size
+                card.pos = euclid.Vector3(x,y,z)
+                x += x_incr
+                y += y_incr
+                z += 0.001
+            self.width = x + card.width*size/2
+            self.height = y - card.height*size/2
+        else:
+            self.visible = 0
     def focused_layout(self):
         min_size = 0.2
+        self.header.visible = 0
         if len(self) > 0:
+            self.visible = 1.0
             w, h = self.cards[0].width, self.cards[0].height
             x_incr = w*0.025
             y_incr = h*0.025
-            x = -self.focus_idx*x_incr
-            y = (self.focus_idx-1)*y_incr
+            startx, starty = 20, -20
+            x = startx-self.focus_idx*x_incr
+            y = starty+(self.focus_idx-1)*y_incr
             z = 0.001
             for i, card in enumerate(self.cards[:self.focus_idx]):
                 card.size = min_size
@@ -266,11 +288,11 @@ class StackView(CardView):
                 z += 0.001
             card = self.cards[self.focus_idx]
             card.size = anim.animate(card.size, self.focus_size, dt=0.2, method="sine")
-            card.pos = euclid.Vector3(w*0.45, y-h*0.4, z)
+            card.pos = euclid.Vector3(startx+w*0.45, y-h*0.4, z)
             self.text.visible = 1.0
             #if card.triggered: self.text.visible = 1.0
             #else: self.text.visible = 0.0
-            self.text.pos = euclid.Vector3(0, y-h*0.7, z)
+            self.text.pos = euclid.Vector3(startx, y-h*0.7, z)
             self.text.set_text(str(card.ability), width=0.9*w)
             x -= x_incr*4
             y -= h*0.8
@@ -281,8 +303,19 @@ class StackView(CardView):
                 x -= x_incr
                 y -= y_incr
                 z += 0.001
-        else: self.text.visible = 0
+        else:
+            self.visible = 0
     def render_after_transform(self):
+        if self.header.visible == 1.0:
+            glColor4f(1.0,0,0, 0.3)
+            glDisable(GL_TEXTURE_2D)
+            glBegin(GL_QUADS)
+            glVertex3f(-10, 5, 0)
+            glVertex3f(self.width+10, 5, 0)
+            glVertex3f(self.width+10, self.height-10, 0)
+            glVertex3f(-10, self.height-10, 0)
+            glEnd()
+            self.header.render()
         super(StackView,self).render_after_transform()
         self.text.render()
 
