@@ -556,9 +556,15 @@ class PlayController(object):
         if not self.zooming:
             if buttons == mouse.RIGHT or modifiers & key.MOD_SHIFT:
                 self.camera.move_by(euclid.Vector3(0,-dy,0))
-                if self.camera.pos.y <= 10: self.camera._pos.y = 10
-                elif self.camera.pos.y >= 25: self.camera._pos.y = 25
-            elif buttons == mouse.LEFT: self.camera.move_by(euclid.Vector3(dx, 0, -dy))
+                #if self.camera.pos.y <= 10: self.camera._pos.y = 10
+                #elif self.camera.pos.y >= 25: self.camera._pos.y = 25
+            elif buttons == mouse.LEFT:
+                self.camera.move_by(euclid.Vector3(dx, 0, -dy))
+                #if self.camera.pos.x < -20: self.camera._pos.x = -20
+                #if self.camera.pos.x > 20: self.camera._pos.x = 20
+                #if self.camera.pos.z < -20: self.camera._pos.z = -20
+                #if self.camera.pos.z > 20: self.camera._pos.z = 20
+
     def on_mouse_release(self, x, y, button, modifiers):
         if self.selected is not None:
             if self.zooming:

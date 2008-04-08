@@ -65,6 +65,12 @@ class Camera:
         glTranslatef(*tuple(-1*self.pos))
     def move_by(self, delta):
         self._pos -= delta*0.1
+        if self.pos.x < -20: self._pos.x = -20
+        elif self.pos.x > 20: self._pos.x = 20
+        if self.pos.y <= 10: self._pos.y = 10
+        elif self.pos.y >= 25: self._pos.y = 25
+        if self.pos.z < -20: self._pos.z = -20
+        elif self.pos.z > 20: self._pos.z = 20
     def switch_viewpoint(self):
         self._orientation.rotate_axis(math.pi, euclid.Vector3(0,0,1))
 
@@ -95,8 +101,6 @@ class GameWindow(window.Window):
         self.damage_assignment = DamageSelector(self.mainplay, self.otherplay, self)
         self.player_hand = HandView()
         self.hand_controller = HandController(self.player_hand, self)
-        #self.otherplayer_hand = HandView()
-        #self.otherhand_controller = HandController(self.otherplayer_hand, self)
         self.stack = StackView()
         self.stack_controller = StackController(self.stack, self)
         self.fps = pyglet.clock.ClockDisplay(color=(0.2, 0.2, 0.2, 0.4))
@@ -111,8 +115,6 @@ class GameWindow(window.Window):
         self.replay = False
         self.dump_to_replay = lambda x: None
         self.soundfx = MediaEffects()
-
-        self.play_controller.activate()
 
     def init(self):
         glEnable(GL_LIGHTING)
@@ -214,7 +216,6 @@ class GameWindow(window.Window):
         self.stack.render()
         self.zone_animator.render2d()
         self.player_hand.render()
-        #self.otherplayer_hand.render()
         self.selection.render()
         self.msg_dialog.render()
         self.game_status.render()
@@ -223,10 +224,8 @@ class GameWindow(window.Window):
         self.unset_2d()
 
     def on_mouse_motion(self, x, y, dx, dy, tmp_dx=[0]):
-        if y <= 20:
+        if y <= 20 and len(self.player_hand) > 0:
             self.hand_controller.activate()
-            #if x < 50: self.hand_controller.activate()
-            #elif x > self.width-50: self.otherhand_controller.activate()
         if len(self.stack) and (x > self.stack.pos.x-50 and x < self.stack.pos.x+50 and 
                 y > self.stack.pos.y-50 and y < self.stack.pos.y+50):
             self.stack_controller.activate()
@@ -336,6 +335,7 @@ class GameWindow(window.Window):
         #self.otherplayer_hand.clear()
         self.mainplayer_status.clear()
         self.otherplayer_status.clear()
+        self.game_status.log("Press 'n' to start a solitaire game")
 
     def start_network_game(self, ipaddr, port, isserver):
         self.game_status.log("Starting network game")
@@ -554,7 +554,6 @@ class GameWindow(window.Window):
         self.mainplayer_status.setup_player(self.player1, self_color)
         self.otherplayer_status.setup_player(self.player2, other_color)
         self.hand_controller.set_zone(self.player1.hand)
-        #self.otherhand_controller.set_zone(self.player2.hand)
         self.stack_controller.set_zone(game.Keeper.stack)
         self.play_controller.set_zones(self.player1.play, self.player2.play)
         #self.game_status.setup_player_colors(self.player1, self_color, other_color)
@@ -631,6 +630,7 @@ class GameWindow(window.Window):
         self.set_stops()
 
         self.soundfx.connect(self)
+        self.play_controller.activate()
         self.status_controller.activate()
 
     def set_stops(self):
