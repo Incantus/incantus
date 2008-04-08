@@ -80,10 +80,10 @@ class GameWindow(window.Window):
         self.conf = ConfigParser.ConfigParser()
         self.conf.read("incantus.ini")
         self.camera = Camera(euclid.Point3(0,15, 0)) #15,5))
-        self.mainplayer_status = StatusView(pos=euclid.Vector3(50, 50, 0))
+        self.mainplayer_status = StatusView(pos=euclid.Vector3(0, 0, 0))
         self.mana_controller = ManaController(self.mainplayer_status.manapool, self)
         self.x_controller = XSelector(self.mainplayer_status.manapool, self)
-        self.otherplayer_status = StatusView(pos=euclid.Vector3(self.width-250, self.height-75, 0), is_opponent=True)
+        self.otherplayer_status = StatusView(pos=euclid.Vector3(self.width, self.height, 0), is_opponent=True)
         self.zone_view = ZoneView()
         self.card_selector = CardSelector(self.mainplayer_status, self.otherplayer_status, self.zone_view, self)
         self.status_controller = StatusController(self.mainplayer_status, self.otherplayer_status, self.zone_view, self)
@@ -148,12 +148,12 @@ class GameWindow(window.Window):
         glLoadIdentity()
         gluPerspective(80., self.width / float(self.height), 1, 100.)
         glMatrixMode(GL_MODELVIEW)
-        self.otherplayer_status.pos = euclid.Vector3(width-190, height-75, 0)
+        self.mainplayer_status.resize(width, height)
+        self.otherplayer_status.resize(width, height)
         self.game_status.resize(width, height)
         self.phase_status.resize(width, height)
-        self.stack.pos = euclid.Vector3(75,height-75,0)
+        self.stack.pos = euclid.Vector3(50,height-25,0)
         self.player_hand.pos = euclid.Vector3(width/2,-150,0)
-        #self.otherplayer_hand.pos = euclid.Vector3(width/2,-150,0)
 
     def draw(self):
         self.clear()
@@ -632,6 +632,8 @@ class GameWindow(window.Window):
         self.soundfx.connect(self)
         self.play_controller.activate()
         self.status_controller.activate()
+        self.mainplayer_status.show()
+        self.otherplayer_status.show()
 
     def set_stops(self):
         self.my_turn_stops = set([state for state, val in self.conf.items("my stops") if val == "No"])

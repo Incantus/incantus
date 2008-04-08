@@ -175,13 +175,13 @@ class GameStatus(Widget):
         super(GameStatus,self).__init__(pos)
         self.screen_width = self.screen_height = 0
         self._pos.set_transition(dt=0.5, method="ease_out_back")
-        self.prompt = Label("Start new game", size=20, shadow=False, halign="center", valign="top")
+        self.prompt = Label("", size=20, shadow=False, halign="center", valign="top")
         self.prompt._pos.set_transition(dt=0.5, method="sine")
         self.show_log = False
         self.gamelog = [Label('', size=14, halign="left", width=400) for i in range(5)]
         self.logger = LoggingOutput()
     def clear(self):
-        self.prompt.set_text("Start new game")
+        self.prompt.set_text("")
     def resize(self, width, height):
         self.screen_width = width
         self.screen_height = height
@@ -235,15 +235,16 @@ class ManaImage(Image):
         self.glow = Image("glow")
         self.glow.color = (1.0, 0.9, 0.0, 0.5)
         self.glow.visible = 0
+        self.alpha = 0.4
         self.visible = anim.constant(1)
     def animate(self, sparkle=True, pain=False):
-        self.rotatey = anim.animate(0,360,dt=1.5, method="sine")
         if sparkle:
             if not pain: self.glow.color = (1.0, 0.9, 0.0, 0.5)
             else: self.glow.color = (1.0, 0.0, 0.0, 0.5)
-            self.glow.visible = anim.animate(1.0,0.0, dt=1)
-            self.glow.scale = anim.animate(0.5, 3.0, dt=1)
-            self.glow.alpha = anim.animate(0.5,0.0,dt=1., method="ease_in_circ")
+            self.glow.visible = anim.animate(1.0,0.0, dt=0.3)
+            self.glow.scale = anim.animate(0.5, 2.0, dt=0.3)
+            self.glow.alpha = anim.animate(0.5,0.0,dt=0.5, method="ease_in_circ")
+        else: self.rotatey = anim.animate(0,360,dt=1.5, method="sine")
     def render(self):
         super(ManaImage,self).render()
         self.glow.render()
@@ -258,7 +259,7 @@ class ManaView(Widget):
         self.colormap = dict(zip(self.colors, "WRGUBC"))
         self.nummana = len(self.colors)
         self.symbols = [ManaImage(color) for color in self.colors]
-        self.pool = [Label("0", size=20) for i in range(self.nummana)]
+        self.pool = [Label("", size=20) for i in range(self.nummana)]
         self.values = dict([(c,v) for c, v in zip(self.colors, self.pool)])
         self.spend = [Label("0", size=30) for i in range(self.nummana)]
         self.spend_values = dict([(c,v) for c, v in zip(self.colors, self.spend)])
@@ -273,13 +274,26 @@ class ManaView(Widget):
         manapool = sender
         for idx, c in enumerate(self.colors):
             oldamt = int(status[c].value)
-            status[c].set_text(getattr(manapool, c))
+            val = getattr(manapool, c)
+            if val > 0:
+                status[c].set_text(val)
+                self.symbols[idx].alpha = 0.8
+            else:
+                status[c].set_text('')
+                self.symbols[idx].alpha = 0.4
             if oldamt > 0: self.symbols[idx].animate(pain=True)
         self.layout()
     def update_mana(self, sender, amount):
         status = self.values
         manapool = sender
-        for c in self.colors: status[c].set_text(getattr(manapool, c))
+        for idx, c in enumerate(self.colors):
+            val = getattr(manapool, c)
+            if val > 0:
+                status[c].set_text(val)
+                self.symbols[idx].alpha = 0.8
+            else:
+                status[c].set_text('')
+                self.symbols[idx].alpha = 0.4
         self.layout()
         for idx, amt in enumerate(amount):
             if amt > 0: self.symbols[idx].animate()
@@ -301,20 +315,14 @@ class ManaView(Widget):
             self.pos = self.orig_pos
             for symbol, current in zip(self.symbols, self.pool):
                 symbol.visible = current.visible = 1
-                symbol.alpha = 1.0
-                symbol.scale = 0.4
+                symbol.scale = 0.25 #0.4
                 hw = symbol.width/2
                 spacer = 0.1*hw
                 x += hw
                 symbol.pos = euclid.Vector3(x, 0, 0)
+                current.pos = euclid.Vector3(x-current.width/2, -current.height/2, 0)
                 x += hw+spacer
-                current.pos = euclid.Vector3(x, -current.height/2, 0)
-                x += current.width+spacer
-            self.width = x - spacer
-            #if self.reverse:
-            #    for symbol, text in zip(self.symbols, self.pool):
-            #        symbol.pos -= euclid.Vector3(self.width, 0, 0)
-            #        text.pos -= euclid.Vector3(self.width, 0, 0)
+            self.width = len(self.symbols)*(symbol.width*1.1)
         else:
             if not self.select_x:
                 for symbol, current, pay in zip(self.symbols, self.pool, self.spend):
@@ -327,7 +335,7 @@ class ManaView(Widget):
                     if current.value == 0: symbol.alpha = 0.75
                     else: symbol.alpha = 1.0
                     x += symbol.width + spacer
-                self.cost.pos = euclid.Vector3((x-symbol.width)/2, -pay.height-symbol.height, 0)#+self.cost.height, 0)
+                self.cost.pos = euclid.Vector3((x-symbol.width)/2, -pay.height-symbol.height, 0)
             else:
                 y = self.symbols[0].height
                 cost_y = y+self.cost.height
@@ -357,14 +365,15 @@ class StatusView(Widget):
     def __init__(self, pos=euclid.Vector3(0, 0, 0), is_opponent=False):
         super(StatusView,self).__init__(pos)
         self.is_opponent = is_opponent
-        #self.active_turn = False
         self._pos.set_transition(dt=0.5, method="ease_out_circ")
         symbols = ["life", "hand", "library", "graveyard", "removed"]
         sizes = [30, 20, 20, 20, 20]
         self.symbols = dict([(symbol, Image(symbol)) for symbol in symbols])
         self.symbols["life"].shaking = 0
-        self.player_name = Label("", 20, halign="center", shadow=False)
-        self.values = dict([(symbol, Label('0', size, valign="center")) for symbol, size in zip(self.symbols, sizes)])
+        for symbol in self.symbols.values():
+            symbol.alpha = 0.5
+        self.player_name = Label(" ", 20, halign="center", shadow=False)
+        self.values = dict([(symbol, Label('', size, halign="center", valign="center")) for symbol, size in zip(self.symbols, sizes)])
         self.values["life"].halign = "center"
         self.values["life"].valign = "center"
         self.manapool = ManaView(reverse=is_opponent)
@@ -372,20 +381,24 @@ class StatusView(Widget):
         self.active.scale = anim.animate(0.1, 0.1, dt=0.2, method="ease_out_back")
         self.active.visible = 1.
         self.layout()
+        self.visible = 0
+    def resize(self, width, height):
+        if self.is_opponent: pos = euclid.Vector3(width, height, 0)
+        else: pos = euclid.Vector3(0, 0, 0)
+        self.pos = pos + euclid.Vector3(self._transx, self._transy, 0)
     def clear(self):
-        #self.active.visible = 0.0
         self.symbols['life'].rotatey = anim.constant(0)
         status = self.values
         counters = ["life", "hand", "library", "graveyard", "removed"]
         #for c in counters: status[c].set_text(0)
     def show(self):
-        self.pos = self.orig_pos
+        #self.pos = self.orig_pos
         super(StatusView,self).show()
     def hide(self):
         if self.visible == 1.0:
-            self.orig_pos = self.pos
-            if self.is_opponent: self.pos += euclid.Vector3(700, 0, 0)
-            else: self.pos -= euclid.Vector3(700, 0, 0)
+            #self.orig_pos = self.pos
+            #if self.is_opponent: self.pos += euclid.Vector3(700, 0, 0)
+            #else: self.pos -= euclid.Vector3(700, 0, 0)
             super(StatusView,self).hide()
     def animate(self, status):
         symbol = self.symbols[status]
@@ -406,7 +419,7 @@ class StatusView(Widget):
         self.player_name.set_text(player.name)
         self.update_life()
         self.update_cards()
-        self.active.scale = anim.animate(0.1, 1.0, dt=0.2, method="ease_out_back")
+        self.active.scale = anim.animate(0.1, 0.75, dt=0.2, method="ease_out_back")
         self.layout()
     def new_turn(self, player):
         return
@@ -440,42 +453,68 @@ class StatusView(Widget):
         status = self.values
         player = self.player
         counters = ["hand", "library", "graveyard", "removed"]
-        for c in counters: status[c].set_text(len(getattr(player, c)))
+        for c in counters:
+            val = len(getattr(player, c))
+            if val > 0:
+                self.symbols[c].alpha = 0.8
+                status[c].set_text(val)
+            else:
+                self.symbols[c].alpha = 0.4
+                status[c].set_text('')
     def update_zone(self, zone):
-        self.values[str(zone)].set_text(len(zone))
+        val = len(zone)
+        status = self.values[str(zone)]
+        if val > 0:
+            self.symbols[str(zone)].alpha = 0.8
+            status.set_text(val)
+        else:
+            self.symbols[str(zone)].alpha = 0.4
+            status.set_text('')
     def layout(self):
         status = "life"
         life, lifevalue = self.symbols[status], self.values[status]
-        life.scale = 0.75
-        if not self.is_opponent: startx = x = life.width
-        else: startx = x = 0
-        starty = y = life.height/2
-        for status in ["hand", "library", "graveyard", "removed"]:
+        life.alpha = 1.0
+        life.scale = 0.5
+        if not self.is_opponent:
+            startx = x = life.width*1.3
+            starty = y = life.height
+            dir = 1
+        else:
+            startx = x = -life.width*1.3
+            starty = y = -life.height
+            dir = -1
+        for status in ["hand", "library", "graveyard", "removed"][::dir]:
             symbol, value = self.symbols[status], self.values[status]
             symbol.scale = 0.3
-            symbol.pos = euclid.Vector3(x, y-symbol.height/2, 0)
-            value.pos = euclid.Vector3(x+symbol.width/2, y-symbol.height/2, 0)
-            x += symbol.width*1.2+value.width
-            if status == "library":
+            symbol.pos = euclid.Vector3(x+symbol.width/2*dir, y-symbol.height/4*dir, 0)
+            value.pos = euclid.Vector3(x+symbol.width/2*dir, y-symbol.height/4*dir, 0)
+            x += symbol.width*1.2*dir
+            if (not self.is_opponent and status == "library") or (self.is_opponent and status == "graveyard"):
                 x = startx
-                y -= symbol.height*1
-        self.width = x
+                y -= symbol.height*0.9*dir
+        width = x-symbol.width*0.2*dir
         if not self.is_opponent:
-            life.pos = euclid.Vector3(0, 0, 0)
-            self.active.pos = euclid.Vector3(0, 0, 0)
-            lifevalue.pos = euclid.Vector3(0, 0, 0)
-            self.player_name.pos = euclid.Vector3(0, starty, 0)
-            self.manapool.pos = self.manapool.orig_pos = euclid.Vector3(x, 0, 0) #-self.manapool.height/2, 0)
+            x, y = life.width/2, life.height/2
+            life.pos = euclid.Vector3(x, y, 0)
+            self.active.pos = euclid.Vector3(x, y, 0)
+            lifevalue.pos = euclid.Vector3(x, y, 0)
+            self.player_name.pos = euclid.Vector3(x, -self.player_name.height, 0)
+            self.manapool.pos = self.manapool.orig_pos = euclid.Vector3((width-self.manapool.width)/2, starty+self.manapool.height, 0)
+            self._transx = -(width-self.manapool.width)/2
+            self._transy = self.player_name.height
         else:
-            x += value.width+symbol.width*.2
-            life.pos = euclid.Vector3(x, 0, 0)
-            self.active.pos = euclid.Vector3(x,0,0)
-            lifevalue.pos = euclid.Vector3(x,0,0)
-            self.player_name.pos = euclid.Vector3(x, starty, 0)
-            self.manapool.pos = self.manapool.orig_pos = euclid.Vector3(-self.manapool.width-30, 0, 0) #starty-self.manapool.height/2, 0)
+            x, y = -life.width/2, -life.height/2
+            life.pos = euclid.Vector3(x, y, 0)
+            self.active.pos = euclid.Vector3(x,y,0)
+            lifevalue.pos = euclid.Vector3(x,y,0)
+            self.player_name.pos = euclid.Vector3(x, 0, 0)
+            self.manapool.pos = self.manapool.orig_pos = euclid.Vector3(-(self.manapool.width-width)/2, starty-self.manapool.height, 0)
+            self._transx = 0.2*width
+            self._transy = -self.player_name.height
     def render_after_transform(self):
         self.active.render()
-        for symbol, value in zip(self.symbols.values(), self.values.values()):
+        for status in ["life", "hand", "library", "graveyard", "removed"]:
+            symbol, value = self.symbols[status], self.values[status]
             symbol.render()
             value.render()
         self.player_name.render()
