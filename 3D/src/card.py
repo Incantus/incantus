@@ -186,7 +186,7 @@ class PlayCard(Card):
         self.is_creature = False
         self.tapping = anim.animate(0, 0, dt=0.3)
         self.highlighting = anim.animate(0, 0, dt=0.2)
-        self.zooming = anim.animate(0, 0, dt=0.2)
+        self.zooming = anim.animate(0, 0, dt=0.4)
         self.pos_transition = "ease_out_circ" #"ease_out_back"
         self._pos.set_transition(dt=0.4, method=self.pos_transition) #"ease_out_back")
         #self._pos.y = anim.animate(guicard._pos.y, guicard._pos.y, dt=0.4, method="ease_out")
@@ -320,7 +320,8 @@ class PlayCard(Card):
         if self.zooming == 0.0:
             self.zooming = 1.0
             self.old_pos = self.pos
-            self._pos.set_transition(dt=0.5, method="ease_out_back") #self.pos_transition)
+            self._pos.set_transition(dt=0.4, method="ease_out_back") #self.pos_transition)
+            #self._pos.y = anim.animate(self._pos.y, self._pos.y, dt=0.4, method="sine")
             #self._orientation.set_transition(dt=0.5, method="sine")
             self.pos = camera.pos - camera.orientation*euclid.Vector3(0,0,camera.vis_distance) - euclid.Vector3(0,0,z) + offset
             self.orig_orientation = self.orientation
@@ -333,9 +334,9 @@ class PlayCard(Card):
                 self.text.scale = 0.4
                 self.damage_text.visible = 1.0
     def restore_pos(self):
-        self.zooming = anim.animate(self.zooming, 0.0, dt=0.2)
+        self.zooming = 0.0 #anim.animate(self.zooming, 0.0, dt=0.2)
         self._pos.set_transition(dt=0.4, method=self.pos_transition)
-        #self._pos.y = anim.animate(guicard._pos.y, guicard._pos.y, dt=0.4, method="ease_out")
+        #self._pos.y = anim.animate(self._pos.y, self._pos.y, dt=0.4, method="sine")
         # XXX old self._pos.set_transition(dt=0.2, method="ease_out_circ")
         #self._orientation.set_transition(dt=0.3, method="sine")
         self.pos = self.old_pos
