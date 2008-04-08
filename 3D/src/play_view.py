@@ -336,7 +336,7 @@ class Table(object):
         for x in range(-4*SIZE, 4*SIZE, SIZE):
             for y in range(-4*SIZE, 4*SIZE, SIZE):
                 if ((x + y) / SIZE) % 2:
-                    glColor3f(0.1, 0.1, 0.1)
+                    glColor3f(0.2, 0.2, 0.2)
                 else:
                     glColor3f(0.3, 0.3, 0.3)
                 glEnable(GL_TEXTURE_2D)
