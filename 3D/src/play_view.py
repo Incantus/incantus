@@ -158,9 +158,9 @@ class PlayView(Widget):
         if startt != 0: guicard.visible = anim.animate(0,1,dt=startt, method="step")
         guicard.size = anim.animate(0.005, 0.010, dt=0.2, method="sine")
         guicard.alpha = anim.animate(0.5, 1,startt=startt, dt=1.0, method="ease_out_circ")
-        guicard._orientation.set_transition(dt=0.3, method="sine")
-        guicard._pos.set_transition(dt=0.4, method="ease_out_circ") #"ease_out_back")
-        guicard._pos.y = anim.animate(guicard._pos.y, guicard._pos.y, dt=0.4, method="ease_out")
+        guicard._orientation.set_transition(dt=0.2, method="sine")
+        guicard._pos.set_transition(dt=0.2, method="ease_out_circ") #"ease_out_back")
+        #guicard._pos.y = anim.animate(guicard._pos.y, guicard._pos.y, dt=0.4, method="sine") #"ease_out")
         return guicard
     def remove_card(self, card, clock):
         guicard = CardLibrary.CardLibrary.getPlayCard(card)
@@ -169,23 +169,37 @@ class PlayView(Widget):
             if guicard in cardlist: break
         guicard.alpha = anim.animate(1, 0.25, dt=1.5, method="ease_in_circ")
         clock.schedule_once(lambda t: cardlist.remove(guicard) or self.layout(), 1.5)
+    #def card_attached_new(self, sender, attached):
+    # XXX This is to handle attaching to the other player's permanents
+    #    attachment = CardLibrary.CardLibrary.getPlayCard(sender)
+    #    attached = self.get_card(attached) #CardLibrary.CardLibrary.getPlayCard(attached)
+    #    if attachment in self.other_perms: self.other_perms.remove(attachment)
+    #    if attached: # Not coming into play, (Equipments)
+    #        self.attached.append(attachment)
+    #        if Match.isBasicLand(attached.gamecard):
+    #            for landtype in self.lands.values():
+    #                if attached in landtype:
+    #                    break
+    #            landtype.remove(attached)
+    #            self.lands["Other"].append(attached)
+    #    self.layout()
     def card_attached(self, sender, attached):
-        attachment = CardLibrary.CardLibrary.getPlayCard(sender)
-        attached = CardLibrary.CardLibrary.getPlayCard(attached)
-        if attachment in self.other_perms: # Not coming into play, (Equipments)
-            self.other_perms.remove(attachment)
+        attachment = self.get_card(sender) #CardLibrary.CardLibrary.getPlayCard(sender)
+        attached = self.get_card(attached) #CardLibrary.CardLibrary.getPlayCard(attached)
+        if attachment and attached: #in self.other_perms:
             self.attached.append(attachment)
+            self.other_perms.remove(attachment)
             if Match.isBasicLand(attached.gamecard):
+                self.lands["Other"].remove(attached)
                 for landtype in self.lands.values():
-                    if attached in landtype:
-                        break
+                    if attached in landtype: break
                 landtype.remove(attached)
                 self.lands["Other"].append(attached)
             self.layout()
     def card_unattached(self, sender, unattached):
-        attachment = CardLibrary.CardLibrary.getPlayCard(sender)
-        unattached = CardLibrary.CardLibrary.getPlayCard(unattached)
-        if attachment in self.attached:
+        attachment = self.get_card(sender) #CardLibrary.CardLibrary.getPlayCard(sender)
+        unattached = self.get_card(unattached) #CardLibrary.CardLibrary.getPlayCard(unattached)
+        if attachment and unattached: #in self.attached:
             self.attached.remove(attachment)
             self.other_perms.append(attachment)
             if Match.isBasicLand(unattached.gamecard):
@@ -221,22 +235,6 @@ class PlayView(Widget):
             cards = []
             for card in cardlist:
                 if not card.can_layout: continue
-                #halfx = size*card.spacing*0.5
-                #x += halfx
-                #pos = euclid.Vector3(x, y, row)
-                #positions.append(pos)
-                #cards.append(card)
-                #x += halfx
-                #y += y_incr
-                #max_row_height = compare(max_row_height, size*card.height)
-                #for i, attachment in enumerate(card.gamecard.attachments):
-                #    halfz = 0.1*size*card.height
-                #    halfx = 0.1*size*card.
-                #    attachment = self.get_card(attachment)
-                #    attachpos = pos - euclid.Vector3(halfx, y, halfz)*(i+1)
-                #    positions.append(attachpos)
-                #    cards.append(attachment)
-
                 z = 0
                 big_halfx = size*card.spacing*0.5
                 if not len(card.gamecard.attachments): halfx = big_halfx
@@ -245,6 +243,7 @@ class PlayView(Widget):
                     halfx = 0.1*size*card.spacing*0.5
                 for attachment in card.gamecard.attachments[::-1]:
                     attachment = self.get_card(attachment)
+                    if not attachment: continue
                     x += halfx
                     positions.append(euclid.Vector3(x, y, row+z))
                     cards.append(attachment)
