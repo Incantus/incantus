@@ -19,10 +19,12 @@ class _CardLibrary:
         self.counter = 0
         self.tokencounter = 0
 
-    def createToken(self, name, player, color, type, subtypes):
+    def createToken(self, name, player, color, type, subtypes, cost="0"):
+        import CardEnvironment
         token = GameToken(player)
         token.name = name
         token.color = characteristic(color)
+        token.cost = CardEnvironment.ManaCost(cost)
         token.type = characteristic(type)
         token.subtypes = characteristic(subtypes)
         #token.key = (self.tokencounter, color, "token")
