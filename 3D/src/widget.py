@@ -12,7 +12,8 @@ from anim_euclid import AnimatedVector3, AnimatedQuaternion
 
 font.add_directory("./data/fonts")
 #fontlist = ["Vinque", "Moderna", "Legrand MF", "Grange MF", "Cry Uncial", "BoisterBlack", "Aniron", "Thaleia", "AlfredDrake"]
-fontname = "Legrand MF"
+fontname = "Dumbledor 1 Thin" #"Legrand MF" #"Dumbledor 1" #Grantham Roman" #Legrand MF"
+fontincr = 5 #0 # 5
 
 class ImageCache(object):
     cache = {}
@@ -145,7 +146,7 @@ class Label(Widget):
         self.background = background
         self.color = color
         self.fontname = fontname
-        self.size = size
+        self.size = size+fontincr
         self.font = font.load(fontname, self.size, dpi=96)
         self._pos.set_transition(dt=0.5, method="ease_out_back")
         self.visible = anim.constant(1)
