@@ -110,6 +110,8 @@ class GameKeeper(MtGObject):
         self.tokens_out_play = []
         self.register(lambda sender: self.tokens_out_play.append(sender), TokenLeavingPlay(), weak=False)
         self.players = (player1, player2)
+        player1.init()
+        player2.init()
         player1.stack = self.stack
         player2.stack = self.stack
         player1.loadDeck()
@@ -174,6 +176,7 @@ class GameKeeper(MtGObject):
         #State-Based Effects - rule 420.5
         # check every time someone gets priority (rule 408.1b)
         # Also during cleanup step - if there is an effect, player gets priority
+        self.send(TimestepEvent())
         players = [self.curr_player, self.other_player]
         actions = 0
         # 420.5a A player with 0 or less life loses the game.

@@ -10,6 +10,7 @@ class GameOver(Exception):
         self.msg = msg
 
 class HasPriorityEvent(Event): pass
+class TimestepEvent(Event): pass
 class GameFocusEvent(Event): pass
 
 class LifeChangedEvent(Event): pass

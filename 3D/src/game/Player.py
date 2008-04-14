@@ -5,7 +5,7 @@ from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntap
 from Mana import ManaPool
 from Zone import Library, Hand, Play, Graveyard, Removed
 from Action import PlaySpell, ActivateForMana, PlayInstant, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
-from Match import isCreature, isPlayer, isGameObject
+from Match import isCreature, isPlayer, isGameObject, isCard
 from data_structures import keywords
 
 class Player(MtGObject):
@@ -44,13 +44,14 @@ class Player(MtGObject):
         self.hand_limit = 7
         self.draw_empty = False
         self.opponent = None
-
+        self.decklist = []
+        self.keywords = keywords()
         self.current_role = self    # XXX This is an ugly hack to get targetting to work uniformly
         #self.targeted = False
-        self.decklist = []
-
-        self.keywords = keywords()
     def match_role(self, role): return False    # XXX This is an ugly hack to get targetting to work uniformly
+    def init(self):
+        self.library.init()
+        self.graveyard.init()
     def __str__(self):
         return self.name
         #return "Player: %s"%self.name
@@ -74,9 +75,7 @@ class Player(MtGObject):
             num = int(num)
             for n in range(num):
                 card = CardLibrary.createCard(name, self)
-                #XXX Taken care of in CardLibrary
-                #card.controller = card.owner = self # XXX If this is commented, then the cost calculation breaks for playing spells (since the controller isn't defined as yet)
-                self.library.add_card(card)
+                self.library.setup_card(card)
     def shuffleDeck(self):
         self.library.shuffle()
     def draw(self):
@@ -315,7 +314,7 @@ class Player(MtGObject):
         sel = self.input(context,"%s: %s"%(self.name,prompt))
         if isinstance(sel, CancelAction): return False
         else: return sel
-    def getCardSelection(self, sellist, numselections, card_types, from_zone, from_player, required=True, prompt=''):
+    def getCardSelection(self, sellist, numselections, from_zone, from_player, card_types=isCard, required=True, prompt=''):
         def filter(action):
             if isinstance(action, CancelAction) and not required: return action
             if not isinstance(action, PassPriority): return action.selection
