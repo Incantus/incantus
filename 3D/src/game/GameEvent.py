@@ -9,9 +9,10 @@ class GameOver(Exception):
     def __init__(self, msg):
         self.msg = msg
 
-class LifeChangedEvent(Event): pass
 class HasPriorityEvent(Event): pass
+class GameFocusEvent(Event): pass
 
+class LifeChangedEvent(Event): pass
 class DrawCardEvent(Event): pass
 class DiscardCardEvent(Event): pass
 class CardEnteringZone(Event): pass

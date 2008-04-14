@@ -1,7 +1,7 @@
 
 from CardLibrary import CardLibrary
 from GameObjects import MtGObject, Card
-from GameEvent import DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeChangedEvent, TargetedByEvent, InvalidTargetEvent
+from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeChangedEvent, TargetedByEvent, InvalidTargetEvent
 from Mana import ManaPool
 from Zone import Library, Hand, Play, Graveyard, Removed
 from Action import PlaySpell, ActivateForMana, PlayInstant, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
@@ -92,7 +92,7 @@ class Player(MtGObject):
         number = 7
         while True:
             number -= 1
-            if self.getIntention("Would you like to mulligan", "Would you like to mulligan?"):
+            if self.getIntention("", "Would you like to mulligan"): #, "Would you like to mulligan?"):
                 for card in self.hand:
                     self.moveCard(card, from_location=self.hand, to_location=self.library)
                 self.shuffleDeck()
@@ -156,7 +156,7 @@ class Player(MtGObject):
                 if creature.mustAttack(): return True
                 has_creature = True
         if not has_creature: return False
-        else: return self.getIntention("Declare intention to attack", msg="...attack this turn?")
+        else: return True #self.getIntention("Declare intention to attack", msg="...attack this turn?")
     def declareAttackers(self):
         attackers = []
         # XXX First check requirements for all creatures that must attack
@@ -268,9 +268,12 @@ class Player(MtGObject):
 
     # The following functions interface with the GUI of the game, and as a result they are kind
     # of convoluted. All interaction with the GUI is carried out through the input function (which
-    # is set to dirty_input from the MtG app) with a context object which indicates the action to perform
+    # is set to dirty_input from the Incantus app) with a context object which indicates the action to perform
     # as well as a filtering function (process) that can convert user actions into game actions (or even
     # discard improper actions (see dirty_input).
+    def input(self, context, prompt):
+        self.send(GameFocusEvent())
+        return self.dirty_input(context, prompt)
     def get(self, process=None, prompt=''):
         def convert_gui_action(action):
             if isinstance(action, PassPriority) or isinstance(action, CancelAction): return action
@@ -302,12 +305,13 @@ class Player(MtGObject):
         if not msg: msg = prompt
         result = self.input(context, "%s: %s"%(self.name,prompt))
         return isinstance(result, OKAction)
-    def getSelection(self, sellist, numselections, required=True, prompt=''):
+    def getSelection(self, sellist, numselections, required=True, msg='', prompt=''):
         def filter(action):
             if isinstance(action, CancelAction) and not required: return action
             if not isinstance(action, PassPriority): return action.selection
             return False
-        context = {'get_selection': True, 'list':sellist, 'numselections': numselections, 'required': required, 'process': filter}
+        if msg == '': msg = prompt
+        context = {'get_selection': True, 'list':sellist, 'numselections': numselections, 'required': required, 'msg': msg, 'process': filter}
         sel = self.input(context,"%s: %s"%(self.name,prompt))
         if isinstance(sel, CancelAction): return False
         else: return sel
@@ -398,6 +402,7 @@ class Player(MtGObject):
     def getX(self, prompt="Select amount for X"):
         def filter(action):
             if isinstance(action, CancelAction): return action
+            if isinstance(action, PassPriority): return False
             else: return action.amount
         context = {'get_X': True, "process": filter}
         result = self.input(context, "%s: %s"%(self.name,prompt))
