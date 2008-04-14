@@ -126,6 +126,7 @@ class GameKeeper(MtGObject):
         if not self.ready_to_start: raise Exception("Players not added - not ready to start")
         # XXX This is hacky - need a better way to signal end of game
         for player in [self.game_phases.curr_player, self.game_phases.other_player]:
+            self.curr_player = player
             player.mulligan()
         try:
             while True:
@@ -344,7 +345,6 @@ class GameKeeper(MtGObject):
         self.setState("PreCombat")
         self.playInstantaneous()
         self.blocking_list = []
-        self.send(HasPriorityEvent(), player=self.curr_player)
         if self.curr_player.attackingIntention():
             # Attacking
             self.setState("Attack")
