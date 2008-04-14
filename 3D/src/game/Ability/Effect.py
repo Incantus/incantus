@@ -268,7 +268,7 @@ class ManaChoice(Effect):
     def __call__(self, card, target):
         if not isPlayer(target): raise Exception("Invalid target for adding mana")
         choices = [("Add %s to your mana pool"%c,c) for c in self.choices]
-        choice = target.getSelection(choices, 1, prompt="Select one mana to add")
+        choice = target.getSelection(choices, 1, prompt="Select mana to add")
         target.manapool.addMana(choice)
         card.send(ManaEvent())
         return True
