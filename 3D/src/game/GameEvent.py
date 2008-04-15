@@ -31,10 +31,10 @@ class SubtypeModifiedEvent(Event): pass
 class SubtypeRestoredEvent(Event): pass
 class CounterAddedEvent(Event): pass
 class CounterRemovedEvent(Event): pass
+class AbilityAnnounced(Event): pass
+class AbilityCanceled(Event): pass
 class AbilityPlacedOnStack(Event): pass
 class AbilityRemovedFromStack(Event): pass
-#class AbilityPlayed(Event): pass
-#class AbilityProcessed(Event): pass
 class AbilityResolved(Event): pass
 class AbilityCountered(Event): pass
 class MorphEvent(Event): pass

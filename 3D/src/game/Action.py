@@ -71,35 +71,47 @@ class PlayAction(Action):
         # Now make a copy of the ability to populate it
         ability = ability.copy()
 
-        # Do all the stuff in rule 409.1 like pick targets, pay
-        # costs, etc
-        success =  ability.compute_cost()
-        if success and ability.needs_target(): success = ability.get_target()
-        if success: success = ability.pay_cost()
-
+        self.card.current_role.onstack = True
+        if ability.needs_stack(): success = player.stack.announce(ability)
+        else: success = player.stack.stackless(ability)
         if success:
             #print "%s plays (%s) of %s"%(player.name,ability,self.card)
-            if ability.needs_stack():
-                # Add it to the stack
-                self.card.current_role.onstack = True
-                player.stack.push(ability)
-                player.send(PlayActionEvent(), card=self.card, ability=ability)
-            else:
-                ability.played()
-                ability.do_resolve()
-                player.send(PlayActionEvent(), card=self.card, ability=ability)
-                del ability
-        # if not successful, invalidate casting
+            player.send(PlayActionEvent(), card=self.card, ability=ability)
         else:
             #print "%s: Failed playing %s - %s"%(player.name, self.card, ability)
-            # Abort everything
-            #XXX self.card.current_role.onstack = False
-            #return costs - this is already done
-            #ability.reverse_payment()
-            del ability
+            self.card.current_role.onstack = False
         return success
 
-class PlayLand(PlayAction):
+class PlayAbility(PlayAction):
+    # The function of this is identical to PlayAction - the only reason I need it
+    # is to differentiate the times when only Instants/Abilities can be played
+    # XXX There might be a better way to structure this - probably when coding Flash (502.57)
+    def perform(self, player):
+        success = super(PlayAbility,self).perform(player)
+        if success: player.send(PlayAbilityEvent(), card=self.card)
+        return success
+
+class PlayInstant(PlayAction):
+    # The function of this is identical to PlayAction - the only reason I need it
+    # is to differentiate the times when only Instants/Abilities can be played
+    # XXX There might be a better way to structure this - probably when coding Flash (502.57)
+    def perform(self, player):
+        success = super(PlayInstant,self).perform(player)
+        if success: player.send(PlaySpellEvent(), card=self.card)
+        return success
+
+class PlaySpell(PlayAction):
+    # The function of this is identical to PlayAction - the only reason I need it
+    # is to differentiate the times when only Instants/Abilities can be played
+    # XXX There might be a better way to structure this
+    def perform(self, player):
+        success = super(PlaySpell,self).perform(player)
+        if success: player.send(PlaySpellEvent(), card=self.card)
+        return success
+
+class PlayLand(Action):
+    def __init__(self, card):
+        self.card = card
     def check_zone(self):
         # Can only play a land from your hand
         return self.card.zone == self.card.controller.hand
@@ -114,38 +126,10 @@ class PlayLand(PlayAction):
         #print "%s plays %s"%(player.name,self.card)
         return True
 
-class PlayAbility(PlayAction):
-    # The function of this is identical to PlaySpell - the only reason I need it
-    # is to differentiate the times when only Instants/Abilities can be played
-    # XXX There might be a better way to structure this - probably when coding Flash (502.57)
-    def perform(self, player):
-        success = super(PlayAbility,self).perform(player)
-        if success: player.send(PlayAbilityEvent(), card=self.card)
-        return success
-
-class PlayInstant(PlayAction):
-    # The function of this is identical to PlaySpell - the only reason I need it
-    # is to differentiate the times when only Instants/Abilities can be played
-    # XXX There might be a better way to structure this - probably when coding Flash (502.57)
-    def perform(self, player):
-        success = super(PlayInstant,self).perform(player)
-        if success: player.send(PlaySpellEvent(), card=self.card)
-        return success
-
-class PlaySpell(PlayAction):
-    # The function of this is identical to PlaySpell - the only reason I need it
-    # is to differentiate the times when only Instants/Abilities can be played
-    # XXX There might be a better way to structure this
-    def perform(self, player):
-        success = super(PlaySpell,self).perform(player)
-        if success: player.send(PlaySpellEvent(), card=self.card)
-        return success
-
 class ActivateForMana(Action):
     def __init__(self, card):
         self.card = card
     def perform(self, player):
-        import Ability
         # Check if the card can be provide mana
         mana_abilities = []
         for ability in self.card.current_role.abilities:
@@ -164,16 +148,6 @@ class ActivateForMana(Action):
             if not ability: return False
 
             ability = ability.copy()
-            # Does it have to be free mana? How about mana that requires a sacrifice
-            success =  ability.compute_cost()
-            if success and ability.needs_target(): success = ability.get_target()
-            if success: success = ability.pay_cost()
-
-            if success:
-                #print "%s activates (%s) of %s"%(player.name,ability,self.card)
-                ability.played()
-                ability.do_resolve()
-            del ability
-            return success
+            return player.stack.stackless(ability)
         else: return False
 

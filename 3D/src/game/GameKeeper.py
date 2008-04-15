@@ -36,10 +36,42 @@ class Stack(MtGObject):
                     results = player.getSelection(abilities, len(abilities), required=False, prompt="Order triggered abilities")
                 if not results: results = range(len(triggered))
                 # Now reorder
-                for i in results: self.push(triggered[i])
+                for i in results: self.announce(triggered[i])
             self.triggered_abilities[:] = []
             return True
         else: return False
+    def announce(self, ability):
+        # Do all the stuff in rule 409.1 like pick targets, pay
+        # costs, etc
+        self.send(AbilityAnnounced(), ability=ability)
+        success = True
+        if hasattr(ability, "cost"):
+            success = ability.compute_cost()
+            if success and ability.needs_target(): success = ability.get_target()
+            if success: success = ability.pay_cost()
+        else:
+            if ability.needs_target(): success = ability.get_target()
+        if success: self.push(ability)
+        else:
+            self.send(AbilityCanceled(), ability=ability)
+            del ability
+        return success
+    def skip_announce(self, ability):
+        self.send(AbilityAnnounced(), ability=ability)
+        self.push(ability)
+    def stackless(self, ability):
+        success = True
+        if hasattr(ability, "cost"):
+            success = ability.compute_cost()
+            if success and ability.needs_target(): success = ability.get_target()
+            if success: success = ability.pay_cost()
+        else:
+            if ability.needs_target(): success = ability.get_target()
+        if success:
+            ability.played()
+            ability.do_resolve()
+        del ability
+        return success
     def push(self, ability):
         self.stack.append(ability)
         self.send(AbilityPlacedOnStack(), ability=ability)
@@ -328,7 +360,7 @@ class GameKeeper(MtGObject):
         if first_strike_damage:
             # Handle trample
             if tramplers: handle_trample(tramplers, first_strike_damage)
-            self.stack.push(AssignDamage(first_strike_damage.items(),"First Strike Damage"))
+            self.stack.skip_announce(AssignDamage(first_strike_damage.items(),"First Strike Damage"))
             # Send message about damage going on stack
             self.playInstantaneous()
             # Now make sure that the creatures doing damage in the second step still exist
@@ -340,7 +372,7 @@ class GameKeeper(MtGObject):
         # Handle trample
         if tramplers: handle_trample(tramplers, regular_combat_damage)
         if regular_combat_damage:
-            self.stack.push(AssignDamage(regular_combat_damage.items(), "Regular Combat Damage"))
+            self.stack.skip_announce(AssignDamage(regular_combat_damage.items(), "Regular Combat Damage"))
             # Send message about damage going on stack
         self.playInstantaneous()
     def combatPhase(self):

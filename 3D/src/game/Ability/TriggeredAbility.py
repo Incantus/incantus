@@ -31,21 +31,6 @@ class TriggeredAbility(MtGObject):
 def Play(card, ability):
     # This is identical to Action.PlaySpell - there's probably a way to combine them
     player = card.controller
-    success = True
-    if hasattr(ability, "cost"):
-        success = ability.compute_cost()
-        if success and ability.needs_target(): success = ability.get_target()
-        if success: success = ability.pay_cost()
-    else:
-        if ability.needs_target(): success = ability.get_target()
-
-    if success:
-        if ability.needs_stack():
-            # Add it to the stack
-            card.current_role.onstack = True
-            player.stack.add_triggered(ability)
-        else:
-            ability.played()
-            ability.do_resolve()
-            del ability
-    return success
+    if ability.needs_stack(): player.stack.add_triggered(ability)
+    else: player.stack.stackless(ability)
+    return True
