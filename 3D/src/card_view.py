@@ -43,7 +43,12 @@ class CardView(Widget):
         super(CardView,self).hide()
         for c in self.cards: c.alpha = 0.0
 
-    focused = property(fget=lambda self: self.cards[self.focus_idx])
+    def focused():
+        def fget(self):
+            if self.cards: return self.cards[self.focus_idx]
+            else: return None
+        return locals()
+    focused = property(**focused())
 
     def focus_next(self):
         if self.visible == 1 and self.focus_idx < len(self)-1:
@@ -502,8 +507,7 @@ class ZoneView(CardView):
         newcard.size = anim.animate(0.1, 0.1, dt=0.2, method="sine")
         newcard.alpha = anim.animate(0, 1, dt=1.0, method="ease_out_circ")
         self.cards.append(newcard)
-    def select_card(self):
-        card = self.focused
+    def select_card(self, card):
         self.cards.remove(card)
         self.selected.append(card)
         if self.focus_dir < 0: self.focus_idx += self.focus_dir
@@ -519,9 +523,10 @@ class ZoneView(CardView):
     def handle_click(self, x, y):
         size = self.focus_size / 4.
         card = self.focused
-        sx, sy, sw, sh = card.pos.x, card.pos.y, card.width/2, card.height/2
-        if x > sx-sw and x < sx+sw and y >= sy-sh and y <= sy+sh:
-            return 0, card
+        if card:
+            sx, sy, sw, sh = card.pos.x, card.pos.y, card.width/2, card.height/2
+            if x > sx-sw and x < sx+sw and y >= sy-sh and y <= sy+sh:
+                return 0, card
         for card in self.selected:
             sx, sy, sw, sh = card.pos.x, card.pos.y, card.width*size, card.height*size
             if x > sx-sw and x < sx+sw and y >= sy-sh and y <= sy+sh:
