@@ -1,4 +1,4 @@
-from Ability import Ability, StacklessAbility
+from Ability import Ability
 from ActivatedAbility import DoOrAbility
 from Effect import RemoveCounter, SacrificeSelf, TriggerEffect, PayExtraCost
 from Target import Target

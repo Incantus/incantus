@@ -110,4 +110,5 @@ class DoOrAbility(ActivatedAbility):
         else: return ', '.join(map(str,self.failed))
         #return "%s or %s"%(', '.join(map(str,self.effects)), ', '.join(map(str,self.failed)))
 
+class StacklessActivatedAbility(Stackless, ActivatedAbility): pass
 class StacklessDoOrAbility(Stackless, DoOrAbility): pass

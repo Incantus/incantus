@@ -1,5 +1,5 @@
-from Ability import Ability, Stackless, PostponeTargeting, StacklessAbility, PostponedAbility
-from ActivatedAbility import ActivatedAbility, DoOrAbility
+from Ability import Ability, PostponeTargeting, PostponedAbility
+from ActivatedAbility import ActivatedAbility, DoOrAbility, StacklessActivatedAbility
 from CastingAbility import CastPermanentSpell
 from Effect import *
 from Target import Target
@@ -10,7 +10,6 @@ from game.Match import SelfMatch, isLandType
 from game.Cost import EvokeCost, ManaCost, TapCost, MultipleCosts
 from game.characteristics import all_characteristics
 
-class StacklessActivatedAbility(Stackless, ActivatedAbility): pass
 class DoOrAbilityPostponed(PostponeTargeting, DoOrAbility): pass
 
 class ClashAbility(StacklessActivatedAbility):
