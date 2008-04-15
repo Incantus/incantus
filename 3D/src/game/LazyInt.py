@@ -1,9 +1,9 @@
 
 from pydispatch import dispatcher
-from GameEvent import PlayActionEvent, HasPriorityEvent
+from GameEvent import HasPriorityEvent, TimestepEvent
 
 class LazyInt:
-    def __init__(self, func, finalize=False, event=HasPriorityEvent()): #event=PlayActionEvent()):
+    def __init__(self, func, finalize=False, event=HasPriorityEvent()): #TimestepEvent()):
         if not callable(func): raise Exception("Argument to LazyInt init must be a function")
         self._func = func
         self._final_value = None
