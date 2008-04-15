@@ -208,6 +208,8 @@ class Role(object):
     def copy(self):
         import copy
         return copy.deepcopy(self)
+    def __str__(self):
+        return self.__class__.__name__
 
 class Land(Role):
     def __init__(self, color):
@@ -357,23 +359,14 @@ class Creature(Role):
     def canTap(self): return self.continuouslyInPlay()
     def shouldDestroy(self):
         return self.__damage >= self.toughness
-    def __str__(self):
-        return "Creature"
 
 class TokenCreature(Creature):
-    def __str__(self):
-        return "Token"
     def leavingPlay(self):
         self.send(TokenLeavingPlay())
         super(TokenCreature,self).leavingPlay()
 
-class Artifact(Role):
-    def __str__(self):
-        return "Artifact"
-
-class Enchantment(Role):
-    def __str__(self):
-        return "Enchantment"
+class Artifact(Role)
+class Enchantment(Role)
 
 class Attachment(object):
     def attach(self, target):
@@ -403,14 +396,9 @@ class Equipment(Attachment, Artifact):
         super(Equipment,self).__init__()
         self.attached_to = None
         self.target_types = None
-    def __str__(self):
-        return "Equipment"
 
 class Aura(Attachment, Enchantment):
     def __init__(self, target_types=None):
         super(Aura,self).__init__()
         self.attached_to = None
         self.target_types = target_types
-    def __str__(self):
-        return "Aura"
-
