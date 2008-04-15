@@ -1,3 +1,5 @@
+# This file should always be imported at module level scope
+
 import glob, os
 import urllib
 import bsddb

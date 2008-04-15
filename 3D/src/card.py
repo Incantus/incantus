@@ -35,6 +35,14 @@ class Card(anim.Animable):
             self._orientation.w = val.w
         return locals()
     orientation = property(**orientation())
+    def hidden():
+        def fget(self): return self._hidden
+        def fset(self, hidden):
+            self._hidden = hidden
+            if hidden: self._texture = self.back
+            else: self._texture = self.front
+        return locals()
+    hidden = property(**hidden())
 
     size = anim.Animatable()
     visible = anim.Animatable()
@@ -46,7 +54,7 @@ class Card(anim.Animable):
     def __init__(self, gamecard, front, back):
         self.front = front
         self.back = back
-        self.texture = front
+        self.hidden = False
         self.gamecard = gamecard
         self.width, self.height = self.front.width, self.front.height
         self.size = anim.constant(1.0) 
@@ -60,7 +68,7 @@ class Card(anim.Animable):
         width = self.width/2.0; height=self.height/2.0
         cls.vertlist = [euclid.Point3(-width, -height, 0), euclid.Point3(width, -height, 0), euclid.Point3(width, height, 0), euclid.Point3(-width, height, 0)]
         vertlist = cls.vertlist
-        tc = self.texture.tex_coords
+        tc = self._texture.tex_coords
         cardlist = glGenLists(1)
         cls.cardlist = cardlist
         glNewList(cardlist, GL_COMPILE)
@@ -82,11 +90,13 @@ class Card(anim.Animable):
             glTranslatef(self.pos.x, self.pos.y, self.pos.z)
             glMultMatrixf(sixteenfv(*tuple(self.orientation.get_matrix())))
             glScalef(size, size, 1)
-            glEnable(self.texture.target)
-            glBindTexture(self.texture.target, self.texture.id)
+            glEnable(self._texture.target)
+            glBindTexture(self._texture.target, self._texture.id)
+            #glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) #LINEAR)
             glColor4f(self.alpha, self.alpha, self.alpha, self.alpha)
             glCallList(self.cardlist)
-            glDisable(self.texture.target)
+            glDisable(self._texture.target)
             glPopMatrix()
     def intersects(self, selectRay):
         # This is the slow way
@@ -151,15 +161,15 @@ class StackCard(Card):
             glTranslatef(self.pos.x, self.pos.y, self.pos.z)
             glMultMatrixf(sixteenfv(*tuple(self.orientation.get_matrix())))
             glScalef(size, size, 1)
-            glEnable(self.texture.target)
-            glBindTexture(self.texture.target, self.texture.id)
+            glEnable(self._texture.target)
+            glBindTexture(self._texture.target, self._texture.id)
             glColor4f(1, 1, 1, self.alpha)
             glCallList(self.cardlist)
             if self.triggered:
                 glBindTexture(self.trigger.target, self.trigger.id)
                 glColor4f(self.color[0], self.color[1], self.color[2], self.alpha)
                 glCallList(self.triggeredlist)
-            glDisable(self.texture.target)
+            glDisable(self._texture.target)
             glPopMatrix()
 
 
@@ -215,7 +225,7 @@ class PlayCard(Card):
         self.text.orig_pos = euclid.Vector3(0,-self.height*0.25,0.01)
         self.text.zoom_pos = euclid.Vector3(self.width*0.375,-self.height*0.454, 0.01)
         self.text.pos = self.text.orig_pos
-        self.damage_text = Label("", size=34, background=False, shadow=True, halign="center", valign="center", color=(1., 0., 0., 1.))
+        self.damage_text = Label("", size=34, background=True, shadow=False, halign="center", valign="center", color=(1., 0., 0., 1.))
         #self.damage_text._scale = anim.animate(0.0, 0.0, dt=0.25, method="sine")
         self.damage_text.scale = 0.4
         self.damage_text.visible = 0
@@ -365,11 +375,11 @@ class PlayCard(Card):
             glMultMatrixf(sixteenfv(*tuple(self.orientation.get_matrix())))
             #glScalef(size, size, size)
             glScalef(size, size, 1)
-            glEnable(self.texture.target)
-            glBindTexture(self.texture.target, self.texture.id)
+            glEnable(self._texture.target)
+            glBindTexture(self._texture.target, self._texture.id)
             glColor4f(self.alpha, self.alpha, self.alpha, self.alpha)
             glCallList(self.cardlist)
-            glDisable(self.texture.target)
+            glDisable(self._texture.target)
             for c in self.counters: c.draw()
             glPopMatrix()
     def draw_creature(self):
@@ -389,13 +399,13 @@ class PlayCard(Card):
             glMultMatrixf(sixteenfv(*tuple(self.orientation.get_matrix())))
             #glScalef(size, size, size)
             glScalef(size, size, 1)
-            glEnable(self.texture.target)
-            glBindTexture(self.texture.target, self.texture.id)
+            glEnable(self._texture.target)
+            glBindTexture(self._texture.target, self._texture.id)
             glColor4f(self.alpha, self.alpha, self.alpha, self.alpha)
             glCallList(self.cardlist)
             self.text.render()
             self.damage_text.render()
-            glDisable(self.texture.target)
+            glDisable(self._texture.target)
             for c in self.counters: c.draw()
             glPopMatrix()
     def copy(self): return PlayCard(self.gamecard, self.front, self.back)

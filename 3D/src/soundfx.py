@@ -27,7 +27,7 @@ class MediaEffects(object):
         dispatcher.connect(self.tap.play, signal=GameEvent.CardUntapped(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.lifeloss.play, signal=GameEvent.LifeChangedEvent(), priority=dispatcher.UI_PRIORITY)
         #dispatcher.connect(self.clink.play, signal=GUIEvent.FocusCard(), sender=dispatcher.Anonymous, priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.play_ability.play, signal=GameEvent.AbilityPlacedOnStack(), priority=dispatcher.UI_PRIORITY)
+        #dispatcher.connect(self.play_ability.play, signal=GameEvent.AbilityAnnounced(), priority=dispatcher.UI_PRIORITY)
         #dispatcher.connect(self.enter_sound.play, signal=GameEvent.CardEnteredZone(), sender=game.player1.play, priority=dispatcher.UI_PRIORITY)
         #dispatcher.connect(self.enter_sound.play, signal=GameEvent.CardEnteredZone(), sender=game.player2.play, priority=dispatcher.UI_PRIORITY)
         #dispatcher.connect(self.start_combat.play, signal=GameEvent.DeclareAttackersEvent(), priority=dispatcher.UI_PRIORITY)

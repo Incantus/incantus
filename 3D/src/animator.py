@@ -109,7 +109,7 @@ class ZoneAnimator(object):
         self.red_zone = None
     def setup(self, main_status, other_status, stack, main_play, other_play, board):
         for playerstatus, playzone in zip([main_status, other_status], [main_play, other_play]):
-            for status in ["hand", "library", "graveyard", "removed"]:
+            for status in ["library", "graveyard", "removed"]:
                 self.status_zones[getattr(playerstatus.player, status)] = (playerstatus, playerstatus.symbols[status])
             self.play_zones[playerstatus.player.play] = playzone
             self.player_status[playerstatus.player] = (playerstatus, playerstatus.symbols["life"])
@@ -120,7 +120,7 @@ class ZoneAnimator(object):
     def register(self):
         dispatcher.connect(self.enter_zone, signal=GameEvent.CardEnteredZone(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.leave_zone, signal=GameEvent.CardLeftZone(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.enter_stack, signal=GameEvent.AbilityPlacedOnStack(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.enter_stack, signal=GameEvent.AbilityAnnounced(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.leave_stack, signal=GameEvent.AbilityRemovedFromStack(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.controller_changed, signal=GameEvent.CardControllerChanged(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.declare_attackers, signal=GameEvent.DeclareAttackersEvent(), priority=dispatcher.UI_PRIORITY)
@@ -139,7 +139,7 @@ class ZoneAnimator(object):
                 life._pos.set_transition(dt=0.25, method=lambda t: anim.oscillate_n(t, 4))
                 life.pos += euclid.Vector3(10, 0, 0)
                 clock.schedule_once(lambda t: setattr(life, "shaking", 0), 0.5)
-        if isPermanent(target):
+        elif isPermanent(target):
             zone = self.play_zones[target.zone]
             guicard = zone.get_card(target)
             guicard.shake()

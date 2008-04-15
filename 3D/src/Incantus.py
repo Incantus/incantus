@@ -56,7 +56,7 @@ class Camera:
         self._orientation.set_transition(dt=0.5, method="sine")
         #self._orientation.rotate_axis(-7*math.pi/16, euclid.Vector3(1,0,0))
         #self._orientation.rotate_axis(-15*math.pi/32, euclid.Vector3(1,0,0))
-        self._orientation.rotate_axis(-63*math.pi/128, euclid.Vector3(1,0,0))
+        self._orientation.rotate_axis(-127*math.pi/256, euclid.Vector3(1,0,0))
         #self._orientation.rotate_axis(-math.pi/2, euclid.Vector3(1,0,0))
         self.vis_distance = 6.5
     def setup(self):
@@ -101,6 +101,8 @@ class GameWindow(window.Window):
         self.damage_assignment = DamageSelector(self.mainplay, self.otherplay, self)
         self.player_hand = HandView()
         self.hand_controller = HandController(self.player_hand, self)
+        self.otherplayer_hand = HandView(is_opponent=True)
+        self.otherhand_controller = HandController(self.otherplayer_hand, self)
         self.stack = StackView()
         self.stack_controller = StackController(self.stack, self)
         self.fps = pyglet.clock.ClockDisplay(color=(0.2, 0.2, 0.2, 0.4))
@@ -150,10 +152,11 @@ class GameWindow(window.Window):
         glMatrixMode(GL_MODELVIEW)
         self.mainplayer_status.resize(width, height)
         self.otherplayer_status.resize(width, height)
-        self.game_status.resize(width, height)
+        self.stack.pos = euclid.Vector3(50,height-110,0)
+        self.player_hand.resize(width, height, width-self.mainplayer_status.width)
+        self.otherplayer_hand.resize(width, height, width-self.mainplayer_status.width)
+        self.game_status.resize(width, height, self.mainplayer_status.width)
         self.phase_status.resize(width, height)
-        self.stack.pos = euclid.Vector3(50,height-25,0)
-        self.player_hand.pos = euclid.Vector3(width/2,-150,0)
 
     def draw(self):
         self.clear()
@@ -170,62 +173,61 @@ class GameWindow(window.Window):
         glEnable(GL_DEPTH_TEST)
         self.flip()
 
+    def draw_haze(self):
+        fraction = 0.1
+        glBegin(GL_QUADS)
+        fAlpha = 1.0
+        glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
+        glVertex2f(0, 0)
+        fAlpha = 0.0
+        glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
+        glVertex2f(width*fraction, 0)
+        fAlpha = 0.0
+        glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
+        glVertex2f (width*fraction, height)
+        fAlpha = 1.0
+        glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
+        glVertex2f(0, height)
+        glEnd()
+        # draw right mask
+        glBegin(GL_QUADS)
+        fAlpha = 0.0
+        glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
+        glVertex2f(width *(1-fraction), 0)
+        fAlpha = 1.0
+        glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
+        glVertex2f(width,0)
+        fAlpha = 1.0
+        glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
+        glVertex2f(width,height)
+        fAlpha = 0.0
+        glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
+        glVertex2f(width *(1-fraction),height)
+        glEnd()
     def draw_overlay(self):
         # draw left mask
         width, height = self.width, self.height
         afBGColor = [0.0, 0.0, 0.0, 1.0]
         self.set_2d(-50, 50)
-        glDisable(GL_TEXTURE_2D)
-        def draw_haze():
-            fraction = 0.1
-            glBegin(GL_QUADS)
-            fAlpha = 1.0
-            glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
-            glVertex2f(0, 0)
-            fAlpha = 0.0
-            glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
-            glVertex2f(width*fraction, 0)
-            fAlpha = 0.0
-            glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
-            glVertex2f (width*fraction, height)
-            fAlpha = 1.0
-            glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
-            glVertex2f(0, height)
-            glEnd()
-            # draw right mask
-            glBegin(GL_QUADS)
-            fAlpha = 0.0
-            glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
-            glVertex2f(width *(1-fraction), 0)
-            fAlpha = 1.0
-            glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
-            glVertex2f(width,0)
-            fAlpha = 1.0
-            glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
-            glVertex2f(width,height)
-            fAlpha = 0.0
-            glColor4f(afBGColor[0], afBGColor[1], afBGColor[2], fAlpha)
-            glVertex2f(width *(1-fraction),height)
-            glEnd()
-        draw_haze()
-        glEnable(GL_TEXTURE_2D)
+        #glDisable(GL_TEXTURE_2D)
+        #self.draw_haze()
+        #glEnable(GL_TEXTURE_2D)
         self.phase_status.render()
         self.otherplayer_status.render()
         self.mainplayer_status.render()
-        self.zone_view.render()
         self.stack.render()
         self.zone_animator.render2d()
+        self.game_status.render()
+        self.otherplayer_hand.render()
         self.player_hand.render()
+        self.zone_view.render()
         self.selection.render()
         self.msg_dialog.render()
-        self.game_status.render()
-        self.fps.draw()
+        #self.fps.draw()
         glDisable(GL_TEXTURE_2D)
         self.unset_2d()
 
     def on_mouse_motion(self, x, y, dx, dy, tmp_dx=[0]):
-        if y <= 20 and len(self.player_hand) > 0:
-            self.hand_controller.activate()
         if len(self.stack) and (x > self.stack.pos.x-50 and x < self.stack.pos.x+50 and 
                 y > self.stack.pos.y-50 and y < self.stack.pos.y+50):
             self.stack_controller.activate()
@@ -255,15 +257,19 @@ class GameWindow(window.Window):
         elif not self.start_new_game:
             if symbol == key.N:
                 self.status_controller.set_solitaire()
+                self.otherplayer_hand.set_solitaire()
                 self.action_new_game()
             elif symbol == key.F6:
                 self.status_controller.set_solitaire()
+                self.otherplayer_hand.set_solitaire()
                 self.restart_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")))
             elif symbol == key.F7:
                 self.status_controller.set_solitaire()
+                self.otherplayer_hand.set_solitaire()
                 self.action_new_game(True)
             elif symbol == key.F8:
                 self.status_controller.set_solitaire()
+                self.otherplayer_hand.set_solitaire()
                 self.action_new_game(False)
             elif symbol == key.C: # client
                 self.start_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")), False)
@@ -271,10 +277,10 @@ class GameWindow(window.Window):
                 self.start_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")), True)
         elif self.start_new_game:
             if symbol == key.F2:
-                if self.hand_controller.activated: self.hand_controller.deactivate()
+                #if self.hand_controller.activated: self.hand_controller.deactivate()
                 self.phase_controller.activate(other=False)
             elif symbol == key.F3:
-                if self.hand_controller.activated: self.hand_controller.deactivate()
+                #if self.hand_controller.activated: self.hand_controller.deactivate()
                 self.phase_controller.activate(other=True)
         else:
             return event.EVENT_UNHANDLED
@@ -332,7 +338,7 @@ class GameWindow(window.Window):
         self.mainplay.clear()
         self.otherplay.clear()
         self.player_hand.clear()
-        #self.otherplayer_hand.clear()
+        self.otherplayer_hand.clear()
         self.mainplayer_status.clear()
         self.otherplayer_status.clear()
         self.game_status.log("Press 'n' to start a solitaire game")
@@ -370,8 +376,6 @@ class GameWindow(window.Window):
         player1.setOpponent(player2)
         player2.setOpponent(player1)
 
-        self.make_connections((0,0,255), (255,255,0))
-
         # Choose starting player
         random.seed(seed)
         coin = random.randint(0,1)
@@ -397,6 +401,7 @@ class GameWindow(window.Window):
             if coin == 0: first_player, second_player = player2, player1
             else: first_player, second_player = player1, player2
 
+        self.make_connections((0,0,255), (255,255,0))
         game.Keeper.init(first_player, second_player)
 
         # Save info for replay
@@ -462,8 +467,6 @@ class GameWindow(window.Window):
         player1.setOpponent(player2)
         player2.setOpponent(player1)
 
-        self.make_connections((0,0,255), (255,255,0))
-
         # Choose starting player
         random.seed(seed)
         coin = random.randint(0,1)
@@ -471,21 +474,24 @@ class GameWindow(window.Window):
         if name == player1.name: first_player, second_player = player1, player2
         else: first_player, second_player = player2, player1
 
+        self.make_connections((0,0,255), (255,255,0))
         game.Keeper.init(first_player, second_player)
+
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in [player1, player2]])
         replaydump.stack = game.Keeper.stack
-        player1.input = self.userinput
-        player2.input = self.userinput_network_other
+        player1.dirty_input = self.userinput
+        player2.dirty_input = self.userinput_network_other
 
         self.start_new_game = True
 
     def action_new_game(self, replay=None):
-        self.game_status.log("Starting new game")
-
-        if replay == None: self.replay = self.replay_fast = False
+        if replay == None:
+            self.replay = self.replay_fast = False
+            self.game_status.log("Starting new game")
         else:
+            self.game_status.log("Reloading game")
             self.replay = True
             self.replay_fast = replay
         replay_file = self.conf.get("main", "replayfile")
@@ -524,7 +530,6 @@ class GameWindow(window.Window):
         player1.setDeck(my_deck)
         player2.setDeck(other_deck)
 
-        self.make_connections((0,0,255), (255,0,0))
         # Choose starting player
         random.seed(seed)
         coin = random.randint(0,1)
@@ -537,6 +542,7 @@ class GameWindow(window.Window):
             if name == player1.name: first_player, second_player = player1, player2
             else: first_player, second_player = player2, player1
 
+        self.make_connections((0,0,255), (255,255,0))
         game.Keeper.init(first_player, second_player)
 
         if self.conf.get("solitaire", "manaburn") == "No":
@@ -545,8 +551,8 @@ class GameWindow(window.Window):
         # This is hacky
         replaydump.players = dict([(player.name,player) for player in [player1, player2]])
         replaydump.stack = game.Keeper.stack
-        player1.input = self.userinput
-        player2.input = self.userinput
+        player1.dirty_input = self.userinput
+        player2.dirty_input = self.userinput
         self.start_new_game = True
 
     def make_connections(self, self_color, other_color):
@@ -554,47 +560,26 @@ class GameWindow(window.Window):
         self.mainplayer_status.setup_player(self.player1, self_color)
         self.otherplayer_status.setup_player(self.player2, other_color)
         self.hand_controller.set_zone(self.player1.hand)
+        self.otherhand_controller.set_zone(self.player2.hand)
         self.stack_controller.set_zone(game.Keeper.stack)
         self.play_controller.set_zones(self.player1.play, self.player2.play)
         #self.game_status.setup_player_colors(self.player1, self_color, other_color)
         self.phase_status.setup_player_colors(self.player1, self_color, other_color)
         self.zone_animator.setup(self.mainplayer_status, self.otherplayer_status, self.stack, self.mainplay,self.otherplay,self.table)
 
-        dispatcher.connect(self.hand_controller.activate, signal=game.GameEvent.DrawCardEvent(), sender=self.player1)
+        dispatcher.connect(self.stack.finalize_announcement, signal=game.GameEvent.AbilityPlacedOnStack())
+        dispatcher.connect(self.stack.remove_ability, signal=game.GameEvent.AbilityCanceled())
+        dispatcher.connect(self.player_hand.card_off_stack, signal=game.GameEvent.AbilityCanceled())
+        dispatcher.connect(self.otherplayer_hand.card_off_stack, signal=game.GameEvent.AbilityCanceled())
+
         dispatcher.connect(self.player_hand.add_card, signal=game.GameEvent.CardEnteredZone(), sender=self.player1.hand, priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.player_hand.remove_card, signal=game.GameEvent.CardLeftZone(), sender=self.player1.hand, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.player_hand.card_on_stack, signal=game.GameEvent.AbilityPlacedOnStack())
-        dispatcher.connect(self.player_hand.card_off_stack, signal=game.GameEvent.AbilityRemovedFromStack())
+        dispatcher.connect(self.player_hand.card_on_stack, signal=game.GameEvent.AbilityAnnounced())
 
-        #dispatcher.connect(self.otherplayer_hand.add_card, signal=game.GameEvent.CardEnteredZone(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.otherplayer_hand.card_on_stack, signal=game.GameEvent.AbilityPlacedOnStack(), priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.otherplayer_hand.remove_card, signal=game.GameEvent.CardLeftZone(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_hand.add_card, signal=game.GameEvent.CardEnteredZone(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_hand.remove_card, signal=game.GameEvent.CardLeftZone(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_hand.card_on_stack, signal=game.GameEvent.AbilityAnnounced(), priority=dispatcher.UI_PRIORITY)
 
-        # XXX These are now handled by the zone animator
-        #dispatcher.connect(self.mainplay.add_card, signal=game.GameEvent.CardEnteredZone(), sender=self.player1.play)
-        #dispatcher.connect(self.otherplay.add_card, signal=game.GameEvent.CardEnteredZone(), sender=self.player2.play)
-        #dispatcher.connect(self.mainplay.remove_card, signal=game.GameEvent.CardLeftZone(), sender=self.player1.play)
-        #dispatcher.connect(self.otherplay.remove_card, signal=game.GameEvent.CardLeftZone(), sender=self.player2.play)
-        #dispatcher.connect(self.stack.add_ability, signal=game.GameEvent.AbilityPlacedOnStack(), sender=game.Keeper.stack)
-        #dispatcher.connect(self.stack.remove_ability, signal=game.GameEvent.AbilityRemovedFromStack(), sender=game.Keeper.stack)
-
-        #XXX These are all handled by the animator
-        #dispatcher.connect(self.mainplayer_status.update_cards, signal=game.GameEvent.CardEnteredZone(), sender=self.player1.hand)
-        #dispatcher.connect(self.mainplayer_status.update_cards, signal=game.GameEvent.CardLeftZone(), sender=self.player1.hand)
-        #dispatcher.connect(self.otherplayer_status.update_cards, signal=game.GameEvent.CardEnteredZone(), sender=self.player2.hand)
-        #dispatcher.connect(self.otherplayer_status.update_cards, signal=game.GameEvent.CardLeftZone(), sender=self.player2.hand)
-        #dispatcher.connect(self.mainplayer_status.update_cards, signal=game.GameEvent.CardEnteredZone(), sender=self.player1.library)
-        #dispatcher.connect(self.mainplayer_status.update_cards, signal=game.GameEvent.CardLeftZone(), sender=self.player1.library)
-        #dispatcher.connect(self.otherplayer_status.update_cards, signal=game.GameEvent.CardEnteredZone(), sender=self.player2.library)
-        #dispatcher.connect(self.otherplayer_status.update_cards, signal=game.GameEvent.CardLeftZone(), sender=self.player2.library)
-        #dispatcher.connect(self.mainplayer_status.update_cards, signal=game.GameEvent.CardEnteredZone(), sender=self.player1.graveyard)
-        #dispatcher.connect(self.mainplayer_status.update_cards, signal=game.GameEvent.CardLeftZone(), sender=self.player1.graveyard)
-        #dispatcher.connect(self.otherplayer_status.update_cards, signal=game.GameEvent.CardEnteredZone(), sender=self.player2.graveyard)
-        #dispatcher.connect(self.otherplayer_status.update_cards, signal=game.GameEvent.CardLeftZone(), sender=self.player2.graveyard)
-        #dispatcher.connect(self.mainplayer_status.update_cards, signal=game.GameEvent.CardEnteredZone(), sender=self.player1.removed)
-        #dispatcher.connect(self.mainplayer_status.update_cards, signal=game.GameEvent.CardLeftZone(), sender=self.player1.removed)
-        #dispatcher.connect(self.otherplayer_status.update_cards, signal=game.GameEvent.CardEnteredZone(), sender=self.player2.removed)
-        #dispatcher.connect(self.otherplayer_status.update_cards, signal=game.GameEvent.CardLeftZone(), sender=self.player2.removed)
         dispatcher.connect(self.mainplayer_status.animate_life, signal=game.GameEvent.LifeChangedEvent(),sender=self.player1, priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.otherplayer_status.animate_life, signal=game.GameEvent.LifeChangedEvent(),sender=self.player2, priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.mainplayer_status.manapool.update_mana, signal=game.GameEvent.ManaAdded(), sender=self.player1.manapool, priority=dispatcher.UI_PRIORITY)
@@ -606,7 +591,8 @@ class GameWindow(window.Window):
 
         dispatcher.connect(self.phase_status.new_turn, signal=game.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.phase_status.set_phase, signal=game.GameEvent.GameStepEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.phase_status.pass_priority, signal=game.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
+        #dispatcher.connect(self.phase_status.pass_priority, signal=game.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.phase_status.change_focus, signal=game.GameEvent.GameFocusEvent(), priority=dispatcher.UI_PRIORITY)
         #dispatcher.connect(self.game_status.set_phase, signal=game.GameEvent.GameStepEvent(), priority=dispatcher.UI_PRIORITY)
         #dispatcher.connect(self.game_status.pass_priority, signal=game.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.mainplayer_status.new_turn, signal=game.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
@@ -632,6 +618,8 @@ class GameWindow(window.Window):
         self.soundfx.connect(self)
         self.play_controller.activate()
         self.status_controller.activate()
+        self.hand_controller.activate()
+        self.otherhand_controller.activate()
         self.mainplayer_status.show()
         self.otherplayer_status.show()
 
@@ -689,7 +677,8 @@ class GameWindow(window.Window):
         CardLibrary.CardLibrary.close()
 
     def userinput_network_other(self, context, prompt=''):
-        self.game_status.log(prompt)
+        #self.game_status.log(prompt)
+        self.game_status.log("Waiting for %s"%self.player2.name)
         networkevent = False
 
         if self.replay and self.replay_fast:
@@ -728,14 +717,15 @@ class GameWindow(window.Window):
             required = context['required']
             from_zone = context['from_zone']
             from_player = context['from_player']
-            if self.hand_controller.activated: self.hand_controller.deactivate()
+            #if self.hand_controller.activated: self.hand_controller.deactivate()
             self.card_selector.activate(sellist, from_zone, numselections, required=required, is_opponent=(from_player != self.player1))
         elif context.get("get_selection", False):
             sellist = context['list']
             numselections = context['numselections']
             required = context['required']
-            if self.hand_controller.activated: self.hand_controller.deactivate()
-            self.list_selector.build(sellist,required,numselections,prompt)
+            msg = context['msg']
+            #if self.hand_controller.activated: self.hand_controller.deactivate()
+            self.list_selector.build(sellist,required,numselections,msg)
         elif context.get("get_choice", False):
             msg = context['msg']
             #if self.hand_controller.activated: self.hand_controller.deactivate()
@@ -743,20 +733,20 @@ class GameWindow(window.Window):
         elif context.get("get_mana_choice", False):
             required = context['required']
             manapool = context['manapool']
-            if self.hand_controller.activated: self.hand_controller.deactivate()
+            #if self.hand_controller.activated: self.hand_controller.deactivate()
             self.mana_controller.request_mana(required, manapool)
         elif context.get("get_X", False):
-            if self.hand_controller.activated: self.hand_controller.deactivate()
+            #if self.hand_controller.activated: self.hand_controller.deactivate()
             self.x_controller.request_x()
         elif context.get("get_damage_assign", False):
             blocking_list = context['blocking_list']
             trample = context['trample']
-            if self.hand_controller.activated: self.hand_controller.deactivate()
+            #if self.hand_controller.activated: self.hand_controller.deactivate()
             self.damage_assignment.activate(blocking_list, trample)
         elif context.get("reveal_card", False):
             #msgs = context['msgs']
             sellist = context['cards']
-            if self.hand_controller.activated: self.hand_controller.deactivate()
+            #if self.hand_controller.activated: self.hand_controller.deactivate()
             self.card_selector.activate(sellist, '', 0, required=False)
 
         while not (self.has_exit or userevent):
@@ -777,8 +767,8 @@ class GameWindow(window.Window):
         return result
 
 def main():
-    width = 800
-    height = 600
+    width = 1024
+    height = 768
     configs = [
         Config(double_buffer=True, depth_size=24,
                sample_buffers=1, samples=4),

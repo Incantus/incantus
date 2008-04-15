@@ -12,8 +12,8 @@ from anim_euclid import AnimatedVector3, AnimatedQuaternion
 
 font.add_directory("./data/fonts")
 #fontlist = ["Vinque", "Moderna", "Legrand MF", "Grange MF", "Cry Uncial", "BoisterBlack", "Aniron", "Thaleia", "AlfredDrake"]
-fontname = "Dumbledor 1 Thin" #"Legrand MF" #"Dumbledor 1" #Grantham Roman" #Legrand MF"
-fontincr = 5 #0 # 5
+fontname = "Dumbledor 1" #"Legrand MF" #"Dumbledor 1" #Grantham Roman" #Legrand MF"
+fontincr = 0 # 5
 
 class ImageCache(object):
     cache = {}
@@ -92,7 +92,6 @@ class Widget(anim.Animable):
             glScalef(self.scale, self.scale, self.scale)
             self.render_after_transform()
             glPopMatrix()
-    #def render_after_transform(self): pass
 
 class Image(Widget):
     alpha = anim.Animatable()
@@ -107,21 +106,10 @@ class Image(Widget):
         self.color = (1.0, 1.0, 1.0)
         self._pos.set_transition(dt=0.5, method="ease_out_back")
         self._scale = anim.animate(self._final_scale, self._final_scale, dt=0.25, method="sine")
-        #width, height = self.img.width, self.img.height
-        #self.vertlist = [euclid.Point3(-width / 2.0, -height / 2.0, 0), euclid.Point3(width / 2.0, -height / 2.0, 0), euclid.Point3(width / 2.0, height / 2.0, 0), euclid.Point3(-width / 2.0, height / 2.0, 0)]
     def render_after_transform(self):
         glColor4f(self.color[0], self.color[1], self.color[2], self.alpha)
         img = self.img
         img.blit(-img.width/2,-img.height/2,0)
-        #tc = self.img.tex_coords
-        #vertlist = self.vertlist
-        #glBindTexture(self.img.target, self.img.id)
-        #glBegin(GL_QUADS)
-        #glTexCoord2f(tc[0], tc[1]); glVertex3f(*tuple(vertlist[0]))
-        #glTexCoord2f(tc[3], tc[4]); glVertex3f(*tuple(vertlist[1]))
-        #glTexCoord2f(tc[6], tc[7]); glVertex3f(*tuple(vertlist[2]))
-        #glTexCoord2f(tc[9], tc[10]); glVertex3f(*tuple(vertlist[3]))
-        #glEnd()
 
 class Label(Widget):
     width = property(fget=lambda self: self._width*self._final_scale)
@@ -136,7 +124,7 @@ class Label(Widget):
         return locals()
     value = property(**value())
 
-    def __init__(self, value, size=20, color=(1,1,1,1), shadow=True, halign="left", valign="bottom", background=False, pos=euclid.Vector3(0,0,0), width=None):
+    def __init__(self, value, size=20, color=(1,1,1,1), shadow=True, halign="left", valign="bottom", background=False, pos=euclid.Vector3(0,0,0), border=False, width=None):
         super(Label,self).__init__(pos)
         self._fixed_width = width
         self._value = None
@@ -150,7 +138,8 @@ class Label(Widget):
         self.font = font.load(fontname, self.size, dpi=96)
         self._pos.set_transition(dt=0.5, method="ease_out_back")
         self.visible = anim.constant(1)
-        self.border = 0
+        self.render_border = border
+        self.border = 5
         self.set_text(value)
     def set_size(self, size):
         if not size == self.size:
@@ -170,9 +159,16 @@ class Label(Widget):
         elif self.halign == "center": x = -width/2
         if self.valign == "top": y = -height
         elif self.valign == "center": y = -height/2
-        glColor4f(0.1, 0.1, 0.1, 0.8)
         glDisable(GL_TEXTURE_2D)
+        glColor4f(0.1, 0.1, 0.1, 0.8)
         glBegin(GL_QUADS)
+        glVertex2f(x-border,y-border)
+        glVertex2f(x+width+border,y-border)
+        glVertex2f(x+width+border,y+height+border)
+        glVertex2f(x-border,y+height+border)
+        glEnd()
+        glColor4f(0, 0, 0, 1)
+        glBegin(GL_LINE_LOOP)
         glVertex2f(x-border,y-border)
         glVertex2f(x+width+border,y-border)
         glVertex2f(x+width+border,y+height+border)
@@ -181,7 +177,7 @@ class Label(Widget):
         glEnable(GL_TEXTURE_2D)
     def render_after_transform(self):
         if not self._value: return
-        if self.background:
+        if self.background or self.render_border:
             self.render_background()
             glTranslatef(0,0,0.001)
         if self.shadow:

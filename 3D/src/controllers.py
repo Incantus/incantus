@@ -8,6 +8,7 @@ class MessageController(object):
         self.dialog = dialog
         self.window = window
         self.do_action = True
+        self.click = None
     def activate(self):
         self.dialog._pos.set(euclid.Vector3(self.window.width/2, self.window.height/2, 0))
         self.dialog.show()
@@ -35,18 +36,33 @@ class MessageController(object):
         elif symbol in [key.F2, key.F3]:
             return True
     def on_mouse_press(self, x, y, button, modifiers):
-        return True
-    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        return True
-    def on_mouse_release(self, x, y, button, modifiers):
         x -= self.dialog.pos.x
         y -= self.dialog.pos.y
-        result = self.dialog.handle_click(x, y)
+        item, result = self.dialog.handle_click(x, y)
         if not result == -1:
-            if self.do_action:
-                if result == True: self.window.user_action = Action.OKAction()
-                else: self.window.user_action = Action.CancelAction()
-            self.deactivate()
+            self.click = item
+            item.main_text.color = (0.5, 0.5, 0.5, 1.0)
+        return True
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        if self.click:
+            x -= self.dialog.pos.x
+            y -= self.dialog.pos.y
+            item, result = self.dialog.handle_click(x, y)
+            if not item == self.click: self.click.main_text.color = self.click.color
+            else: item.main_text.color = (0.5, 0.5, 0.5, 1.0)
+        return True
+    def on_mouse_release(self, x, y, button, modifiers):
+        if self.click:
+            x -= self.dialog.pos.x
+            y -= self.dialog.pos.y
+            item, result = self.dialog.handle_click(x, y)
+            if item == self.click:
+                if self.do_action:
+                    if result == True: self.window.user_action = Action.OKAction()
+                    else: self.window.user_action = Action.CancelAction()
+                self.deactivate()
+            self.click.main_text.color = self.click.color
+            self.click = None
         return True
 
 class SelectController(object):
@@ -54,17 +70,86 @@ class SelectController(object):
         self.listview = listview
         self.window = window
         self.required = False
-        self.tmp_dy = 0
-        #self.index = None
+        self.index = -1
     def activate(self):
         self.listview._pos.set(euclid.Vector3(self.window.width/2, self.window.height/2, 0))
         self.listview.show()
-        #self.window.set_mouse_visible(False)
+        self.window.push_handlers(self)
+        self.dragging = False
+        self.tmp_dy = 0
+    def deactivate(self):
+        self.listview.hide()
+        self.window.pop_handlers()
+    def build(self,sellist,required,numselections,prompt=''):
+        self.required = required
+        self.numselections = numselections
+        self.listview.construct(prompt,sellist)
+        self.activate()
+    def on_key_press(self, symbol, modifiers):
+        if symbol == key.ENTER:
+            if self.numselections != 1:
+                self.return_selections()
+            return True
+        elif symbol == key.ESCAPE:
+            if not self.required:
+                self.window.user_action = Action.CancelAction()
+                self.deactivate()
+            return True
+        elif symbol == key.UP:
+            self.listview.focus_previous()
+        elif symbol == key.DOWN:
+            self.listview.focus_next()
+    def return_selections(self):
+        if self.numselections == 1: SelAction = Action.SingleSelected
+        else: SelAction = Action.MultipleSelected
+        self.window.user_action = SelAction(self.listview.selection(self.index, self.numselections))
+        self.deactivate()
+    def on_mouse_press(self, x, y, button, modifiers):
+        x -= self.listview.pos.x
+        y -= self.listview.pos.y
+        self.index = self.listview.handle_click(x, y)
+        return True
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        if not self.index == -1:
+            self.dragging = True
+            self.tmp_dy += dy
+            if self.tmp_dy > 2:
+                self.tmp_dy = 0
+                self.listview.move_up()
+            elif self.tmp_dy < -2:
+                self.tmp_dy = 0
+                self.listview.move_down()
+        return True
+    def on_mouse_release(self, x, y, button, modifiers):
+        if not self.index == -1:
+            if self.dragging:
+                self.dragging = False
+            else:
+                x -= self.listview.pos.x
+                y -= self.listview.pos.y
+                idx = self.listview.handle_click(x, y)
+                if idx == self.index:
+                    self.return_selections()
+            self.index = -1
+        return True
+    def on_mouse_motion(self, x, y, dx, dy):
+        return True
+
+class SelectControllerScroll(object):
+    def __init__(self, listview, window):
+        self.listview = listview
+        self.window = window
+        self.required = False
+        self.tmp_dy = 0
+    def activate(self):
+        self.listview._pos.set(euclid.Vector3(self.window.width/2, self.window.height/2, 0))
+        self.listview.show()
+        self.window.set_mouse_visible(False)
         self.window.push_handlers(self)
         self.dragging = False
     def deactivate(self):
         self.listview.hide()
-        #self.window.set_mouse_visible(True)
+        self.window.set_mouse_visible(True)
         self.window.pop_handlers()
     def build(self,sellist,required,numselections,prompt=''):
         self.required = required
@@ -123,6 +208,100 @@ class SelectController(object):
         return True
 
 class CardSelector(object):
+    def __init__(self, mainstatus, otherstatus, zone_view, window):
+        self.mainstatus = mainstatus
+        self.otherstatus = otherstatus
+        self.zone_view = zone_view
+        self.window = window
+    def activate(self, sellist, from_zone, number=1, required=False, is_opponent=False):
+        self.required = required
+        self.number = number
+        self.tmp_dx = 0
+        self.window.push_handlers(self)
+        # Figure out where to pop up
+        if from_zone == '': self.zone_view.pos = euclid.Vector3(self.window.width/2, self.window.height/2, 0)
+        else:
+            if not is_opponent: status = self.mainstatus
+            else: status = self.otherstatus
+            self.zone_view.pos = status.pos + status.symbols[from_zone].pos
+        self.zone_view.build(sellist, is_opponent)
+        self.zone_view.show()
+        self.dragging = False
+    def deactivate(self):
+        self.zone_view.hide()
+        self.window.pop_handlers()
+    def on_key_press(self, symbol, modifiers):
+        if symbol == key.ENTER:
+            #if self.number == 1:
+            #    self.window.user_action = Action.MultipleSelected([self.zone_view.focused.gamecard])
+            #    self.deactivate()
+            #else:
+            selection = [card.gamecard for card in self.zone_view.selected]
+            if (len(selection) == self.number) or (len(self.zone_view.cards) == 0 and len(selection) < self.number):
+                self.window.user_action = Action.MultipleSelected(selection)
+                self.deactivate()
+            return True
+        elif symbol == key.ESCAPE:
+            if not self.required: self.window.user_action = Action.CancelAction()
+            self.deactivate()
+            return True
+        elif symbol == key.LEFT:
+            if self.zone_view.focus_previous():
+                sc, dx = self.zone_view.scroll, self.zone_view.scroll_shift
+                self.zone_view.scroll = (sc[0]-dx, sc[1], sc[2]-dx, sc[3])
+            return True
+        elif symbol == key.RIGHT:
+            if self.zone_view.focus_next():
+                sc, dx = self.zone_view.scroll, self.zone_view.scroll_shift
+                self.zone_view.scroll = (sc[0]+dx, sc[1], sc[2]+dx, sc[3])
+            return True
+        elif symbol == key.UP:
+            self.zone_view.toggle_sort()
+            return True
+    def on_mouse_press(self, x, y, button, modifiers):
+        x -= self.zone_view.pos.x
+        y -= self.zone_view.pos.y
+        # Check scroll bar
+        l, b, r, t = self.zone_view.scroll
+        if x >= l and x <= r and y >= b and y <= t:
+            self.dragging = True
+        else:
+            flag, result = self.zone_view.handle_click(x, y)
+            if flag == 0:
+                if len(self.zone_view.cards):
+                    #if self.number == 1:
+                    #    self.window.user_action = Action.MultipleSelected([self.zone_view.focused.gamecard])
+                    #    self.deactivate()
+                    #else:
+                    if len(self.zone_view.selected) < self.number:
+                        self.zone_view.select_card()
+            elif flag == 1:
+                self.zone_view.deselect_card(result)
+        return True
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        zv = self.zone_view
+        if self.dragging:
+            x -= zv.pos.x
+            scroll_width = (zv.scroll[2]-zv.scroll[0])/2
+            if zv.scroll_bar[0]+scroll_width < x < zv.scroll_bar[2]-scroll_width:
+                self.tmp_dx += dx
+                sc = zv.scroll
+                zv.scroll = (sc[0]+dx, sc[1], sc[2]+dx, sc[3])
+                idx_change = int(self.tmp_dx / zv.scroll_shift)
+                if idx_change != 0:
+                    self.tmp_dx = self.tmp_dx % zv.scroll_shift
+                    if idx_change < 0: self.tmp_dx -= zv.scroll_shift
+                    zv.focus_idx += idx_change
+                    zv.layout()
+        return True
+    def on_mouse_motion(self, x, y, dx, dy):
+        return True
+    def on_mouse_release(self, x, y, button, modifiers):
+        if self.dragging:
+            self.dragging = False
+        return True
+
+class CardSelectorOld(object):
     def __init__(self, mainstatus, otherstatus, zone_view, window):
         self.mainstatus = mainstatus
         self.otherstatus = otherstatus
@@ -327,8 +506,9 @@ class StatusController(object):
             value = status.handle_click(x, y)
             if value:
                 if value == "life": self.window.user_action = Action.PlayerSelected(status.player)
-                if value == "hand" and status == self.otherstatus and not self.solitaire: return True
-                if value == "library": return False # and self.window.start_new_game: return True
+                #if value == "hand" and status == self.otherstatus and not self.solitaire: return True
+                #if value == "hand" and status == self.mainstatus: return True
+                if value == "hand" or value == "library": return True # and self.window.start_new_game: return True
                 elif value in self.observable_zones:
                     zone = getattr(status.player, value)
                     if len(zone):
@@ -414,6 +594,7 @@ class ManaController(object):
         self.mana.pos = euclid.Vector3(0, self.window.height/2, 0)
         self.window.push_handlers(self)
     def deactivate(self):
+        self.reset_mana()
         self.mana.select()
         self.window.pop_handlers()
     def on_key_press(self, symbol, modifiers):
@@ -429,7 +610,6 @@ class ManaController(object):
             return True
         elif symbol == key.ESCAPE:
             self.window.user_action = Action.CancelAction()
-            self.reset_mana()
             self.deactivate()
             return True
     def on_mouse_release(self, x, y, button, modifiers):
@@ -553,18 +733,13 @@ class PlayController(object):
             self.selected.zoom_to_camera(self.camera, play.pos.z)
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         # Move the camera based on mouse movement
-        if not self.zooming:
+        if not self.selected:
             if buttons == mouse.RIGHT or modifiers & key.MOD_SHIFT:
-                self.camera.move_by(euclid.Vector3(0,-dy,0))
-                #if self.camera.pos.y <= 10: self.camera._pos.y = 10
-                #elif self.camera.pos.y >= 25: self.camera._pos.y = 25
-            elif buttons == mouse.LEFT:
                 self.camera.move_by(euclid.Vector3(dx, 0, -dy))
-                #if self.camera.pos.x < -20: self.camera._pos.x = -20
-                #if self.camera.pos.x > 20: self.camera._pos.x = 20
-                #if self.camera.pos.z < -20: self.camera._pos.z = -20
-                #if self.camera.pos.z > 20: self.camera._pos.z = 20
-
+            if buttons == mouse.MIDDLE or modifiers & key.MOD_OPTION:
+                self.camera.move_by(euclid.Vector3(0,-dy,0))
+    def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
+        if not self.zooming: self.camera.move_by(euclid.Vector3(0,scroll_y,0))
     def on_mouse_release(self, x, y, button, modifiers):
         if self.selected is not None:
             if self.zooming:
@@ -580,13 +755,82 @@ class HandController(object):
     def __init__(self, player_hand, window):
         self.player_hand = player_hand
         self.window = window
+        self.card_clicked = None
+        self.mouse_down = False
+        self.dragged = False
+        self.zooming = False
+    def set_zone(self, zone):
+        self.zone = zone
+    def activate(self):
+        self.window.push_handlers(self)
+        self.drag_x = 0
+    def deactivate(self):
+        self.window.pop_handlers()
+    def on_mouse_press(self, x, y, button, modifiers):
+        if self.mouse_down: return True
+        hand = self.player_hand
+        x -= hand.pos.x
+        y -= hand.pos.y
+        if (hand.box[0] < x < hand.box[2] and hand.box[1] < y < hand.box[3]):
+            self.mouse_down = True
+            for card in hand.cards[::-1]:
+                sx, sy, sw, sh = card.pos.x, card.pos.y, card.width*card.size/2, card.height*card.size/2
+                if x > sx-sw and x < sx+sw and y >= sy-sh and y <= sy+sh:
+                    self.card_clicked = card
+                    if (button == mouse.RIGHT or modifiers & key.MOD_OPTION):
+                        self.zooming = True
+                        hand.zoom_card(card)
+        else: self.mouse_down = False
+        return self.mouse_down
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        if self.mouse_down and self.card_clicked:
+            if not self.zooming:
+                self.drag_x += dx
+                self.dragged = True
+                w = self.card_clicked.width*self.card_clicked.size
+                if self.drag_x > w or self.drag_x < -w:
+                    if self.drag_x > w:
+                        for i in range(int(self.drag_x/w)):
+                            if self.player_hand.dir == 1: self.player_hand.shift_right(self.card_clicked)
+                            else: self.player_hand.shift_left(self.card_clicked)
+                    elif self.drag_x < -w:
+                        for i in range(int(self.drag_x/-w)):
+                            if self.player_hand.dir == 1: self.player_hand.shift_left(self.card_clicked)
+                            else: self.player_hand.shift_right(self.card_clicked)
+                    self.player_hand.layout()
+                    self.drag_x = 0
+                self.card_clicked._pos.set(self.card_clicked.pos)
+                self.card_clicked._pos.x = self.card_clicked.pos.x + dx
+        return self.mouse_down
+    def on_mouse_release(self, x, y, button, modifiers):
+        if self.mouse_down:
+            self.mouse_down = False
+            if self.card_clicked:
+                if self.zooming:
+                    self.zooming = False
+                    self.player_hand.restore_card()
+                elif self.dragged:
+                    # Move the card
+                    self.dragged = False
+                    self.player_hand.layout()
+                else:
+                    self.window.user_action = Action.CardSelected(self.card_clicked.gamecard, self.zone)
+                    if modifiers & key.MOD_CTRL: self.window.keep_priority()
+                self.card_clicked = None
+            return True
+        else: return False
+
+class HandControllerPopup(object):
+    def __init__(self, player_hand, window):
+        self.player_hand = player_hand
+        self.window = window
         self.tmp_dx = 0
         self.activated = False
     def set_zone(self, zone):
         self.zone = zone
     def activate(self):
-        self.player_hand.show()
         if not self.activated:
+            self.player_hand.show()
             self.activated = True
             self.window.mainplayer_status.hide()
             #self.window.set_mouse_visible(False)
@@ -619,12 +863,15 @@ class HandController(object):
         return True
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         if modifiers & key.MOD_SHIFT:
-            min_size = 0.2
-            max_size = 1.0
+            min_spacing = 0.7
+            max_spacing = 1.025
             self.tmp_dx += dx
             if self.tmp_dx >= 400: self.tmp_dx = 400
             elif self.tmp_dx <= -400: self.tmp_dx = -400
-            self.player_hand.small_size = 0.6 + (max_size-min_size)*self.tmp_dx/(2*400.)
+            spacing = self.player_hand.unfocused_spacing + (max_spacing-min_spacing)*self.tmp_dx/(2*400.)
+            if spacing > max_spacing: spacing = max_spacing
+            elif spacing < min_spacing: spacing = min_spacing
+            self.player_hand.unfocused_spacing = spacing
             self.player_hand.layout()
         return True
     def on_mouse_release(self, x, y, button, modifiers):
@@ -712,6 +959,8 @@ class StackController(object):
             self.focus_previous()
         elif symbol == key.DOWN:
             self.focus_next()
+        elif symbol == key.RIGHT:
+            stack.text.visible = 1-stack.text.visible
         elif symbol == key.SPACE:
             self.window.user_action = Action.CardSelected(stack.focused.ability, self.zone)
             return True

@@ -1,7 +1,7 @@
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
-from pyglet.gl import glColor4f, glVertex2f, glDisable, glEnable, glBegin, glEnd, glTranslatef, GL_TEXTURE_2D, GL_QUADS
+from pyglet.gl import glColor4f, glVertex2f, glDisable, glEnable, glBegin, glEnd, glTranslatef, GL_TEXTURE_2D, GL_QUADS, glLineWidth, GL_LINE_LOOP
 import anim
 import euclid
 from widget import Widget, Image, Label
@@ -15,15 +15,16 @@ class MessageDialog(Widget):
         self.visible = 0
         self.focus_idx = 0
         self.size = 20
-        self.ok = Label("OK", self.size-4, shadow=True)
-        self.cancel = Label("Cancel", self.size-4, shadow=True)
+        self.ok = Label("OK", self.size-4, shadow=True, border=True)
+        self.cancel = Label("Cancel", self.size-4, shadow=True, border=True)
     def hide(self):
         self.visible = anim.animate(1., 0.0, dt=0.1)
     def handle_click(self, x, y):
         for item, val in [(self.ok, True), (self.cancel, False)]:
-            sx, sy, sw, sh = item.pos.x, item.pos.y, item.width/2., item.height/2.
-            if x > sx and x < sx+sw and y >= sy and y <= sy+sh: return val
-        else: return -1
+            b = item.border
+            sx, sy, sw, sh = item.pos.x-b, item.pos.y-b, item.width+2*b, item.height+2*b
+            if x > sx and x < sx+sw and y >= sy and y <= sy+sh: return (item, val)
+        else: return None, -1
     def construct(self, prompt, msg_type="ask"):
         self.prompt = Label(prompt, self.size, halign="center", shadow=True)
         self.width = max(1.1*(self.ok.width + self.cancel.width), self.prompt.width)
@@ -41,10 +42,17 @@ class MessageDialog(Widget):
             self.ok.pos = euclid.Vector3(-self.width/4-self.ok.width/2, y, 0)
             self.cancel.pos = euclid.Vector3(self.width/4-self.cancel.width/2, y, 0)
     def render_after_transform(self):
-        glColor4f(0.1, 0.1, 0.1, self.alpha)
+        glColor4f(0.2, 0.2, 0.2, self.alpha)
+        w = self.border+self.width/2; h=self.border+self.height/2
         glDisable(GL_TEXTURE_2D)
         glBegin(GL_QUADS)
-        w = self.border+self.width/2; h=self.border+self.height/2
+        glVertex2f(-w, -h)
+        glVertex2f(w, -h)
+        glVertex2f(w,h)
+        glVertex2f(-w, h)
+        glEnd()
+        glColor4f(0.0, 0.0,0.0,1.0)
+        glBegin(GL_LINE_LOOP)
         glVertex2f(-w, -h)
         glVertex2f(w, -h)
         glVertex2f(w,h)
@@ -67,6 +75,8 @@ class SelectionList(Widget):
         self.large_size = 30
         self.small_scale = 0.35
         self.intermediate_scale = 0.55
+        self.layout = self.layout_normal
+        self.prompt = Label("", size=self.large_size, halign="center", shadow=False)
     def move_up(self):
         if self.visible == 1 and self.focus_idx > 0:
             self.focus_dir = -1
@@ -94,7 +104,8 @@ class SelectionList(Widget):
             item.pos = euclid.Vector3(0,0,0)
         self.visible = anim.animate(1., 0.0, dt=0.1)
     def construct(self, prompt, sellist):
-        self.options = [(Label(val[0], size=self.large_size, halign="center", shadow=True), val[1]) for val in sellist]
+        self.prompt.set_text(prompt)
+        self.options = [(Label(val[0], size=self.large_size, halign="center", shadow=False), val[1]) for val in sellist]
         y = 0
         method = "linear" #sine"
         dt = 0.3
@@ -103,11 +114,23 @@ class SelectionList(Widget):
             item._pos.set_transition(dt=dt, method=method)
         self.focus_idx = len(self.options)/2
         self.layout()
-        self.width = max([item[0].width for item in self.options])
-        self.height = sum([item[0].height for item in self.options])
-    def layout(self):
+        self.width = max([item[0].width for item in self.options]+[self.prompt.width])
+        self.height = sum([item[0].height for item in self.options]+[self.prompt.height])
+    def layout_normal(self):
+        x = y = 0
+        self.prompt.scale = 0.7
+        y -= self.prompt.height
+        self.prompt.pos = euclid.Vector3(0, y, 0)
+        for option, val in self.options:
+            option.scale = 0.45
+            y -= option.height
+            option.pos = euclid.Vector3(0, y, 0)
+    def layout_resize(self):
         x = y = 0
         idx = self.focus_idx
+        self.prompt.scale = 0.7
+        y -= self.prompt.height
+        self.prompt.pos = euclid.Vector3(0, y, 0)
         count = 0
         for option, val in self.options[:idx]:
             if count == idx - 1: option.scale = self.intermediate_scale
@@ -126,21 +149,29 @@ class SelectionList(Widget):
             y -= option.height
             option.pos = euclid.Vector3(0,y,0)
             count += 1
-    def selection(self, number=1):
+    def selection(self, index=0, number=1):
         if number == 1:
-            return self.options[self.focus_idx][1]
+            return self.options[index][1]
         else:
             return [self.options[i][1] for i in range(number-1,-1,-1)]
     def handle_click(self, x, y):
-        for item, val in self.options:
-            sx, sy, sw, sh = item.pos.x, item.pos.y, item.width/2., item.height/2.
-            if x > sx and x < sx+sw and y >= sy and y <= sy+sh: return val
+        y -= self.height/2
+        for idx, (item, val) in enumerate(self.options):
+            sx, sy, sw, sh = item.pos.x, item.pos.y, item.width/2., item.height
+            if x > sx-sw and x < sx+sw and y >= sy and y <= sy+sh: return idx
         else: return -1
     def render_after_transform(self):
         glColor4f(0.1, 0.1, 0.1, self.alpha)
         glDisable(GL_TEXTURE_2D)
-        glBegin(GL_QUADS)
         w = self.border+self.width/2; h=self.border+self.height/2
+        glBegin(GL_QUADS)
+        glVertex2f(-w, -h)
+        glVertex2f(w, -h)
+        glVertex2f(w,h)
+        glVertex2f(-w, h)
+        glEnd()
+        glColor4f(0.0, 0.0,0.0,1.0)
+        glBegin(GL_LINE_LOOP)
         glVertex2f(-w, -h)
         glVertex2f(w, -h)
         glVertex2f(w,h)
@@ -148,6 +179,7 @@ class SelectionList(Widget):
         glEnd()
         glEnable(GL_TEXTURE_2D)
         glTranslatef(0,self.height/2,0)
+        self.prompt.render()
         for item, val in self.options:
             item.render()
 
@@ -175,18 +207,19 @@ class GameStatus(Widget):
         super(GameStatus,self).__init__(pos)
         self.screen_width = self.screen_height = 0
         self._pos.set_transition(dt=0.5, method="ease_out_back")
-        self.prompt = Label("", size=20, shadow=False, halign="center", valign="top")
+        self.prompt = Label("", size=20, shadow=False, halign="center", valign="top", background=True)
+        self.prompt.border = 3
         self.prompt._pos.set_transition(dt=0.5, method="sine")
         self.show_log = False
         self.gamelog = [Label('', size=14, halign="left", width=400) for i in range(5)]
         self.logger = LoggingOutput()
     def clear(self):
         self.prompt.set_text("")
-    def resize(self, width, height):
+    def resize(self, width, height, avail_width):
         self.screen_width = width
         self.screen_height = height
-        self.pos = euclid.Vector3(self.screen_width/2, self.screen_height/2, 0)
-        self.prompt.pos = euclid.Vector3(0, self.screen_height/2, 0)
+        self.pos = euclid.Vector3(width/2, height/2, 0)
+        self.prompt.pos = euclid.Vector3(avail_width/2, 125-height/2, 0)
     def log(self, prompt):
         self.prompt.set_text(prompt)
         self.layout()
@@ -241,10 +274,10 @@ class ManaImage(Image):
         if sparkle:
             if not pain: self.glow.color = (1.0, 0.9, 0.0, 0.5)
             else: self.glow.color = (1.0, 0.0, 0.0, 0.5)
-            self.glow.visible = anim.animate(1.0,0.0, dt=0.3)
-            self.glow.scale = anim.animate(0.5, 2.0, dt=0.3)
+            self.glow.visible = anim.animate(1.0,0.0, dt=0.5)
+            self.glow.scale = anim.animate(0.5, 2.0, dt=0.5)
             self.glow.alpha = anim.animate(0.5,0.0,dt=0.5, method="ease_in_circ")
-        else: self.rotatey = anim.animate(0,360,dt=1.5, method="sine")
+        self.rotatey = anim.animate(0,360,dt=1.5, method="sine")
     def render(self):
         super(ManaImage,self).render()
         self.glow.render()
@@ -329,7 +362,7 @@ class ManaView(Widget):
                     symbol.visible = current.visible = pay.visible = 1
                     symbol.pos = euclid.Vector3(x,0,0)
                     symbol.scale = 1.0
-                    spacer = symbol.width*0.1
+                    spacer = 10 #symbol.width*0.1
                     pay.pos = euclid.Vector3(x-pay.width/2, symbol.height/2, 0)
                     current.pos = euclid.Vector3(x-current.width/2, -current.height-symbol.height/2, 0)
                     if current.value == 0: symbol.alpha = 0.75
@@ -341,6 +374,7 @@ class ManaView(Widget):
                 cost_y = y+self.cost.height
                 symbol = self.symbols[-1]
                 symbol.scale = 1.0
+                symbol.alpha = 1.0
                 symbol.pos = euclid.Vector3(-symbol.width/2, 0, 0)
                 spacer = symbol.width*0.1
                 amount = self.spend[-1]
@@ -361,18 +395,40 @@ class ManaView(Widget):
             for pay in self.spend: pay.render()
             self.cost.render()
 
+import CardLibrary
+class LibraryImage(Image):
+    def __init__(self, zone):
+        super(LibraryImage, self).__init__(zone)
+        self.zone = zone
+        self.library = None
+        self.reveal = False
+    def setup_player(self, player):
+        self.library = getattr(player, self.zone)
+        self.back = CardLibrary.CardLibrary.getCardBack()
+        self.img = self.back
+    def update(self):
+        if self.reveal:
+            libtop = self.library.top()
+            if libtop: self.img = CardLibrary.CardLibrary.getCard(libtop).front
+        else:
+            self.img = self.back
+    def toggle_reveal(self):
+        self.reveal = not self.reveal
+        self.update()
+
 class StatusView(Widget):
     def __init__(self, pos=euclid.Vector3(0, 0, 0), is_opponent=False):
         super(StatusView,self).__init__(pos)
         self.is_opponent = is_opponent
         self._pos.set_transition(dt=0.5, method="ease_out_circ")
-        symbols = ["life", "hand", "library", "graveyard", "removed"]
-        sizes = [30, 20, 20, 20, 20]
-        self.symbols = dict([(symbol, Image(symbol)) for symbol in symbols])
+        symbols = ["life", "library", "graveyard", "removed"]
+        img_classes = [Image, LibraryImage, Image, Image]
+        sizes = [30, 20, 20, 20]
+        self.symbols = dict([(symbol, cls(symbol)) for symbol, cls in zip(symbols, img_classes)])
         self.symbols["life"].shaking = 0
         for symbol in self.symbols.values():
             symbol.alpha = 0.5
-        self.player_name = Label(" ", 20, halign="center", shadow=False)
+        self.player_name = Label(" ", 20, halign="center", shadow=True)
         self.values = dict([(symbol, Label('', size, halign="center", valign="center")) for symbol, size in zip(self.symbols, sizes)])
         self.values["life"].halign = "center"
         self.values["life"].valign = "center"
@@ -380,25 +436,25 @@ class StatusView(Widget):
         self.active = Image("ring")
         self.active.scale = anim.animate(0.1, 0.1, dt=0.2, method="ease_out_back")
         self.active.visible = 1.
-        self.layout()
         self.visible = 0
+        self.layout()
     def resize(self, width, height):
         if self.is_opponent: pos = euclid.Vector3(width, height, 0)
         else: pos = euclid.Vector3(0, 0, 0)
-        self.pos = pos + euclid.Vector3(self._transx, self._transy, 0)
+        self.pos = self.orig_pos = pos + euclid.Vector3(self._transx, self._transy, 0)
     def clear(self):
         self.symbols['life'].rotatey = anim.constant(0)
         status = self.values
-        counters = ["life", "hand", "library", "graveyard", "removed"]
+        counters = ["life", "library", "graveyard", "removed"]
         #for c in counters: status[c].set_text(0)
     def show(self):
-        #self.pos = self.orig_pos
+        self.pos = self.orig_pos
         super(StatusView,self).show()
     def hide(self):
         if self.visible == 1.0:
-            #self.orig_pos = self.pos
-            #if self.is_opponent: self.pos += euclid.Vector3(700, 0, 0)
-            #else: self.pos -= euclid.Vector3(700, 0, 0)
+            self.orig_pos = self.pos
+            if self.is_opponent: self.pos += euclid.Vector3(self.width, 0, 0)
+            else: self.pos -= euclid.Vector3(self.width, 0, 0)
             super(StatusView,self).hide()
     def animate(self, status):
         symbol = self.symbols[status]
@@ -418,7 +474,10 @@ class StatusView(Widget):
         self.active.color = color
         self.player_name.set_text(player.name)
         self.update_life()
-        self.update_cards()
+        self.symbols["library"].setup_player(player)
+        for zone in ["library", "graveyard", "removed"]:
+            self.update_zone(getattr(player, zone))
+        #self.update_cards()
         self.active.scale = anim.animate(0.1, 0.75, dt=0.2, method="ease_out_back")
         self.layout()
     def new_turn(self, player):
@@ -452,7 +511,7 @@ class StatusView(Widget):
     def update_cards(self):
         status = self.values
         player = self.player
-        counters = ["hand", "library", "graveyard", "removed"]
+        counters = ["library", "graveyard", "removed"]
         for c in counters:
             val = len(getattr(player, c))
             if val > 0:
@@ -470,29 +529,33 @@ class StatusView(Widget):
         else:
             self.symbols[str(zone)].alpha = 0.4
             status.set_text('')
+        if str(zone) == "library": self.symbols[str(zone)].update()
     def layout(self):
         status = "life"
         life, lifevalue = self.symbols[status], self.values[status]
         life.alpha = 1.0
         life.scale = 0.5
-        if not self.is_opponent:
-            startx = x = life.width*1.3
-            starty = y = life.height
-            dir = 1
-        else:
-            startx = x = -life.width*1.3
-            starty = y = -life.height
-            dir = -1
-        for status in ["hand", "library", "graveyard", "removed"][::dir]:
+        if not self.is_opponent: dir = 1
+        else: dir = -1
+        startx = x = life.width*1.5*dir
+        starty = y = life.height*dir
+        for status in ["graveyard", "removed"][::dir]:
             symbol, value = self.symbols[status], self.values[status]
-            symbol.scale = 0.3
-            symbol.pos = euclid.Vector3(x+symbol.width/2*dir, y-symbol.height/4*dir, 0)
-            value.pos = euclid.Vector3(x+symbol.width/2*dir, y-symbol.height/4*dir, 0)
-            x += symbol.width*1.2*dir
-            if (not self.is_opponent and status == "library") or (self.is_opponent and status == "graveyard"):
-                x = startx
-                y -= symbol.height*0.9*dir
-        width = x-symbol.width*0.2*dir
+            symbol.scale = 0.35
+            if self.is_opponent: y -= symbol.height/4*dir
+            symbol.pos = euclid.Vector3(x+symbol.width/2*dir, y, 0)
+            value.pos = euclid.Vector3(x+symbol.width/2*dir, y, 0)
+            y -= symbol.height*dir*.75
+        y = starty-symbol.height*0.5*dir
+        x += symbol.width*1.3*dir
+        status = "library"
+        symbol, value = self.symbols[status], self.values[status]
+        symbol.scale = 0.275
+        x += symbol.width/2*dir
+        #y += symbol.height/2*dir
+        symbol.pos = euclid.Vector3(x, y, 0)
+        value.pos = euclid.Vector3(x, y, 0)
+        width = x + symbol.width/2*dir
         if not self.is_opponent:
             x, y = life.width/2, life.height/2
             life.pos = euclid.Vector3(x, y, 0)
@@ -509,11 +572,32 @@ class StatusView(Widget):
             lifevalue.pos = euclid.Vector3(x,y,0)
             self.player_name.pos = euclid.Vector3(x, 0, 0)
             self.manapool.pos = self.manapool.orig_pos = euclid.Vector3(-(self.manapool.width-width)/2, starty-self.manapool.height, 0)
-            self._transx = 0.2*width
+            self._transx = -10 #-self.manapool.width/2 #0.2*width
             self._transy = -self.player_name.height
+        self.width = self.manapool.width
+        if self.is_opponent: self.box = (-self.width+10, starty-self.manapool.height*1.5-5, -self._transx, -self._transy)
+        else: self.box = (-self.pos.x, -self.pos.y, -self.pos.x+self.width-5, starty+self.manapool.height*1.5+5)
     def render_after_transform(self):
+        ac = self.active.color
+        glColor4f(0.2, 0.2, 0.3, 0.5) #glColor4f(ac[0]*0.5, ac[1]*0.5, ac[2]*0.5, 0.3)
+        l, b, r, t = self.box
+        glDisable(GL_TEXTURE_2D)
+        glBegin(GL_QUADS)
+        glVertex2f(l, b)
+        glVertex2f(r, b)
+        glVertex2f(r, t)
+        glVertex2f(l, t)
+        glEnd()
+        glColor4f(0,0,0,1)
+        glLineWidth(2.0)
+        glBegin(GL_LINE_LOOP)
+        glVertex2f(l, b)
+        glVertex2f(r, b)
+        glVertex2f(r, t)
+        glVertex2f(l, t)
+        glEnd()
         self.active.render()
-        for status in ["life", "hand", "library", "graveyard", "removed"]:
+        for status in ["life", "library", "graveyard", "removed"]:
             symbol, value = self.symbols[status], self.values[status]
             symbol.render()
             value.render()
@@ -530,13 +614,13 @@ class PhaseStatus(Widget):
         states = [('Untap','Untap'),
             ('Upkeep','Upkeep'),
             ('Draw','Draw'),
-            ('Main1','Main (precombat)'),
+            ('Main1','Main'),
             ('PreCombat','Beginning of combat'),
             ('Attack','Declare attackers'),
             ('Block','Declare blockers'),
             ('Damage','Combat damage'),
             ('EndCombat','End of combat'),
-            ('Main2','Main (postcombat)'),
+            ('Main2','Main'),
             ('EndPhase','End of turn'),
             ('Cleanup','Cleanup')]
         self.group = [0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0]
@@ -625,7 +709,7 @@ class PhaseStatus(Widget):
         y = 0
         i = 0
         for symbol in self.states:
-            symbol.alpha = 0.35
+            symbol.alpha = 0.75
             symbol.scale = 0.75
             hh = symbol.height / 2
             if self.group[i] == 1: y -= hh*.5
@@ -639,7 +723,7 @@ class PhaseStatus(Widget):
         dir = self.dir
         i = 0
         for symbol in self.states[:self.current]:
-            symbol.alpha = 0.35
+            symbol.alpha = 0.75
             symbol.scale = 0.75
             symbol.color = (1, 1, 1)
             hh = symbol.height / 2
@@ -661,7 +745,7 @@ class PhaseStatus(Widget):
         self.state_text.pos = euclid.Vector3(1.1*x, y, 0)
         y -= nhh
         for symbol in self.states[self.current+1:]:
-            symbol.alpha = 0.35
+            symbol.alpha = 0.75
             symbol.scale = 0.75
             hh = symbol.height / 2
             if self.group[i] == 1: y -= hh*.75
@@ -693,13 +777,21 @@ class PhaseStatus(Widget):
         self.dir = 1
         self.current_state = self.states[0]
         self.state_text = self.state_labels[0]
-        self.layout_small()
+        self.marker_color = (1.0, 1.0, 1.0)
+        self.layout()
     def setup_player_colors(self, player, self_color, other_color):
         self.player = player
         self.self_color = self_color
         self.other_color = other_color
         self.marker_color = self_color
         self.show()
+    def change_focus(self, sender):
+        if sender == self.player:
+            self.marker_color = self.self_color
+            if not self.select: self.states[self.current].color = self.marker_color
+        else:
+            self.marker_color = self.other_color
+            if not self.select: self.states[self.current].color = self.marker_color
     def pass_priority(self, player=None):
         if player == None: raise Exception("player not specified")
         if player == self.player:
