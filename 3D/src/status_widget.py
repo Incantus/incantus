@@ -306,7 +306,8 @@ class ManaView(Widget):
         status = self.values
         manapool = sender
         for idx, c in enumerate(self.colors):
-            oldamt = int(status[c].value)
+            if status[c].value == '': oldamt = 0
+            else: oldamt = int(status[c].value)
             val = getattr(manapool, c)
             if val > 0:
                 status[c].set_text(val)
