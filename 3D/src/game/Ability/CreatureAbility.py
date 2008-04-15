@@ -4,23 +4,7 @@ from game.LazyInt import LazyInt
 from game.characteristics import all_characteristics
 import new
 
-#def override(subrole, attribute, func, keyword=None, combiner=logical_and, reverse=True):
-#    if keyword: subrole.keywords.add(keyword)
-#    orig_func = getattr(subrole, attribute)
-#    if not hasattr(orig_func, "stacked"):
-#        stacked_func = stacked_function(orig_func, combiner=combiner, reverse=reverse)
-#        setattr(subrole, attribute, stacked_func)
-#    else: stacked_func = orig_func
-#    new_func = new.instancemethod(func, subrole, subrole.__class__)
-#    stacked_func.add_func(new_func)
-#    def _restore():
-#        stacked_func.remove_func(new_func)
-#        #if not stacked_func.stacking():
-#        #    setattr(subrole, attribute, stacked_func.funcs[0])
-#        #    del stacked_func
-#        if keyword: subrole.keywords.remove(keyword)
-#    return _restore
-
+# XXX Some of these that take subroles are broken (vigilance, berserker) since they are bound (im_self) to the original subrole, while a copy is made when the card becomes a permanent.
 
 def override(subrole, name, func, keyword=None, combiner=logical_and, reverse=True, new_func_gen=new.instancemethod):
     if keyword: subrole.keywords.add(keyword)
@@ -44,9 +28,6 @@ def override(subrole, name, func, keyword=None, combiner=logical_and, reverse=Tr
         stacked_func.remove_func(new_func)
         if not stacked_func.stacking():
             if name in obj.__dict__: del obj.__dict__[name]
-            #del getattr(obj, name)
-            #setattr(obj, name, stacked_func.funcs[0])
-            #del stacked_func
         if keyword: obj.keywords.remove(keyword)
     func.expire = restore
     return restore
@@ -126,10 +107,11 @@ def berserker(subrole):
         from Effect import AugmentPowerToughness
         num = len(blockers)
         target = Target(targeting="self")
-        target.get(self.card)
-        self.card.controller.stack.push(Ability(self.card, target=target, effects=AugmentPowerToughness(power=num, toughness=num)))
+        card = self.card
+        target.get(card)
+        card.controller.stack.announce(Ability(card, target=target, effects=AugmentPowerToughness(power=num, toughness=num)))
         return True
-    return override(subrole, "setBlocked", setBlocked)
+    return override(subrole, "setBlocked", setBlocked, keyword="berserker", combiner=logical_or)
 
 # 502.68b If a permanent has multiple instances of lifelink, each triggers separately.
 # XXX This is broken with trample, since the trigger only has the last amount of damage done
