@@ -365,8 +365,8 @@ class TokenCreature(Creature):
         self.send(TokenLeavingPlay())
         super(TokenCreature,self).leavingPlay()
 
-class Artifact(Role)
-class Enchantment(Role)
+class Artifact(Role): pass
+class Enchantment(Role): pass
 
 class Attachment(object):
     def attach(self, target):
