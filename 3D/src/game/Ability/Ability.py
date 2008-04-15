@@ -40,13 +40,13 @@ class Ability(MtGObject):
             if not effect.process_target(self.card, self.targets[i].target): target_aquired = False
         return not target_aquired == False
     def do_resolve(self):
-        self.preresolve()
         if self.resolve(): self.resolved()
         else: self.countered()
         self.cleanup()
     def resolve(self):
         success = True
         if self.needs_target() and not self.check_target(): return False
+        self.preresolve()
         for i, effect in enumerate(self.effects):
             if len(self.targets) == 1: i = 0
             if effect(self.card, self.targets[i].target) == False: success=False
