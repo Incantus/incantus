@@ -160,11 +160,11 @@ class CardSelector(object):
         self.window.pop_handlers()
     def on_key_press(self, symbol, modifiers):
         if symbol == key.ENTER:
-            if len(self.zone_view.cards) == self.number:
-                self.window.user_action = Action.MultipleSelected([self.zone_view.cards])
+            selection = [card.gamecard for card in self.zone_view.selected]
+            if len(selection) == 0 and len(self.zone_view.cards) == self.number:
+                self.window.user_action = Action.MultipleSelected([card.gamecard for card in self.zone_view.cards])
                 self.deactivate()
             else:
-                selection = [card.gamecard for card in self.zone_view.selected]
                 if (len(selection) == self.number) or (len(self.zone_view.cards) == 0 and len(selection) < self.number):
                     self.window.user_action = Action.MultipleSelected(selection)
                     self.deactivate()
@@ -319,7 +319,7 @@ class StatusController(object):
         self.window = window
         self.value = None
         self.clicked = False
-        self.observable_zones = set(["graveyard", "removed", "hand", "library"])
+        self.observable_zones = set(["graveyard", "removed", "library"])
         self.tmp_dx = 0
         self.solitaire = False
     def set_solitaire(self):
@@ -349,7 +349,6 @@ class StatusController(object):
                 self.window.user_action = Action.CardSelected(zone_view.focused.gamecard, zone_view.focused.gamecard.zone)
                 if modifiers & key.MOD_CTRL: self.window.keep_priority()
             zone_view.hide()
-            #self.window.set_mouse_visible(True)
             self.tmp_dx = 0
             self.clicked = False
     def on_mouse_press(self, x, y, button, modifiers):
@@ -357,14 +356,11 @@ class StatusController(object):
             value = status.handle_click(x, y)
             if value:
                 if value == "life": self.window.user_action = Action.PlayerSelected(status.player)
-                #if value == "hand" and status == self.otherstatus and not self.solitaire: return True
-                #if value == "hand" and status == self.mainstatus: return True
-                if value == "hand" or value == "library": return True # and self.window.start_new_game: return True
+                if value == "library" and not self.solitaire: return True # and self.window.start_new_game: return True
                 elif value in self.observable_zones:
                     zone = getattr(status.player, value)
                     if len(zone):
                         self.clicked = True
-                        #self.window.set_mouse_visible(False)
                         self.zone_view.pos = euclid.Vector3(x, y, 0)
                         self.zone_view.pos = status.pos + status.symbols[value].pos
                         self.zone_view.build(zone, status.is_opponent)
@@ -422,10 +418,12 @@ class XSelector(object):
         return True
 
 class ManaController(object):
-    def __init__(self, mana_gui, window):
-        self.mana = mana_gui
+    def __init__(self, mainmana_gui, othermana_gui, window):
+        self.mainmana = mainmana_gui
+        self.othermana = othermana_gui
         self.window = window
     def request_mana(self, required, manapool):
+        self.mana = self.mainmana
         self.activate()
         self.manapool = manapool
         self.mana.cost.set_text("Required: "+required)
