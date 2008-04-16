@@ -46,9 +46,9 @@ class Stack(MtGObject):
         self.send(AbilityAnnounced(), ability=ability)
         success = True
         if hasattr(ability, "cost"):
-            success = ability.compute_cost()
+            success = ability.precompute_cost()
             if success and ability.needs_target(): success = ability.get_target()
-            if success: success = ability.pay_cost()
+            if success: success = ability.compute_cost() and ability.pay_cost()
         else:
             if ability.needs_target(): success = ability.get_target()
         if success: self.push(ability)
@@ -62,9 +62,9 @@ class Stack(MtGObject):
     def stackless(self, ability):
         success = True
         if hasattr(ability, "cost"):
-            success = ability.compute_cost()
+            success = ability.precompute_cost()
             if success and ability.needs_target(): success = ability.get_target()
-            if success: success = ability.pay_cost()
+            if success: success = ability.compute_cost() and ability.pay_cost()
         else:
             if ability.needs_target(): success = ability.get_target()
         if success:

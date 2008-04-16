@@ -11,6 +11,8 @@ class ActivatedAbility(Ability):
         self.zone = zone
     def is_limited(self):
         return not self.card.zone == getattr(self.card.controller, self.zone) or super(ActivatedAbility,self).is_limited()
+    def precompute_cost(self):
+        return self.cost.precompute(self.card, self.card.controller)
     def compute_cost(self):
         return self.cost.compute(self.card, self.card.controller)
     def pay_cost(self):
@@ -32,6 +34,7 @@ class MultipleAbilities(ActivatedAbility):
                 break
         print "func_name", func_name, success
         return success
+    def precompute_cost(self): return self.process_abilities("precompute_cost")
     def compute_cost(self): return self.process_abilities("compute_cost")
     def pay_cost(self): return self.process_abilities("pay_cost")
     def get_target(self): return self.process_abilities("get_target")

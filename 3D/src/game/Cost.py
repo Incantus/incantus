@@ -5,6 +5,8 @@ import Mana
 class Cost(object):
     def __init__(self):
         self.paid = False
+    def precompute(self, card, player):
+        return True
     def compute(self, card, player):
         return True
     def pay(self, card, player):
@@ -36,15 +38,19 @@ class ManaCost(Cost):
         self._X = 0
         self.X = LazyInt(self._get_X, finalize=True)
     def _get_X(self): return self._X
-    def compute(self, card, player):
-        self.paid = False
+    def precompute(self, card, player):
         mp = player.manapool
         X = 0
         if mp.checkX(self.cost): X = player.getX()
         self._X = X
-        self.final_cost = mp.convert_mana_string(self.cost)
-        self.final_cost[-1] += X
         return X >= 0
+    def compute(self, card, player):
+        # XXX This is where I should check if the player has enough mana
+        mp = player.manapool
+        self.paid = False
+        self.final_cost = mp.convert_mana_string(self.cost)
+        self.final_cost[-1] += self._X
+        return True
     def pay(self, card, player):
         mp = player.manapool
         cost = self.final_cost
