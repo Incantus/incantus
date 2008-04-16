@@ -75,12 +75,14 @@ class OutPlayZone(Zone):
 class OrderedOutPlayZone(OutPlayZone):
     def __init__(self, cards=[]):
         super(OrderedOutPlayZone, self).__init__(cards)
+        self.pending = False
         self.pending_top = []
         self.pending_bottom = []
     def init(self):
         self.register(self.commit, TimestepEvent())
         self.register(self.commit, HasPriorityEvent())
     def add_card_post(self, card, position=-1, trigger=True):
+        self.pending = True
         if position == -1: self.pending_top.append((card, trigger))
         else: self.pending_bottom.append((card, trigger))
     def _get_order(self, cardlist, pos):
@@ -89,8 +91,11 @@ class OrderedOutPlayZone(OutPlayZone):
             reorder = player.getCardSelection(cardlist, len(cardlist), from_zone=str(self), from_player=player, required=False, prompt="Order cards entering %s of %s"%(pos, self))
             if reorder: cardlist = reorder
         return cardlist
+    def pre_commit(self): pass
+    def post_commit(self): pass
     def commit(self):
         if self.pending_top or self.pending_bottom:
+            self.pre_commit()
             toplist = self._get_order([c[0] for c in self.pending_top], "top")
             bottomlist = self._get_order([c[0] for c in self.pending_bottom], "bottom")
             self.cards = bottomlist[::-1] + self.cards + toplist[::-1]
@@ -101,8 +106,13 @@ class OrderedOutPlayZone(OutPlayZone):
                 self.after_card_added(card)
             self.pending_top[:] = []
             self.pending_bottom[:] = []
+            self.post_commit()
+            self.pending = False
 
 class Library(OrderedOutPlayZone):
+    def __init__(self, cards=[]):
+        super(Library, self).__init__(cards)
+        self.needs_shuffle = False
     def setup_card(self, card):
         self.before_card_added(card)
         self.send(CardEnteringZone(), card=card)
@@ -111,7 +121,12 @@ class Library(OrderedOutPlayZone):
         self.send(CardEnteredZone(), card=card)
         self.after_card_added(card)
     def shuffle(self):
-        random.shuffle(self.cards)
+        if not self.pending: random.shuffle(self.cards)
+        else: self.needs_shuffle = True
+    def post_commit(self):
+        if self.needs_shuffle:
+            self.needs_shuffle = False
+            random.shuffle(self.cards)
     zone_name = "library"
 
 class Graveyard(OrderedOutPlayZone):
