@@ -7,16 +7,16 @@ from GameEvent import ManaAdded, ManaSpent, ManaCleared
 class Colors:
     numberOfColors = 6
     WHITE = 0
-    RED = 1
-    GREEN = 2
-    BLUE = 3
-    BLACK = 4
+    BLUE = 1
+    BLACK = 2
+    RED = 3
+    GREEN = 4
     COLORLESS = 5
-    __colors = [(WHITE, "white"), (RED, "red"), (GREEN, "green"), (BLUE, "blue"),
-                    (BLACK, "black"), (COLORLESS, "colorless"),
-                 (WHITE, "W"), (RED, "R"), (GREEN, "G"), (BLUE, "U"),
-                                    (BLACK, "B"), (COLORLESS, "C")]
-    realColors = set(["W", "R", "G", "U", "B"])
+    __colors = [(WHITE, "white"), (BLUE, "blue"), (BLACK, "black"),
+                (RED, "red"), (GREEN, "green"), (COLORLESS, "colorless"),
+                 (WHITE, "W"), (BLUE, "U"), (BLACK, "B"),
+                 (RED, "R"), (GREEN, "G"), (COLORLESS, "C")]
+    realColors = set(["W", "U", "B", "R", "G"])
     ColorMap = dict([(c[0], c[1]) for c in __colors])
     ReverseMap = dict([(c[1], c[0]) for c in __colors])
 
@@ -32,7 +32,7 @@ def compareMana(req_manastr, comp_manastr):
 
 def convert_to_mana_string(mana):
     colorless = str(mana[Colors.COLORLESS])
-    manastr = ''.join([color*mana[Colors.ReverseMap[color]] for color in "RGBUW"])
+    manastr = ''.join([color*mana[Colors.ReverseMap[color]] for color in "WUBRG"])
     if colorless == "0" and len(manastr) > 0: colorless = ''
     return colorless+manastr
 

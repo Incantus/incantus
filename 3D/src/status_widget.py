@@ -288,8 +288,8 @@ class ManaView(Widget):
         super(ManaView,self).__init__(pos)
         self.reverse = reverse
         self._pos.set_transition(dt=0.5, method="ease_out_back")
-        self.colors = ["white", "red", "green", "blue", "black", "colorless"]
-        self.colormap = dict(zip(self.colors, "WRGUBC"))
+        self.colors = ["white", "blue", "black", "red", "green", "colorless"]
+        self.colormap = dict(zip(self.colors, "WUBRG"))
         self.nummana = len(self.colors)
         self.symbols = [ManaImage(color) for color in self.colors]
         self.pool = [Label("", size=20) for i in range(self.nummana)]
@@ -299,7 +299,7 @@ class ManaView(Widget):
         for p, s in zip(self.pool, self.spend):
             p.visible = anim.constant(1)
             s.visible = anim.constant(1)
-        self.cost = Label("0", size=40, halign="center") #, background=True)
+        self.cost = Label("0", size=40, halign="center", background=True)
         self.select_mana = self.select_x = False
         self.layout()
     def clear_mana(self, sender):
