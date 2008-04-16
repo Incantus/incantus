@@ -1,7 +1,7 @@
 
 from GameObjects import MtGObject
 from data_structures import keywords
-from GameEvent import DealsDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, ReceivesDamageEvent, CleanupEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent
+from GameEvent import DealsDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, ReceivesDamageEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent
 
 class NoRole(MtGObject):   # This is for lands
     # For token objects out of play
@@ -154,8 +154,11 @@ class Permanent(MtGObject):
             controller.moveCard(self.card, controller.play, self.card.owner.graveyard)
             self.card.send(PermanentDestroyedEvent())
     def summoningSickness(self):
-        def remove_summoning_sickness(): self.continuously_in_play = True
-        self.register(remove_summoning_sickness, CleanupEvent(), weak=False, expiry=1)
+        def remove_summoning_sickness(player):
+            if self.card.controller == player:
+                self.continuously_in_play = True
+                self.unregister(remove_summoning_sickness, NewTurnEvent(), weak=False)
+        self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
     def enteringPlay(self):
         # Setup any static and triggered abilities
         for role in self.subroles: role.enteringPlay(self)
