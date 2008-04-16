@@ -59,6 +59,7 @@ class Card(anim.Animable):
         self.width, self.height = self.front.width, self.front.height
         self.size = anim.constant(1.0) 
         self._pos = AnimatedVector3(0,0,0)
+        self.pos_transition = "ease_out_circ"
         self._orientation = AnimatedQuaternion()
         self.visible = anim.constant(1.0)
         self.alpha = anim.constant(1.0)
@@ -83,6 +84,12 @@ class Card(anim.Animable):
         glVertex3f(*tuple(vertlist[3]))
         glEnd()
         glEndList()
+    def shake(self):
+        self._pos.set_transition(dt=0.25, method=lambda t: anim.oscillate_n(t, 3))
+        self.pos += euclid.Vector3(0.05, 0, 0)
+    def unshake(self):
+        # XXX Need to reset position transition - this is a bit hacky - I need to be able to layer animations
+        self._pos.set_transition(dt=0.4, method=self.pos_transition)
     def draw(self):
         if self.visible > 0:
             size = self.size
@@ -198,7 +205,7 @@ class PlayCard(Card):
         self.highlighting = anim.animate(0, 0, dt=0.2)
         self.zooming = anim.animate(0, 0, dt=0.4)
         self.pos_transition = "ease_out_circ" #"ease_out_back"
-        self._pos.set_transition(dt=0.4, method=self.pos_transition) #"ease_out_back")
+        self._pos.set_transition(dt=0.4, method=self.pos_transition)
         #self._pos.y = anim.animate(guicard._pos.y, guicard._pos.y, dt=0.4, method="ease_out")
         self._orientation.set_transition(dt=0.3, method="sine")
         self.draw = self.draw_permanent

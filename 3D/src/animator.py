@@ -8,7 +8,7 @@ from widget import Image, Label
 import CardLibrary
 from game import GameEvent
 from game.pydispatch import dispatcher
-from game.Match import isPlayer, isPermanent
+from game.Match import isPlayer, isPermanent, isAbility
 
 from play_view import CombatZone
 
@@ -132,7 +132,11 @@ class ZoneAnimator(object):
         dispatcher.connect(self.invalid_target, signal=GameEvent.InvalidTargetEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.targeted_by, signal=GameEvent.TargetedByEvent(), priority=dispatcher.UI_PRIORITY)
     def invalid_target(self, sender, target):
-        if isPlayer(target):
+        if isAbility(target):
+            guicard = self.stack.get_card(target)
+            guicard.shake()
+            clock.schedule_once(lambda t: guicard.unshake(), 0.25)
+        elif isPlayer(target):
             pstatus, life = self.player_status[target]
             if life.shaking == 0:
                 life.shaking = 1

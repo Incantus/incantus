@@ -343,10 +343,12 @@ class StackView(CardView):
         self.layout()
         newcard._pos.set_transition(dt=0.2, method="linear") #self.pos_transition)
         newcard.alpha = anim.animate(0, 0.5, startt=startt, dt=1.0, method="ease_out_circ")
+        newcard.announced = False
         return newcard
     def finalize_announcement(self, ability):
         for card in self.cards:
             if ability == card.ability:
+                card.announced = True
                 card.alpha = 1.0
     def remove_ability(self, ability):
         for idx, card in enumerate(self.cards):
