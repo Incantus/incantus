@@ -187,6 +187,8 @@ class ChangeSelfController(Effect):
         return "Change controller"
 
 class ChangeController(Effect):
+    def __init__(self, expire=False):
+        self.expire = expire
     def __call__(self, card, target):
         if card.controller == target.controller: return lambda: None
         # Switch the play locations
@@ -198,7 +200,9 @@ class ChangeController(Effect):
         target.current_role.continuously_in_play = False
         target.summoningSickness()
         card.send(CardControllerChanged(), card=target, original=old_controller)
-        return lambda : self.reverse(card, target, old_controller)
+        restore = lambda : self.reverse(card, target, old_controller)
+        if self.expire: card.register(restore, CleanupEvent(), weak=False, expiry=1)
+        return restore
     def reverse(self, card, target, old_controller):
         target.controller, old_controller = old_controller, target.controller
         old_controller.play.remove_card(target, trigger=False)
@@ -795,14 +799,16 @@ class ShuffleLibrary(Effect):
 
 # This deals with starting zones other than in play
 class MoveCards(Effect):
-    def __init__(self, from_zone, to_zone, from_position="", to_position="top", number=1, card_types=None, subset=None, func=lambda card: None, reveal=False, peek=False, required=False, prompt=''):
+    def __init__(self, from_zone, to_zone, from_position="", to_position="top", number=1, card_types=None, subset=None, return_position = "top", func=lambda card: None, reveal=False, peek=False, required=False, prompt=''):
         self.from_zone = from_zone
         self.to_zone = to_zone
         self.number = number
         self.subset = subset
+        self.selection = []
         self.from_position = from_position
         self.to_position = to_position
-        if not (self.from_position in ["", "top", "bottom"] or self.to_position in ["", "top", "bottom"]):
+        self.return_position = return_position
+        if not ((self.from_position in ["", "top", "bottom"] or type(self.from_position) == int) or (self.to_position in ["top", "bottom"] or type(self.to_position) == int) or (self.return_position in ["top", "bottom"])):
             raise Exception("Incorrect from position specified for MoveCards (%s)"%card)
         if card_types == None: card_types = isCard
         if (type(card_types) == list or type(card_types) == tuple): self.card_types = card_types
@@ -821,16 +827,19 @@ class MoveCards(Effect):
             # Prefilter the list to only show valid card types
             #selection = reduce(lambda x, y: x+y, [from_zone.get(ttype) for ttype in self.card_types])
             #if len(selection) == 0: return False
-            selection = from_zone.get()
+            selection = from_zone.get()[:self.subset]
             if self.number == -1 or len(selection) < self.number: self.number = len(selection)
             # Now we get the selection - if the from location is library or hand the target player makes the choice
             if self.from_zone in ["library", "hand"] and not self.peek: self.selector = target
             else: self.selector = card.controller
-            self.cardlist = self.selector.getCardSelection(selection[:self.subset], self.number, from_zone=self.from_zone, from_player = target, required=self.required, card_types = self.card_types, prompt=self.prompt)
-            if not self.cardlist: return False
-            #if self.number == 1: self.cardlist = [self.cardlist]
-        elif self.from_position == "top": self.cardlist = from_zone.top(self.number)
-        elif self.from_position == "bottom": self.cardlist = from_zone.bottom(self.number)
+            cardlist = self.selector.getCardSelection(selection, self.number, from_zone=self.from_zone, from_player = target, required=self.required, card_types = self.card_types, prompt=self.prompt)
+            if not cardlist: cardlist = []
+            self.selection = [card for card in selection if not card in cardlist]
+        elif self.from_position == "top": cardlist = from_zone.top(self.number)
+        elif self.from_position == "bottom": cardlist = from_zone.bottom(self.number)
+        else: cardlist = from_zone.top(self.from_position)[0]
+        if not type(cardlist) == list: self.cardlist = [cardlist]
+        else: self.cardlist = cardlist
 
         # If we are moving to the play zone make sure that the card is a Permanent
         # XXX Does the card need to be checked to see if it can be targetted? I'm not sure since it's not in play
@@ -844,21 +853,30 @@ class MoveCards(Effect):
         if self.to_position == "top":
             position = -1
             cards = iter(self.cardlist[::-1])
-        else:
+        elif self.to_position == "bottom":
             position = 0
             cards = iter(self.cardlist)
-        for c in cards:
-            if not c.zone == from_zone: continue
+        else:
+            position = -1*self.to_position # From the top
+            cards = iter(self.cardlist[::-1])
+        for card in cards:
+            if not card.zone == from_zone: continue
             # Make sure we get the owner's zone
-            if not self.to_zone == "play": to_zone = getattr(c.owner, self.to_zone)
+            if not self.to_zone == "play": to_zone = getattr(card.owner, self.to_zone)
             else:
                 to_zone = card.controller.play
-                c.controller = card.controller
-            to_zone.move_card(c, from_zone, position=position)
-            self.func(c)
+                card.controller = card.controller
+            to_zone.move_card(card, from_zone, position=position)
+            self.func(card)
+        if len(self.selection) and self.subset:
+            if self.return_position == "top": position = -1
+            else: position = 0
+            for card in self.selection:
+                from_zone.move_card(card, from_zone, position=position)
+
         # XXX if there is a library access in here, then we might need to shuffle it
         #if self.from_zone == "library" and not self.from_position: from_zone.shuffle()
-        if self.reveal == True: self.selector.opponent.revealCard(self.cardlist, prompt="%s selected card(s) "%self.selector)
+        if self.reveal == True and self.cardlist: self.selector.opponent.revealCard(self.cardlist, prompt="%s reveals card(s) "%self.selector)
         return True
     def __str__(self):
         if self.number > 1: a='s'
