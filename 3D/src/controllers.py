@@ -303,7 +303,7 @@ class DamageSelector(object):
                 selected.flash()
             #else:
             #    selected.shake()
-            return True
+        return True
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         return True
     def on_mouse_release(self, x, y, button, modifiers):
@@ -409,7 +409,7 @@ class XSelector(object):
             else:
                 pay.set_text(int(pay.value)+1)
                 symbol.animate(sparkle=False)
-            return True
+        return True
     def on_mouse_release(self, x, y, button, modifiers):
         return True
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
@@ -477,7 +477,7 @@ class ManaController(object):
                 current.set_text(int(current.value)-1)
                 pay.set_text(int(pay.value)+1)
                 symbol.animate(sparkle=False)
-            return True
+        return True
     def on_mouse_motion(self, x, y, dx, dy):
         return True
 
@@ -673,21 +673,21 @@ class StackController(object):
         self.stack_gui = stack_gui
         self.window = window
         self.tmp_dy = 0
-        self.activated = False
+        self.focused = False
         self.highlighted = []
     def set_zone(self, zone):
         self.zone = zone
     def activate(self):
-        self.activated = True
-        self.stack_gui.focus()
-        self.highlight_targets()
+        #self.activated = True
+        #self.stack_gui.focus()
+        #self.highlight_targets()
         self.window.push_handlers(self)
     def deactivate(self):
-        self.stack_gui.unfocus()
-        for obj in self.highlighted: obj.unhighlight()
-        self.highlighted = []
+        #self.stack_gui.unfocus()
+        #for obj in self.highlighted: obj.unhighlight()
+        #self.highlighted = []
         self.window.pop_handlers()
-        self.activated = False
+        #self.activated = False
     def highlight_targets(self):
         old_highlighted = self.highlighted
         self.highlighted = []
@@ -704,7 +704,7 @@ class StackController(object):
                         self.highlighted.append(guicard)
                         if guicard in old_highlighted: old_highlighted.remove(guicard)
                         guicard.highlight()
-                elif isPlayer(tt): # and t.targeting == None:
+                elif isPlayer(tt):
                     for status in [self.window.mainplayer_status, self.window.otherplayer_status]:
                         if tt == status.player:
                             status.animate("life")
@@ -723,29 +723,36 @@ class StackController(object):
         if self.stack_gui.focus_next():
             self.highlight_targets()
     def on_key_press(self, symbol, modifiers):
-        stack = self.stack_gui
-        if symbol == key.UP:
-            self.focus_previous()
-        elif symbol == key.DOWN:
-            self.focus_next()
-        elif symbol == key.RIGHT:
-            stack.text.visible = 1-stack.text.visible
-        elif symbol == key.ENTER:
-            if stack.focused.announced: self.window.user_action = Action.CardSelected(stack.focused.ability, self.zone)
-            return True
-        elif symbol == key.ESCAPE:
-            self.deactivate()
-            return True
+        if self.focused:
+            stack = self.stack_gui
+            if symbol == key.UP:
+                self.focus_previous()
+            elif symbol == key.DOWN:
+                self.focus_next()
+            elif symbol == key.RIGHT:
+                stack.text.visible = 1-stack.text.visible
+            elif symbol == key.ENTER:
+                if stack.focused.announced: self.window.user_action = Action.CardSelected(stack.focused.ability, self.zone)
+                return True
+            elif symbol == key.ESCAPE:
+                self.deactivate()
+                return True
     def on_mouse_press(self, x, y, button, modifiers):
-        if self.stack_gui.focused.announced: self.window.user_action = Action.CardSelected(self.stack_gui.focused.ability, self.zone)
-        return True
+        idx, card = self.stack_gui.handle_click(x, y)
+        if idx != -1:
+            if (button == mouse.RIGHT or modifiers & key.MOD_SHIFT):
+                self.focused = True
+                self.stack_gui.focus(idx)
+                self.highlight_targets()
+            else:
+                if card.announced: self.window.user_action = Action.CardSelected(card.ability, self.zone)
+            return True
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        return True
+        return self.focused
     def on_mouse_release(self, x, y, button, modifiers):
-        #stack = self.stack_gui
-        #self.window.user_action = Action.CardSelected(hand.focused.gamecard, self.zone)
-        #self.deactivate()
-        return True
-    def on_mouse_motion(self, x, y, dx, dy):
-        if y < self.window.height-200: self.deactivate()
-        return True
+        if self.focused:
+            self.stack_gui.unfocus()
+            for obj in self.highlighted: obj.unhighlight()
+            self.highlighted = []
+            self.focused = False
+            return True

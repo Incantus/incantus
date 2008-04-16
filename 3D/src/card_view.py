@@ -362,9 +362,10 @@ class StackView(CardView):
         for card in self.cards:
             if ability == card.ability: return card
         else: return None
-    def focus(self):
+    def focus(self, idx=-1):
         self.is_focused = True
-        self.focus_idx = len(self)-1
+        if idx == -1: self.focus_idx = len(self)-1
+        else: self.focus_idx = idx
         self.layout()
     def unfocus(self):
         self.is_focused = False
@@ -430,6 +431,15 @@ class StackView(CardView):
                 z += 0.001
         else:
             self.visible = 0
+    def handle_click(self, x, y):
+        x -= self.pos.x
+        y -= self.pos.y
+        if -10 < x < self.width+10 and self.height-10 < y < 5:
+            for idx, card in enumerate(self.cards[::-1]):
+                sx, sy, sw, sh = card.pos.x, card.pos.y, card.width*card.size/2, card.height*card.size/2
+                if x > sx-sw and x < sx+sw and y >= sy-sh and y <= sy+sh:
+                    return len(self.cards)-1-idx, card
+        return -1, None
     def render_after_transform(self):
         if self.header.visible == 1.0:
             glColor4f(0.7,0.7,0.7, 0.5)

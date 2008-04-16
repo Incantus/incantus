@@ -227,11 +227,6 @@ class GameWindow(window.Window):
         glDisable(GL_TEXTURE_2D)
         self.unset_2d()
 
-    def on_mouse_motion(self, x, y, dx, dy, tmp_dx=[0]):
-        if len(self.stack) and (x > self.stack.pos.x-50 and x < self.stack.pos.x+50 and 
-                y > self.stack.pos.y-50 and y < self.stack.pos.y+50):
-            self.stack_controller.activate()
-
     def on_key_press(self, symbol, modifiers):
         if symbol == key.ENTER:
             self.user_action = game.Action.PassPriority()
@@ -620,6 +615,7 @@ class GameWindow(window.Window):
         self.status_controller.activate()
         self.hand_controller.activate()
         self.otherhand_controller.activate()
+        self.stack_controller.activate()
         self.mainplayer_status.show()
         self.otherplayer_status.show()
 
