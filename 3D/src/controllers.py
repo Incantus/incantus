@@ -450,7 +450,7 @@ class ManaController(object):
         if symbol == key.ENTER:
             # Check if we have enough mana
             mana = [self.mana.spend_values[c].value for c in self.mana.colors]
-            manastr = ''.join([color*int(mana[i]) for i, color in enumerate("WRGUB") if mana[i] != ''])
+            manastr = ''.join([color*int(mana[i]) for i, color in enumerate("WUBRG") if mana[i] != ''])
             if mana[-1] > 0: manastr += str(mana[-1])
             if manastr == '': manastr = '0'
             if Mana.compareMana(self.required_str, manastr) and self.manapool.checkMana(manastr):
@@ -730,14 +730,14 @@ class StackController(object):
             self.focus_next()
         elif symbol == key.RIGHT:
             stack.text.visible = 1-stack.text.visible
-        elif symbol == key.SPACE:
-            self.window.user_action = Action.CardSelected(stack.focused.ability, self.zone)
+        elif symbol == key.ENTER:
+            if stack.focused.announced: self.window.user_action = Action.CardSelected(stack.focused.ability, self.zone)
             return True
         elif symbol == key.ESCAPE:
             self.deactivate()
             return True
     def on_mouse_press(self, x, y, button, modifiers):
-        self.window.user_action = Action.CardSelected(self.stack_gui.focused.ability, self.zone)
+        if self.stack_gui.focused.announced: self.window.user_action = Action.CardSelected(self.stack_gui.focused.ability, self.zone)
         return True
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         return True
