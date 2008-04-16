@@ -1,7 +1,7 @@
 
 from CardLibrary import CardLibrary
 from GameObjects import MtGObject, Card
-from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeChangedEvent, TargetedByEvent, InvalidTargetEvent
+from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeChangedEvent, TargetedByEvent, InvalidTargetEvent, DealsDamageEvent
 from Mana import ManaPool
 from Zone import Library, Hand, Play, Graveyard, Removed
 from Action import PlaySpell, ActivateForMana, PlayInstant, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
