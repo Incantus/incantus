@@ -237,8 +237,8 @@ class GameWindow(window.Window):
             self.user_action = game.Action.PassPriority()
         elif symbol == key.ESCAPE:
             self.user_action = game.Action.CancelAction()
-        elif symbol == key.TAB:
-            self.game_status.toggle_gamelog()
+        #elif symbol == key.TAB:
+        #    self.game_status.toggle_gamelog()
         elif symbol == key.Q:
             self.has_exit=True
         elif symbol == key.D:
