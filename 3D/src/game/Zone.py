@@ -83,16 +83,16 @@ class OrderedOutPlayZone(OutPlayZone):
     def add_card_post(self, card, position=-1, trigger=True):
         if position == -1: self.pending_top.append((card, trigger))
         else: self.pending_bottom.append((card, trigger))
-    def _get_order(self, cardlist):
+    def _get_order(self, cardlist, pos):
         if len(cardlist) > 1:
             player = cardlist[0].owner
-            reorder = player.getCardSelection(cardlist, len(cardlist), from_zone=str(self), from_player=player, required=False, prompt="Order cards entering %s"%self)
+            reorder = player.getCardSelection(cardlist, len(cardlist), from_zone=str(self), from_player=player, required=False, prompt="Order cards entering %s of %s"%(pos, self))
             if reorder: cardlist = reorder
         return cardlist
     def commit(self):
         if self.pending_top or self.pending_bottom:
-            toplist = self._get_order([c[0] for c in self.pending_top])
-            bottomlist = self._get_order([c[0] for c in self.pending_bottom])
+            toplist = self._get_order([c[0] for c in self.pending_top], "top")
+            bottomlist = self._get_order([c[0] for c in self.pending_bottom], "bottom")
             self.cards = bottomlist[::-1] + self.cards + toplist[::-1]
             for card in toplist+bottomlist:
                 trigger = True
