@@ -31,7 +31,6 @@ class Spell(MtGObject):
     def dealDamage(self, target, amount, combat=False):
         if target.canBeDamagedBy(self.card) and amount > 0:
             target.assignDamage(amount, source=self.card, combat=combat)
-            self.card.send(DealsDamageEvent(), to=target, amount=amount)
     def canBeTargetedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
         self.card.send(TargetedByEvent(), targeter=targeter)
@@ -100,7 +99,6 @@ class Permanent(MtGObject):
     def dealDamage(self, target, amount, combat=False):
         if target.canBeDamagedBy(self.card) and amount > 0:
             target.assignDamage(amount, source=self.card, combat=combat)
-            self.card.send(DealsDamageEvent(), to=target, amount=amount)
         return amount
     def canBeTargetedBy(self, targeter):
         result = True
@@ -280,6 +278,7 @@ class Creature(Role):
     def assignDamage(self, amt, source, combat=False):
         if amt > 0:
             self.__damage += amt
+            source.send(DealsDamageEvent(), to=target, amount=amount)
             self.send(ReceivesDamageEvent(), source=source, amount=amt)
     def removeDamage(self, amt):
         self.__damage -= amt
