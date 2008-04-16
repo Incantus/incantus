@@ -121,7 +121,7 @@ class Player(MtGObject):
     def assignDamage(self, amt, source, combat=False):
         if amt > 0:
             self.life -= amt
-            source.send(DealsDamageEvent(), to=target, amount=amount)
+            source.send(DealsDamageEvent(), to=self, amount=amount)
             self.send(PlayerDamageEvent(), source=source, amount=amt)
     def canBeTargetedBy(self, targetter):
         # For protection spells - XXX these should be stackable

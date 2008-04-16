@@ -278,7 +278,7 @@ class Creature(Role):
     def assignDamage(self, amt, source, combat=False):
         if amt > 0:
             self.__damage += amt
-            source.send(DealsDamageEvent(), to=target, amount=amount)
+            source.send(DealsDamageEvent(), to=self, amount=amount)
             self.send(ReceivesDamageEvent(), source=source, amount=amt)
     def removeDamage(self, amt):
         self.__damage -= amt
