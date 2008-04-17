@@ -810,7 +810,9 @@ class MoveCards(Effect):
         self.return_position = return_position
         if not ((self.from_position in ["", "top", "bottom"] or type(self.from_position) == int) or (self.to_position in ["top", "bottom"] or type(self.to_position) == int) or (self.return_position in ["top", "bottom"])):
             raise Exception("Incorrect from position specified for MoveCards (%s)"%card)
-        if card_types == None: card_types = isCard
+        if card_types == None:
+            card_types = isCard
+            required = True
         if (type(card_types) == list or type(card_types) == tuple): self.card_types = card_types
         else: self.card_types = [card_types]
         self.func = func

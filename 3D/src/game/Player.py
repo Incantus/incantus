@@ -317,9 +317,11 @@ class Player(MtGObject):
         else: return sel
     def getCardSelection(self, sellist, numselections, from_zone, from_player, card_types=isCard, required=True, prompt=''):
         def filter(action):
-            if isinstance(action, CancelAction) and not required: return action
+            if isinstance(action, CancelAction):
+                if not required: return action
+                else: return False
             if not isinstance(action, PassPriority): return action.selection
-            return False
+            else: return False
         if numselections > len(sellist): numselections = len(sellist)
         context = {'get_cards': True, 'list':sellist, 'numselections': numselections, 'required': required, 'process': filter, 'from_zone': from_zone, 'from_player': from_player}
         get_selection = True
