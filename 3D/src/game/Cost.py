@@ -406,6 +406,7 @@ class ProwlCost(Cost):
     def __init__(self, orig_cost, prowl_cost):
         if type(orig_cost) == str: orig_cost = ManaCost(orig_cost)
         if type(prowl_cost) == str: prowl_cost = ManaCost(prowl_cost)
+        self.prowled = False
         self.orig_cost = orig_cost
         self.prowl_cost = prowl_cost
         self.cost = self.orig_cost

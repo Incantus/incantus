@@ -294,9 +294,7 @@ class Creature(Role):
             # lethal_damage will never be less than 1
             lethal_damage = b.toughness-b.currentDamage()
             assert lethal_damage >= 1, "Error in damage calculation"
-            if damage_assn[b] >= lethal_damage:
-                damage_assn[b] = lethal_damage
-            else:
+            if damage_assn[b] < lethal_damage:
                 not_enough = True
                 break
             total_applied += damage_assn[b]
