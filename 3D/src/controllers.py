@@ -151,7 +151,8 @@ class CardSelector(object):
         else:
             if not is_opponent: status = self.mainstatus
             else: status = self.otherstatus
-            self.zone_view.pos = status.pos + status.symbols[from_zone].pos
+            if from_zone == "hand": self.zone_view.pos = status.pos + status.symbols["life"].pos
+            else: self.zone_view.pos = status.pos + status.symbols[from_zone].pos
         self.zone_view.build(sellist, is_opponent)
         self.zone_view.show()
         self.dragging = False
