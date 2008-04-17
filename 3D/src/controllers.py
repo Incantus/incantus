@@ -171,8 +171,9 @@ class CardSelector(object):
                     self.deactivate()
             return True
         elif symbol == key.ESCAPE:
-            if not self.required: self.window.user_action = Action.CancelAction()
-            self.deactivate()
+            if not self.required: 
+                self.window.user_action = Action.CancelAction()
+                self.deactivate()
             return True
         elif symbol == key.LEFT:
             if self.zone_view.focus_previous():
