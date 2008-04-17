@@ -547,7 +547,8 @@ class AddSubRole(Effect):
         self.subrole_info = subrole_info
         self.expire = expire
     def __call__(self, card, target):
-        target.add_subrole(self.subrole)
+        subrole = self.subrole.copy()
+        target.add_subrole(subrole)
         for chr,val in self.subrole_info.items():
             characteristic = getattr(target, chr)
             if hasattr(val, "is_characteristic"):
@@ -557,7 +558,7 @@ class AddSubRole(Effect):
                 characteristic.add(val)
         def restore():
             card.send(RemoveSubRoleEvent(), card=target)
-            target.remove_subrole(self.subrole)
+            target.remove_subrole(subrole)
             for chr, val in self.subrole_info.items():
                 characteristic = getattr(target, chr)
                 if hasattr(val, "is_characteristic"):
@@ -572,15 +573,18 @@ class AddSubRole(Effect):
         return "Add %s"%self.subrole
 
 class GiveKeyword(Effect):
-    def __init__(self, keyword_func, expire=True, keyword=''):
+    def __init__(self, keyword_func, expire=True, keyword='', perm=False):
         self.keyword_func = keyword_func
         self.expire = expire
         self.keyword_name = keyword
+        self.perm = perm
     def __call__(self, card, target):
         from game.CardRoles import Creature
         # XXX This looks ugly, but is necessary to bind the correct subrole
         if isPlayer(target): restore = self.keyword_func(target)
-        else: restore = self.keyword_func(target.current_role.get_subrole(Creature))
+        else: 
+            if self.perm: restore = self.keyword_func(target.current_role)
+            else: restore = self.keyword_func(target.current_role.get_subrole(Creature))
         if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
     def __str__(self):
@@ -687,7 +691,7 @@ class AddPowerToughnessCounter(AddCounter):
         super(AddPowerToughnessCounter,self).__init__(self.PowerToughnessCounter(power,toughness), number, expire)
     def __call__(self, card, target):
         counters = []
-        for i in range(self.number):
+        for i in range(self.get_number()):
             counter = self.counter.copy()
             counters.append(counter)
             target.counters.append(counter)
