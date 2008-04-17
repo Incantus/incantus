@@ -184,7 +184,13 @@ def unblockable(subrole):
 # be relevant
 # XXX Fixed 03/01/08
 
-def prevent_damage(subrole, amt, txt, condition=None, next=True):
+def prevent_damage(subrole, amt, txt=None, condition=None, next=True):
+    if txt == None:
+        if amt == -1: amtstr = 'all'
+        else: amtstr = str(amt)
+        if next == True: nextstr = "the next"
+        else: nextstr = ""
+        txt = 'Prevent %s %s damage'%(nextstr, amtstr)
     def shieldDamage(self, amt, source, combat=False):
         if shieldDamage.curr_amt != -1:
             if next:
@@ -216,7 +222,13 @@ def regenerate(subrole, txt="Regenerate", condition=None):
         return False # This is to the caller of canDestroy() (usually GameKeeper)
     restore = override_replace(subrole, "canDestroy", canDestroy, txt=txt, condition=condition)
     return restore
-def redirect_damage(from_target, to_target, amt, txt, next=True, condition=None):
+def redirect_damage(from_target, to_target, amt, txt=None, next=True, condition=None):
+    if txt == None:
+        if amt == -1: amtstr = 'all'
+        else: amtstr = str(amt)
+        if next == True: nextstr = "the next"
+        else: nextstr = ""
+        txt = 'Redirect %s %s damage from %s to %s'%(nextstr, amtstr, from_target, to_target)
     def redirectDamage(self, amt, source, combat=False):
         #print "redirecting from ", from_target, "to", to_target
         if redirectDamage.curr_amt != -1:
