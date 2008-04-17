@@ -155,6 +155,7 @@ class CardSelector(object):
         self.zone_view.build(sellist, is_opponent)
         self.zone_view.show()
         self.dragging = False
+        self.resizing = False
     def deactivate(self):
         self.zone_view.hide()
         self.window.pop_handlers()
@@ -175,13 +176,13 @@ class CardSelector(object):
             return True
         elif symbol == key.LEFT:
             if self.zone_view.focus_previous():
-                sc, dx = self.zone_view.scroll, self.zone_view.scroll_shift
-                self.zone_view.scroll = (sc[0]-dx, sc[1], sc[2]-dx, sc[3])
+                sc, dx, dir = self.zone_view.scroll, self.zone_view.scroll_shift, self.zone_view.dir
+                self.zone_view.scroll = (sc[0]-dx*dir, sc[1], sc[2]-dx*dir, sc[3])
             return True
         elif symbol == key.RIGHT:
             if self.zone_view.focus_next():
-                sc, dx = self.zone_view.scroll, self.zone_view.scroll_shift
-                self.zone_view.scroll = (sc[0]+dx, sc[1], sc[2]+dx, sc[3])
+                sc, dx, dir = self.zone_view.scroll, self.zone_view.scroll_shift, self.zone_view.dir
+                self.zone_view.scroll = (sc[0]+dx*dir, sc[1], sc[2]+dx*dir, sc[3])
             return True
         elif symbol == key.UP:
             self.zone_view.toggle_sort()
@@ -191,7 +192,10 @@ class CardSelector(object):
         y -= self.zone_view.pos.y
         # Check scroll bar
         l, b, r, t = self.zone_view.scroll
-        if x >= l and x <= r and y >= b and y <= t:
+        if self.zone_view.dir == -1: b, t = t, b
+        if button == mouse.RIGHT or modifiers & key.MOD_SHIFT:
+            pass #self.resizing = True
+        elif x >= l and x <= r and y >= b and y <= t:
             self.dragging = True
         else:
             flag, result = self.zone_view.handle_click(x, y)
@@ -217,12 +221,22 @@ class CardSelector(object):
                     if idx_change < 0: self.tmp_dx -= zv.scroll_shift
                     zv.focus_idx += idx_change
                     zv.layout()
+        elif self.resizing:
+            self.tmp_dx += dx
+            zv.shift_factor += self.tmp_dx/400
+            if zv.shift_factor < 0.1:
+                self.tmp_dx = 0
+                zv.shift_factor = 0.1
+            elif zv.shift_factor > 1.1:
+                self.tmp_dx = 0
+                zv.shift_factor = 1.1
+            zv.layout()
         return True
     def on_mouse_motion(self, x, y, dx, dy):
         return True
     def on_mouse_release(self, x, y, button, modifiers):
-        if self.dragging:
-            self.dragging = False
+        if self.dragging: self.dragging = False
+        elif self.resizing: self.resizing = False
         return True
 
 class DamageSelector(object):

@@ -467,7 +467,6 @@ class ZoneView(CardView):
         super(ZoneView,self).__init__(pos,reverse_draw=True)
         self._pos.set_transition(dt=0.001)
         self.sorted = False
-        self.dir = 1
         points = [(0.0, 0.0), (26.0, 244.0), (184.0, 368.0), (400.0, 226.0)]
         self.path = BezierPath(*[euclid.Point2(v[0], v[1]) for v in points])
         self.visible = anim.animate(0,0,dt=0.3)
@@ -475,13 +474,20 @@ class ZoneView(CardView):
     def build(self, zone, is_opponent):
         self.cards = []
         self.selected = []
-        if is_opponent: self.dir = -1
-        else: self.dir = 1
+        self.shift_factor = 0.1
+        if is_opponent:
+            self.dir = -1
+            align = ["left", "right"]
+        else:
+            self.dir = 1
+            align = ["right", "left"]
+        self.selected_text = [Label("Top", halign=align[0], background=True), Label("Bottom", halign=align[1], background=True)]
+        self.selected_text[0].visible = self.selected_text[1].visible = 0.0
         for card in zone: self.add_card(card)
         self.orig_order = dict([(c.gamecard.key, i) for i, c in enumerate(self.cards)])
         self.focus_idx = 0
         self.layout()
-        self.scroll = (2*self.dir, -17*self.dir, 10*self.dir, -10*self.dir)
+        self.scroll = ((self.scroll_shift*self.focus_idx)*self.dir, -17*self.dir, (self.scroll_shift*(self.focus_idx+1))*self.dir, -10*self.dir)
     def focus_next(self):
         if self.dir == 1: cond = (self.focus_idx < len(self)-1)
         else: cond = self.focus_idx > 0
@@ -529,7 +535,7 @@ class ZoneView(CardView):
         self.layout_selected()
     def deselect_card(self, card):
         self.selected.remove(card)
-        self.cards.insert(0, card) # Find the right position to reinsert
+        self.cards.insert(self.focus_idx, card) # Find the right position to reinsert
         self.layout()
         self.layout_selected()
     def handle_click(self, x, y):
@@ -562,23 +568,31 @@ class ZoneView(CardView):
         dir = self.dir
         x = 0
         size = self.focus_size / 2
-        for card in self.selected:
-            card.size = size
-            y = card.height*(1+size/2)*dir
-            card.pos = euclid.Vector3(x,y,0)
-            x += card.width*size*1.1*dir
+        if self.selected:
+            for card in self.selected:
+                card.size = size
+                y = card.height*(1.1+size/2)*dir
+                card.pos = euclid.Vector3(x,y,0)
+                x += card.width*size*1.1*dir
+            self.selected_text[0].visible = self.selected_text[1].visible = 1.0
+            self.selected_text[0].pos = euclid.Vector3(-card.width*size*0.65*dir, y, 0)
+            self.selected_text[1].pos = euclid.Vector3(x-card.width*size*0.45*dir, y, 0)
+        else:
+            self.selected_text[0].visible = self.selected_text[1].visible = 0.0
     def layout_straight(self):
         numcards = len(self)
         if numcards > 0:
             cards = self.cards
             dir = self.dir
+            size = 0.25
             i = 0.001
             x = y = 0
+            xincr = self.shift_factor
             #x -= cards[0].width*self.focus_size*0.6*dir
             for card in cards[:self.focus_idx]:
-                card.size = 0.25
-                x += card.width*0.25*0.1*dir
-                card.pos = euclid.Vector3(x, y+card.height*0.125*dir,i)
+                card.size = size
+                x += card.width*size*xincr*dir
+                card.pos = euclid.Vector3(x, y+card.height*size/2*dir,i)
                 i += 0.001
             card = cards[self.focus_idx]
             card.size = self.focus_size
@@ -588,9 +602,9 @@ class ZoneView(CardView):
             x += card.width*self.focus_size*0.5*dir
             i += 0.001
             for card in cards[self.focus_idx+1:]:
-                card.size = 0.25
-                x += card.width*0.25*0.1*dir
-                card.pos = euclid.Vector3(x, y+card.height*0.125*dir,i)
+                card.size = size
+                x += card.width*size*xincr*dir
+                card.pos = euclid.Vector3(x, y+card.height*size/2*dir,i)
                 i += 0.001
             self.width = x #+card.width*0.25
             self.scroll_bar = (0, -5*dir, self.width, -20*dir)
@@ -639,28 +653,29 @@ class ZoneView(CardView):
         #    for card in self.cards: card.draw()
         #else:
         #    for card in self.cards[::-1]: card.draw()
-        glDisable(GL_TEXTURE_2D)
-        glBegin(GL_QUADS)
-        glColor4f(0.1,0.1,0.1,0.95)
-        l, b, r, t = self.scroll_bar
-        glVertex2f(l, b)
-        glVertex2f(r, b)
-        glVertex2f(r, t)
-        glVertex2f(l, t)
-        glColor4f(0.5,0.5,0.5,0.8)
-        l, b, r, t = self.scroll
-        glVertex2f(l, b)
-        glVertex2f(r, b)
-        glVertex2f(r, t)
-        glVertex2f(l, t)
-        #glEnd()
+        if len(self.cards) > 1:
+            glDisable(GL_TEXTURE_2D)
+            glBegin(GL_QUADS)
+            glColor4f(0.1,0.1,0.1,0.95)
+            l, b, r, t = self.scroll_bar
+            glVertex2f(l, b)
+            glVertex2f(r, b)
+            glVertex2f(r, t)
+            glVertex2f(l, t)
+            glColor4f(0.5,0.5,0.5,0.8)
+            l, b, r, t = self.scroll
+            glVertex2f(l, b)
+            glVertex2f(r, b)
+            glVertex2f(r, t)
+            glVertex2f(l, t)
+            glEnd()
         #glColor4f(0.1,0.1,0.1,0.9)
         #l, b, r, t = -20, -20, self.width+20, self.height+20
         #glVertex2f(l, b)
         #glVertex2f(r, b)
         #glVertex2f(r, t)
         #glVertex2f(l, t)
-        glEnd()
+        #glEnd()
         #glColor3f(0,0,0)
         #glLineWidth(2.0)
         #glBegin(GL_LINE_LOOP)
@@ -670,3 +685,4 @@ class ZoneView(CardView):
             for card in self.cards[-1:self.focus_idx:-1]: card.draw()
             self.focused.draw()
         for card in self.selected: card.draw()
+        for label in self.selected_text: label.render()
