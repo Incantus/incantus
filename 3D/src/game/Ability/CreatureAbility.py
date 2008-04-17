@@ -37,6 +37,7 @@ def override_replace(subrole, name, func, condition=None, keyword=None, txt=''):
     new_func_gen = lambda func, obj, cls: [False, new.instancemethod(func,obj,cls), txt, condition]
     return override(subrole, name, func, keyword, combiner=replacement, reverse=False, new_func_gen=new_func_gen)
 
+# XXX Landwalk is broken - because the self for canBeBlocked refers to the in_play_role
 def landwalk(subrole, landtype):
     keyword = landtype.lower()+"walk"
     def canBeBlocked(self):

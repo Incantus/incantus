@@ -20,6 +20,7 @@ class Reinforce(ActivatedAbility):
     def __str__(self):
         return "%s: Reinforce %d"%(self.reinforce_cost, self.number)
 
+# XXX Reinforce should be instant speed
 def reinforce(out_play_role, cost="0", number=1):
     out_play_role.abilities.append(Reinforce(out_play_role.card, cost, number))
 
