@@ -36,9 +36,9 @@ class AssignDamage(Ability):
         for damager, damage_assn in self.damages:
             if damager.canDealDamage():
                 for damagee, amt in damage_assn.iteritems():
-                    if isPlayer(damagee): damager.dealDamage(damagee, amt, combat=True)
-                    elif isCreature(damagee) and damagee.in_combat: damager.dealDamage(damagee, amt, combat=True)
                     if amt > 0:
+                        if isPlayer(damagee): damager.dealDamage(damagee, amt, combat=True)
+                        elif isCreature(damagee) and damagee.in_combat: damager.dealDamage(damagee, amt, combat=True)
                         damager.send(DealsCombatDamageEvent(),to=damagee,amount=amt)
                         damagee.send(ReceivesCombatDamageEvent(),source=damager,amount=amt)
 
