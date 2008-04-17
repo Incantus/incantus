@@ -386,11 +386,13 @@ class StatusController(object):
 class XSelector(object):
     def __init__(self, mana_gui, window):
         self.mana = mana_gui
+        self.colorless_symbol = mana_gui.symbols[-1]
         self.colorless = mana_gui.values["colorless"]
         self.window = window
     def request_x(self):
         self.activate(x=True)
         self.mana.cost.set_text("Choose X")
+        self.orig_alpha = self.colorless_symbol.alpha
         self.orig_colorless = self.colorless.value
         self.colorless.set_text(0)
     def activate(self, x=False):
@@ -398,6 +400,8 @@ class XSelector(object):
         self.mana.pos = euclid.Vector3(self.window.width/2, self.window.height/2, 0)
         self.window.push_handlers(self)
     def deactivate(self):
+        self.colorless.set_text(self.orig_colorless)
+        self.colorless_symbol.alpha = self.orig_alpha
         self.mana.select()
         self.window.pop_handlers()
     def on_key_press(self, symbol, modifiers):
