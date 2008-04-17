@@ -45,12 +45,13 @@ class RoleMatch(ObjMatch):
         self.use_in_play = use_in_play
     def match(self, obj=None, use_in_play=False):
         role = obj.current_role
+        self.use_in_play = use_in_play
         if (use_in_play or self.use_in_play): role=obj.in_play_role
         return role.match_role(self.cardrole) and super(RoleMatch,self).match(obj)
         #return isinstance(role, self.cardrole) and super(RoleMatch,self).match(obj)
     def __str__(self):
         matchname = self.cardrole.__name__
-        if not self.use_in_play: matchname += " card"
+        if self.use_in_play: matchname += " card"
         return matchname
 
 class PlayerMatch(ObjMatch):
