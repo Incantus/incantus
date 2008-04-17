@@ -25,7 +25,7 @@ class PermanentSpell(CastSpell):
         # The card is put into play before any effects resolve
         controller = self.card.controller #self.setup_card_controller()
         controller.moveCard(self.card, self.card.zone, controller.play)
-        super(PermanentSpell, self).preresolve()
+        return super(PermanentSpell, self).preresolve()
     def __str__(self):
         return "%s: Put into play"%self.cost
 

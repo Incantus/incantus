@@ -56,25 +56,18 @@ class EquipAbility(ActivatedAbility):
         super(EquipAbility,self).__init__(card, cost=cost, target=Target(target_types=isCreature), effects=Effect.AttachToPermanent(), limit=Limit.SorceryLimit(card))
 
 class ChoiceAbility(ActivatedAbility):
-    def __init__(self, card, cost="0", msg='', choice_target=Target(targeting="controller"), target=Target(targeting="controller"), effects=[], during_resolution=False):
+    def __init__(self, card, cost="0", msg='', choice_target=Target(targeting="controller"), target=Target(targeting="controller"), effects=[]):
         super(ChoiceAbility, self).__init__(card, cost=cost, target=target,effects=effects)
         self.choice_target = choice_target
         if not msg: msg = "...%s"%', '.join(map(str,self.effects))
         self.msg = msg
-        self.during_resolution = during_resolution
     def get_target(self):
-        target_aquired = self.choice_target.get(self.card)
-        if not self.during_resolution: 
-            choice = self.choice_target.target.getIntention(prompt=self.msg,msg=self.msg)
-            if not choice: return False
-        return super(ChoiceAbility,self).get_target()
-    def resolve(self):
-        if self.during_resolution:
-            choice = self.choice_target.target.getIntention(prompt=self.msg,msg=self.msg)
-            if not choice: return False
-        return super(ChoiceAbility,self).resolve()
+        if not self.choice_target.get(self.card): return False
+        else: return super(ChoiceAbility,self).get_target()
+    def preresolve(self):
+        return self.choice_target.target.getIntention(prompt=self.msg,msg=self.msg)
     def __str__(self):
-        return "You may ...%s"%', '.join(map(str,self.effects))
+        return "You may... %s"%', '.join(map(str,self.effects))
 
 class DoOrAbility(ActivatedAbility):
     def __init__(self, card, cost="0", target=Target(targeting="controller"), failure_target=Target(targeting="controller"), effects=[], failed=[], copy_targets=False):

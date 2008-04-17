@@ -46,12 +46,12 @@ class Ability(MtGObject):
     def resolve(self):
         success = True
         if self.needs_target() and not self.check_target(): return False
-        self.preresolve()
+        if not self.preresolve(): return False
         for i, effect in enumerate(self.effects):
             if len(self.targets) == 1: i = 0
             if effect(self.card, self.targets[i].target) == False: success=False
         return success
-    def preresolve(self): pass
+    def preresolve(self): return True
     def played(self): pass
     def resolved(self): self.card.send(AbilityResolved())
     def can_be_countered(self): return True
