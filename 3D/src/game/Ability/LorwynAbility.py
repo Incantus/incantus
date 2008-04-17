@@ -6,7 +6,7 @@ from Target import Target
 from TriggeredAbility import TriggeredAbility
 from Trigger import EnterTrigger, LeaveTrigger, DealDamageTrigger
 from Limit import Unlimited
-from game.Match import SelfMatch, isLandType
+from game.Match import SelfMatch, isLandType, isPlayer
 from game.Cost import EvokeCost, ManaCost, TapCost, MultipleCosts
 from game.characteristics import all_characteristics
 
@@ -65,6 +65,7 @@ def champion(subrole, card, role=isPermanent, subtypes=None):
     else:
         subtypes = all_characteristics()
         msg = "Champion %s"%role
+    msg += " or sacrifice (Esc)"
     championed = Target(target_types=role.with_condition(lambda p: not p == card and p.controller == card.controller and p.subtypes.intersects(subtypes)), msg=msg)
     champion = TriggeredAbility(card, trigger = EnterTrigger("play"),
             match_condition=SelfMatch(card),
@@ -121,12 +122,14 @@ def hideaway(subrole, card, limit=None):
         subrole.abilities.remove(return_hidden)
     return remove_hideaway
 
+
+# XXX Deathtouch is broken for multiple blockers - since the same trigger object is shared
 def deathtouch(subrole, in_play=False):
     subrole.keywords.add("deathtouch")
     card = subrole.card
     trigger = DealDamageTrigger(sender=card)
     deathtouch = TriggeredAbility(card, trigger = trigger,
-            match_condition = None,
+            match_condition = lambda sender, to: not isPlayer(to),
             ability = Ability(card, target=Target(targeting=lambda trigger=trigger: trigger.to),
                 effects=Destroy())) 
     subrole.triggered_abilities.append(deathtouch)
