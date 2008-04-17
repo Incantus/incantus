@@ -724,8 +724,10 @@ class GameWindow(window.Window):
             self.list_selector.build(sellist,required,numselections,msg)
         elif context.get("get_choice", False):
             msg = context['msg']
+            notify = context['notify']
             #if self.hand_controller.activated: self.hand_controller.deactivate()
-            self.msg_controller.ask(msg)
+            if notify: self.msg_controller.notify(msg)
+            else: self.msg_controller.ask(msg)
         elif context.get("get_mana_choice", False):
             required = context['required']
             manapool = context['manapool']

@@ -45,7 +45,7 @@ class PauseEffect(Effect):
         self.msg = msg
     def __call__(self, card, target):
         if not isPlayer(target): raise Exception("Invalid target (not a player)")
-        target.getIntention(self.msg, msg=self.msg)
+        target.getIntention(self.msg, msg=self.msg, notify=True)
         return True
     def __str__(self):
         return ''
@@ -58,12 +58,13 @@ class NullEffect(Effect):
     def __str__(self):
         return ''
 
+
+# XXX Fix this for Gilt-leaf Palace
 class RevealCard(Effect):
     def __init__(self, select=None, both=False):
         self.select = select
         self.both = both
     def __call__(self, card, target):
-        if not isPlayer(target): raise Exception("Invalid target for revealing card")
         if self.select and callable(self.select): showcard = self.select(target)
         else: showcard = card
         target.revealCard(showcard)

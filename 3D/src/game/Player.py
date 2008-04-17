@@ -296,11 +296,11 @@ class Player(MtGObject):
             if allowed: break
             #else: print self.name, str(action)+" not allowed"
         return action
-    def getIntention(self, prompt='', msg=""):
+    def getIntention(self, prompt='', msg="", notify=False):
         def filter(action):
             if not (isinstance(action, OKAction) or isinstance(action, CancelAction)): return False
             else: return action
-        context = {'get_choice': True, 'msg': msg, 'process': filter}
+        context = {'get_choice': True, 'msg': msg, 'notify': notify, 'process': filter}
         if not prompt: prompt = "Declare intention"
         if not msg: msg = prompt
         result = self.input(context, "%s: %s"%(self.name,prompt))
@@ -335,8 +335,7 @@ class Player(MtGObject):
                     if ctype(card):
                         break
                 else: invalid = True
-                if not invalid:
-                    get_selection = False
+                if not invalid: get_selection = False
                 else: break
         return sel
     def getTarget(self, target_types, zone=[], required=True, spell=True, prompt='Select target'):
