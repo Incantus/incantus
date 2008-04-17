@@ -315,7 +315,7 @@ class Player(MtGObject):
         sel = self.input(context,"%s: %s"%(self.name,prompt))
         if isinstance(sel, CancelAction): return False
         else: return sel
-    def getCardSelection(self, sellist, numselections, from_zone, from_player, card_types=isCard, required=True, prompt=''):
+    def getCardSelection(self, sellist, numselections, from_zone, from_player, card_types=isGameObject, required=True, prompt=''):
         def filter(action):
             if isinstance(action, CancelAction):
                 if not required: return action
