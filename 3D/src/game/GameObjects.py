@@ -18,7 +18,7 @@ class MtGObject(object):
         # register to receive events
         # if expiry == -1, then it is continuous, otherwise number is the number of times
         # that the callback is processed
-        # XXX Major bug - each callback must be a separate function (or wrapped in a lambda)
+        # XXX Major python problem - each callback must be a separate function (or wrapped in a lambda)
         # which makes it hard to disconnect it
         dispatcher.connect(callback, signal=event, sender=sender,weak=weak,expiry=expiry)
     def unregister(self, callback, event, sender=dispatcher.Any, weak=True):
@@ -66,7 +66,6 @@ class GameObject(MtGObject):
         def fget(self):
             return self._current_role
         def fset(self, role):
-            import new, inspect
             # Leaving play
             if role == self.out_play_role and self._current_role != self.out_play_role:
                 #  Keep a copy around in case any spells need it
@@ -79,10 +78,7 @@ class GameObject(MtGObject):
             # Make a copy of the role, so that there's no memory whenever we re-enter play
             if role == self.in_play_role: self._current_role = role.copy()
             else: self._current_role = role
-            # Bind all unbound functions
-            for name, func in inspect.getmembers(self._current_role, inspect.ismethod):
-                if func.im_self != self._current_role:
-                    setattr(self._current_role, name, new.instancemethod(func.im_func, self._current_role, func.im_class))
+
             # It is about to enter play - let it know
             if role == self.in_play_role:
                 if self._last_known_role: del self._last_known_role

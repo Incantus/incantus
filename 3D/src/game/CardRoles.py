@@ -3,6 +3,14 @@ from GameObjects import MtGObject
 from data_structures import keywords
 from GameEvent import DealsDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, ReceivesDamageEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent
 
+import new, inspect
+def rebind_self(obj):
+    # Bind all unbound functions
+    for name, func in inspect.getmembers(obj, inspect.ismethoddescriptor):
+        if hasattr(func, "stacked"):
+            func.rebind(obj)
+            #func.im_self != obj: setattr(obj, name, new.instancemethod(func.im_func, obj, func.im_class))
+
 class NoRole(MtGObject):   # This is for lands
     # For token objects out of play
     def __init__(self, card):
@@ -41,6 +49,7 @@ class Spell(MtGObject):
     def copy(self):
         import copy
         newcopy = copy.copy(self)
+        rebind_self(newcopy)
         newcopy.abilities = []
         return newcopy
     def match_role(self, matchrole):
@@ -169,10 +178,11 @@ class Permanent(MtGObject):
         import copy
         # This doesn't create new lists for triggered abilities and static abilities
         newcopy = copy.copy(self)
+        rebind_self(newcopy)
         newcopy.counters = []
         newcopy.attachments = []
         newcopy._abilities = []
-        newcopy.subroles = [role.copy() for role in self.subroles]
+        newcopy.subroles = [role.copy(newcopy) for role in self.subroles]
         return newcopy
     def __str__(self):
         return str(self.__class__.__name__)
@@ -206,9 +216,12 @@ class Role(object):
                 setattr(role,attr,copy.copy(value))
             else: setattr(role,attr,value)
         return role
-    def copy(self):
+    def copy(self, perm=None):
         import copy
-        return copy.deepcopy(self)
+        newcopy = copy.deepcopy(self)
+        newcopy.perm = perm
+        rebind_self(newcopy)
+        return newcopy
     def __str__(self):
         return self.__class__.__name__
 

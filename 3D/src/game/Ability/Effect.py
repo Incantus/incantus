@@ -232,7 +232,8 @@ class CreateToken(Effect):
             token = CardLibrary.createToken(self.token_name, target, self.token_color,  self.token_type, self.token_subtypes)
             # Create the role for it
             token.controller = target
-            token.in_play_role = Permanent(token, self.token_role.copy())
+            token.in_play_role = Permanent(token, [])
+            token.in_play_role.subroles.append(self.token_role.copy(token.in_play_role))
             token.out_play_role = NoRole(token)
             # Now put it into play
             token.controller.play.add_card(token)
@@ -548,7 +549,7 @@ class AddSubRole(Effect):
         self.subrole_info = subrole_info
         self.expire = expire
     def __call__(self, card, target):
-        subrole = self.subrole.copy()
+        subrole = self.subrole.copy(target.current_role)
         target.add_subrole(subrole)
         for chr,val in self.subrole_info.items():
             characteristic = getattr(target, chr)

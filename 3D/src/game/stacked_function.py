@@ -1,5 +1,5 @@
 #import operator, itertools
-
+import types, new
 from Match import isPlayer
 
 # this is probably where the static layering rules come into play
@@ -43,7 +43,6 @@ def replacement(funcs, obj, *args, **kw):
         else: return func(obj, *args, **kw)
 
 class stacked_function(object):
-    import types
     stacked = True
     def __init__(self, orig_func, combiner, reverse = True):
         self.funcs = [orig_func]
@@ -56,12 +55,16 @@ class stacked_function(object):
         if func in self.funcs: self.funcs.remove(func)
     def stacking(self):
         return len(self.funcs) > 1
+    def rebind(self, obj):
+        # XXX This is really ugly
+        # To truly emulate a method, i should save the obj in __get__ and keep unbound functions
+        for i, func in enumerate(self.funcs):
+            self.funcs[i] = new.instancemethod(func.im_func, obj, func.im_class)
     def __call__(self, *args, **kw):
         return self.combiner(self.funcs[::self.reverse], *args, **kw)
     def __get__(self, obj, objtype=None):
-        return stacked_function.types.MethodType(self, obj, objtype)
+        return types.MethodType(self, obj, objtype)
 
-import new
 class replacement_stacked_function(stacked_function):
     def __init__(self, obj, funcname, reverse = True):
         self.funcs = []

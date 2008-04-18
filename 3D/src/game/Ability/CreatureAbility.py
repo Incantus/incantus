@@ -4,8 +4,6 @@ from game.LazyInt import LazyInt
 from game.characteristics import all_characteristics
 import new
 
-# XXX Some of these that take subroles are broken (vigilance, berserker) since they are bound (im_self) to the original subrole, while a copy is made when the card becomes a permanent.
-
 def override(subrole, name, func, keyword=None, combiner=logical_and, reverse=True, new_func_gen=new.instancemethod):
     if keyword: subrole.keywords.add(keyword)
     obj = subrole
@@ -37,7 +35,6 @@ def override_replace(subrole, name, func, condition=None, keyword=None, txt=''):
     new_func_gen = lambda func, obj, cls: [False, new.instancemethod(func,obj,cls), txt, condition]
     return override(subrole, name, func, keyword, combiner=replacement, reverse=False, new_func_gen=new_func_gen)
 
-# XXX Landwalk is broken - because the self for canBeBlocked refers to the in_play_role
 def landwalk(subrole, landtype):
     keyword = landtype.lower()+"walk"
     def canBeBlocked(self):
@@ -63,7 +60,6 @@ def only_block(subrole, keyword):
     return override(subrole,"canBlockAttacker",canBlockAttacker)
 
 def haste(subrole):
-    # XXX Haste broke after I split apart permanents from their roles
     def continuouslyInPlay(self): return True
     return override(subrole,"continuouslyInPlay",continuouslyInPlay, keyword="haste", combiner=logical_or)
 
@@ -98,7 +94,7 @@ def vigilance(subrole):
         from game.GameEvent import AttackerDeclaredEvent
         self.setCombat(True)
         self.attacking = True
-        self.card.send(AttackerDeclaredEvent())
+        self.send(AttackerDeclaredEvent())
         return True
     return override(subrole, "setAttacking", setAttacking, keyword="vigilance", combiner=logical_or)
 def berserker(subrole):
