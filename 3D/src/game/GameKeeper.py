@@ -212,29 +212,36 @@ class GameKeeper(MtGObject):
         players = [self.curr_player, self.other_player]
         actions = []
         # 420.5a A player with 0 or less life loses the game.
+        def GameOver(player, msg):
+            def SBE(): raise GameOver("%s %s and loses the game!"%(player, msg))
+            return SBE
         for player in players:
             if player.life <= 0: 
-                def SBE(): raise GameOver("%s wins the game!"%player.opponent.name)
-                actions.append(SBE)
+                actions.append(GameOver(player, "has less than 0 life"))
 
         # 420.5b and 420.5c are combined
         # 420.5b A creature with toughness 0 or less is put into its owner's graveyard. Regeneration can't replace this event.
         # 420.5c A creature with lethal damage, but greater than 0 toughness, is destroyed. Lethal damage is an amount of damage greater than or equal to a creature's toughness. Regeneration can replace this event.
+        def MoveToGraveyard(creature, player):
+            def SBE(): player.moveCard(creature, player.play, creature.owner.graveyard)
+            return SBE
         for player in players:
             for creature in player.play.get(Match.isCreature):
                 if creature.toughness <= 0:
-                    actions.append(lambda: player.moveCard(creature, player.play, creature.owner.graveyard))
+                    actions.append(MoveToGraveyard(creature, player))
                 elif creature.shouldDestroy():
                     actions.append(creature.destroy)
 
         # 420.5d An Aura attached to an illegal object or player, or not attached to an object or player, is put into its owner's graveyard.
+        def DestroyAura(aura, player):
+            def SBE():
+                aura.unattach()
+                player.moveCard(aura, player.play, aura.owner.graveyard)
+            return SBE
         for player in players:
             for aura in player.play.get(Match.isAura):
                 if not aura.attached_to or not (aura.attached_to.zone == players[0].play or aura.attached_to.zone == players[1].play) or not aura.target_types.match(aura.attached_to):
-                    def SBE():
-                        aura.unattach()
-                        player.moveCard(aura, player.play, aura.owner.graveyard)
-                    actions.append(SBE)
+                    actions.append(DestroyAura(aura, player))
         # 420.5e If two or more legendary permanents with the same name are in play, all are put into their owners' graveyards. This is called the "legend rule." If only one of those permanents is legendary, this rule doesn't apply.
         legendaries = []
         for player in players: legendaries.extend(player.play.get(Match.isLegendaryPermanent))
@@ -262,13 +269,11 @@ class GameKeeper(MtGObject):
         # 420.5g A player who attempted to draw a card from an empty library since the last time state-based effects were checked loses the game.
         for player in players:
             if player.draw_empty:
-                def SBE(): raise GameOver("%s draws from an empty library and loses!"%player.name)
-                actions.append(SBE)
+                actions.append(GameOver(player, "draws from an empty library"))
         # 420.5h A player with ten or more poison counters loses the game.
         for player in players:
             if player.poison >= 10:
-                def SBE(): raise GameOver("%s is poisoned and loses"%player.name)
-                actions.append(SBE)
+                actions.append(GameOver(player, "is poisoned"))
 
         # 420.5i If two or more permanents have the supertype world, all except the one that has been a permanent with the world supertype in play for the shortest amount of time are put into their owners' graveyards. In the event of a tie for the shortest amount of time, all are put into their owners' graveyards. This is called the "world rule."
         # 420.5j A copy of a spell in a zone other than the stack ceases to exist. A copy of a card in any zone other than the stack or the in-play zone ceases to exist.
