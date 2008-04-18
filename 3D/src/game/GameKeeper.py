@@ -210,10 +210,12 @@ class GameKeeper(MtGObject):
         # Also during cleanup step - if there is an effect, player gets priority
         self.send(TimestepEvent())
         players = [self.curr_player, self.other_player]
-        actions = 0
+        actions = []
         # 420.5a A player with 0 or less life loses the game.
         for player in players:
-            if player.life <= 0: raise GameOver("%s wins the game!"%player.opponent.name)
+            if player.life <= 0: 
+                def SBE(): raise GameOver("%s wins the game!"%player.opponent.name)
+                actions.append(SBE)
 
         # 420.5b and 420.5c are combined
         # 420.5b A creature with toughness 0 or less is put into its owner's graveyard. Regeneration can't replace this event.
@@ -221,18 +223,18 @@ class GameKeeper(MtGObject):
         for player in players:
             for creature in player.play.get(Match.isCreature):
                 if creature.toughness <= 0:
-                    player.moveCard(creature, player.play, creature.owner.graveyard)
-                    actions += 1
+                    actions.append(lambda: player.moveCard(creature, player.play, creature.owner.graveyard))
                 elif creature.shouldDestroy():
-                    creature.destroy()
-                    actions += 1
+                    actions.append(creature.destroy)
+
         # 420.5d An Aura attached to an illegal object or player, or not attached to an object or player, is put into its owner's graveyard.
         for player in players:
             for aura in player.play.get(Match.isAura):
                 if not aura.attached_to or not (aura.attached_to.zone == players[0].play or aura.attached_to.zone == players[1].play) or not aura.target_types.match(aura.attached_to):
-                    aura.unattach()
-                    player.moveCard(aura, player.play, aura.owner.graveyard)
-                    actions += 1
+                    def SBE():
+                        aura.unattach()
+                        player.moveCard(aura, player.play, aura.owner.graveyard)
+                    actions.append(SBE)
         # 420.5e If two or more legendary permanents with the same name are in play, all are put into their owners' graveyards. This is called the "legend rule." If only one of those permanents is legendary, this rule doesn't apply.
         legendaries = []
         for player in players: legendaries.extend(player.play.get(Match.isLegendaryPermanent))
@@ -244,23 +246,30 @@ class GameKeeper(MtGObject):
                     remove.extend([l1,l2])
                     break
         if len(remove) > 0:
-            for legend in remove:
-                player = legend.controller
-                player.moveCard(legend, player.play, legend.owner.graveyard)
-            actions += 1
+            def SBE():
+                for legend in remove:
+                    player = legend.controller
+                    player.moveCard(legend, player.play, legend.owner.graveyard)
+            actions.append(SBE)
 
         # 420.5f A token in a zone other than the in-play zone ceases to exist.
         if len(self.tokens_out_play) > 0:
-            for token in self.tokens_out_play: token.zone.remove_card(token, trigger=False)
-            # XXX Now only CardLibrary has a reference to the token - we need to delete it somehow
-            self.tokens_out_play[:] = []
-            actions += 1
+            def SBE():
+                for token in self.tokens_out_play: token.zone.remove_card(token, trigger=False)
+                # XXX Now only CardLibrary has a reference to the token - we need to delete it somehow
+                self.tokens_out_play[:] = []
+            actions.append(SBE)
         # 420.5g A player who attempted to draw a card from an empty library since the last time state-based effects were checked loses the game.
         for player in players:
-            if player.draw_empty: raise GameOver("%s draws from an empty library and loses!"%player.name)
+            if player.draw_empty:
+                def SBE(): raise GameOver("%s draws from an empty library and loses!"%player.name)
+                actions.append(SBE)
         # 420.5h A player with ten or more poison counters loses the game.
         for player in players:
-            if player.poison >= 10: raise GameOver("%s is poisoned and loses"%player.name)
+            if player.poison >= 10:
+                def SBE(): raise GameOver("%s is poisoned and loses"%player.name)
+                actions.append(SBE)
+
         # 420.5i If two or more permanents have the supertype world, all except the one that has been a permanent with the world supertype in play for the shortest amount of time are put into their owners' graveyards. In the event of a tie for the shortest amount of time, all are put into their owners' graveyards. This is called the "world rule."
         # 420.5j A copy of a spell in a zone other than the stack ceases to exist. A copy of a card in any zone other than the stack or the in-play zone ceases to exist.
         # 420.5k An Equipment or Fortification attached to an illegal permanent becomes unattached from that permanent. It remains in play.
@@ -268,6 +277,8 @@ class GameKeeper(MtGObject):
         # 420.5n If a permanent has both a +1/+1 counter and a -1/-1 counter on it, N +1/+1 and N -1/-1 counters are removed from it, where N is the smaller of the number of +1/+1 and -1/-1 counters on it. 
 
         if actions:
+            for action in actions:
+                action()
             self.stack.process_triggered()
             return True
         else: return False
