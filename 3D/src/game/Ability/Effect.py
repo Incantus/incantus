@@ -361,13 +361,16 @@ class SacrificeSelf(Effect):
         return "Sacrifice self"
 
 class ForceSacrifice(Effect):
-    def __init__(self, card_type=isCreature):
+    def __init__(self, card_type=isCreature, required=True):
         self.card_type = card_type
+        self.required = required
     def __call__(self, card, target):
         if len(target.play.get(self.card_type)) > 0:
-            sacrifice = target.getTarget(self.card_type, zone=target.play, required=True, prompt="Select a %s for sacrifice"%self.card_type)
-            target.moveCard(sacrifice, target.play, sacrifice.owner.graveyard)
-            return True
+            sacrifice = target.getTarget(self.card_type, zone=target.play, required=self.required, prompt="Select a %s for sacrifice"%self.card_type)
+            if not sacrifice: return False
+            else:
+                target.moveCard(sacrifice, target.play, sacrifice.owner.graveyard)
+                return True
         else: return False
     def __str__(self):
         return "Sacrifice"
