@@ -1,5 +1,5 @@
 from game.GameObjects import MtGObject
-from game.GameEvent import AbilityCountered, AbilityResolved
+from game.GameEvent import AbilityCountered, AbilityResolved, TimestepEvent
 from Target import Target
 from Limit import Unlimited
 
@@ -50,6 +50,7 @@ class Ability(MtGObject):
         for i, effect in enumerate(self.effects):
             if len(self.targets) == 1: i = 0
             if effect(self.card, self.targets[i].target) == False: success=False
+            self.send(TimestepEvent())
         return success
     def preresolve(self): return True
     def played(self): pass

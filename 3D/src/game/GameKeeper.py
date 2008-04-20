@@ -16,8 +16,12 @@ class Stack(MtGObject):
         self.stack[:] = []
         self.triggered_abilities[:] = []
         self.register(lambda player: setattr(self, "curr_player", player), NewTurnEvent(), weak=False)
-        self.register(self.process_triggered, HasPriorityEvent())
     def add_triggered(self, ability):
+        # XXX This is hacky, and is needed for triggered abilities where the target depends on the trigger
+        # Since the trigger is a single object, it will have different arguments everytime it triggers
+        # so the target will only reference the most recent one. I need to find a better way to bind things together
+        for target in ability.targets:
+            if target.targeting: target.get(ability.card)
         self.triggered_abilities.append(ability)
     def process_triggered(self):
         # Check if there are any triggered abilities waiting
@@ -196,7 +200,7 @@ class GameKeeper(MtGObject):
                      "Main1": MainPhaseEvent, "Main2": MainPhaseEvent, "EndMain": EndMainPhaseEvent,
                      "PreCombat": PreCombatEvent, "Attack": AttackStepEvent,
                      "Block": BlockStepEvent, "Damage": AssignDamageEvent, "EndCombat": EndCombatEvent,
-                     "EndPhase": EndPhaseEvent, "Cleanup": CleanupEvent, "EndTurn": EndTurnEvent}
+                     "EndPhase": EndPhaseEvent, "Cleanup": CleanupPhase, "EndTurn": EndTurnEvent}
         self.send(GameStepEvent(), state=state)
         self.send(state_map[state]())
     def manaBurn(self):
@@ -208,16 +212,15 @@ class GameKeeper(MtGObject):
         #State-Based Effects - rule 420.5
         # check every time someone gets priority (rule 408.1b)
         # Also during cleanup step - if there is an effect, player gets priority
-        self.send(TimestepEvent())
         players = [self.curr_player, self.other_player]
         actions = []
         # 420.5a A player with 0 or less life loses the game.
-        def GameOver(player, msg):
+        def EndGame(player, msg):
             def SBE(): raise GameOver("%s %s and loses the game!"%(player, msg))
             return SBE
         for player in players:
             if player.life <= 0: 
-                actions.append(GameOver(player, "has less than 0 life"))
+                actions.append(EndGame(player, "has less than 0 life"))
 
         # 420.5b and 420.5c are combined
         # 420.5b A creature with toughness 0 or less is put into its owner's graveyard. Regeneration can't replace this event.
@@ -269,11 +272,11 @@ class GameKeeper(MtGObject):
         # 420.5g A player who attempted to draw a card from an empty library since the last time state-based effects were checked loses the game.
         for player in players:
             if player.draw_empty:
-                actions.append(GameOver(player, "draws from an empty library"))
+                actions.append(EndGame(player, "draws from an empty library"))
         # 420.5h A player with ten or more poison counters loses the game.
         for player in players:
             if player.poison >= 10:
-                actions.append(GameOver(player, "is poisoned"))
+                actions.append(EndGame(player, "is poisoned"))
 
         # 420.5i If two or more permanents have the supertype world, all except the one that has been a permanent with the world supertype in play for the shortest amount of time are put into their owners' graveyards. In the event of a tie for the shortest amount of time, all are put into their owners' graveyards. This is called the "world rule."
         # 420.5j A copy of a spell in a zone other than the stack ceases to exist. A copy of a card in any zone other than the stack or the in-play zone ceases to exist.
@@ -281,12 +284,10 @@ class GameKeeper(MtGObject):
         # 420.5m A permanent that's neither an Aura, an Equipment, nor a Fortification, but is attached to another permanent, becomes unattached from that permanent. It remains in play.
         # 420.5n If a permanent has both a +1/+1 counter and a -1/-1 counter on it, N +1/+1 and N -1/-1 counters are removed from it, where N is the smaller of the number of +1/+1 and -1/-1 counters on it. 
 
+        self.send(TimestepEvent())
         if actions:
-            for action in actions:
-                action()
-            self.stack.process_triggered()
-            return True
-        else: return False
+            for action in actions: action()
+        return not len(actions) == 0
     def beginningPhase(self):
         self.setState("BeginTurn")
     def untapStep(self):
@@ -440,7 +441,6 @@ class GameKeeper(MtGObject):
         # - expire abilities that last "until end of turn" or "this turn"
         # - clear non-lethal damage
         self.setState("Cleanup")
-        self.send(HasPriorityEvent(), player=self.curr_player)
         while True:
             numcards = len(self.curr_player.hand)
             diff = numcards - self.curr_player.hand_limit
@@ -451,6 +451,7 @@ class GameKeeper(MtGObject):
                 self.curr_player.discard(card)
 
             # Clear all nonlethal damage
+            self.send(CleanupEvent())
             for player in [self.curr_player, self.other_player]:
                 for creature in player.play.get(Match.isCreature):
                     creature.clearDamage()
@@ -480,6 +481,7 @@ class GameKeeper(MtGObject):
             if not self.stack.empty():
                 self.playStackInstant()
                 return False
+        self.stack.process_triggered()
         self.send(HasPriorityEvent(), player=self.curr_player)
         action = self.curr_player.getMainAction()
         if not isinstance(action, PassPriority):
@@ -509,6 +511,7 @@ class GameKeeper(MtGObject):
         priorityPassed = False
         while not priorityPassed:
             while self.checkSBE(): pass
+            self.stack.process_triggered()
             self.send(HasPriorityEvent(), player=player)
             action = player.getAction()
             if not isinstance(action, PassPriority):

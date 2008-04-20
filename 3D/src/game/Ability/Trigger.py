@@ -1,5 +1,5 @@
 from game.GameObjects import MtGObject
-from game.GameEvent import AbilityResolved, DealsDamageEvent, ReceivesDamageEvent, DealsCombatDamageEvent, ReceivesCombatDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZone, CardLeavingZone, HasPriorityEvent
+from game.GameEvent import DealsDamageEvent, ReceivesDamageEvent, DealsCombatDamageEvent, ReceivesCombatDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZone, CardLeavingZone, TimestepEvent
 from game.Match import SelfMatch
 from game.LazyInt import LazyInt
 from game.pydispatch.robustapply import function
@@ -40,8 +40,7 @@ class Trigger(MtGObject):
     def clear_trigger(self):
         # This guarantees that all simultaneous events are caught by a registered trigger
         unregister = lambda: self.unregister(self.filter, event=self.trigger_event, sender=self.trigger_sender)
-        #self.register(unregister, event=AbilityResolved(), weak=False, expiry=1)
-        self.register(unregister, event=HasPriorityEvent(), weak=False, expiry=1)
+        self.register(unregister, event=TimestepEvent(), weak=False, expiry=1)
     def filter(self, sender, **keys):
         if robustApply(self.match_condition, sender, **keys) and (self.expiry == -1 or self.count < self.expiry):
             self.sender = sender
@@ -107,8 +106,7 @@ class MoveTrigger(CardTrigger):
         def unregister(event, sender):
             return lambda: self.unregister(self.filter, event=event, sender=sender)
         for event, sender in self.events_senders:
-            #self.register(unregister(event, sender), event=AbilityResolved(), weak=False, expiry=1)
-            self.register(unregister(event, sender), event=HasPriorityEvent(), weak=False, expiry=1)
+            self.register(unregister(event, sender), event=TimestepEvent(), weak=False, expiry=1)
 
 class EnterTrigger(MoveTrigger):
     def __init__(self, zone=None, any=False):

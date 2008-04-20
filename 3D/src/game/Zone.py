@@ -1,7 +1,7 @@
 
 import random
 from GameObjects import MtGObject
-from GameEvent import CardLeavingZone, CardEnteringZone, CardLeftZone, CardEnteredZone, HasPriorityEvent, TimestepEvent
+from GameEvent import CardLeavingZone, CardEnteringZone, CardLeftZone, CardEnteredZone, TimestepEvent
 
 class Zone(MtGObject):
     def __init__(self, cards=None):
@@ -80,7 +80,6 @@ class OrderedOutPlayZone(OutPlayZone):
         self.pending_bottom = []
     def init(self):
         self.register(self.commit, TimestepEvent())
-        self.register(self.commit, HasPriorityEvent())
     def add_card_post(self, card, position=-1, trigger=True):
         self.pending = True
         if position == -1: self.pending_top.append((card, trigger))

@@ -136,6 +136,7 @@ class Target(MtGObject):
             return (self.target_zone == self.target.zone) and self.match_condition(self.target) and self.target.canBeTargetedBy(card)
         else: return self.match_condition(self.target) and self.target.canBeTargetedBy(card)
     def get(self, card):
+        if self.target: return True # Target already set - needed for triggered abilities until I split Target
         if not self.targeting:
             if self.msg: prompt=self.msg
             else:

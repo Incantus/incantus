@@ -86,5 +86,6 @@ class BlockStepEvent(GameStepEvent): pass
 class AssignDamageEvent(GameStepEvent): pass
 class EndCombatEvent(GameStepEvent): pass
 class EndPhaseEvent(GameStepEvent): pass
+class CleanupPhase(GameStepEvent): pass
 class CleanupEvent(GameStepEvent): pass
 class EndTurnEvent(GameStepEvent): pass
