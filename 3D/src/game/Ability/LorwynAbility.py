@@ -35,9 +35,8 @@ class ClashAbility(StacklessActivatedAbility):
         for player, card in zip([controller, opponent], clashing_cards):
             move_to_bottom = player.getIntention("Move %s to the bottom of your library?"%card, "move %s to the bottom of your library?"%card)
             if move_to_bottom:
-                print "%s moved %s to bottom of library"%(player, card)
-                player.library.remove_card(card, trigger=False)
-                player.library.add_card(card, position=0, trigger=False)
+                #print "%s moved %s to bottom of library"%(player, card)
+                player.library.move_card(card, player.library, position=0)
 
         if success: success = super(ClashAbility,self).resolve()
         return success
