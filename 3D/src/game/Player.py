@@ -103,8 +103,6 @@ class Player(MtGObject):
         # move the actual card
         # location can be library, hand, play, graveyard, outofgame
         # XXX what about moving cards to other players?
-        #from_location.remove_card(card, trigger=trigger)
-        #to_location.add_card(card, trigger=trigger)
         to_location.move_card(card, from_location)
 
     # Who should handle these? Player or GameKeeper?

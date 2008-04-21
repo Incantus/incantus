@@ -1,5 +1,5 @@
 from stacked_function import logical_or, logical_and, modify_args, last_only, replacement
-from characteristics import characteristic, all_characteristics, no_characteristic
+from characteristics import characteristic, all_characteristics, no_characteristic, add_characteristic, remove_characteristic
 from GameKeeper import Keeper
 from Action import PlaySpell, PlayLand, PlayInstant
 from CardRoles import *

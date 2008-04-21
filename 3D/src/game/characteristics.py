@@ -68,9 +68,9 @@ class add_characteristic(object):
         if other == self.characteristic: return True
         else: return None
     def __str__(self):
-        return str(self.characteristic)
+        return "Add %s"%str(self.characteristic)
     def __repr__(self):
-        return "'%s'"%str(self)
+        return  "'%s'"%str(self)
 class remove_characteristic(object):
     is_characteristic = True
     def __init__(self, init_val):
@@ -79,7 +79,7 @@ class remove_characteristic(object):
         if other == self.characteristic: return False
         else: return None
     def __str__(self):
-        return "Not %s"%str(self.characteristic)
+        return "Remove %s"%str(self.characteristic)
     def __repr__(self):
         return "'%s'"%str(self)
 
