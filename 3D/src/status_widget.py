@@ -116,6 +116,7 @@ class SelectionList(Widget):
         self.layout()
         self.width = max([item[0].width for item in self.options]+[self.prompt.width])
         self.height = sum([item[0].height for item in self.options]+[self.prompt.height])
+        self.scroll = self.height/len(self.options)
     def layout_normal(self):
         x = y = 0
         self.prompt.scale = 0.7
@@ -302,6 +303,10 @@ class ManaView(Widget):
         self.cost = Label("0", size=40, halign="center", background=True)
         self.select_mana = self.select_x = False
         self.layout()
+    def resize(self, width, height):
+        self.select_pos = euclid.Vector3((width-self.width)/2, height/2, 0)
+        if self.select_mana or self.select_x:
+            self.pos = self.select_pos
     def clear_mana(self, sender):
         status = self.values
         manapool = sender
@@ -358,6 +363,7 @@ class ManaView(Widget):
                 x += hw+spacer
             self.width = len(self.symbols)*(symbol.width*1.1)
         else:
+            self.pos = self.select_pos
             if not self.select_x:
                 for symbol, current, pay in zip(self.symbols, self.pool, self.spend):
                     symbol.visible = current.visible = pay.visible = 1
@@ -442,6 +448,7 @@ class StatusView(Widget):
     def resize(self, width, height):
         if self.is_opponent: pos = euclid.Vector3(width, height, 0)
         else: pos = euclid.Vector3(0, 0, 0)
+        self.manapool.resize(width, height)
         self.pos = self.orig_pos = pos + euclid.Vector3(self._transx, self._transy, 0)
     def clear(self):
         self.symbols['life'].rotatey = anim.constant(0)

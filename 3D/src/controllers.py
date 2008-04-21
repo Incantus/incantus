@@ -70,7 +70,6 @@ class SelectController(object):
         self.listview = listview
         self.window = window
         self.required = False
-        self.index = -1
     def activate(self):
         self.listview._pos.set(euclid.Vector3(self.window.width/2, self.window.height/2, 0))
         self.listview.show()
@@ -84,6 +83,7 @@ class SelectController(object):
         self.required = required
         self.numselections = numselections
         self.listview.construct(prompt,sellist)
+        self.index = -1
         self.activate()
     def on_key_press(self, symbol, modifiers):
         if symbol == key.ENTER:
@@ -107,32 +107,46 @@ class SelectController(object):
     def on_mouse_press(self, x, y, button, modifiers):
         x -= self.listview.pos.x
         y -= self.listview.pos.y
-        self.index = self.listview.handle_click(x, y)
+        self.listview.focus_idx = self.index
         return True
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         if not self.index == -1:
             self.dragging = True
             self.tmp_dy += dy
-            if self.tmp_dy > 2:
+            if self.tmp_dy > self.listview.scroll:
                 self.tmp_dy = 0
                 self.listview.move_up()
-            elif self.tmp_dy < -2:
+            elif self.tmp_dy < -self.listview.scroll:
                 self.tmp_dy = 0
                 self.listview.move_down()
         return True
     def on_mouse_release(self, x, y, button, modifiers):
         if not self.index == -1:
+            x -= self.listview.pos.x
+            y -= self.listview.pos.y
+            idx = self.listview.handle_click(x, y)
             if self.dragging:
                 self.dragging = False
+                if not idx == self.index:
+                    self.listview.options[self.index][0].main_text.color = (1., 1., 1., 1.)
+                    self.listview.options[idx][0].main_text.color = (0.5, 0.5, 0.5, 1.0)
             else:
-                x -= self.listview.pos.x
-                y -= self.listview.pos.y
-                idx = self.listview.handle_click(x, y)
                 if idx == self.index:
                     self.return_selections()
-            self.index = -1
         return True
     def on_mouse_motion(self, x, y, dx, dy):
+        x -= self.listview.pos.x
+        y -= self.listview.pos.y
+        idx = self.listview.handle_click(x, y)
+        options = self.listview.options
+        if not idx == -1:
+            if not idx == self.index:
+                options[self.index][0].main_text.color = (1., 1., 1., 1.)
+                options[idx][0].main_text.color = (0.5, 0.5, 0.5, 1.0)
+                self.index = idx
+        elif self.index != -1:
+            options[self.index][0].main_text.color = (1., 1., 1., 1.)
+            self.index = -1
         return True
 
 class CardSelector(object):
@@ -397,7 +411,6 @@ class XSelector(object):
         self.colorless.set_text(0)
     def activate(self, x=False):
         self.mana.select(x)
-        self.mana.pos = euclid.Vector3(self.window.width/2, self.window.height/2, 0)
         self.window.push_handlers(self)
     def deactivate(self):
         self.colorless.set_text(self.orig_colorless)
@@ -449,18 +462,22 @@ class ManaController(object):
         self.mana.cost.set_text("Required: "+required)
         self.required_str = required
         required = Mana.convert_mana_string(required)
-        for color in self.mana.colors:
+        for i, color in enumerate(self.mana.colors):
             nummana = getattr(manapool, color)
             req_mana = manapool.getMana(required,color)
             spend = min(nummana,req_mana)
             self.mana.spend_values[color].set_text(spend)
             self.mana.values[color].set_text(nummana-spend)
+            if nummana == 0:
+                self.mana.spend_values[color].visible = 0
+                self.mana.values[color].visible = 0
+                self.mana.symbols[i].alpha = 0.5
     def reset_mana(self):
         for color in self.mana.colors:
             self.mana.values[color].set_text(getattr(self.manapool, color))
     def activate(self, x=False):
         self.mana.select(x)
-        self.mana.pos = euclid.Vector3(0, self.window.height/2, 0)
+        self.mana.pos = euclid.Vector3((self.window.width-self.mana.width)/2, self.window.height/2, 0)
         self.window.push_handlers(self)
     def deactivate(self):
         self.reset_mana()
@@ -648,7 +665,7 @@ class HandController(object):
         else: self.mouse_down = False
         return self.mouse_down
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        return
+        if self.mouse_down: return True
         if self.mouse_down and self.card_clicked:
             if not self.zooming:
                 self.drag_x += dx
