@@ -1,5 +1,6 @@
 from pickletools import genops
-import pickle
+#import pickle
+import cPickle as pickle
 import game
 
 # This whole thing is ugly - i should probably replace it with a global object store with weakrefs (for the abilities)
@@ -26,8 +27,6 @@ def persistent_load(persid):
         return stack.stack[val]
     else:
         raise pickle.UnpicklingError("Invalid persistent id")
-
-from pickletools import genops
 
 def optimize(p):
     'Optimize a pickle string by removing unused PUT opcodes'
@@ -60,15 +59,15 @@ class ReplayDump(object):
         self.filename = filename
         self.app = app
         self.save = save
-        if save: flags = 'w'
-        else: flags = 'r'
+        if save: flags = 'wb'
+        else: flags = 'rb'
         self.prompt_continue = prompt_continue
         #flags = 'r+'
         self.dumpfile = open(self.filename, flags, 0)
         self.lastpos = self.dumpfile.tell()
         self.load_picklers()
     def load_picklers(self):
-        self.pickler = pickle.Pickler(self.dumpfile)
+        self.pickler = pickle.Pickler(self.dumpfile, protocol=-1)
         self.pickler.persistent_id = persistent_id
         self.unpickler = pickle.Unpickler(self.dumpfile)
         self.unpickler.persistent_load = persistent_load
@@ -90,7 +89,7 @@ class ReplayDump(object):
             if start_dumping:
                 self.save = True
                 self.dumpfile.close()
-                self.dumpfile = open(self.filename, 'a+')
+                self.dumpfile = open(self.filename, 'a+b')
                 self.dumpfile.seek(self.lastpos, 0)
                 self.load_picklers()
             else: self.dumpfile.close()
@@ -108,7 +107,7 @@ def test(dumpfile):
 
 if __name__ == "__main__":
     filename = "game.replay"
-    flags = 'r'
+    flags = 'rb'
     dumpfile = open(filename, flags)
     p = test(dumpfile)
     try:
