@@ -266,7 +266,7 @@ class PlayView(Widget):
 
         y, max_row_height = layout_subset(self.creatures, 0.1, row)
         row += max_row_height
-        y, max_row_height = layout_subset(self.other_perms, y, row)
+        y, max_row_height = layout_subset(self.other_perms+self.lands["Other"], y, row)
         row += max_row_height
 
         x = 0.
@@ -298,9 +298,9 @@ class PlayView(Widget):
                 if not card.can_layout: continue
                 card.pos = positions[i] - euclid.Vector3(avgx, 0, 0)
                 i += 1
-        lands = self.lands["Other"]
-        row += max_row_height
-        y, max_row_height = layout_subset(lands, y, row)
+        #lands = self.lands["Other"]
+        #row += max_row_height
+        #y, max_row_height = layout_subset(lands, y, row)
     def get_card(self, gamecard):
         for card in self.cards:
             if card.gamecard == gamecard: return card
