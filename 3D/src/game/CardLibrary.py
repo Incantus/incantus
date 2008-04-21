@@ -105,10 +105,10 @@ class _CardLibrary:
 
     def loadCardObj(self, card, name):
         import CardEnvironment
-        card_desc = pickle.loads(self.cardfile[name])
-        card_text = card_desc[0]
-        #print card_desc.text, card_desc.implemented, card_desc.verified
-        #card_text = self.cardfile[name]
+        card_desc = pickle.loads(self.cardfile[name.encode('rot13')])
+        card_text = card_desc[0].encode('rot13')
+        if card_desc[3] == True:
+            print "%s is not implemented correctly"%name
 
         # XXX This should be changed because out of play roles are different depending on the Zone
         card.out_play_role = CardEnvironment.Spell(card)
