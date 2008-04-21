@@ -27,6 +27,8 @@ class SubRoleAddedEvent(Event): pass
 class SubRoleRemovedEvent(Event): pass
 class AddSubRoleEvent(Event): pass
 class RemoveSubRoleEvent(Event): pass
+class ColorModifiedEvent(Event): pass
+class ColorRestoredEvent(Event): pass
 class SubtypeModifiedEvent(Event): pass
 class SubtypeRestoredEvent(Event): pass
 class CounterAddedEvent(Event): pass

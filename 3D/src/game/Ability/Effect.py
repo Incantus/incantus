@@ -1,7 +1,7 @@
-from game.characteristics import characteristic
+from game.characteristics import characteristic, stacked_characteristic
 from game.GameObjects import MtGObject
 from game.Match import isPlayer, isCreature, isCard, isPermanent, isLandType
-from game.GameEvent import CardControllerChanged, TokenPlayed, ManaEvent, SacrificeEvent, CleanupEvent, CounterAddedEvent, CounterRemovedEvent, SubtypeModifiedEvent, SubtypeRestoredEvent, PowerToughnessChangedEvent, InvalidTargetEvent, AddSubRoleEvent, RemoveSubRoleEvent
+from game.GameEvent import CardControllerChanged, TokenPlayed, ManaEvent, SacrificeEvent, CleanupEvent, CounterAddedEvent, CounterRemovedEvent, SubtypeModifiedEvent, SubtypeRestoredEvent, PowerToughnessChangedEvent, InvalidTargetEvent, AddSubRoleEvent, RemoveSubRoleEvent, ColorModifiedEvent, ColorRestoredEvent
 
 class Effect(MtGObject):
     def __call__(self, card, target):
@@ -125,21 +125,6 @@ class DependentEffects(MultipleEffects):
         else: success = True
         return success
 
-class ModifySubType(Effect):
-    def __init__(self, subtype, expire=True):
-        self.subtype = subtype
-        self.expire = expire
-    def __call__(self, card, target):
-        old_subtype = target.subtypes
-        target.subtypes = self.subtype
-        target.send(SubtypeModifiedEvent())
-        def restore():
-            target.subtypes = old_subtype
-            target.send(SubtypeRestoredEvent())
-        if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
-        return restore
-    def __str__(self):
-        return "Modify creature type to %s"%self.subtype
 
 class DistributeDamage(Effect):
     def __init__(self, amount):
@@ -525,6 +510,43 @@ class ChangeAttachment(Effect):
     def __str__(self):
         return "Reattach"
 
+class ModifyCharacteristic(Effect):
+    def __init__(self, characteristic, expire=True):
+        self.characteristic = characteristic
+        self.expire = expire
+    def __call__(self, card, target):
+        characteristic = getattr(target, self.attribute)
+        if not hasattr(characteristic, "stacked"):
+            stacked_char = stacked_characteristic(characteristic)
+            setattr(target, self.attribute, stacked_char)
+        else: stacked_char = characteristic
+        stacked_char.add_characteristic(self.characteristic)
+        card.send(self.change_event, card=target)
+        def restore(stacked_char=stacked_char):
+            stacked_char.remove_characteristic(self.characteristic)
+            if not stacked_char.stacking():
+                setattr(target, self.attribute, stacked_char.characteristics[0])
+                del stacked_char
+            card.send(self.restore_event, card=target)
+        if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
+        return restore
+    def __str__(self):
+        return "%s %s"%(self.attribute, str(self.characteristic))
+
+class ModifyColor(ModifyCharacteristic):
+    def __init__(self, color, expire=True):
+        super(ModifyColor, self).__init__(color, expire)
+        self.attribute = "color"
+        self.change_event = ColorModifiedEvent()
+        self.restore_event = ColorRestoredEvent()
+class ModifySubtype(ModifyCharacteristic):
+    def __init__(self, subtype, expire=True):
+        super(ModifySubtype, self).__init__(subtype, expire)
+        self.attribute = "subtypes"
+        self.change_event = SubtypeModifiedEvent()
+        self.restore_event = SubtypeRestoredEvent()
+
+# XXX Broken right now
 class RemoveSubRoles(Effect):
     def __init__(self, expire=True):
         self.expire = expire
@@ -546,6 +568,7 @@ class RemoveSubRoles(Effect):
     def __str__(self):
         return "Remove roles"
 
+# I need to fix this to work better with stacked characteristics
 class AddSubRole(Effect):
     def __init__(self, subrole, subrole_info, expire=True):
         self.subrole = subrole

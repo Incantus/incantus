@@ -40,10 +40,10 @@ class GlobalStaticAbility(StaticAbility):
         self.effect_tracking = None
 
 class PermanentTrackingAbility(StaticAbility):
-    def __init__(self, card, enter_condition, leave_condition, effects=[]):
+    def __init__(self, card, condition, effects=[]):
         super(PermanentTrackingAbility, self).__init__(card, effects)
-        self.enter_condition = enter_condition
-        self.leave_condition = leave_condition
+        self.enter_condition = condition
+        self.leave_condition = condition
         self.enter_trigger = EnterTrigger("play", any=True)
         self.leave_trigger = LeaveTrigger("play", any=True)
         #self.controller_trigger = CardTrigger(CardControllerChanged())
@@ -109,5 +109,4 @@ class AttachedStaticAbility(StaticAbility):
 
 # If the attachment target is destroyed, the aura will be destroyed, and the target is no longer valid
 class AuraStaticAbility(AttachedStaticAbility): pass
-
 class EquipmentStaticAbility(AttachedStaticAbility): pass
