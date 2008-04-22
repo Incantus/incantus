@@ -849,7 +849,6 @@ class MoveCards(Effect):
         self.reveal = reveal
         self.peek = peek
         self.required = required
-        if not prompt: prompt = str(self) #"Select %s to move from %s to %s"%(' or '.join(map(str,self.card_types)), self.from_zone, self.to_zone)
         self.prompt = prompt
     def select_cards(self, card, target):
         from_zone = getattr(target, self.from_zone)
@@ -864,7 +863,9 @@ class MoveCards(Effect):
             # Now we get the selection - if the from location is library or hand the target player makes the choice
             if self.from_zone in ["library", "hand"] and not self.peek: self.selector = target
             else: self.selector = card.controller
-            cardlist = self.selector.getCardSelection(selection, self.number, from_zone=self.from_zone, from_player = target, required=self.required, card_types = self.card_types, prompt=self.prompt)
+            if not self.prompt: prompt = str(self)
+            else: prompt = self.prompt
+            cardlist = self.selector.getCardSelection(selection, self.number, from_zone=self.from_zone, from_player = target, required=self.required, card_types = self.card_types, prompt=prompt)
             if not cardlist: cardlist = []
             self.selection = [card for card in selection if not card in cardlist]
         elif self.from_position == "top": cardlist = from_zone.top(self.number)
