@@ -67,6 +67,9 @@ class add_characteristic(object):
     def __eq__(self, other):
         if other == self.characteristic: return True
         else: return None
+    def intersects(self, other):
+        if self.characteristic in other: return True
+        else: return None
     def __str__(self):
         return "Add %s"%str(self.characteristic)
     def __repr__(self):
@@ -78,6 +81,10 @@ class remove_characteristic(object):
     def __eq__(self, other):
         if other == self.characteristic: return False
         else: return None
+    def intersects(self, other):
+        raise NotImplementedError()
+        #if self.characteristic in other: return False
+        #else: return None
     def __str__(self):
         return "Remove %s"%str(self.characteristic)
     def __repr__(self):
@@ -106,7 +113,13 @@ class stacked_characteristic(object):
             elif check == None: pass
         return result
     def intersects(self, other):
-        return False
+        result = False
+        for char in self.characteristics:
+            check = char.intersects(other)
+            if check == True: result = True
+            elif check == False: result = False
+            elif check == None: pass
+        return result
     def __repr__(self):
         return "[stacked_characteristic: %s]"%repr(self.characteristics)
 
@@ -119,10 +132,13 @@ if __name__ == "__main__":
     no_elf = remove_characteristic("Elf")
     add_merfolk = add_characteristic("Merfolk")
 
+    Elf = characteristic(["Elf", "Warrior"])
+
     def check(msg, subtype):
         print "%s: %s"%(msg, subtype.characteristics)
         for t in ["Elf", "Goblin", "Merfolk"]:
             print "\tcard is %s:"%t, subtype == t
+        print "\tCard intersect [%s]"%Elf, subtype.intersects(Elf)
 
     stacked = stacked_characteristic(subtypes)
     check("Starting %s"%subtypes, stacked)
