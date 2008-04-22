@@ -63,12 +63,14 @@ class Zone(MtGObject):
 # graveyard, Planar Chaos removes that card from the game. It also triggers on itself going to a graveyard
 # The only way this works is that the current_role switches to the out play role after it's entered the
 # other zone. So the out play role is set when the card is added to the other zone
+# (4/22/08) this no longer applies
 class Play(Zone):
     zone_name = "play"
     def before_card_added(self, card): card.current_role = card.in_play_role
 
 class OutPlayZone(Zone):
-    def after_card_added(self, card):
+    #def after_card_added(self, card):
+    def before_card_added(self, card):
         # Maintain the in_play role as long as possible if it was added from play
         card.current_role = card.out_play_role
 
