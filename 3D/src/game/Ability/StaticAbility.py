@@ -1,7 +1,7 @@
 from game.GameObjects import MtGObject
 from game.Match import isPermanent
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger
-from game.GameEvent import CardControllerChanged, AddSubRoleEvent, RemoveSubRoleEvent
+from game.GameEvent import CardControllerChanged, SubroleModifiedEvent
 
 # Static abilities always function while the permanent is in play
 class StaticAbility(MtGObject):
@@ -40,57 +40,56 @@ class GlobalStaticAbility(StaticAbility):
         self.effect_tracking = None
 
 class PermanentTrackingAbility(StaticAbility):
-    def __init__(self, card, condition, effects=[]):
+    def __init__(self, card, condition, events = [], effects=[]):
         super(PermanentTrackingAbility, self).__init__(card, effects)
-        self.enter_condition = condition
-        self.leave_condition = condition
+        self.condition = condition
         self.enter_trigger = EnterTrigger("play", any=True)
         self.leave_trigger = LeaveTrigger("play", any=True)
-        #self.controller_trigger = CardTrigger(CardControllerChanged())
-        self.add_subrole_trigger = CardTrigger(event=AddSubRoleEvent())
-        self.remove_subrole_trigger = CardTrigger(event=RemoveSubRoleEvent())
+        if not type(events) == list: events = [events]
+        self.other_triggers = [CardTrigger(event) for event in [SubroleModifiedEvent(), CardControllerChanged()] + events]
         self.effect_tracking = {}
     def enteringPlay(self):
-        self.enter_trigger.setup_trigger(self,self.entered,self.enter_condition)
-        self.leave_trigger.setup_trigger(self,self.left,self.leave_condition)
-        self.add_subrole_trigger.setup_trigger(self,self.entered,self.enter_condition)
-        self.remove_subrole_trigger.setup_trigger(self,self.left,self.leave_condition)
-        #self.controller_trigger.setup_trigger(self,self.controllerChanged,self.enter_condition)
         # Get All Permanents
-        permanents = self.card.controller.play.get(self.enter_condition)
-        permanents.extend(self.card.controller.opponent.play.get(self.enter_condition))
-        for perm in permanents:
-            effect_removal = []
-            for effect in self.effects: effect_removal.append(effect(self.card, perm))
-            self.effect_tracking[perm] = effect_removal
+        permanents = self.card.controller.play.get(self.condition)
+        permanents.extend(self.card.controller.opponent.play.get(self.condition))
+        for perm in permanents: self.add_effects(perm)
+
+        self.enter_trigger.setup_trigger(self, self.entering, self.condition)
+        self.leave_trigger.setup_trigger(self, self.leaving)
+        for trigger in self.other_triggers: trigger.setup_trigger(self,self.event_triggered)
     def leavingPlay(self):
         self.enter_trigger.clear_trigger()
         self.leave_trigger.clear_trigger()
-        #self.controller_trigger.clear_trigger()
-        self.add_subrole_trigger.clear_trigger()
-        self.remove_subrole_trigger.clear_trigger()
-        for perm, removal in self.effect_tracking.items():
-            for remove in removal: remove()
+        for trigger in self.other_triggers: trigger.clear_trigger()
+
+        for perm in self.effect_tracking.keys(): self.remove_effects(perm)
         self.effect_tracking.clear()
-    def controllerChanged(self):
-        perm = self.controller_trigger.matched_card
+    def entering(self, trigger):
+        # This is called everytime a permanent that matches condition enters play
+        perm = trigger.matched_card
+        self.add_effects(perm)
+    def leaving(self, trigger):
+        # This is called everytime a permanent leaves play
+        perm = trigger.matched_card
+        # The perm might already be removed if both this card and the perm left play at the same time
+        if perm in self.effect_tracking: self.remove_effects(perm)
+    def add_effects(self, perm):
+        self.effect_tracking[perm] = True  # this is to prevent recursion when the effect is called
         effect_removal = []
         for effect in self.effects: effect_removal.append(effect(self.card, perm))
         self.effect_tracking[perm] = effect_removal
-    def entered(self, trigger):
-        # This is called everytime something triggers
+    def remove_effects(self, perm):
+        removal = self.effect_tracking[perm]
+        for remove in removal: remove()
+        del self.effect_tracking[perm]   # necessary to prevent recursion
+    def event_triggered(self, trigger):
         perm = trigger.matched_card
-        if not perm in self.effect_tracking:
-            effect_removal = []
-            for effect in self.effects: effect_removal.append(effect(self.card, perm))
-            self.effect_tracking[perm] = effect_removal
-    def left(self, trigger):
-        perm = trigger.matched_card
-        # The perm might already be removed if both this card and the perm left play at the same time
-        if perm in self.effect_tracking:
-            removal = self.effect_tracking[perm]
-            for remove in removal: remove()
-            del self.effect_tracking[perm]
+        tracking = perm in self.effect_tracking
+        pass_condition = self.condition(perm)
+        # If perm is already tracked, but doesn't pass the condition, remove it
+        # Note the condition can't rely on any trigger data
+        if not tracking and pass_condition: self.add_effects(perm)
+        elif tracking and not pass_condition: self.remove_effects(perm)
 
 class AttachedStaticAbility(StaticAbility):
     def __init__(self, card, effects=[]):

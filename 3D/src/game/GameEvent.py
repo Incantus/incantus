@@ -25,12 +25,6 @@ class TokenPlayed(Event): pass
 class TokenLeavingPlay(Event): pass
 class SubRoleAddedEvent(Event): pass
 class SubRoleRemovedEvent(Event): pass
-class AddSubRoleEvent(Event): pass
-class RemoveSubRoleEvent(Event): pass
-class ColorModifiedEvent(Event): pass
-class ColorRestoredEvent(Event): pass
-class SubtypeModifiedEvent(Event): pass
-class SubtypeRestoredEvent(Event): pass
 class CounterAddedEvent(Event): pass
 class CounterRemovedEvent(Event): pass
 class AbilityAnnounced(Event): pass
@@ -40,6 +34,10 @@ class AbilityRemovedFromStack(Event): pass
 class AbilityResolved(Event): pass
 class AbilityCountered(Event): pass
 class MorphEvent(Event): pass
+
+class SubroleModifiedEvent(Event): pass
+class ColorModifiedEvent(Event): pass
+class SubtypeModifiedEvent(Event): pass
 
 class SacrificeEvent(Event): pass
 class ManaEvent(Event): pass

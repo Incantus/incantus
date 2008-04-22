@@ -107,6 +107,8 @@ class stacked_characteristic(object):
         return result
     def intersects(self, other):
         return False
+    def __repr__(self):
+        return "[stacked_characteristic: %s]"%repr(self.characteristics)
 
 
 if __name__ == "__main__":

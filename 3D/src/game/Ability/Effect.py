@@ -1,7 +1,7 @@
 from game.characteristics import characteristic, stacked_characteristic
 from game.GameObjects import MtGObject
 from game.Match import isPlayer, isCreature, isCard, isPermanent, isLandType
-from game.GameEvent import CardControllerChanged, TokenPlayed, ManaEvent, SacrificeEvent, CleanupEvent, CounterAddedEvent, CounterRemovedEvent, SubtypeModifiedEvent, SubtypeRestoredEvent, PowerToughnessChangedEvent, InvalidTargetEvent, AddSubRoleEvent, RemoveSubRoleEvent, ColorModifiedEvent, ColorRestoredEvent
+from game.GameEvent import CardControllerChanged, TokenPlayed, ManaEvent, SacrificeEvent, CleanupEvent, CounterAddedEvent, CounterRemovedEvent,  PowerToughnessChangedEvent, InvalidTargetEvent, SubroleModifiedEvent, ColorModifiedEvent, SubtypeModifiedEvent
 
 class Effect(MtGObject):
     def __call__(self, card, target):
@@ -527,7 +527,7 @@ class ModifyCharacteristic(Effect):
             if not stacked_char.stacking():
                 setattr(target, self.attribute, stacked_char.characteristics[0])
                 del stacked_char
-            card.send(self.restore_event, card=target)
+            card.send(self.change_event, card=target)
         if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
     def __str__(self):
@@ -538,13 +538,11 @@ class ModifyColor(ModifyCharacteristic):
         super(ModifyColor, self).__init__(color, expire)
         self.attribute = "color"
         self.change_event = ColorModifiedEvent()
-        self.restore_event = ColorRestoredEvent()
 class ModifySubtype(ModifyCharacteristic):
     def __init__(self, subtype, expire=True):
         super(ModifySubtype, self).__init__(subtype, expire)
         self.attribute = "subtypes"
         self.change_event = SubtypeModifiedEvent()
-        self.restore_event = SubtypeRestoredEvent()
 
 # XXX Broken right now
 class RemoveSubRoles(Effect):
@@ -559,10 +557,10 @@ class RemoveSubRoles(Effect):
         old_chars = dict([(char, getattr(target, char)) for char in card_characteristics])
         for char in card_characteristics: setattr(target, char, characteristic([]))
         def restore():
-            card.send(AddSubRoleEvent(), card=target)
+            card.send(SubroleModifiedEvent(), card=target)
             for role in old_roles: target.add_subrole(role)
             for char, val in old_chars.items(): setattr(target, char, val)
-        card.send(RemoveSubRoleEvent(), card=target)
+        card.send(SubroleModifiedEvent(), card=target)
         if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
     def __str__(self):
@@ -585,7 +583,7 @@ class AddSubRole(Effect):
             else:
                 characteristic.add(val)
         def restore():
-            card.send(RemoveSubRoleEvent(), card=target)
+            card.send(SubroleModifiedEvent(), card=target)
             target.remove_subrole(subrole)
             for chr, val in self.subrole_info.items():
                 characteristic = getattr(target, chr)
@@ -595,7 +593,7 @@ class AddSubRole(Effect):
                     characteristic.remove(val)
         if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
         # XXX Should the card send these messages, or the target?
-        card.send(AddSubRoleEvent(), card=target)
+        card.send(SubroleModifiedEvent(), card=target)
         return restore
     def __str__(self):
         return "Add %s"%self.subrole
