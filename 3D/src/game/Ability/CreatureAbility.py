@@ -1,4 +1,4 @@
-from game.Match import isPermanent, isCreature, isLand
+from game.Match import isPermanent, isCreature, isLand, isArtifact
 from game.stacked_function import stacked_function, logical_or, logical_and, replacement_stacked_function, replacement
 from game.LazyInt import LazyInt
 from game.characteristics import all_characteristics
@@ -166,6 +166,8 @@ protection_from_blue = lambda subrole: protection(subrole, attribute_match = lam
 protection_from_white = lambda subrole: protection(subrole, attribute_match = lambda other: other.color == "W")
 protection_from_red = lambda subrole: protection(subrole, attribute_match = lambda other: other.color == "R")
 protection_from_green = lambda subrole: protection(subrole, attribute_match = lambda other: other.color == "G")
+protection_from_cmc = lambda subrole, n: protection(subrole, attribute_match = lambda other: other.cost.converted_cost() <= n)
+protection_from_artifacts = lambda subrole: protection(subrole, attribute_match = lambda other: isArtifact(other))
 
 # These are additional ones that aren't actually keywords, but the structure is the same
 def unblockable(subrole):
