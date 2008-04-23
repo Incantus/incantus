@@ -14,12 +14,24 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
-subrole.triggered_abilities = []
 subrole.static_abilities = [PermanentTrackingAbility(card,
-                                        enter_condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller),
-                                        leave_condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller),
+                                        condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller),
                                         effects = GiveKeyword(trample, keyword="trample", expire=False))
 ]
 
 #################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

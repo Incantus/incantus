@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic([])
 cost = '4'
 color = characteristic(['C'])
-text = ['3, T Rod of Ruin deals 1 damage to target creature or player.']
+text = ['3, T: Rod of Ruin deals 1 damage to target creature or player.']
 
 subrole = Artifact()
 
@@ -22,3 +22,4 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
+

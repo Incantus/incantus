@@ -8,9 +8,15 @@ cost = '1U'
 color = characteristic(['U'])
 text = ['Look at the top three cards of your library. Put one of those cards into your hand, one on top of your library, and one on the bottom of your library.']
 
-# This doesn't work the way the card is worded (although logically it is the same)
+out_play_role.abilities = [CastNonPermanentSpell(card, cost, effects=[MoveCards(from_zone="library", to_zone="hand", number=1, subset=3, prompt="Select one card for hand"), MoveCards(from_zone="library", to_zone="library", to_position="top", number=1, subset=2, required=True, prompt="Select one card for top of library"),MoveCards(from_zone="library", to_zone="library", from_position=2, to_position="bottom", number=1, required=True)])]
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost, effects=[MoveCards(from_zone="library", to_zone="hand", number=1, subset=3), MoveCards(from_zone="library", to_zone="library", to_position="bottom", number=1, subset=2)])]
+
+
+
+
+
+
+
 
 
 

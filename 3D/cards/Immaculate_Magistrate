@@ -18,9 +18,16 @@ num_elves = LazyInt(lambda card=card: len(card.controller.play.get(isPermanent.w
 
 subrole.abilities = [ActivatedAbility(card, TapCost(), 
 			target=Target(target_types=isCreature),
-			effects=AddPowerToughnessCounter(1, 1, number=num_elves))]
+			effects=AddPowerToughnessCounter(number=num_elves))]
 subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
+
+
+
+
+
+
+
 

@@ -15,3 +15,4 @@ out_play_role.abilities = [CastNonPermanentSpell(card, cost,
 ]
 
 
+

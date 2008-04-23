@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Elf', 'Druid'])
 cost = '1G'
 color = characteristic(['G'])
-text = ['Lands you control have "T Add one mana of any color to your mana pool."']
+text = ['Lands you control have "T: Add one mana of any color to your mana pool."']
 
 subrole = Creature(2, 1)
 
@@ -14,12 +14,21 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
-subrole.triggered_abilities = []
-mana_ability = ManaAbility(card, TapCost(), effects=ManaChoice(["W","B","G","U","R"]))
+mana_ability = ManaAbility(card, TapCost(), effects=ManaChoice(["W","U","B","R","G"]))
 subrole.static_abilities = [PermanentTrackingAbility(card,
-                                        enter_condition = isLand.with_condition(lambda c, self=card: c.controller == self.controller),
-                                        leave_condition = isLand.with_condition(lambda c, self=card: c.controller == self.controller),
+                                        condition = isLand.with_condition(lambda c, self=card: c.controller == self.controller),
                                         effects = AddActivatedAbility(mana_ability, expire=False))
 ]
 #################################
+
+
+
+
+
+
+
+
+
+
+
+

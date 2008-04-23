@@ -18,7 +18,6 @@ subrole.abilities = [ActivatedAbility(card, "U",
                                 target=Target(targeting="self"),
                                 effects=UntapTargetPermanent())
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
+

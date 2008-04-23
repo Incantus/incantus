@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Mountain','Forest'])
 cost = ''
 color = characteristic(['C'])
-text = ['T Add R or G to your mana pool.']
+text = ['T: Add R to your mana pool.','T: Add G to your mana pool.']
 
 out_play_role = NoRole(card)
 subrole = Land(color)
@@ -15,9 +15,20 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=ManaChoice(["R", "G"]))]
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('R')),ManaAbility(card, cost=TapCost(), effects=AddMana('G'))
+]
 
 #################################
+
+
+
+
+
+
+
+
+
+
 
 
 

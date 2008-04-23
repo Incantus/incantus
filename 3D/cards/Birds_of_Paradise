@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Bird'])
 cost = 'G'
 color = characteristic(['G'])
-text = ['Flying', 'T Add one mana of any color to your mana pool.']
+text = ['Flying', 'T: Add one mana of any color to your mana pool.']
 
 subrole = Creature(0, 1)
 
@@ -14,7 +14,9 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = [ManaAbility(card, TapCost(),effects=ManaChoice(["W","B","G","U","R"]))]
+subrole.abilities = [ManaAbility(card, TapCost(),effects=ManaChoice(["W","U","B","R","G"]))]
 
 #################################
+
+
 

@@ -11,3 +11,6 @@ text = ['Search your library for a land card, reveal it, and put it into your ha
 out_play_role.abilities = [CastNonPermanentSpell(card, cost,
                                                     effects=[MoveCards(from_zone="library", to_zone="hand", number=1, card_types=isLandType, reveal=True), ShuffleLibrary()])
 ]
+
+
+

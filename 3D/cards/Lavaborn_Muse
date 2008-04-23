@@ -14,13 +14,12 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=PlayerTrigger(event=UpkeepStepEvent()),
                                         match_condition=PlayerMatch(lambda player: len(player.hand) <= 2),
                                         ability=Ability(card, target=Target(targeting="current_player"),
                                                 effects=DealDamage(3)))
 ]
-subrole.static_abilities = []
 
 #################################
+

@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic([])
 cost = ''
 color = characteristic(['C'])
-text = ['Forbidding Watchtower comes into play tapped.', 'T Add W to your mana pool.', "1W: Forbidding Watchtower becomes a 1/5 white Soldier creature until end of turn. It's still a land."]
+text = ['Forbidding Watchtower comes into play tapped.', 'T: Add W to your mana pool.', "1W: Forbidding Watchtower becomes a 1/5 white Soldier creature until end of turn. It's still a land."]
 
 out_play_role = NoRole(card)
 subrole = Land(color)
@@ -25,4 +25,6 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('W')),
 in_play_role.tapped = True
 
 #################################
+
+
 

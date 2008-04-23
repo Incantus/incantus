@@ -3,10 +3,10 @@ cardnum = 284
 expansion = 'Beta'
 type = characteristic('Land')
 supertype = characteristic('')
-subtypes = characteristic(['Island','Forest'])
+subtypes = characteristic(['Forest','Island'])
 cost = ''
 color = characteristic(['C'])
-text = ['T Add U or G to your mana pool.']
+text = ['T: Add G to your mana pool.','T: Add U to your mana pool.']
 
 out_play_role = NoRole(card)
 subrole = Land(color)
@@ -15,9 +15,12 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=ManaChoice(["U", "G"]))]
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('G')),ManaAbility(card, cost=TapCost(), effects=AddMana('U'))
+]
 
 #################################
+
+
 
 
 

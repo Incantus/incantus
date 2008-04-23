@@ -14,12 +14,19 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterFromTrigger(from_zone="play", to_zone="graveyard"),
                                         match_condition = lambda card, self=card: isCreatureType(card) and card.controller == self.controller,
                                         ability = Ability(card, target=Target("opponent"), effects=ForceSacrifice()))
 ]
-subrole.static_abilities = []
 
 #################################
+
+
+
+
+
+
+
+
+

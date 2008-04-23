@@ -19,7 +19,15 @@ subrole.abilities = [ActivatedAbility(card, TapCost(),
                                 target=Target(target_types=[isCreature, isPlayer]),
                                 effects=DealDamage(3))
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
+
+
+
+
+
+
+
+
+
+

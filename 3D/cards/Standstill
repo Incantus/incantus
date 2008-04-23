@@ -1,0 +1,31 @@
+name = 'Standstill'
+cardnum = 0
+expansion = ''
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1U'
+color = characteristic(['U'])
+text = ["When a player plays a spell, sacrifice Standstill. If you do, each of that player's opponents draws three cards. "]
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+trigger = CardTrigger(event=PlaySpellEvent())
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger=trigger,
+                                        match_condition=isSpell,
+                                        ability=Ability(card,
+                                                target =Target(targeting=lambda t=trigger: t.sender.opponent),
+                                                effects = DependentEffects([SacrificeSelf(), DrawCard(3)])))]
+
+#################################
+
+
+
+
+
+

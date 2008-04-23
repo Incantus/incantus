@@ -1,0 +1,40 @@
+name = "Dralnu's Crusade"
+cardnum = 104
+expansion = 'Planeshift'
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1BR'
+color = characteristic(['R', 'B'])
+text = ['Goblin creatures get +1/+1.', 'All Goblins are black and are Zombies in addition to their other creature types.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = [PermanentTrackingAbility(card,
+                                        condition = isCreature.with_condition(lambda c, self=card: not c == self and c.subtypes == "Goblin"),
+					events = SubtypeModifiedEvent(),
+                                        effects = [AugmentPowerToughness(power=1, toughness=1, expire=False),
+                         		     ModifyColor(characteristic("B"), expire=False),
+					     ModifySubtype(add_characteristic("Zombie"), expire=False)])
+]
+
+#################################
+
+
+
+
+
+
+
+
+
+
+
+
+

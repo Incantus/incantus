@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Human', 'Soldier'])
 cost = '3WW'
 color = characteristic(['W'])
-text = ['T All combat damage that would be dealt to you by unblocked creatures this turn is dealt to Kjeldoran Royal Guard instead.']
+text = ['T: All combat damage that would be dealt to you by unblocked creatures this turn is dealt to Kjeldoran Royal Guard instead.']
 
 subrole = Creature(2, 5)
 
@@ -23,3 +23,6 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
+
+
+

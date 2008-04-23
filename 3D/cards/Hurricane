@@ -10,7 +10,11 @@ text = ['Hurricane deals X damage to each creature with flying and each player.'
 
 mc = ManaCost(cost)
 out_play_role.abilities = [CastNonPermanentSpell(card, mc,
-                                #target=[AllPlayerTargets(), AllPermanentTargets(target_types=isCreature.with_condition(lambda c: "flying" in c.keywords))],
-                                target=[AllPlayerTargets(), AllPermanentTargets(target_types=isCreature)],
+                                target=[AllPlayerTargets(), AllPermanentTargets(target_types=isCreature.with_condition(lambda c: "flying" in c.keywords))],
                                 effects=[ForEach(DealDamage(mc.X)), ForEach(DealDamage(mc.X))])
 ]
+
+
+
+
+

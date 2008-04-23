@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Human', 'Rebel'])
 cost = '3W'
 color = characteristic(['W'])
-text = ['XW, T Ballista Squad deals X damage to target attacking or blocking creature.']
+text = ['XW, T: Ballista Squad deals X damage to target attacking or blocking creature.']
 
 subrole = Creature(2, 2)
 
@@ -21,6 +21,8 @@ subrole.abilities = [ActivatedAbility(card, cost=MultipleCosts([mc, TapCost()]),
 ]
 
 #################################
+
+
 
 
 

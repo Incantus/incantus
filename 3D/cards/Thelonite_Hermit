@@ -25,10 +25,13 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                                 effects=CreateToken({"name":"Saproling", "type":"Creature", "color":"G", "subtypes":["Saproling"], "role": TokenCreature(1,1)}, number=4)))
 ]
 subrole.static_abilities = [PermanentTrackingAbility(card,
-                                        enter_condition = isCreature.with_condition(lambda c: c.subtypes == "Saproling"),
-                                        leave_condition = isCreature.with_condition(lambda c: c.subtypes == "Saproling"),
+                                        condition = isCreature.with_condition(lambda c: c.subtypes == "Saproling"),
+					events = SubtypeModifiedEvent(),
                                         effects = AugmentPowerToughness(power=1, toughness=1, expire=False))
 ]
 
 #################################
+
+
+
 

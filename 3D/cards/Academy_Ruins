@@ -1,0 +1,31 @@
+name = 'Academy Ruins'
+cardnum = 269
+expansion = 'Time Spiral'
+type = characteristic('Land')
+supertype = characteristic('Legendary')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ["T: Add 1 to your mana pool.", "1U, T: Put target artifact card in your graveyard on top of your library."]
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
+                     ActivatedAbility(card, cost=MultipleCosts([ManaCost("1U"),TapCost()]),
+                                target=Target(target_types=isArtifactType, zone="graveyard", zone_limit="controller"),
+                                effects=ChangeZone(from_zone="graveyard", to_zone="library", to_position="top"))]
+                                
+
+#################################
+
+
+
+
+
+
+

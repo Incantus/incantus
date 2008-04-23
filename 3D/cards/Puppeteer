@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Human', 'Wizard'])
 cost = '2U'
 color = characteristic(['U'])
-text = ['U, T You may tap or untap target creature.']
+text = ['U, T: You may tap or untap target creature.']
 
 subrole = Creature(1, 2)
 
@@ -25,3 +25,4 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
+

@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Orc', 'Warrior'])
 cost = '1RR'
 color = characteristic(['R'])
-text = ['T Orcish Artillery deals 2 damage to target creature or player and 3 damage to you.']
+text = ['T: Orcish Artillery deals 2 damage to target creature or player and 3 damage to you.']
 
 subrole = Creature(1, 3)
 
@@ -22,6 +22,7 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
+
 
 
 

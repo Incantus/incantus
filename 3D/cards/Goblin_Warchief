@@ -24,10 +24,16 @@ def compute(self, card, player, s=card, goblin_filter=goblin_filter):
     return True
 
 subrole.static_abilities = [PermanentTrackingAbility(card,
-                                        enter_condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.subtypes == "Goblin"),
-                                        leave_condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.subtypes == "Goblin"),
+                                        condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.subtypes == "Goblin"),
+					events = SubtypeModifiedEvent(),
                                         effects = GiveKeyword(haste, expire=False, keyword='haste')),
 			    GlobalStaticAbility(card,
                                effects=OverrideGlobal(compute, "compute", ManaCost, logical_and, reverse=False, expire=False))]
 
 #################################
+
+
+
+
+
+

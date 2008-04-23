@@ -15,13 +15,12 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 haste(subrole)
-subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = Trigger(event=EndPhaseEvent()),
                                         match_condition = lambda sender: True,
                                         ability = Ability(card, target=Target(targeting="self"),
 					effects=ChangeZoneFromPlay(to_zone="hand")))
 ]
-subrole.static_abilities = []
 
 #################################
+

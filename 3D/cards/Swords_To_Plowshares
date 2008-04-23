@@ -1,0 +1,32 @@
+name = 'Swords to Plowshares'
+cardnum = 54
+expansion = 'Ice Age'
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'W'
+color = characteristic(['W'])
+text = ["Remove target creature from the game. Its controller gains life equal to its power."]
+
+#################################
+
+remove_creature = Target(target_types=isCreature)
+out_play_role.abilities = [CastNonPermanentSpell(card, cost=cost,
+                target=[remove_creature, Target(targeting=lambda t=remove_creature: t.target.controller)],
+                effects=[ChangeZoneFromPlay(to_zone="removed"),
+                     ChangeLife(lambda life, t=remove_creature:life+t.target.power)],
+		copy_targets=False)]
+                           
+#################################
+
+
+
+
+
+
+
+
+
+
+
+

@@ -18,11 +18,10 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 subrole.attached_abilities = [AuraStaticAbility(card,
-                                        effects=GiveKeyword(lambda role: override(role, "canUntap", lambda self: False), keyword="Doesn't untap", expire=False))
+                                        effects=GiveKeyword(lambda role: override(role, "canUntap", lambda self: False), keyword="Doesn't untap", expire=False, perm=True))
 ]
 
 #################################
+
+

@@ -5,7 +5,7 @@ type = characteristic('Land')
 supertype = characteristic('Basic')
 subtypes = characteristic(['Forest'])
 cost = ''
-color = characteristic(['G'])
+color = characteristic(['C'])
 text = ['[G]']
 
 out_play_role = NoRole(card)
@@ -18,4 +18,6 @@ in_play_role = Permanent(card, subrole)
 
 
 #################################
+
+
 

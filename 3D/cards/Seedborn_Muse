@@ -14,13 +14,15 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
-subrole.triggered_abilities = [TriggeredAbility(card,
-                                        trigger=PlayerTrigger(event=UntapStepEvent()),
-                                        match_condition=PlayerMatch(lambda player, card=card: not player == card.controller),
-                                        ability=StacklessAbility(card, target=AllPermanentTargets(isPermanent.with_condition(lambda p: p.tapped)),
-                                                effects=ForEach(UntapTargetPermanent())))
+def untapControllerCards(self, card=card):
+    if self == card.controller: return
+    for card in self.opponent.play:
+        if card.tapped and card.canUntap(): card.untap()
+
+from Player import Player
+subrole.static_abilities = [GlobalStaticAbility(card,
+                                  effects=OverrideGlobal(untapControllerCards, "untapCards", Player, combiner=logical_or, expire=False))
 ]
-subrole.static_abilities = []
 
 #################################
+

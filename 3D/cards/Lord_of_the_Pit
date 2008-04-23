@@ -16,17 +16,22 @@ in_play_role = Permanent(card, subrole)
 
 flying(subrole)
 trample(subrole)
-subrole.abilities = []
-# XXX This doesn't do the option properly
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = PlayerTrigger(event=UpkeepStepEvent()),
                                       match_condition = lambda player, self=card: player==self.controller,
                                       ability = DoOrAbility(card, 
-                                                        target=Target(target_types=isCreature.with_condition(lambda c, self=card: not c == self)),
-                                                        failure_target=Target(targeting="controller"),
-                                                        effects=Sacrifice(),
+                                                     effects=ForceSacrifice(card_type=isCreature.with_condition(lambda c, self=card: not c == self), required=False),
                                                         failed=DealDamage(7)))
 ]
-subrole.static_abilities = []
 
 #################################
+
+
+
+
+
+
+
+
+
+

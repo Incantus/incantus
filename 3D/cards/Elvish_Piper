@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Elf', 'Shaman'])
 cost = '3G'
 color = characteristic(['G'])
-text = ['G, T You may put a creature card from your hand into play.']
+text = ['G, T: You may put a creature card from your hand into play.']
 
 subrole = Creature(1, 1)
 
@@ -15,10 +15,11 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.abilities = [ChoiceAbility(card, MultipleCosts([ManaCost("G"), TapCost()]),
-                                effects=MoveCards(from_zone="hand", to_zone="play", number=1, card_types=isCreatureType),
-                                during_resolution=True) 
+                                effects=MoveCards(from_zone="hand", to_zone="play", number=1, card_types=isCreatureType)) 
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
+
+
+
+

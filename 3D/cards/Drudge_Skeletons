@@ -18,7 +18,7 @@ subrole.abilities = [ActivatedAbility(card, "B",
                                 target=Target(targeting="self"),
                                 effects=GiveKeyword(regenerate, keyword="regenerate"))
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
+
+

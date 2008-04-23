@@ -17,7 +17,6 @@ in_play_role = Permanent(card, subrole)
 subrole.abilities = [ActivatedAbility(card, cost="W",
                                 target=Target(targeting='self'),
                                 effects=AugmentPowerToughness(0, 1))]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
+

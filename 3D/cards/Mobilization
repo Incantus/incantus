@@ -20,9 +20,27 @@ subrole.abilities = [ActivatedAbility(card, ManaCost("2W"),
 ]
 subrole.triggered_abilities = []
 subrole.static_abilities = [PermanentTrackingAbility(card,
-                                        enter_condition = isCreature.with_condition(lambda c: c.subtypes == "Soldier"),
-                                        leave_condition = isCreature.with_condition(lambda c: c.subtypes == "Soldier"),
+                                        condition = isCreature.with_condition(lambda c: c.subtypes == "Soldier"),
+					events = SubtypeModifiedEvent(),
                                         effects = GiveKeyword(vigilance, expire=False)),
 ]
 
 #################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

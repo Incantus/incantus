@@ -16,14 +16,21 @@ in_play_role = Permanent(card, subrole)
 
 flying(subrole)
 subrole.static_abilities = [PermanentTrackingAbility(card,
-                                        enter_condition = isCreature.with_condition(lambda c, self=card: not c == self and c.color == "B"),
-                                        leave_condition = isCreature.with_condition(lambda c, self=card: not c == self and c.color == "B"),
+                                        condition = isCreature.with_condition(lambda c, self=card: not c == self and c.color == "B"),
+					events = ColorModifiedEvent(),
                                         effects = AugmentPowerToughness(power=1, toughness=1, expire=False)),
                                  PermanentTrackingAbility(card,
-                                        enter_condition = isCreature.with_condition(lambda c: not c.color == "B"),
-                                        leave_condition = isCreature.with_condition(lambda c: not c.color == "B"),
+                                        condition = isCreature.with_condition(lambda c: not c.color == "B"),
+					events = ColorModifiedEvent(),
                                         effects = AugmentPowerToughness(power=-1, toughness=-1, expire=False)),
 ]
 
 #################################
+
+
+
+
+
+
+
 

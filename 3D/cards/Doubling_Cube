@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic([])
 cost = '2'
 color = characteristic(['C'])
-text = ['3, T Double the amount of each type of mana in your mana pool.']
+text = ['3, T: Double the amount of each type of mana in your mana pool.']
 
 subrole = Artifact()
 
@@ -24,3 +24,9 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
+
+
+
+
+
+

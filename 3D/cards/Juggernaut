@@ -18,8 +18,5 @@ must_attack(subrole)
 def canBeBlockedBy(self, blocker): return not blocker.subtypes == "Wall"
 override(subrole, "canBeBlockedBy", canBeBlockedBy)
 
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
-
 #################################
+

@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Merfolk'])
 cost = '2UU'
 color = characteristic(['U'])
-text = ['T Gain control of target creature as long as that creature is enchanted.']
+text = ['T: Gain control of target creature as long as that creature is enchanted.']
 
 subrole = Creature(2, 3)
 
@@ -25,3 +25,4 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
+

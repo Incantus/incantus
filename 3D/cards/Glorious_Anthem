@@ -15,12 +15,36 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.static_abilities = [PermanentTrackingAbility(card,
-                                        enter_condition = isCreature.with_condition(lambda c, self=card: c.controller==self.controller),
-                                        leave_condition = isCreature.with_condition(lambda c, self=card: c.controller==self.controller),
+                                        condition = isCreature.with_condition(lambda c, self=card: c.controller==self.controller),
                                         effects = AugmentPowerToughness(power=1, toughness=1, expire=False))
 ]
 
 #################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

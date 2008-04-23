@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic([])
 cost = ''
 color = characteristic(['C'])
-text = ['T Add 1 to your mana pool.', 'T Add B or G to your mana pool. Llanowar Wastes deals 1 damage to you.']
+text = ['T: Add 1 to your mana pool.', 'T: Add B or G to your mana pool. Llanowar Wastes deals 1 damage to you.']
 
 out_play_role = NoRole(card)
 subrole = Land(color)
@@ -20,3 +20,5 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
 ]
 
 #################################
+
+

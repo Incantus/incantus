@@ -14,6 +14,15 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-prowl(subrole, card, cost="2B", ability=Ability(card, target=Target(targeting="controller"),
+prowl(subrole, card, cost="2U", ability=Ability(card, target=Target(targeting="controller"),
                                                  effects=DrawCard(1)))
 #################################
+
+
+
+
+
+
+
+
+

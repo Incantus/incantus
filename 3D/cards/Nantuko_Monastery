@@ -1,0 +1,34 @@
+name = "Nantuko Monastery"
+cardnum = 142
+expansion = 'Judgment'
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ["T: Add 1 to your mana pool.", "Threshold - GW: Nantuko Monastery becomes a 4/4 green and white Insect Monk creature with first strike until end of turn. It's still a land. Play this ability only if seven or more cards are in your graveyard."]
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+
+in_play_role = Permanent(card, subrole)
+
+## Threshold not yet implemented
+
+#################################
+
+new_role = Creature(4,4)
+role_info = {"type": "Creature", "subtypes": ["Insect","Monk"], "color": ["G","W"]}
+first_strike(new_role)
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
+                     ActivatedAbility(card, cost="GW",
+                           target=Target(targeting="self"),
+                           effects=AddSubRole(new_role, role_info))]
+
+#################################
+
+
+
+
+
+

@@ -22,3 +22,12 @@ subrole.abilities = [ActivatedAbility(card, cost="1", target=Target(targeting="s
 ]
 
 #################################
+
+
+
+
+
+
+
+
+

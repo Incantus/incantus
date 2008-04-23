@@ -14,9 +14,11 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('G'))]
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1'))]
 
 #################################
+
+
 
 
 

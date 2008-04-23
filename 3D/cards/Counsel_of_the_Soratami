@@ -9,3 +9,9 @@ color = characteristic(['U'])
 text = ['Draw two cards.']
 
 out_play_role.abilities = [CastNonPermanentSpell(card, cost, effects=DrawCard(2))]
+
+
+
+
+
+

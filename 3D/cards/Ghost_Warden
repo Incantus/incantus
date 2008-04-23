@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Spirit'])
 cost = '1W'
 color = characteristic(['W'])
-text = ['T Target creature gets +1/+1 until end of turn.']
+text = ['T: Target creature gets +1/+1 until end of turn.']
 
 subrole = Creature(1, 1)
 
@@ -22,3 +22,6 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
+
+
+

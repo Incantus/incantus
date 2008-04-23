@@ -14,7 +14,6 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
 trigger = PlayerTrigger(event=UpkeepStepEvent())
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = trigger,
@@ -23,6 +22,8 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                                   target=Target(targeting=lambda t=trigger: t.player),
                                                         effects=MoveCards(from_zone="library", from_position="top", to_zone="graveyard", number=LazyInt(lambda t=trigger: len(t.player.hand)))))
 ]
-subrole.static_abilities = []
 
 #################################
+
+
+

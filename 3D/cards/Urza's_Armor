@@ -14,10 +14,9 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
-subrole.triggered_abilities = []
 subrole.static_abilities = [GlobalStaticAbility(card,
                                         effects= GiveKeyword(lambda target: prevent_damage(target, 1, "Urza's Armor - prevent 1 damage", next=False), expire=False))
 ]
 
 #################################
+

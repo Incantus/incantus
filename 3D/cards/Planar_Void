@@ -1,6 +1,6 @@
 name = 'Planar Void'
 cardnum = 149
-expansion = 'Urza'S Saga'
+expansion = 'Urza\'s Saga'
 type = characteristic('Enchantment')
 supertype = characteristic('')
 subtypes = characteristic([])
@@ -19,4 +19,5 @@ subrole.triggered_abilities = [TriggeredAbility(card,
 					ability=Ability(card, target=Target(targeting=lambda t=trigger: t.matched_card),
                                                  effects=ChangeZone(from_zone="graveyard", to_zone="removed")))
 ]
+
 

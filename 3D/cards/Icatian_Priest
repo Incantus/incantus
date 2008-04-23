@@ -18,7 +18,10 @@ subrole.abilities = [ActivatedAbility(card, "1WW",
                                 target=Target(target_types=isCreature),
                                 effects=AugmentPowerToughness(power=1,toughness=1))
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
+
+
+
+
+

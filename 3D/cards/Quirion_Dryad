@@ -19,7 +19,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = CardTrigger(event=PlaySpellEvent()),
                                         match_condition = CardMatch(lambda card, colors=["W", "U", "B", "R"], self=card: card.color in colors and card.controller == self.controller),
 							ability = Ability(card, target=Target(targeting="self"),
-                                                        effects = AddPowerToughnessCounter(power=1,toughness=1)))
+                                                        effects = AddPowerToughnessCounter()))
 ]
 subrole.static_abilities = []
 

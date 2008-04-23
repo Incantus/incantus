@@ -1,0 +1,28 @@
+name = 'Volrath\'s Stronghold'
+cardnum = 137
+expansion = 'Stronghold'
+type = characteristic('Land')
+supertype = characteristic('Legendary')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ["T: Add 1 to your mana pool.", "1B, T: Put target creature card from your graveyard on top of your library."]
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
+                     ActivatedAbility(card, cost=MultipleCosts([ManaCost("1B"),TapCost()]),
+                                target=Target(target_types=isCreatureType, zone="graveyard", zone_limit="controller"),
+                                effects=ChangeZone(from_zone="graveyard", to_zone="library", to_position="top"))]
+                                
+
+#################################
+
+
+
+

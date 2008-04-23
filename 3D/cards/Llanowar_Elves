@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Elf', 'Druid'])
 cost = 'G'
 color = characteristic(['G'])
-text = ['T Add G to your mana pool.']
+text = ['T: Add G to your mana pool.']
 
 subrole = Creature(1, 1)
 
@@ -15,7 +15,7 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('G'))]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
+
+

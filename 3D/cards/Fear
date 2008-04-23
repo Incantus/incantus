@@ -22,7 +22,17 @@ subrole.abilities = []
 subrole.triggered_abilities = []
 subrole.static_abilities = []
 subrole.attached_abilities = [AuraStaticAbility(card,
-                                    effects=GiveKeyword(fear, keyword="Fear", expire=False))
+                                    effects=GiveKeyword(fear, keyword="fear", expire=False))
 ]
 
 #################################
+
+
+
+
+
+
+
+
+
+

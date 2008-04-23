@@ -14,11 +14,10 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
-subrole.triggered_abilities = []
 from game.Player import Player
 subrole.static_abilities = [GlobalStaticAbility(card,
-                                    effects=OverrideGlobal(lambda self: None, "manaBurn", Player, combiner=last_only, expire=False))
+                                    effects=OverrideGlobal(lambda self: True, "manaBurn", Player, combiner=last_only, expire=False))
 ]
 
 #################################
+

@@ -16,7 +16,7 @@ in_play_role = Permanent(card, subrole)
 
 subrole.abilities = [ManaAbility(card,
                         cost=MultipleCosts([ManaCost("1"), TapCost(), SacrificeCost()]),
-                        effects=ManaChoice(["W","B","G","U","R"]))]
+                        effects=ManaChoice(["W","U","B","G","R"]))]
 subrole.triggered_abilities = [TriggeredAbility(card,
                                     trigger=EnterFromTrigger(from_zone="play", to_zone="graveyard"),
                                     match_condition=SelfMatch(card),
@@ -24,6 +24,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
 ]
 
 #################################
+
 
 
 

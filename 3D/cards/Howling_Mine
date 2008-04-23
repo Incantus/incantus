@@ -14,6 +14,8 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
+# XXX intervening if clause
+
 subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=Trigger(event=DrawStepEvent()),
@@ -25,3 +27,5 @@ subrole.triggered_abilities = [TriggeredAbility(card,
 subrole.static_abilities = []
 
 #################################
+
+

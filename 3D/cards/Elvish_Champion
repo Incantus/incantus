@@ -14,13 +14,15 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
-subrole.triggered_abilities = []
 subrole.static_abilities = [PermanentTrackingAbility(card,
-                                        enter_condition = isCreature.with_condition(lambda c, self=card: not c == self and c.subtypes == "Elf"),
-                                        leave_condition = isCreature.with_condition(lambda c, self=card: not c == self and c.subtypes == "Elf"),
+                                        condition = isCreature.with_condition(lambda c, self=card: not c == self and c.subtypes == "Elf"),
+					events = SubtypeModifiedEvent(),
                                         effects = [AugmentPowerToughness(power=1, toughness=1, expire=False),
                                                    GiveKeyword(forestwalk, expire=False)])
 ]
 
 #################################
+
+
+
+

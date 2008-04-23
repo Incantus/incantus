@@ -14,7 +14,6 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
 trigger = PlayerTrigger(event=UpkeepStepEvent())
 num_zombies = LazyInt(lambda t=trigger: len(t.player.play.get(isCreature.with_condition(lambda c:c.subtypes=="Zombie"))))
 subrole.triggered_abilities = [TriggeredAbility(card,
@@ -24,6 +23,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                                   target=Target(targeting="controller"),
                                                   effects=[DrawCard(num_zombies), ChangeLife(lambda life, n=num_zombies: life-n)]))
 ]
-subrole.static_abilities = []
 
 #################################
+
+

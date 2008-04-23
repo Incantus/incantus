@@ -15,14 +15,14 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 flying(subrole)
-subrole.abilities = []
 trigger = DealDamageTrigger(sender=card)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = trigger,
-                                        match_condition = lambda to, card=card: isPlayer(to) and not to == card.controller,
+                                        match_condition = lambda sender, to: isPlayer(to) and not to == sender.controller,
                                         ability = Ability(card, target=Target(targeting=lambda t=trigger:t.to),
                                                     effects=DiscardCard(1, random=True)))
 ]
-subrole.static_abilities = []
 
 #################################
+
+

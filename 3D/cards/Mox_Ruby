@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic([])
 cost = '0'
 color = characteristic(['C'])
-text = ['T Add R to your mana pool.']
+text = ['T: Add R to your mana pool.']
 
 subrole = Artifact()
 
@@ -17,6 +17,7 @@ in_play_role = Permanent(card, subrole)
 subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana("R"))]
 
 #################################
+
 
 
 

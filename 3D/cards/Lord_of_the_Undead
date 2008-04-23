@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Zombie'])
 cost = '1BB'
 color = characteristic(['B'])
-text = ['Other Zombie creatures get +1/+1.', '1B, T Return target Zombie card from your graveyard to your hand.']
+text = ['Other Zombie creatures get +1/+1.', '1B, T: Return target Zombie card from your graveyard to your hand.']
 
 subrole = Creature(2, 2)
 
@@ -16,12 +16,16 @@ in_play_role = Permanent(card, subrole)
 
 subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("1B"), TapCost()]),
                                 target=Target(targeting="controller"),
-                                effects=MoveCards(from_zone="graveyard", to_zone="hand", card_types=isCreatureType.with_condition(lambda c: c.subtypes == "Zombie")))
+                                effects=MoveCards(from_zone="graveyard", to_zone="hand", card_types=isCard.with_condition(lambda c: c.subtypes == "Zombie")))
 ]
 subrole.triggered_abilities = []
 subrole.static_abilities = [PermanentTrackingAbility(card,
-                                        enter_condition = isCreature.with_condition(lambda c, self=card: not c == self and c.subtypes == "Zombie"),                
-                                        leave_condition = isCreature.with_condition(lambda c, self=card: not c == self and c.subtypes == "Zombie"),
+                                        condition = isCreature.with_condition(lambda c, self=card: not c == self and c.subtypes == "Zombie"),
+					events = SubtypeModifiedEvent(),
                                         effects = AugmentPowerToughness(power=1, toughness=1, expire=False)),]
 
 #################################
+
+
+
+

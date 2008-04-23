@@ -14,11 +14,6 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-# XXX This doesn't work exactly as planned, unless I use the Effects class for cards that come into play
-# with counters
-
-subrole.abilities = []
-subrole.triggered_abilities = []
 subrole.static_abilities = [GlobalStaticAbility(card,
                                         effects=OverrideGlobalReplacement(lambda self: 2*self.number, "get_number", CreateToken, expire=False)),
 			    GlobalStaticAbility(card,
@@ -26,3 +21,4 @@ subrole.static_abilities = [GlobalStaticAbility(card,
 ]
 
 #################################
+

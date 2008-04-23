@@ -18,7 +18,7 @@ subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger("play"),
                                         match_condition = SelfMatch(card),
-                                        ability = Ability(card, target=Target(targeting="opponent"),
+                                        ability = Ability(card, target=Target(target_types=OpponentMatch(card)),
                                                         effects=DiscardCard(1)))
 ]
 subrole.static_abilities = []

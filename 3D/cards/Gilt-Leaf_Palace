@@ -15,15 +15,19 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-# This should really use the Reveal effect instead of the MoveCard effect
+# XXX Broken This should really use the Reveal effect instead of the MoveCard effect
 
 subrole.abilities = [ManaAbility(card, TapCost(), effects=ManaChoice(['B', 'G']))]
 subrole.triggered_abilities = [TriggeredAbility(card, trigger = EnteringTrigger(zone="play"),
             				match_condition=SelfMatch(card),
             				ability=StacklessDoOrAbility(card, "0",
-                				failure_target=Target(targeting="self"),
-                				effects=MoveCards(from_zone="hand", to_zone="hand", number=1, reveal=True, card_types=isCard.with_condition(lambda c: c.subtypes == "Elf"), required=False, prompt="Select Elf card to reveal"),
+                			target=Target(target_types=isCard.with_condition(lambda c: c.subtypes == "Elf"), zone="hand", zone_limit="controller"),
+						failure_target=Target(targeting="self"),
+                				effects=RevealCard(),
                 				failed=NullEffect(lambda c, t: t.tap(False))))
 ]
 
 #################################
+
+
+

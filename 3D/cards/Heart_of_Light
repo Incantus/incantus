@@ -18,12 +18,13 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 subrole.attached_abilities = [AuraStaticAbility(card,
-                                        effects=GiveKeyword(lambda role: prevent_damage(role, -1), keyword="prevent damage", expire=False)),
+                                        effects=GiveKeyword(lambda role: prevent_damage(role, -1, txt="Prevent all damage that would be dealt"), keyword="prevent damage", expire=False)),
                               AuraStaticAbility(card,
-                                        effects=GiveKeyword(lambda role: override(role, "canDealDamage", lambda self: False), keyword="Doesn't deal damage", expire=False))
+                                        effects=GiveKeyword(lambda role: override(role, "canDealDamage", lambda self: False), keyword="Doesn't deal damage", expire=False, perm=True))
 ]
 #################################
+
+
+
+

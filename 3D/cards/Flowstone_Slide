@@ -14,3 +14,4 @@ out_play_role.abilities = [CastNonPermanentSpell(card, mc,
 				target=AllPermanentTargets(target_types=isCreature),
 				effects=ForEach(AugmentPowerToughness(power=mc.X, toughness=LazyInt(lambda mc=mc:-1*mc.X))))
 ]
+

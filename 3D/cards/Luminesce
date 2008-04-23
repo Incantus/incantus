@@ -14,3 +14,4 @@ out_play_role.abilities = [CastNonPermanentSpell(card, cost,
                                 effects=[OverrideGlobal(canDealDamage, "canDealDamage", Spell, combiner=logical_and),
                                          OverrideGlobal(canDealDamage, "canDealDamage", Permanent, combiner=logical_and)])
 ]
+

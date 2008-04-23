@@ -25,3 +25,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
 subrole.static_abilities = []
 
 #################################
+
+
+
+

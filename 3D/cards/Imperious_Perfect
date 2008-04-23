@@ -19,12 +19,20 @@ num_elves = LazyInt(lambda card=card: len(card.controller.play.get(isPermanent.w
 subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("G"), TapCost()]), 
 			effects=CreateToken(token_info={"name": "Elf Warrior", "type": "Creature", "subtypes": ["Elf", "Warrior"], "color": "G", "role": TokenCreature(1,1)}))
 ]
-subrole.triggered_abilities = []
 subrole.static_abilities = [PermanentTrackingAbility(card,
-                                        enter_condition = isCreature.with_condition(lambda c, card=card: not c == card and c.controller == card.controller and c.subtypes == "Elf"),
-                                        leave_condition = isCreature.with_condition(lambda c, card=card: not c == card and c.controller == card.controller and c.subtypes == "Elf"),
+                                        condition = isCreature.with_condition(lambda c, card=card: not c == card and c.controller == card.controller and c.subtypes == "Elf"),
+					events = SubtypeModifiedEvent(),
                                         effects = AugmentPowerToughness(power=1, toughness=1, expire=False)),
 ]
 
 #################################
+
+
+
+
+
+
+
+
+
 

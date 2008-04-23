@@ -1,0 +1,23 @@
+name = "Sensei's Divining Top"
+cardnum = 0
+expansion = ''
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1'
+color = characteristic(['C'])
+text = ['1: Look at the top three cards of your library, then put them back in any order.', "T Draw a card, then put Sensei's Divining Top on top of its owner's library."]
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, cost="1", effects=MoveCards(from_zone="library", to_zone="library", to_position="top", number=3, subset=3),
+		     ActivatedAbility(card, cost=TapCost(),
+				target=[Target(targeting="controller"), Target(targeting="self")],
+				effects=[DrawCard(1), ChangeZoneFromPlay(to_zone="library", to_position="top")])]
+
+#################################
+

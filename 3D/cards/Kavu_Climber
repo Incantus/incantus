@@ -14,13 +14,18 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = EnterTrigger("play"),
                                       match_condition=SelfMatch(card),
                                       ability=Ability(card, target=Target(targeting="controller"),
                                                  effects=DrawCard(1))),
 ]
-subrole.static_abilities = []
 
 #################################
+
+
+
+
+
+
+

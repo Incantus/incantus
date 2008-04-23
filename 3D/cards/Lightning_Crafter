@@ -15,8 +15,7 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.abilities = [ActivatedAbility(card, TapCost(), target=Target(target_types=isPlayerOrCreature), effects=DealDamage(3))]
-subrole.triggered_abilities = []
 champion(subrole, card)
-subrole.static_abilities = []
 
 #################################
+

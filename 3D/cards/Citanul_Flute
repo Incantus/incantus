@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic([])
 cost = '5'
 color = characteristic(['C'])
-text = ['X, T Search your library for a creature card with converted mana cost X or less, reveal it, and put it into your hand. Then shuffle your library.']
+text = ['X, T: Search your library for a creature card with converted mana cost X or less, reveal it, and put it into your hand. Then shuffle your library.']
 
 subrole = Artifact()
 
@@ -25,6 +25,7 @@ subrole.abilities = [ActivatedAbility(card, MultipleCosts([mc, TapCost()]),
 ]
 
 #################################
+
 
 
 

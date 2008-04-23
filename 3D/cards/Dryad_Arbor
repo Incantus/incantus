@@ -19,3 +19,5 @@ in_play_role = Permanent(card, subrole)
 in_play_role.add_subrole(Creature(1,1))
 
 #################################
+
+

@@ -17,8 +17,11 @@ in_play_role = Permanent(card, subrole)
 def canBeBlockedBy(self, blocker): return "flying" in blocker.keywords or blocker.subtypes == "Wall"
 override(subrole, "canBeBlockedBy", canBeBlockedBy)
 
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
-
 #################################
+
+
+
+
+
+
+

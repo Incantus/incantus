@@ -18,9 +18,15 @@ subrole.abilities = [ActivatedAbility(card, "2G", effects=CreateToken(token_info
 subrole.triggered_abilities = []
 champion(subrole, card, subtypes="Elf")
 subrole.static_abilities = [PermanentTrackingAbility(card,
-                                        enter_condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.subtypes == "Wolf"),
-                                        leave_condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.subtypes == "Wolf"),
+                                        condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.subtypes == "Wolf"),
+					events = SubtypeModifiedEvent(),
                                         effects = GiveKeyword(lambda role: deathtouch(role, in_play=True), expire=False))
 ]
 
 #################################
+
+
+
+
+
+

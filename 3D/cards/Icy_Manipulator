@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic([])
 cost = '4'
 color = characteristic(['C'])
-text = ['1, T Tap target artifact, creature, or land.']
+text = ['1, T: Tap target artifact, creature, or land.']
 
 subrole = Artifact()
 
@@ -18,7 +18,8 @@ subrole.abilities = [ActivatedAbility(card, cost=MultipleCosts([ManaCost("1"), T
                                 target = Target(target_types=[isArtifact, isCreature,isLand]),
                                 effects = TapTargetPermanent()),
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
+
+
+

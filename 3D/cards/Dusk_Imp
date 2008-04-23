@@ -15,8 +15,8 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 flying(subrole)
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
+
+
+

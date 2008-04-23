@@ -18,7 +18,8 @@ subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("U"), TapCos
                                 target=Target(target_types=isPermanent.with_condition(lambda c, self=card: c.controller == self.controller)),
                                 effects=ChangeZoneFromPlay(to_zone="hand"))
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
+
+
+

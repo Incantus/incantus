@@ -1,0 +1,22 @@
+name = 'Darkest Hour'
+cardnum = 128
+expansion = '7E'
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'B'
+color = characteristic(['B'])
+text = ['All creatures are black.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.static_abilities = [PermanentTrackingAbility(card,
+                                        condition = isCreature,
+					effects = ModifyColor(characteristic("B"), expire=False))]
+
+#################################
+

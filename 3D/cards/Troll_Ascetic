@@ -22,7 +22,5 @@ override(subrole, "canBeTargetedBy", canBeTargetedBy)
 subrole.abilities = [ActivatedAbility(card, "1G",
                                 target=Target(targeting="self"),
                                 effects=GiveKeyword(regenerate, keyword="regenerate"))]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################

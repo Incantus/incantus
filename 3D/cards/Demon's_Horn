@@ -14,12 +14,12 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = CardTrigger(event=PlaySpellEvent()),
                                         match_condition = CardMatch(lambda card: card.color == "B"),
                                         ability = ChoiceAbility(card, effects = ChangeLife(1)))
 ]
-subrole.static_abilities = []
 
 #################################
+
+

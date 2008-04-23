@@ -20,9 +20,6 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 flash(card)
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 subrole.attached_abilities = [AuraStaticAbility(card,
                                    effects=AugmentPowerToughness(power=2,toughness=2,expire=False)),
                               AuraStaticAbility(card,
@@ -30,3 +27,6 @@ subrole.attached_abilities = [AuraStaticAbility(card,
 ]
 
 #################################
+
+
+

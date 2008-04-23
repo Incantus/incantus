@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Merfolk', 'Rogue'])
 cost = '1U'
 color = characteristic(['U'])
-text = ['T Draw a card, then discard a card.']
+text = ['T: Draw a card, then discard a card.']
 
 subrole = Creature(1, 1)
 
@@ -21,3 +21,4 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
+

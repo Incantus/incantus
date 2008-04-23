@@ -14,7 +14,7 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-token_info = {"name": "Elf", "type": "Creature", "subtypes": ["Elf"], "color": "G", "role": TokenCreature(2,2)}
+token_info = {"name": "Elf Warrior", "type": "Creature", "subtypes": ["Elf", "Warrior"], "color": "G", "role": TokenCreature(1,1)}
 
 subrole.abilities = [
   ManaAbility(card, cost="0", effects=AddMana(amt="BBBBBWWWWWGGGGGUUUUURRRRR")),
@@ -22,13 +22,13 @@ subrole.abilities = [
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=TapTargetPermanent()),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=UntapTargetPermanent()),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=Destroy()),
-  ActivatedAbility(card, cost="0", target=AllPermanentTargets(), effects=ForEach(Destroy())),
+  ActivatedAbility(card, cost="0", target=AllPermanentTargets(target_types=[isEnchantment.with_condition(lambda e: not e.subtypes == "Aura"), isCreature]), effects=ForEach(Destroy())),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=DestroyNoRegenerate()),
   ActivatedAbility(card, cost="0", target=Target(target_types=[isCreature, isPlayer]), effects=DealDamage(amount=1)),
   ActivatedAbility(card, cost="0", target=Target(target_types=[isCreature, isPlayer]), effects=DealDamage(amount=11)),
   ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=GiveKeyword(haste, keyword="haste")),
-  ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=GiveKeyword(regenerate, keyword="regenerate")),
-  ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=AddPowerToughnessCounter(1, 1)),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=GiveKeyword(vigilance, keyword="vigilance")),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=AddPowerToughnessCounter()),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=AddCounter(Counter("time"), number=4)),
   ActivatedAbility(card, cost="0", target=CounterTarget(target_types=isAbility), effects=CounterAbility()),
   ActivatedAbility(card, cost="0", target=Target(targeting="controller"), effects=MoveCards("library", "hand")),
@@ -45,11 +45,23 @@ subrole.abilities = [
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=ChangeController()),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=RemoveSubRoles()),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=Clone()),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPlayer), effects=ChangeLife(1)),
 ]
 subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
+
+
+
+
+
+
+
+
+
+
+
 
 
 

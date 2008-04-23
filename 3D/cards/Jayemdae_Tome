@@ -17,7 +17,9 @@ in_play_role = Permanent(card, subrole)
 subrole.abilities = [ActivatedAbility(card, cost=MultipleCosts([ManaCost("4"), TapCost()]),
                                 effects = DrawCard(1))
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
+
+
+
+

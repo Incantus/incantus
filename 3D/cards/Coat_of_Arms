@@ -26,10 +26,33 @@ class SpecialPowerToughness(Effect):
         return "Add +X/+X"
 
 subrole.static_abilities = [PermanentTrackingAbility(card,
-                                        enter_condition = isCreature,
-                                        leave_condition = isCreature,
+                                        condition = isCreature,
                                         effects = SpecialPowerToughness())
 ]
 
 #################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

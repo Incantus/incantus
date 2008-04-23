@@ -16,8 +16,7 @@ in_play_role = Permanent(card, subrole)
 
 def canBeTargetedBy(self, targeter): return not (isSpell(targeter) and (targeter.color == "U" or targeter.color == "B"))
 override(subrole, "canBeTargetedBy", canBeTargetedBy)
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
+
+

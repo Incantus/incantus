@@ -6,7 +6,7 @@ supertype = characteristic('')
 subtypes = characteristic(['Human', 'Assassin'])
 cost = '1BB'
 color = characteristic(['B'])
-text = ['T Destroy target tapped creature.']
+text = ['T: Destroy target tapped creature.']
 
 subrole = Creature(1, 1)
 
@@ -22,3 +22,4 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
+

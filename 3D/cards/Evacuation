@@ -12,3 +12,8 @@ out_play_role.abilities = [CastNonPermanentSpell(card, cost,
 				target=AllPermanentTargets(target_types=isCreature),
 				effects=ForEach(ChangeZoneFromPlay(to_zone="hand")))
 ]
+
+
+
+
+

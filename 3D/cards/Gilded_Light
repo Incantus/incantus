@@ -11,3 +11,7 @@ text = ['You gain shroud until end of turn.', 'Cycling 2']
 out_play_role.abilities = [CastNonPermanentSpell(card, cost,
 				effects=GiveKeyword(shroud, expire=True, keyword='shroud')),
 			   Cycling(card, "2")]
+
+
+
+
