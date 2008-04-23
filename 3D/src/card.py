@@ -259,7 +259,7 @@ class PlayCard(Card):
         self.counters = [Counter(counter.ctype) for counter in self.gamecard.counters]
         self.layout_counters()
     def leaving_play(self):
-        if isCreature(self.gamecard):
+        if self.is_creature:
             self.remove_creature_subrole()
         dispatcher.disconnect(self.add_counter, signal=CounterAddedEvent(), sender=self.gamecard)
         dispatcher.disconnect(self.remove_counter, signal=CounterRemovedEvent(), sender=self.gamecard)
