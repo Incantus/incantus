@@ -575,25 +575,27 @@ class AddSubRole(Effect):
     def __call__(self, card, target):
         subrole = self.subrole.copy(target.current_role)
         target.add_subrole(subrole)
-        for chr,val in self.subrole_info.items():
-            characteristic = getattr(target, chr)
-            if hasattr(val, "is_characteristic"):
-                old_characteristic = characteristic
-                setattr(target, chr, val)
-            else:
-                characteristic.add(val)
-        def restore():
-            card.send(SubroleModifiedEvent(), card=target)
-            target.remove_subrole(subrole)
-            for chr, val in self.subrole_info.items():
-                characteristic = getattr(target, chr)
-                if hasattr(val, "is_characteristic"):
-                    setattr(target, chr, old_characteristic)
-                else:
-                    characteristic.remove(val)
-        if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
+        stacked = []
+        for char_str, val in self.subrole_info.items():
+            val = characteristic(val)
+            chr = getattr(target, char_str)
+            if not hasattr(chr, "stacked"):
+                stacked_char = stacked_characteristic(chr)
+                setattr(target, char_str, stacked_char)
+            else: stacked_char = chr
+            stacked_char.add_characteristic(val)
+            stacked.append((char_str, stacked_char, val))
         # XXX Should the card send these messages, or the target?
         card.send(SubroleModifiedEvent(), card=target)
+        def restore(stacked=stacked):
+            target.remove_subrole(subrole)
+            for char_str, stacked_char, val in stacked:
+                stacked_char.remove_characteristic(val)
+                if not stacked_char.stacking():
+                    setattr(target, char_str, stacked_char.characteristics[0])
+                    del stacked_char
+            card.send(SubroleModifiedEvent(), card=target)
+        if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
     def __str__(self):
         return "Add %s"%self.subrole
