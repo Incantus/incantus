@@ -1,4 +1,4 @@
-import CardRoles, Player
+import CardRoles
 
 class Match(object):
     def __init__(self, condition=None):
@@ -55,15 +55,17 @@ class RoleMatch(ObjMatch):
 
 class PlayerMatch(ObjMatch):
     def match(self, player=None):
+        import Player # To avoid circular imports
         return isinstance(player, Player.Player) and self.condition(player)
     def __str__(self):
         return "Player"
 
 class OpponentMatch(ObjMatch):
-    def __init__(self, card, condition=None)
+    def __init__(self, card, condition=None):
         super(OpponentMatch,self).__init__(condition)
         self.card = card
     def match(self, player=None):
+        import Player # To avoid circular imports
         return isinstance(player, Player.Player) and not self.card.controller == player and self.condition(player)
     def __str__(self):
         return "Opponent"
