@@ -375,7 +375,7 @@ class ManaView(Widget):
                     if current.value == 0: symbol.alpha = 0.75
                     else: symbol.alpha = 1.0
                     x += symbol.width + spacer
-                self.cost.pos = euclid.Vector3((x-symbol.width)/2, -pay.height-symbol.height, 0)
+                self.cost.pos = euclid.Vector3((x-symbol.width)/2, symbol.height*1.1, 0)
             else:
                 y = self.symbols[0].height
                 cost_y = y+self.cost.height

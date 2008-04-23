@@ -459,7 +459,6 @@ class ManaController(object):
         self.mana = self.mainmana
         self.activate()
         self.manapool = manapool
-        self.mana.cost.set_text("Required: "+required)
         self.required_str = required
         required = Mana.convert_mana_string(required)
         for i, color in enumerate(self.mana.colors):
@@ -472,6 +471,7 @@ class ManaController(object):
                 self.mana.spend_values[color].visible = 0
                 self.mana.values[color].visible = 0
                 self.mana.symbols[i].alpha = 0.5
+        self.set_cost()
     def reset_mana(self):
         for color in self.mana.colors:
             self.mana.values[color].set_text(getattr(self.manapool, color))
@@ -483,6 +483,20 @@ class ManaController(object):
         self.reset_mana()
         self.mana.select()
         self.window.pop_handlers()
+    def set_cost(self):
+        def convert(val):
+            if val == '': return 0
+            else: return int(val)
+        mana = [convert(self.mana.spend_values[c].value) for c in self.mana.colors]
+        self.required = Mana.convert_mana_string(self.required_str)
+        for i, val in enumerate(mana):
+            for j in range(val):
+                if self.required[i] == 0: self.required[-1] -= 1
+                else: self.required[i] -= 1
+        manastr = Mana.convert_to_mana_string(self.required)
+        if manastr == "0": manastr = 'Fulfilled'
+        else: manastr = 'Required (%s): %s'%(self.required_str, manastr)
+        self.mana.cost.set_text(manastr)
     def on_key_press(self, symbol, modifiers):
         if symbol == key.ENTER:
             # Check if we have enough mana
@@ -510,10 +524,11 @@ class ManaController(object):
         if values:
             symbol, current, pay = values
             if (button == mouse.RIGHT or modifiers & key.MOD_OPTION): current, pay = pay, current
-            if not int(current.value) == 0:
+            if not int(current.value) == 0: # or Mana.convert_to_mana_string(self.required) == "0"):
                 current.set_text(int(current.value)-1)
                 pay.set_text(int(pay.value)+1)
                 symbol.animate(sparkle=False)
+                self.set_cost()
         return True
     def on_mouse_motion(self, x, y, dx, dy):
         return True
