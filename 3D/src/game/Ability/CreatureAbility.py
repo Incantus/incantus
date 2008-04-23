@@ -112,13 +112,12 @@ def berserker(subrole):
 
 # 502.68b If a permanent has multiple instances of lifelink, each triggers separately.
 # XXX This is broken with trample, since the trigger only has the last amount of damage done
-def lifelink(subrole, in_play=False):
+def lifelink(subrole, card, in_play=False):
     from Ability import Ability
     from Effect import ChangeLife
     from TriggeredAbility import TriggeredAbility
     from Trigger import DealDamageTrigger
     subrole.keywords.add("lifelink")
-    card = subrole.card
     trigger = DealDamageTrigger(sender=card)
     lifelink = TriggeredAbility(card, trigger = trigger,
             match_condition = lambda sender: True,
