@@ -38,6 +38,7 @@ class MorphEvent(Event): pass
 class SubroleModifiedEvent(Event): pass
 class ColorModifiedEvent(Event): pass
 class SubtypeModifiedEvent(Event): pass
+class SupertypeModifiedEvent(Event): pass
 
 class SacrificeEvent(Event): pass
 class ManaEvent(Event): pass
