@@ -506,7 +506,7 @@ class StatusView(Widget):
             #active.visible = 0.0
     def animate_life(self, amount):
         symbol = self.symbols["life"]
-        curr_scale = symbol.scale
+        curr_scale = 0.5 #symbol.scale
         if amount > 0: final_scale = curr_scale*1.5
         else: final_scale = curr_scale*0.5
         symbol._scale = anim.animate(curr_scale, final_scale,dt=0.75, method="oscillate")
