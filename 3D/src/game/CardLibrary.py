@@ -1,15 +1,13 @@
 
 from GameObjects import Card, GameToken, characteristic
-import bsddb, cPickle as pickle
+import bsddb, glob, cPickle as pickle
 #from Util import uuid
 
 class CardDatabase(object):
     def __init__(self):
-        #import glob
         dirname = "./data/"
-        #dbnames = glob.glob(dirname+"*.db")
-        #dbnames.remove(dirname+"card_images.db")
-        dbnames = ["./data/cards.db"]
+        dbnames = glob.glob(dirname+"*.db")
+        dbnames.remove(dirname+"card_images.db")
         self._dbs = []
         for filename in dbnames:
             self._dbs.append(bsddb.hashopen(filename))
@@ -39,14 +37,15 @@ class _CardLibrary:
         self.counter = 0
         self.tokencounter = 0
 
-    def createToken(self, name, player, color, type, subtypes, cost="0"):
+    def createToken(self, name, player, color, type, subtypes, supertype='', cost="0"):
         import CardEnvironment
         token = GameToken(player)
         token.name = name
-        token.color = characteristic(color)
         token.cost = CardEnvironment.ManaCost(cost)
-        token.type = characteristic(type)
-        token.subtypes = characteristic(subtypes)
+        token.base_color = token.color = characteristic(color)
+        token.base_type = token.type = characteristic(type)
+        token.base_subtypes = token.subtypes = characteristic(subtypes)
+        token.base_supertype = token.supertype = characteristic(supertype)
         token.key = (self.tokencounter, token.name+" Token")
         self.cardsInGame[token.key] = token
         self.tokencounter += 1
@@ -77,10 +76,10 @@ class _CardLibrary:
         card.name = name
         card.cost = "0"
         card.text = "No card object found"
-        card.color = "C"
-        card.type = "Artifact"
-        card.supertype = characteristic(None)
-        card.subtypes = characteristic([])
+        card.base_color = card.color = "C"
+        card.base_type = card.type = "Artifact"
+        card.base_supertype = card.supertype = characteristic(None)
+        card.base_subtypes = card.subtypes = characteristic([])
         card.key = (self.counter, name)
 
         card.out_play_role = CardEnvironment.Spell(card)
@@ -98,10 +97,10 @@ class _CardLibrary:
         card.name = data["name"]
         card.cost = data.get("cost", "")
         card.text = data["text"]
-        card.color = characteristic(data.get("color"))
-        card.type = characteristic(data["type"])
-        card.supertype = characteristic(data.get("supertype", None))
-        card.subtypes = characteristic(data.get("subtypes", []))
+        card.base_color = card.color = characteristic(data.get("color"))
+        card.base_type = card.type = characteristic(data["type"])
+        card.base_supertype = card.supertype = characteristic(data.get("supertype", None))
+        card.base_subtypes = card.subtypes = characteristic(data.get("subtypes", []))
         card.key = (self.counter, data["name"])
 
         card.out_play_role = CardEnvironment.Spell(card)
@@ -144,10 +143,10 @@ class _CardLibrary:
             if k not in self.acceptable_keys: del card.__dict__[k]
 
         # Build default characteristics
-        card._base_color = card.color
-        card._base_type = card.type
-        card._base_subtypes = card.subtypes
-        card._base_supertype = card.supertype
+        card.base_color = card.color
+        card.base_type = card.type
+        card.base_subtypes = card.subtypes
+        card.base_supertype = card.supertype
 
         card.key = (self.counter, card.name)
         # XXX This should be set in each card file

@@ -50,10 +50,10 @@ class GameObject(MtGObject):
         self.out_play_role = None
         self.in_play_role = None
 
-        self._base_color = None
-        self._base_type = None
-        self._base_subtypes = None
-        self._base_supertype = None
+        self.base_color = None
+        self.base_type = None
+        self.base_subtypes = None
+        self.base_supertype = None
 
         self._current_role = None
         self._last_known_role = None
@@ -81,10 +81,10 @@ class GameObject(MtGObject):
             else: self._current_role = role
 
             # Set up base characteristics
-            self.color = self._base_color.copy()
-            self.type = self._base_type.copy()
-            self.subtypes = self._base_subtypes.copy()
-            self.supertypes = self._base_supertype.copy()
+            self.color = self.base_color.copy()
+            self.type = self.base_type.copy()
+            self.subtypes = self.base_subtypes.copy()
+            self.supertypes = self.base_supertype.copy()
 
             # It is about to enter play - let it know
             if role == self.in_play_role:
