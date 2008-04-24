@@ -87,9 +87,10 @@ class Permanent(MtGObject):
         self.subroles.append(role)
         self.card.send(SubRoleAddedEvent(), subrole=role)
     def remove_subrole(self, role):
-        role.leavingPlay()
-        self.subroles.remove(role)
-        self.card.send(SubRoleRemovedEvent(), subrole=role)
+        if role in self.subroles: # XXX Is this correct - the role is only missing when card enters play, gains role for the turn, and then is blinked back
+            role.leavingPlay()
+            self.subroles.remove(role)
+            self.card.send(SubRoleRemovedEvent(), subrole=role)
     def match_role(self, matchrole):
         success = False
         if matchrole == self.__class__: success = True
@@ -280,6 +281,13 @@ class Creature(Role):
         self.blocking = False
         self.blocked = False
         self.keywords = keywords()
+    def copy(self, perm=None):
+        import copy
+        newcopy = copy.deepcopy(self)
+        newcopy.perm = perm
+        newcopy.keywords = self.keywords.copy()
+        rebind_self(newcopy)
+        return newcopy
     def canBeDamagedBy(self, damager):
         return True
     def combatDamage(self):

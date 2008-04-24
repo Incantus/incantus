@@ -17,3 +17,13 @@ class keywords(object):
         return str(self.keywords.keys())
     def __repr__(self):
         return repr(self.keywords.keys())
+    def copy(self):
+        import copy
+        return copy.deepcopy(self)
+
+if __name__ == "__main__":
+    k = keywords()
+    k.add("haste")
+    k.add("forestwalk")
+    k2 = k.copy()
+    k2.add("first-strike")
