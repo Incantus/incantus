@@ -36,31 +36,34 @@ class GameObject(MtGObject):
     def __init__(self, owner):
         self.owner = owner
         self.controller = owner
+        self.zone = None
 
         # characteristics
         self.name = None
         self.cost = None
-        self.zone = None
-
         # The next four are characteristics that can be affected by other spells
-        self.color = characteristic([])
-        self.type = characteristic([])
-        self.subtypes = characteristic([])  # Only creatures seem to have subtypes, despite the rules (maybe not 10e)
-        self.supertype = characteristic([])
+        self.color = None
+        self.type = None
+        self.subtypes = None
+        self.supertype = None
 
         self.out_play_role = None
         self.in_play_role = None
+
+        self._base_color = None
+        self._base_type = None
+        self._base_subtypes = None
+        self._base_supertype = None
 
         self._current_role = None
         self._last_known_role = None
     def owner():
         doc = "The owner of this card - only set once when the card is created"
-        def fget(self):
-            return self._owner
+        def fget(self): return self._owner
         return locals()
     #owner = property(**owner())
     def current_role():
-        doc = "The current role for this card. Either a Spell (when in hand, library, graveyard or out of game), Spell, (stack) or Permanent (in play)"
+        doc = '''The current role for this card. Either a Spell (when in hand, library, graveyard or out of game), Spell, (stack) or Permanent (in play)'''
         def fget(self):
             return self._current_role
         def fset(self, role):
@@ -76,6 +79,12 @@ class GameObject(MtGObject):
             # Make a copy of the role, so that there's no memory whenever we re-enter play
             if role == self.in_play_role: self._current_role = role.copy()
             else: self._current_role = role
+
+            # Set up base characteristics
+            self.color = self._base_color.copy()
+            self.type = self._base_type.copy()
+            self.subtypes = self._base_subtypes.copy()
+            self.supertypes = self._base_supertype.copy()
 
             # It is about to enter play - let it know
             if role == self.in_play_role:

@@ -5,10 +5,11 @@ import bsddb, cPickle as pickle
 
 class CardDatabase(object):
     def __init__(self):
-        import glob
+        #import glob
         dirname = "./data/"
-        dbnames = glob.glob(dirname+"*.db")
-        dbnames.remove(dirname+"card_images.db")
+        #dbnames = glob.glob(dirname+"*.db")
+        #dbnames.remove(dirname+"card_images.db")
+        dbnames = ["./data/cards.db"]
         self._dbs = []
         for filename in dbnames:
             self._dbs.append(bsddb.hashopen(filename))
@@ -46,7 +47,6 @@ class _CardLibrary:
         token.cost = CardEnvironment.ManaCost(cost)
         token.type = characteristic(type)
         token.subtypes = characteristic(subtypes)
-        #token.key = (self.tokencounter, color, "token")
         token.key = (self.tokencounter, token.name+" Token")
         self.cardsInGame[token.key] = token
         self.tokencounter += 1
@@ -54,7 +54,7 @@ class _CardLibrary:
 
     def createCard(self, name, player):
         # Currently I recreate each card as it is created
-        # XXX I should add them to a factory and return a deepcopy
+        # XXX I should add them to a factory and return a deepcopy - this will never work with the lambda bindings
         card = Card(owner=player)
         card.controller = card.owner
         # Now load the card's abilities
@@ -142,6 +142,13 @@ class _CardLibrary:
         # Get rid of non-standard attributes
         for k in card.__dict__.keys():
             if k not in self.acceptable_keys: del card.__dict__[k]
+
+        # Build default characteristics
+        card._base_color = card.color
+        card._base_type = card.type
+        card._base_subtypes = card.subtypes
+        card._base_supertype = card.supertype
+
         card.key = (self.counter, card.name)
         # XXX This should be set in each card file
         if type(card.cost) == str: card.cost = CardEnvironment.ManaCost(card.cost)
