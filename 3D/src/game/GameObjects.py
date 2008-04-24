@@ -7,8 +7,6 @@ class MtGObject(object):
     Any = dispatcher.Any
     #_lock = False
     #_holding = False
-    def __init__(self):
-        self.dispatcher = dispatcher
     def send(self, event, *args, **named):
         #send event to dispatcher
         dispatcher.send(event, self, *args, **named)
