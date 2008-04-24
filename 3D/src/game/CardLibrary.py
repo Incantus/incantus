@@ -1,15 +1,30 @@
 
 from GameObjects import Card, GameToken, characteristic
-import bsddb
-import cPickle as pickle
+import bsddb, cPickle as pickle
 #from Util import uuid
+
+class CardDatabase(object):
+    def __init__(self, filename):
+        self.db = bsddb.hashopen(filename)
+    def _convkey(self, key):
+        return key.encode("rot13")
+    def __getitem__(self, key):
+        text, impl, tested, error = pickle.loads(self.db[self._convkey(key)])
+        return (text.encode("rot13"), impl, tested, error)
+    def __setitem__(self, key, value):
+        text, impl, tested, error = value
+        self.db[self._convkey(key)] = pickle.dumps((text.encode("rot13"),impl,tested,error), protocol=-1)
+    def __delitem__(self, key):
+        del self.db[self._convkey(key)]
+    def keys(self): return [self._convkey(k) for k in self.db.keys()]
+    def __contains__(self, key): return self._convkey(key) in self.db
+    def sync(self): return self.db.sync()
+    def close(self): return self.db.close()
 
 class _CardLibrary:
     acceptable_keys = set(['name', 'zone', '_last_known_role', 'color', 'text', '_current_role', 'expansion', 'supertype', 'controller', 'cost', 'cardnum', 'key', 'owner', 'subtypes', 'type', 'in_play_role', 'out_play_role', 'play_action'])
-
-
     def __init__(self):
-        self.cardfile = bsddb.hashopen("./data/cards.db")
+        self.cardfile = CardDatabase("./data/cards.db")
         total = 0
         self.cardinfo = {}
         self.clear()
@@ -105,10 +120,9 @@ class _CardLibrary:
 
     def loadCardObj(self, card, name):
         import CardEnvironment
-        card_desc = pickle.loads(self.cardfile[name.encode('rot13')])
-        card_text = card_desc[0].encode('rot13')
-        if card_desc[3] == True:
-            print "%s is not implemented correctly"%name
+        card_desc = self.cardfile[name]
+        card_text = card_desc[0]
+        if card_desc[3] == True: print "%s is marked with an error"%name
 
         # XXX This should be changed because out of play roles are different depending on the Zone
         card.out_play_role = CardEnvironment.Spell(card)
