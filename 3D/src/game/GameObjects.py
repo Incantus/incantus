@@ -69,7 +69,7 @@ class GameObject(MtGObject):
         def fset(self, role):
             # Leaving play
             if role == self.out_play_role and self._current_role != self.out_play_role:
-                #  Keep a copy around in case any spells need it
+                #  Keep a reference around in case any spells need it
                 self._last_known_role = self._current_role
                 self._current_role.leavingPlay()
             # Staying in play
