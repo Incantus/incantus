@@ -201,13 +201,6 @@ class PlayCard(Card):
     def __init__(self, gamecard, front, back):
         super(PlayCard, self).__init__(gamecard, front, back)
         self.is_creature = False
-        self.tapping = anim.animate(0, 0, dt=0.3)
-        self.highlighting = anim.animate(0, 0, dt=0.2)
-        self.zooming = anim.animate(0, 0, dt=0.4)
-        self.pos_transition = "ease_out_circ" #"ease_out_back"
-        self._pos.set_transition(dt=0.4, method=self.pos_transition)
-        #self._pos.y = anim.animate(guicard._pos.y, guicard._pos.y, dt=0.4, method="ease_out")
-        self._orientation.set_transition(dt=0.3, method="sine")
         self.draw = self.draw_permanent
     def add_role(self, sender):
         if isCreature(self.gamecard):
@@ -248,6 +241,13 @@ class PlayCard(Card):
         dispatcher.disconnect(self.change_value, signal=HasPriorityEvent())
     def entering_play(self):
         self.is_tapped = False
+        self.tapping = anim.animate(0, 0, dt=0.3)
+        self.highlighting = anim.animate(0, 0, dt=0.2)
+        self.zooming = anim.animate(0, 0, dt=0.4)
+        self.pos_transition = "ease_out_circ" #"ease_out_back"
+        self._pos.set_transition(dt=0.4, method=self.pos_transition)
+        #self._pos.y = anim.animate(guicard._pos.y, guicard._pos.y, dt=0.4, method="ease_out")
+        self._orientation.set_transition(dt=0.3, method="sine")
         self.can_layout = True
         if isCreature(self.gamecard):
             self.setup_creature_subrole()
