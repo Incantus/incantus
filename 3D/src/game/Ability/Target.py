@@ -15,11 +15,13 @@ from game.GameEvent import InvalidTargetEvent
 class AllPlayerTargets(MtGObject):
     def __init__(self):
         self.target = []
+        self.targeting = True
     def copy(self):
         return AllPlayerTargets()
     def check_target(self, card):
         return True
     def get(self, card):
+        if self.target: return
         self.target = [card.controller, card.controller.opponent]
         return True
 
@@ -30,24 +32,26 @@ class AllPermanentTargets(MtGObject):
         if not (type(target_types) == tuple or type(target_types) == list):
             self.target_types = [target_types]
         else: self.target_types = target_types
+        self.targeting = True
     def copy(self):
         return AllPermanentTargets(self.target_types)
     def check_target(self, card):
         perm = []
         for ttype in self.target_types:
-            perm1 = self.card.controller.play.get(ttype)
-            perm2 = self.card.controller.opponent.play.get(ttype)
+            perm1 = card.controller.play.get(ttype)
+            perm2 = card.controller.opponent.play.get(ttype)
             perm.extend(perm1+perm2)
         self.zones = [p.zone for p in perm]
         self.target = perm
         return True
     def get(self, card):
         # XXX AllTargets are not actually targeted, so they are only created upon resolution
-        self.card = card
+        #self.card = card
         return True
 
 class MultipleTargets(MtGObject):
     def __init__(self, number, target_types=None, exact=True, msg='', selector="controller", untargeted=False):
+        self.targeting = False  # For triggered abilities
         self.number = number
         self.zones = []
         self.target = []
