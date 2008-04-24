@@ -85,11 +85,13 @@ class Permanent(MtGObject):
     def add_subrole(self, role):
         role.enteringPlay(self)
         self.subroles.append(role)
+        self._abilities.extend(role.abilities)
         self.card.send(SubRoleAddedEvent(), subrole=role)
     def remove_subrole(self, role):
         if role in self.subroles: # XXX Is this correct - the role is only missing when card enters play, gains role for the turn, and then is blinked back
             role.leavingPlay()
             self.subroles.remove(role)
+            for ability in role.abilities: self._abilities.remove(ability)
             self.card.send(SubRoleRemovedEvent(), subrole=role)
     def match_role(self, matchrole):
         success = False
