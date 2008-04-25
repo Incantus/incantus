@@ -16,7 +16,7 @@ class characteristic(object):
     def __str__(self):
         return str(', '.join(self.characteristics))
     def __repr__(self):
-        return "['%s']"%str(self)
+        return "[%s]"%str(self)
     def copy(self):
         newchar = characteristic([])
         newchar.characteristics = self.characteristics.copy()
@@ -33,14 +33,10 @@ class all_characteristics(object):
     def __str__(self): return "All"
     def __repr__(self): return repr("All")
 
-class no_characteristic(object):
+class no_characteristic(characteristic):
     is_characteristic = True
     # This characterisitic matches nothing
-    def __init__(self): pass
-    def intersects(self, other): return False
-    def __eq__(self, other): return False
-    def copy(self): return no_characteristics()
-    def __contains__(self, val): return False
+    def __init__(self): super(no_characteristic, self).__init__('')
     def __str__(self): return "None"
     def __repr__(self): return repr("None")
 

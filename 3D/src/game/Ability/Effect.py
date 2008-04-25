@@ -208,13 +208,14 @@ class CreateToken(Effect):
         self.token_type = token_info["type"]
         self.token_subtypes = token_info["subtypes"]
         self.token_role = token_info["role"]
+        self.token_supertype = ''
         self.number = number
     def __call__(self, card, target):
         if not isPlayer(target): raise Exception("Invalid target for adding token")
         from game.CardLibrary import CardLibrary
         from game.CardRoles import NoRole, Permanent
         for i in range(self.get_number()):
-            token = CardLibrary.createToken(self.token_name, target, self.token_color,  self.token_type, self.token_subtypes)
+            token = CardLibrary.createToken(self.token_name, target, self.token_color,  self.token_type, self.token_supertype, self.token_subtypes)
             # Create the role for it
             token.controller = target
             token.in_play_role = Permanent(token, [])
