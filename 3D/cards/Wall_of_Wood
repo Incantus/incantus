@@ -2,7 +2,7 @@ name = 'Wall of Wood'
 cardnum = 309
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Wall'])
 cost = 'G'
 color = characteristic(['G'])
@@ -20,4 +20,3 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
-

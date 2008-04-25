@@ -2,10 +2,10 @@ name = "Mishra's Factory"
 cardnum = 361
 expansion = '4E'
 type = characteristic('Land')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ["T: Add 1 to your mana pool.", "1: Mishra's Factory becomes a 2/2 Assembly-Worker artifact creature until end of turn. It's still a land.", "T: Target Assembly-Worker creature gets +1/+1 until end of turn."]
 
 out_play_role = NoRole(card)
@@ -16,7 +16,7 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 new_role = Creature(2,2)
-role_info = {"type": ["Creature","Artifact"], "subtypes": "Assembly-Worker", "color": "C"}
+role_info = {"type": ["Creature","Artifact"], "subtypes": "Assembly-Worker", "color": ''}
 trample(new_role)
 subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
                      ActivatedAbility(card, cost="1",
@@ -28,5 +28,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
 ]
 
 #################################
-
-

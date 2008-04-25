@@ -2,7 +2,7 @@ name = 'Persuasion'
 cardnum = 95
 expansion = '10E'
 type = characteristic('Enchantment')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Aura'])
 cost = '3UU'
 color = characteristic(['U'])
@@ -18,9 +18,6 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 subrole.attached_abilities = [AuraStaticAbility(card, effects=ChangeController())]
 
 #################################

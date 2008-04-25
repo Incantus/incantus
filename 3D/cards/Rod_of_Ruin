@@ -2,10 +2,10 @@ name = 'Rod of Ruin'
 cardnum = 341
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '4'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['3, T: Rod of Ruin deals 1 damage to target creature or player.']
 
 subrole = Artifact()
@@ -15,11 +15,8 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("3"), TapCost()]),
-                                target=Target(target_types=[isCreature,isPlayer]),
+                                target=Target(target_types=isPlayerOrCreature),
                                 effects=DealDamage(1))
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
-

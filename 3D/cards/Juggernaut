@@ -2,10 +2,10 @@ name = 'Juggernaut'
 cardnum = 328
 expansion = '10E'
 type = characteristic(['Creature', 'Artifact'])
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Juggernaut'])
 cost = '4'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Juggernaut attacks each turn if able.', "Juggernaut can't be blocked by Walls."]
 
 subrole = Creature(5, 3)

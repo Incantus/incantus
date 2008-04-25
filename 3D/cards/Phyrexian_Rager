@@ -2,7 +2,7 @@ name = 'Phyrexian Rager'
 cardnum = 167
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Horror'])
 cost = '2B'
 color = characteristic(['B'])
@@ -14,12 +14,10 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger("play"),
                                         match_condition = SelfMatch(card),
                                         ability = Ability(card, effects=[DrawCard(1), ChangeLife(-1)]))
 ]
-subrole.static_abilities = []
 
 #################################

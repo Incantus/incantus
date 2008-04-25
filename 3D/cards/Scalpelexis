@@ -2,7 +2,7 @@ name = 'Scalpelexis'
 cardnum = 105
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Beast'])
 cost = '4U'
 color = characteristic(['U'])
@@ -35,5 +35,3 @@ subrole.triggered_abilities = [triggered_ability]
 subrole.static_abilities = []
 
 #################################
-
-

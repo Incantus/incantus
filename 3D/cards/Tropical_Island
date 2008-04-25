@@ -2,10 +2,10 @@ name = 'Tropical Island'
 cardnum = 284
 expansion = 'Beta'
 type = characteristic('Land')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Forest','Island'])
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['T: Add G to your mana pool.','T: Add U to your mana pool.']
 
 out_play_role = NoRole(card)
@@ -19,11 +19,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('G')),Man
 ]
 
 #################################
-
-
-
-
-
-
-
-

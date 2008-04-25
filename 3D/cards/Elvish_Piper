@@ -2,7 +2,7 @@ name = 'Elvish Piper'
 cardnum = 262
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Elf', 'Shaman'])
 cost = '3G'
 color = characteristic(['G'])
@@ -19,7 +19,3 @@ subrole.abilities = [ChoiceAbility(card, MultipleCosts([ManaCost("G"), TapCost()
 ]
 
 #################################
-
-
-
-

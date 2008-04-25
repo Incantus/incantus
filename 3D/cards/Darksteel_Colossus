@@ -2,10 +2,10 @@ name = 'Darksteel Colossus'
 cardnum = 0
 expansion = 'Darksteel'
 type = characteristic(['Creature', 'Artifact'])
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Golem'])
 cost = '11'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Trample', 'Darksteel Colossus is indestructible.', "If Darksteel Colossus would be put into a graveyard from anywhere, reveal Darksteel Colossus and shuffle it into its owner's library instead."]
 
 subrole = Creature(11,11)

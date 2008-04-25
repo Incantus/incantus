@@ -2,10 +2,10 @@ name = 'Spawning Pool'
 cardnum = 358
 expansion = '10E'
 type = characteristic('Land')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Spawning Pool comes into play tapped.', 'T: Add B to your mana pool.', '1B: Spawning Pool becomes a 1/1 black Skeleton creature with "B: Regenerate this creature" until end of turn. It\'s still a land.']
 
 out_play_role = NoRole(card)
@@ -30,4 +30,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('B')),
 in_play_role.tapped = True
 
 #################################
-

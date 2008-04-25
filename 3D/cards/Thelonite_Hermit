@@ -2,7 +2,7 @@ name = 'Thelonite Hermit'
 cardnum = 228
 expansion = 'Time Spiral'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Elf', 'Shaman'])
 cost = '3G'
 color = characteristic(['G'])
@@ -13,6 +13,8 @@ subrole = Creature(1, 1)
 in_play_role = Permanent(card, subrole)
 
 #################################
+
+# XXX Need to implement morph
 
 morph(in_play_role, cost="3GG")
 
@@ -31,7 +33,3 @@ subrole.static_abilities = [PermanentTrackingAbility(card,
 ]
 
 #################################
-
-
-
-

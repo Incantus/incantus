@@ -5,7 +5,7 @@ type = characteristic('Land')
 supertype = characteristic('Basic')
 subtypes = characteristic(['Island'])
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['[U]']
 
 out_play_role = NoRole(card)

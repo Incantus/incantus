@@ -2,10 +2,10 @@ name = 'Coat of Arms'
 cardnum = 316
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '5'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Each creature gets +1/+1 for each other creature in play that shares a creature type with it.']
 
 subrole = Artifact()

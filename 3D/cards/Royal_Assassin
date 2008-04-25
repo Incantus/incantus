@@ -2,7 +2,7 @@ name = 'Royal Assassin'
 cardnum = 174
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Human', 'Assassin'])
 cost = '1BB'
 color = characteristic(['B'])
@@ -18,8 +18,5 @@ subrole.abilities = [ActivatedAbility(card, TapCost(),
                                 target=Target(target_types=isCreature.with_condition(lambda c: c.tapped)),
                                 effects=Destroy())
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
-

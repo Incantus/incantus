@@ -2,10 +2,10 @@ name = 'The Hive'
 cardnum = 324
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '5'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['5, T Put a 1/1 Insect artifact creature token with flying named Wasp into play.']
 
 subrole = Artifact()
@@ -16,7 +16,7 @@ in_play_role = Permanent(card, subrole)
 
 token_role = TokenCreature(1,1)
 flying(token_role)
-token_info = {"name": "Wasp", "type": ["Creature", "Artifact"], "subtypes": ["Insect"], "color": "C", "role": token_role}
+token_info = {"name": "Wasp", "type": ["Creature", "Artifact"], "subtypes": ["Insect"], "color": '', "role": token_role}
 subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("5"), TapCost()]),
                                effects=CreateToken(token_info))
 ]

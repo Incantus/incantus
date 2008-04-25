@@ -2,7 +2,7 @@ name = 'Merfolk Looter'
 cardnum = 92
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Merfolk', 'Rogue'])
 cost = '1U'
 color = characteristic(['U'])
@@ -17,8 +17,5 @@ in_play_role = Permanent(card, subrole)
 subrole.abilities = [ActivatedAbility(card, TapCost(),
                                 effects=[DrawCard(1), DiscardCard(1)])
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
-

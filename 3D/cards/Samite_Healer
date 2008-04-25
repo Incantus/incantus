@@ -2,7 +2,7 @@ name = 'Samite Healer'
 cardnum = 38
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Human', 'Cleric'])
 cost = '1W'
 color = characteristic(['W'])
@@ -18,7 +18,5 @@ subrole.abilities = [ActivatedAbility(card, TapCost(),
                                 target=Target(target_types=[isCreature,isPlayer]),
                                 effects=GiveKeyword(lambda target: prevent_damage(target, 1, "Samite Healer - prevent 1 damage"), keyword="prevent"))
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################

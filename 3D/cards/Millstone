@@ -2,10 +2,10 @@ name = 'Millstone'
 cardnum = 334
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '2'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['2, T Target player puts the top two cards of his or her library into his or her graveyard.']
 
 subrole = Artifact()
@@ -18,7 +18,5 @@ subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("2"), TapCos
                                 target=Target(target_types=isPlayer),                                
 				effects=MoveCards(from_zone="library", from_position="top", to_zone="graveyard", number=2))
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################

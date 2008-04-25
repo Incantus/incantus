@@ -2,10 +2,10 @@ name = 'Colossus of Sardia'
 cardnum = 317
 expansion = '10E'
 type = characteristic(['Creature', 'Artifact'])
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Golem'])
 cost = '9'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Trample', "Colossus of Sardia doesn't untap during your untap step.", '9: Untap Colossus of Sardia. Play this ability only during your upkeep.']
 
 subrole = Creature(9, 9)

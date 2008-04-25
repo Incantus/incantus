@@ -2,10 +2,10 @@ name = 'Mox Emerald'
 cardnum = 262
 expansion = 'Beta'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '0'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['T: Add G to your mana pool.']
 
 subrole = Artifact()

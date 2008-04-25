@@ -2,7 +2,7 @@ name = 'Wall of Fire'
 cardnum = 247
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Wall'])
 cost = '1RR'
 color = characteristic(['R'])
@@ -19,7 +19,5 @@ subrole.abilities = [ActivatedAbility(card, cost="R",
                                 target=Target(targeting='self'),
                                 effects=AugmentPowerToughness(1, 0))
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################

@@ -2,10 +2,10 @@ name = 'Ornithopter'
 cardnum = 336
 expansion = '10E'
 type = characteristic(['Creature', 'Artifact'])
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Thopter'])
 cost = '0'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Flying']
 
 subrole = Creature(0, 2)
@@ -15,8 +15,5 @@ in_play_role = Permanent(card, [subrole, Artifact()])
 #################################
 
 flying(subrole)
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################

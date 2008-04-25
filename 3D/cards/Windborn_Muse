@@ -2,7 +2,7 @@ name = 'Windborn Muse'
 cardnum = 60
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Spirit'])
 cost = '3W'
 color = characteristic(['W'])
@@ -15,8 +15,6 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 flying(subrole)
-subrole.abilities = []
-subrole.triggered_abilities = []
 
 def computeAttackCost(self, s=card):
     player = self.perm.card.controller
@@ -29,8 +27,3 @@ subrole.static_abilities = [GlobalStaticAbility(card,
 ]
 
 #################################
-
-
-
-
-

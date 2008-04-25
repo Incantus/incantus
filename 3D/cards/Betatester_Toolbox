@@ -2,10 +2,10 @@ name = 'Betatester Toolbox'
 cardnum = 1
 expansion = 'Testing'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '0'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['0 Target player draws a card', '0 Target player discards a card', '0 Add one mana of any color to your mana pool', "0 Return target card from any graveyard to its owner's hand", "0 Return target permanent to its owner's hand", '0 Take an extra turn after this one']
 
 subrole = Artifact()
@@ -32,7 +32,7 @@ subrole.abilities = [
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=AddCounter(Counter("time"), number=4)),
   ActivatedAbility(card, cost="0", target=CounterTarget(target_types=isAbility), effects=CounterAbility()),
   ActivatedAbility(card, cost="0", target=Target(targeting="controller"), effects=MoveCards("library", "hand")),
-  ActivatedAbility(card, cost="0", target=Target(targeting="controller"), effects=MoveCards("library", "play")),
+  ActivatedAbility(card, cost="0", target=Target(targeting="controller"), effects=MoveCards("library", "play", number=2)),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPlayer), effects=MoveCards(from_zone="graveyard", to_zone="play", card_types=isPermanentType)),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=ChangeZoneFromPlay(to_zone="hand")),
   ActivatedAbility(card, cost="0", target=Target(targeting="controller"), effects=MoveCards(from_zone="graveyard", to_zone="hand", number=1)),
@@ -51,26 +51,3 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

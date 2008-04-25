@@ -2,8 +2,8 @@ name = "Dralnu's Crusade"
 cardnum = 104
 expansion = 'Planeshift'
 type = characteristic('Enchantment')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '1BR'
 color = characteristic(['R', 'B'])
 text = ['Goblin creatures get +1/+1.', 'All Goblins are black and are Zombies in addition to their other creature types.']
@@ -25,16 +25,3 @@ subrole.static_abilities = [PermanentTrackingAbility(card,
 ]
 
 #################################
-
-
-
-
-
-
-
-
-
-
-
-
-

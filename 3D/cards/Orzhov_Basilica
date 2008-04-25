@@ -2,10 +2,10 @@ name = 'Orzhov Basilica'
 cardnum = 161
 expansion = 'Guildpact'
 type = characteristic('Land')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Orzhov Basilica comes into play tapped.','When Orzhov Basilica comes into play, return a land you control to its owner\'s hand.','T: Add WB to your mana pool.']
 
 out_play_role = NoRole(card)
@@ -24,10 +24,3 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                                 effects=ChangeZoneFromPlay(to_zone="hand")))]
 
 #################################
-
-
-
-
-
-
-

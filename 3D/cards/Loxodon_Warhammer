@@ -2,10 +2,10 @@ name = 'Loxodon Warhammer'
 cardnum = 332
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Equipment'])
 cost = '3'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Equipped creature gets +3/+0 and has lifelink and trample.', 'Equip 3']
 
 subrole = Equipment()
@@ -13,6 +13,8 @@ subrole = Equipment()
 in_play_role = Permanent(card, subrole)
 
 #################################
+
+# XXX Lifelink and trample don't work together
 
 subrole.abilities = [EquipAbility(card, "3")]
 subrole.attached_abilities = [EquipmentStaticAbility(card,

@@ -2,7 +2,7 @@ name = 'Loyal Sentry'
 cardnum = 27
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Human', 'Soldier'])
 cost = 'W'
 color = characteristic(['W'])
@@ -14,7 +14,6 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
 trigger = Trigger(BlockerDeclaredEvent())
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = trigger,
@@ -22,6 +21,5 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                         ability = Ability(card, target=[Target(targeting=lambda t=trigger: t.attacker), Target(targeting="self")],                                                        
 								effects=[Destroy(), Destroy()]))
 ]
-subrole.static_abilities = []
 
 #################################

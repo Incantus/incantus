@@ -2,8 +2,8 @@ name = 'Pernicious Deed'
 cardnum = 114
 expansion = 'Apocalypse'
 type = characteristic('Enchantment')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '1BG'
 color = characteristic(['G','B'])
 text = ["X, Sacrifice Pernicious Deed: Destroy each artifact, creature, and enchantment with converted mana cost X or less."]
@@ -14,21 +14,12 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-mc = ManaCost("X")
+# XXX Possible error with ManaCost X and MultipleCosts
 
+mc = ManaCost("X")
 cost_check = lambda p, mc=mc: p.cost.converted_cost() <= mc.X
 targets = [isCreature.with_condition(cost_check), isArtifact.with_condition(cost_check), isEnchantment.with_condition(cost_check)]
 
 subrole.abilities = [ActivatedAbility(card, cost=MultipleCosts([mc, SacrificeCost()]), target=AllPermanentTargets(target_types=targets), effects=ForEach(Destroy()))]
 
 #################################
-
-
-
-
-
-
-
-
-
-

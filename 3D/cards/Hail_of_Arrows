@@ -2,13 +2,13 @@ name = 'Hail of Arrows'
 cardnum = 18
 expansion = '10E'
 type = characteristic('Instant')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = 'XW'
 color = characteristic(['W'])
 text = ['Hail of Arrows deals X damage divided as you choose among any number of target attacking creatures.']
 
-# crashes game
+# XXX Distribute Damage not implemented
 
 mc = ManaCost("XW")
 out_play_role.abilities = [CastNonPermanentSpell(card, mc,

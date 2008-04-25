@@ -2,10 +2,10 @@ name = 'Chimeric Staff'
 cardnum = 313
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '4'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['X: Chimeric Staff becomes an X/X Construct artifact creature until end of turn.']
 
 subrole = Artifact()

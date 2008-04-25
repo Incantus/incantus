@@ -2,7 +2,7 @@ name = 'Nekrataal'
 cardnum = 163
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Human', 'Assassin'])
 cost = '2BB'
 color = characteristic(['B'])
@@ -15,7 +15,6 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 first_strike(subrole)
-subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger("play"),
                                         match_condition = SelfMatch(card),
@@ -23,6 +22,5 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                                   target=Target(target_types=isCreature.with_condition(lambda creature: not creature.color == "B" and not creature.type == "Artifact"), required=True),
                                                   effects=DestroyNoRegenerate()))
 ]
-subrole.static_abilities = []
 
 #################################

@@ -2,7 +2,7 @@ name = 'Llanowar Sentinel'
 cardnum = 275
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Elf'])
 cost = '2G'
 color = characteristic(['G'])
@@ -14,7 +14,8 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
+# XXX Payment should be made when the choice is made
+
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger("play"),
                                         match_condition = SelfMatch(card),

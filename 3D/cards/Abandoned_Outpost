@@ -2,10 +2,10 @@ name = 'Abandoned Outpost'
 cardnum = 313
 expansion = 'Odyssey'
 type = characteristic('Land')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Abandoned Outpost comes into play tapped.','T: Add W to your mana pool.','T, Sacrifice Abandoned Outpost: Add one mana of any color to your mana pool.']
 
 out_play_role = NoRole(card)
@@ -20,19 +20,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('W')),
                      ManaAbility(card, cost=MultipleCosts([TapCost(),SacrificeCost()]), effects=ManaChoice(["W","U","B","R","G"]))]
 
 #################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

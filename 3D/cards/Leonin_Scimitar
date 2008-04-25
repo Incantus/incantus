@@ -2,10 +2,10 @@ name = 'Leonin Scimitar'
 cardnum = 331
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Equipment'])
 cost = '1'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Equipped creature gets +1/+1.', 'Equip 1']
 
 subrole = Equipment()

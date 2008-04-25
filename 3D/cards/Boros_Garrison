@@ -2,10 +2,10 @@ name = 'Boros Garrison'
 cardnum = 275
 expansion = 'Ravnica'
 type = characteristic('Land')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Boros Garrison comes into play tapped.', "When Boros Garrison comes into play, return a land you control to its owner's hand.", 'T: Add RW to your mana pool.']
 
 out_play_role = NoRole(card)

@@ -2,10 +2,10 @@ name = 'Razormane Masticore'
 cardnum = 340
 expansion = '10E'
 type = characteristic(['Creature', 'Artifact'])
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Masticore'])
 cost = '5'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['First strike', 'At the beginning of your upkeep, sacrifice Razormane Masticore unless you discard a card.', 'At the beginning of your draw step, you may have Razormane Masticore deal 3 damage to target creature.']
 
 subrole = Creature(5, 5)
@@ -15,7 +15,6 @@ in_play_role = Permanent(card, [subrole, Artifact()])
 #################################
 
 first_strike(subrole)
-subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = PlayerTrigger(event=UpkeepStepEvent()),
                                       match_condition = lambda player, self=card: player==self.controller,
@@ -32,4 +31,3 @@ subrole.triggered_abilities = [TriggeredAbility(card,
 subrole.static_abilities = []
 
 #################################
-

@@ -2,8 +2,8 @@ name = 'Pyromancer\'s Swath'
 cardnum = 104
 expansion = 'Future Sight'
 type = characteristic('Enchantment')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '2R'
 color = characteristic(['R'])
 text = ["If an instant or sorcery source you control would deal damage to a creature or player, it deals that much damage plus 2 to that creature or player instead.", "At end of turn, discard your hand."]
@@ -14,7 +14,6 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = Trigger(event=EndPhaseEvent()),
 					match_condition= lambda sender: True,

@@ -2,10 +2,10 @@ name = 'Sculpting Steel'
 cardnum = 342
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '3'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['As Sculpting Steel comes into play, you may choose an artifact in play. If you do, Sculpting Steel comes into play as a copy of that artifact.']
 
 subrole = Artifact()

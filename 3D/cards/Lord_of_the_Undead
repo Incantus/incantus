@@ -2,7 +2,7 @@ name = 'Lord of the Undead'
 cardnum = 155
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Zombie'])
 cost = '1BB'
 color = characteristic(['B'])
@@ -18,14 +18,9 @@ subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("1B"), TapCo
                                 target=Target(targeting="controller"),
                                 effects=MoveCards(from_zone="graveyard", to_zone="hand", card_types=isCard.with_condition(lambda c: c.subtypes == "Zombie")))
 ]
-subrole.triggered_abilities = []
 subrole.static_abilities = [PermanentTrackingAbility(card,
                                         condition = isCreature.with_condition(lambda c, self=card: not c == self and c.subtypes == "Zombie"),
 					events = SubtypeModifiedEvent(),
                                         effects = AugmentPowerToughness(power=1, toughness=1, expire=False)),]
 
 #################################
-
-
-
-

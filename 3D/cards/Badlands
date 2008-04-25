@@ -2,10 +2,10 @@ name = 'Badlands'
 cardnum = 278
 expansion = 'Beta'
 type = characteristic('Land')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Swamp','Mountain'])
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['T: Add B to your mana pool.','T: Add R to your mana pool.']
 
 out_play_role = NoRole(card)

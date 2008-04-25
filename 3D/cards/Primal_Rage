@@ -2,8 +2,8 @@ name = 'Primal Rage'
 cardnum = 286
 expansion = '10E'
 type = characteristic('Enchantment')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '1G'
 color = characteristic(['G'])
 text = ['Creatures you control have trample.']
@@ -20,18 +20,3 @@ subrole.static_abilities = [PermanentTrackingAbility(card,
 ]
 
 #################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

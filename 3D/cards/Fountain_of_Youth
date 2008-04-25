@@ -2,10 +2,10 @@ name = 'Fountain of Youth'
 cardnum = 323
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '0'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['2, T: You gain 1 life.']
 
 subrole = Artifact()

@@ -2,10 +2,10 @@ name = 'Adarkar Wastes'
 cardnum = 347
 expansion = '10E'
 type = characteristic('Land')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['T: Add 1 to your mana pool.', 'T: Add W or U to your mana pool. Adarkar Wastes deals 1 damage to you.']
 
 out_play_role = NoRole(card)
@@ -20,12 +20,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
 ]
 
 #################################
-
-
-
-
-
-
-
-
-

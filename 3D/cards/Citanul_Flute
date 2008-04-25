@@ -2,10 +2,10 @@ name = 'Citanul Flute'
 cardnum = 315
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '5'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['X, T: Search your library for a creature card with converted mana cost X or less, reveal it, and put it into your hand. Then shuffle your library.']
 
 subrole = Artifact()

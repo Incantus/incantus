@@ -2,10 +2,10 @@ name = 'Jayemdae Tome'
 cardnum = 327
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '4'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['4, T Draw a card.']
 
 subrole = Artifact()

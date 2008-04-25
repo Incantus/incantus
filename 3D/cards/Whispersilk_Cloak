@@ -2,10 +2,10 @@ name = 'Whispersilk Cloak'
 cardnum = 345
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Equipment'])
 cost = '3'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Equipped creature is unblockable and has shroud.', 'Equip 2']
 
 subrole = Equipment()

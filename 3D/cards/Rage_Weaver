@@ -2,7 +2,7 @@ name = 'Rage Weaver'
 cardnum = 223
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Human', 'Wizard'])
 cost = '1R'
 color = characteristic(['R'])
@@ -18,7 +18,5 @@ subrole.abilities = [ActivatedAbility(card, "2",
                                 target=Target(target_types=isCreature.with_condition(lambda c: c.color == "B" or c.color == "G")),
                                 effects=GiveKeyword(haste, keyword="haste"))
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################

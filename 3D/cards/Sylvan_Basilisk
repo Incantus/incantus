@@ -2,7 +2,7 @@ name = 'Sylvan Basilisk'
 cardnum = 301
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Basilisk'])
 cost = '3GG'
 color = characteristic(['G'])
@@ -14,7 +14,6 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
 trigger = Trigger(AttackerBlockedEvent())
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = trigger,
@@ -22,10 +21,5 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                         ability = Ability(card, target=AllPermanentTargets(isCreature.with_condition(lambda c, trigger=trigger: c in trigger.blockers)),
                                                         effects=ForEach(Destroy())))
 ]
-subrole.static_abilities = []
 
 #################################
-
-
-
-

@@ -2,10 +2,10 @@ name = 'Crucible of Worlds'
 cardnum = 319
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '3'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['You may play land cards from your graveyard.']
 
 subrole = Artifact()

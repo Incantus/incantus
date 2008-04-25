@@ -3,9 +3,9 @@ cardnum = 137
 expansion = 'Stronghold'
 type = characteristic('Land')
 supertype = characteristic('Legendary')
-subtypes = characteristic([])
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ["T: Add 1 to your mana pool.", "1B, T: Put target creature card from your graveyard on top of your library."]
 
 out_play_role = NoRole(card)
@@ -22,7 +22,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
                                 
 
 #################################
-
-
-
-

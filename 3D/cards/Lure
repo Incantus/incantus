@@ -2,7 +2,7 @@ name = 'Lure'
 cardnum = 276
 expansion = '10E'
 type = characteristic('Enchantment')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Aura'])
 cost = '1GG'
 color = characteristic(['G'])
@@ -18,9 +18,6 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 subrole.attached_abilities = [AuraStaticAbility(card,
                                         effects=GiveKeyword(lambda role: override(role, "mustBeBlocked", lambda self: True, combiner=logical_or), keyword="Must be blocked if able", expire=False))
 ]

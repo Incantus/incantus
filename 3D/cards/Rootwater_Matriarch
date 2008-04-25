@@ -2,7 +2,7 @@ name = 'Rootwater Matriarch'
 cardnum = 103
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Merfolk'])
 cost = '2UU'
 color = characteristic(['U'])
@@ -25,4 +25,3 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
-

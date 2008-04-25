@@ -2,10 +2,10 @@ name = 'Steel Golem'
 cardnum = 344
 expansion = '10E'
 type = characteristic(['Creature', 'Artifact'])
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Golem'])
 cost = '3'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ["You can't play creature spells."]
 
 subrole = Creature(3, 4)

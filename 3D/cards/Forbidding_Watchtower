@@ -2,10 +2,10 @@ name = 'Forbidding Watchtower'
 cardnum = 352
 expansion = '10E'
 type = characteristic('Land')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Forbidding Watchtower comes into play tapped.', 'T: Add W to your mana pool.', "1W: Forbidding Watchtower becomes a 1/5 white Soldier creature until end of turn. It's still a land."]
 
 out_play_role = NoRole(card)

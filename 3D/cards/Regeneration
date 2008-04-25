@@ -2,7 +2,7 @@ name = 'Regeneration'
 cardnum = 290
 expansion = '10E'
 type = characteristic('Enchantment')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Aura'])
 cost = '1G'
 color = characteristic(['G'])
@@ -18,9 +18,6 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 regenerate_ability = ActivatedAbility(card, "G",
                 target=Target(targeting="self"),
                 effects=GiveKeyword(regenerate, keyword="regenerate"))

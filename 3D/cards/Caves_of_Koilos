@@ -2,10 +2,10 @@ name = 'Caves of Koilos'
 cardnum = 350
 expansion = '10E'
 type = characteristic('Land')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['T: Add 1 to your mana pool.', 'T: Add W or B to your mana pool. Caves of Koilos deals 1 damage to you.']
 
 out_play_role = NoRole(card)

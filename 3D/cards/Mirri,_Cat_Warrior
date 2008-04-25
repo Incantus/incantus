@@ -18,9 +18,4 @@ first_strike(subrole)
 forestwalk(subrole)
 vigilance(subrole)
 
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
-
 #################################
-

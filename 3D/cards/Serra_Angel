@@ -2,7 +2,7 @@ name = 'Serra Angel'
 cardnum = 39
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Angel'])
 cost = '3WW'
 color = characteristic(['W'])
@@ -16,8 +16,5 @@ in_play_role = Permanent(card, subrole)
 
 flying(subrole)
 vigilance(subrole)
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################

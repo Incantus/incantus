@@ -2,8 +2,8 @@ name = 'Traumatize'
 cardnum = 119
 expansion = '10E'
 type = characteristic('Sorcery')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '3UU'
 color = characteristic(['U'])
 text = ['Target player puts the top half of his or her library, rounded down, into his or her graveyard.']
@@ -11,6 +11,5 @@ text = ['Target player puts the top half of his or her library, rounded down, in
 target=Target(target_types=isPlayer)
 out_play_role.abilities = [CastNonPermanentSpell(card, cost,
                                 target=target,
-                                effects=MoveCards(from_zone="library", from_position="top", to_zone="graveyard", number=LazyInt(lambda t=target: len(t.target.library)/2, finalize=True)))
+                                effects=MoveCards(from_zone="library", from_position="top", to_zone="graveyard", number=LazyInt(lambda t=target: len(t.target.library)/2, finalize=True)), copy_targets=False)
 ]
-

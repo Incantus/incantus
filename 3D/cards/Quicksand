@@ -2,10 +2,10 @@ name = 'Quicksand'
 cardnum = 356
 expansion = '10E'
 type = characteristic('Land')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['T: Add 1 to your mana pool.', 'T, Sacrifice Quicksand: Target attacking creature without flying gets -1/-2 until end of turn.']
 
 out_play_role = NoRole(card)
@@ -21,4 +21,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
                                 effects=AugmentPowerToughness(power=-1,toughness=-2))]
 
 #################################
-

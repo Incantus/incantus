@@ -2,7 +2,7 @@ name = 'Rushwood Dryad'
 cardnum = 294
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Dryad'])
 cost = '1G'
 color = characteristic(['G'])
@@ -15,8 +15,5 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 forestwalk(subrole)
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################

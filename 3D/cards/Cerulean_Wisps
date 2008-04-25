@@ -2,8 +2,8 @@ name = 'Cerulean Wisps'
 cardnum = 31
 expansion = 'Shadowmoor'
 type = characteristic('Instant')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = 'U'
 color = characteristic(['U'])
 text = ['Target creature becomes blue until end of turn. Untap that creature.', 'Draw a card.']
@@ -15,5 +15,3 @@ out_play_role.abilities = [CastNonPermanentSpell(card, cost,
 				effects=[MultipleEffects([ModifyColor(characteristic("U")), 						 UntapTargetPermanent()]), DrawCard(1)])]
 
 #################################
-
-

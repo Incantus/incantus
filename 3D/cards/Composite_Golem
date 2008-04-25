@@ -2,10 +2,10 @@ name = 'Composite Golem'
 cardnum = 318
 expansion = '10E'
 type = characteristic(['Creature', 'Artifact'])
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Golem'])
 cost = '6'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Sacrifice Composite Golem: Add WUBRG to your mana pool.']
 
 subrole = Creature(4, 4)

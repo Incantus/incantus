@@ -15,14 +15,12 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 flying(subrole)
-subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = PlayerTrigger(event=UpkeepStepEvent()),
                                       match_condition = lambda player, self=card: player==self.controller,
                                       ability = ChoiceAbility(card, "0", msg="return target creature card from your graveyard?",
-                                                        target=Target(targeting="controller"),
-                                                        effects=MoveCards(from_zone="graveyard", to_zone="play", number=1, card_types=isCreatureType)))
+                                                         target=Target(target_types=isCreatureType, zone="graveyard", zone_limit="controller"),
+                                effects=ChangeZone(from_zone="graveyard", to_zone="play")))
 ]
-subrole.static_abilities = []
 
 #################################

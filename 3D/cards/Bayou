@@ -2,10 +2,10 @@ name = 'Bayou'
 cardnum = 279
 expansion = 'Beta'
 type = characteristic('Land')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Swamp','Forest'])
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['T: Add B to your mana pool.','T: Add G to your mana pool.']
 
 out_play_role = NoRole(card)
@@ -19,24 +19,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('B')),Man
 ]
 
 #################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

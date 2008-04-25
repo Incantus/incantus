@@ -2,7 +2,7 @@ name = 'Prodigal Pyromancer'
 cardnum = 221
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Human', 'Wizard'])
 cost = '2R'
 color = characteristic(['R'])
@@ -15,11 +15,8 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.abilities = [ActivatedAbility(card, TapCost(),
-                                target=Target(target_types=[isCreature,isPlayer]),
+                                target=Target(target_types=isPlayerOrCreature),
                                 effects=DealDamage(1))
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
-

@@ -2,10 +2,10 @@ name = 'Mantis Engine'
 cardnum = 333
 expansion = '10E'
 type = characteristic(['Creature', 'Artifact'])
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Insect'])
 cost = '5'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['2: Mantis Engine gains flying until end of turn.', '2: Mantis Engine gains first strike until end of turn.']
 
 subrole = Creature(3, 3)

@@ -2,10 +2,10 @@ name = 'Underground Sea'
 cardnum = 286
 expansion = 'Beta'
 type = characteristic('Land')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Island','Swamp'])
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['T: Add U to your mana pool.','T: Add B to your mana pool.']
 
 out_play_role = NoRole(card)

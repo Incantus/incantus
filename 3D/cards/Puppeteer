@@ -2,7 +2,7 @@ name = 'Puppeteer'
 cardnum = 98
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Human', 'Wizard'])
 cost = '2U'
 color = characteristic(['U'])
@@ -14,6 +14,8 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
+# XXX The choice should be on resolution
+
 subrole.abilities = [ActivatedAbility(card, cost=MultipleCosts([ManaCost("U"), TapCost()]),
                                 target = Target(target_types=isCreature),
                                 effects = TapTargetPermanent()),
@@ -21,8 +23,5 @@ subrole.abilities = [ActivatedAbility(card, cost=MultipleCosts([ManaCost("U"), T
                                 target = Target(target_types=isCreature),
                                 effects = UntapTargetPermanent()),
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################
-

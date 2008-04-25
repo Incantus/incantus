@@ -2,10 +2,10 @@ name = 'Wooded Foothills'
 cardnum = 321
 expansion = 'Onslaught'
 type = characteristic('Land')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['T, Pay 1 Life, Sacrifice Wooded Foothills: Search your library for an Mountain or Forest card and put it into play. Then shuffle your library.']
 
 out_play_role = NoRole(card)

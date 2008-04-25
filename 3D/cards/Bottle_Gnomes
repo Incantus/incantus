@@ -2,10 +2,10 @@ name = 'Bottle Gnomes'
 cardnum = 312
 expansion = '10E'
 type = characteristic(['Creature', 'Artifact'])
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Gnome'])
 cost = '3'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Sacrifice Bottle Gnomes: You gain 3 life.']
 
 subrole = Creature(1, 3)

@@ -2,8 +2,8 @@ name = 'Midnight Ritual'
 cardnum = 158
 expansion = '10E'
 type = characteristic('Sorcery')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = 'X2B'
 color = characteristic(['B'])
 text = ['Remove X target creature cards in your graveyard from the game. For each creature card removed this way, put a 2/2 black Zombie creature token into play.']
@@ -16,4 +16,3 @@ out_play_role.abilities = [CastNonPermanentSpell(card, mc, target=Target(targeti
                            effects=[MoveCards(from_zone="graveyard", to_zone="removed", number=mc.X, card_types=isCreatureType),
                                     CreateToken(token_info, number=mc.X)]
                            )]
-

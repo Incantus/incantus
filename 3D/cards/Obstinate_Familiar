@@ -2,7 +2,7 @@ name = 'Obstinate Familiar'
 cardnum = 210
 expansion = 'Odyssey'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Lizard'])
 cost = 'R'
 color = characteristic(['R'])
@@ -10,6 +10,8 @@ text = ["If you would draw a card, you may skip that draw instead."]
 
 subrole = Creature(1,1)
 in_play_role = Permanent(card, subrole)
+
+#################################
 
 def draw(self):
     if not self.getIntention("Would you like to skip this draw?", "Obstinate Familiar\n...skip this draw?"):
@@ -19,6 +21,4 @@ subrole.static_abilities = [GlobalStaticAbility(card,
                                         effects=ReplacementEffect(draw, "draw", txt=name, expire=False))
 ]
 
-
-
-
+#################################

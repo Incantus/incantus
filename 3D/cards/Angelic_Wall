@@ -2,7 +2,7 @@ name = 'Angelic Wall'
 cardnum = 5
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Wall'])
 cost = '1W'
 color = characteristic(['W'])
@@ -18,5 +18,3 @@ defender(subrole)
 flying(subrole)
 
 #################################
-
-

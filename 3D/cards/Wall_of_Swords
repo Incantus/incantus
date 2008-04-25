@@ -2,7 +2,7 @@ name = 'Wall of Swords'
 cardnum = 57
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Wall'])
 cost = '3W'
 color = characteristic(['W'])
@@ -16,8 +16,5 @@ in_play_role = Permanent(card, subrole)
 
 flying(subrole)
 defender(subrole)
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################

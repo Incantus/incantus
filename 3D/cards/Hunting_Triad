@@ -2,7 +2,7 @@ name = 'Hunting Triad'
 cardnum = 300
 expansion = 'Morningtide'
 type = characteristic('Sorcery')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Elf'])
 cost = '3G'
 color = characteristic(['G'])
@@ -13,6 +13,3 @@ token_info = {"name": "Elf Warrior", "type": "Creature", "subtypes": ["Elf", "Wa
 out_play_role.abilities = [CastNonPermanentSpell(card, cost,
 				effects=CreateToken(token_info, number=3))]
 reinforce(out_play_role, "3G", number=3)
-
-
-

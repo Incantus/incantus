@@ -2,7 +2,7 @@ name = 'Lys Alana Huntmaster'
 cardnum = 229
 expansion = 'Lorwyn'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Elf', 'Warrior'])
 cost = '2GG'
 color = characteristic(['G'])
@@ -14,8 +14,6 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
-
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger=CardTrigger(event=PlaySpellEvent()),
                                       match_condition=CardMatch(lambda card, self=card: card.controller == self.controller and card.subtypes == "Elf"),
@@ -25,4 +23,3 @@ subrole.triggered_abilities = [TriggeredAbility(card,
 subrole.static_abilities = []
 
 #################################
-

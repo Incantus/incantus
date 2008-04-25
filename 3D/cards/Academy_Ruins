@@ -3,9 +3,9 @@ cardnum = 269
 expansion = 'Time Spiral'
 type = characteristic('Land')
 supertype = characteristic('Legendary')
-subtypes = characteristic([])
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ["T: Add 1 to your mana pool.", "1U, T: Put target artifact card in your graveyard on top of your library."]
 
 out_play_role = NoRole(card)
@@ -22,10 +22,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
                                 
 
 #################################
-
-
-
-
-
-
-

@@ -2,8 +2,8 @@ name = 'Niveous Wisps'
 cardnum = 15
 expansion = 'Shadowmoor'
 type = characteristic('Instant')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = 'W'
 color = characteristic(['W'])
 text = ['Target creature becomes white until end of turn. Tap that creature.', 'Draw a card.']
@@ -15,4 +15,3 @@ out_play_role.abilities = [CastNonPermanentSpell(card, cost,
 				effects=[MultipleEffects([ModifyColor(characteristic("W")), 						 TapTargetPermanent()]), DrawCard(1)])]
 
 #################################
-

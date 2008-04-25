@@ -2,8 +2,8 @@ name = 'Megrim'
 cardnum = 157
 expansion = '10E'
 type = characteristic('Enchantment')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '2B'
 color = characteristic(['B'])
 text = ['Whenever an opponent discards a card, Megrim deals 2 damage to that player.']
@@ -14,14 +14,12 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
 trigger = Trigger(DiscardCardEvent())
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = trigger,
-                                        match_condition = lambda sender, card=card: sender == card.controller.opponent,
+                                        match_condition = OpponentMatch(card),
                                         ability = Ability(card, target=Target(targeting=lambda t=trigger: t.sender),
                                                         effects=DealDamage(2)))
 ]
-subrole.static_abilities = []
 
 #################################

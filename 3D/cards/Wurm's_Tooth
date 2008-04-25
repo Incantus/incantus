@@ -2,10 +2,10 @@ name = "Wurm's Tooth"
 cardnum = 346
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '2'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Whenever a player plays a green spell, you may gain 1 life.']
 
 subrole = Artifact()

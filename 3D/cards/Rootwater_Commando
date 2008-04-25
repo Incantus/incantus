@@ -2,7 +2,7 @@ name = 'Rootwater Commando'
 cardnum = 102
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Merfolk'])
 cost = '2U'
 color = characteristic(['U'])
@@ -15,8 +15,5 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 islandwalk(subrole)
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################

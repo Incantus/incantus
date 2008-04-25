@@ -2,8 +2,8 @@ name = 'Mobilization'
 cardnum = 29
 expansion = '10E'
 type = characteristic('Enchantment')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '2W'
 color = characteristic(['W'])
 text = ['Soldier creatures have vigilance.', '2W: Put a 1/1 white Soldier creature token into play.']
@@ -18,7 +18,6 @@ token_info = {"name": "Soldier", "type": "Creature", "subtypes": ["Soldier"], "c
 subrole.abilities = [ActivatedAbility(card, ManaCost("2W"),
                                 effects=CreateToken(token_info))
 ]
-subrole.triggered_abilities = []
 subrole.static_abilities = [PermanentTrackingAbility(card,
                                         condition = isCreature.with_condition(lambda c: c.subtypes == "Soldier"),
 					events = SubtypeModifiedEvent(),
@@ -26,21 +25,3 @@ subrole.static_abilities = [PermanentTrackingAbility(card,
 ]
 
 #################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

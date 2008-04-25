@@ -2,10 +2,10 @@ name = 'Chromatic Star'
 cardnum = 314
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '1'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['1, T, Sacrifice Chromatic Star: Add one mana of any color to your mana pool.', 'When Chromatic Star is put into a graveyard from play, draw a card.']
 
 subrole = Artifact()

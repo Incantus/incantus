@@ -2,7 +2,7 @@ name = 'Paladin en-Vec'
 cardnum = 32
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Human', 'Knight'])
 cost = '1WW'
 color = characteristic(['W'])
@@ -17,9 +17,5 @@ in_play_role = Permanent(card, subrole)
 first_strike(subrole)
 protection_from_red(subrole)
 protection_from_black(subrole)
-
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################

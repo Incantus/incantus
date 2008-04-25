@@ -2,10 +2,10 @@ name = 'Doubling Cube'
 cardnum = 321
 expansion = '10E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '2'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['3, T: Double the amount of each type of mana in your mana pool.']
 
 subrole = Artifact()

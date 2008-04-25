@@ -2,8 +2,8 @@ name = 'Crimson Wisps'
 cardnum = 88
 expansion = 'Shadowmoor'
 type = characteristic('Instant')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = 'R'
 color = characteristic(['R'])
 text = ['Target creature becomes red and gains haste until end of turn.', 'Draw a card.']
@@ -15,4 +15,3 @@ out_play_role.abilities = [CastNonPermanentSpell(card, cost,
 				effects=[MultipleEffects([ModifyColor(characteristic("R")), 						 GiveKeyword(haste, keyword="haste")]), DrawCard(1)])]
 
 #################################
-

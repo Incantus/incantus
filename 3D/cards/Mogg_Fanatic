@@ -2,7 +2,7 @@ name = 'Mogg Fanatic'
 cardnum = 219
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Goblin'])
 cost = 'R'
 color = characteristic(['R'])
@@ -15,10 +15,8 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.abilities = [ActivatedAbility(card, SacrificeCost(),
-                                target=Target(target_types=[isCreature,isPlayer]),
+                                target=Target(target_types=isPlayerOrCreature),
                                 effects=DealDamage(1))
 ]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################

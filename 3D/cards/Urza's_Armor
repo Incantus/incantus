@@ -2,10 +2,10 @@ name = 'Urza\'s Armor'
 cardnum = 318
 expansion = '8E'
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '6'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['If a source would deal damage to you, prevent 1 of that damage.']
 
 subrole = Artifact()

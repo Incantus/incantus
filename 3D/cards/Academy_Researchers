@@ -2,7 +2,7 @@ name = 'Academy Researchers'
 cardnum = 63
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Human', 'Wizard'])
 cost = '1UU'
 color = characteristic(['U'])
@@ -23,22 +23,3 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                                 effects = MoveCards(from_zone="hand", to_zone="play", card_types=isAuraType.with_condition(lambda aura: aura.in_play_role.target_types == isCreature), func=lambda aura, self=card: aura.attach(self))))]
 
 #################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -2,7 +2,7 @@ name = 'Mogg War Marshal'
 cardnum = 170
 expansion = 'Time Spiral'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Goblin', 'Warrior'])
 cost = '1R'
 color = characteristic(['R'])
@@ -13,8 +13,6 @@ subrole = Creature(1, 1)
 in_play_role = Permanent(card, subrole)
 
 #################################
-
-subrole.abilities = []
 
 effect = CreateToken({"name":"Goblin", "type":"Creature", "color":"R", "subtypes":["Goblin"], "role": TokenCreature(1,1)}, number=1)
 subrole.triggered_abilities = [TriggeredAbility(card,
@@ -27,7 +25,5 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                         ability = Ability(card, effects=effect))
 ]
 echo(in_play_role, subrole, cost="1R")
-
-subrole.static_abilities = []
 
 #################################

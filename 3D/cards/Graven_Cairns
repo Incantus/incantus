@@ -2,10 +2,10 @@ name = 'Graven Cairns'
 cardnum = 0
 expansion = 'Future Sight'
 type = characteristic('Land')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['T: Add 1 to your mana pool.', '(B/R),T: Add BB, BR, or RR to your mana pool.']
 
 out_play_role = NoRole(card)
@@ -22,6 +22,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
 ]
 
 #################################
-
-
-

@@ -2,10 +2,10 @@ name = 'Treetop Village'
 cardnum = 361
 expansion = '10E'
 type = characteristic('Land')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['Treetop Village comes into play tapped.', 'T: Add G to your mana pool.', "1G: Treetop Village becomes a 3/3 green Ape creature with trample until end of turn. It's still a land."]
 
 out_play_role = NoRole(card)

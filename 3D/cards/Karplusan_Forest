@@ -2,10 +2,10 @@ name = 'Karplusan Forest'
 cardnum = 354
 expansion = '10E'
 type = characteristic('Land')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['T: Add 1 to your mana pool.', 'T: Add R or G to your mana pool. Karplusan Forest deals 1 damage to you.']
 
 out_play_role = NoRole(card)

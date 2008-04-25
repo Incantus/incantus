@@ -2,7 +2,7 @@ name = 'Nightmare'
 cardnum = 164
 expansion = '10E'
 type = characteristic('Creature')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Nightmare', 'Horse'])
 cost = '5B'
 color = characteristic(['B'])
@@ -18,9 +18,5 @@ num_swamps = LazyInt(lambda self=card: len(self.controller.play.get(isLand.with(
 subrole.base_power = num_swamps
 subrole.base_toughness = num_swamps
 flying(subrole)
-
-subrole.abilities = []
-subrole.triggered_abilities = []
-subrole.static_abilities = []
 
 #################################

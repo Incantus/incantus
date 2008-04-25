@@ -2,10 +2,10 @@ name = 'Tundra'
 cardnum = 285
 expansion = 'Beta'
 type = characteristic('Land')
-supertype = characteristic('')
+supertype = no_characteristic()
 subtypes = characteristic(['Plains','Island'])
 cost = ''
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['T: Add W to your mana pool.','T: Add U to your mana pool.']
 
 out_play_role = NoRole(card)
@@ -19,11 +19,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('W')),Man
 ]
 
 #################################
-
-
-
-
-
-
-
-

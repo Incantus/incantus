@@ -2,10 +2,10 @@ name = 'Legacy Weapon'
 cardnum = 330
 expansion = '10E'
 type = characteristic('Legendary Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '7'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['WUBRG: Remove target permanent from the game.', "If Legacy Weapon would be put into a graveyard from anywhere, reveal Legacy Weapon and shuffle it into its owner's library instead."]
 
 

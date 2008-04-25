@@ -2,10 +2,10 @@ name = 'Staff of Domination'
 cardnum = 156
 expansion = "Fifth Dawn"
 type = characteristic('Artifact')
-supertype = characteristic('')
-subtypes = characteristic([])
+supertype = no_characteristic()
+subtypes = no_characteristic()
 cost = '3'
-color = characteristic(['C'])
+color = no_characteristic()
 text = ['1: Untap Staff of Domination.', '2, T You gain 1 life.', '3, T Untap target creature.', '4, T Tap target creature.', '5, T Draw a card.']
 
 subrole = Artifact()
