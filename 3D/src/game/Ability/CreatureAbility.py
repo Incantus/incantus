@@ -39,7 +39,7 @@ def landwalk(subrole, landtype):
     keyword = landtype.lower()+"walk"
     def canBeBlocked(self):
         other_play = self.card.controller.opponent.play
-        return (len(other_play.get(isLand.with_condition(lambda c: landtype in c.subtypes))) == 0)
+        return (len(other_play.get(isLand.with_condition(lambda land: landtype in land.subtypes))) == 0)
     return override(subrole, "canBeBlocked", canBeBlocked, keyword=keyword)
 
 def plainswalk(subrole): return landwalk(subrole, "Plains")
@@ -47,6 +47,19 @@ def swampwalk(subrole): return landwalk(subrole, "Swamp")
 def forestwalk(subrole): return landwalk(subrole, "Forest")
 def islandwalk(subrole): return landwalk(subrole, "Island")
 def mountainwalk(subrole): return landwalk(subrole, "Mountain")
+
+def legendary_landwalk(subrole):
+    keyword = "legendary landwalk"
+    def canBeBlocked(self):
+        other_play = self.card.controller.opponent.play
+        return (len(other_play.get(isLand.with_condition(lambda land: "Legendary" in land.supertype))) == 0)
+    return override(subrole, "canBeBlocked", canBeBlocked, keyword=keyword)
+def nonbasic_landwalk(subrole):
+    keyword = "Nonbasic landwalk"
+    def canBeBlocked(self):
+        other_play = self.card.controller.opponent.play
+        return (len(other_play.get(isLand.with_condition(lambda land: not "Basic" in land.supertype))) == 0)
+    return override(subrole, "canBeBlocked", canBeBlocked, keyword=keyword)
 
 def flying(subrole):
     attr = set(["flying", "reach"])
