@@ -619,6 +619,18 @@ class GiveKeyword(Effect):
     def __str__(self):
         return "Give %s"%self.keyword_name
 
+class ConditionalEffect(Effect):
+    def __init__(self, effect, condition):
+        self.effect = effect
+        self.condition = condition
+    def __call__(self, card, target):
+        if self.condition(card, target):
+            restore = self.effect(card, target)
+            return restore
+        else: return False
+    def __str__(self):
+        return "Conditionally do %s"%(self.effect)
+
 class DoUntil(Effect):
     def __init__(self, effect, event, match_condition,expiry=-1):
         self.effect = effect
