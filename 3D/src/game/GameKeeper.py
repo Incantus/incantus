@@ -21,7 +21,7 @@ class Stack(MtGObject):
         # Since the trigger is a single object, it will have different arguments everytime it triggers
         # so the target will only reference the most recent one. I need to find a better way to bind things together
         for target in ability.targets:
-            if target.targeting: target.get(ability.card)
+            if hasattr(target, "triggered"): target.get(ability.card)
         self.triggered_abilities.append(ability)
     def process_triggered(self):
         # Check if there are any triggered abilities waiting

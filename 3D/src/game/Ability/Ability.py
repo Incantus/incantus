@@ -9,7 +9,7 @@ class Ability(MtGObject):
         if not (type(effects) == list or type(effects) == tuple):
             self.effects = [effects]
         else: self.effects = effects
-        if target == None: target = [Target(targeting="controller")]
+        if target == None: target = [Target(targeting="you")]
         elif not (type(target) == list or type(target) == tuple):
             target = [target]
         self.targets = target

@@ -15,7 +15,6 @@ from game.GameEvent import InvalidTargetEvent
 class AllPlayerTargets(MtGObject):
     def __init__(self):
         self.target = []
-        self.targeting = True
     def copy(self):
         return AllPlayerTargets()
     def check_target(self, card):
@@ -32,7 +31,6 @@ class AllPermanentTargets(MtGObject):
         if not (type(target_types) == tuple or type(target_types) == list):
             self.target_types = [target_types]
         else: self.target_types = target_types
-        self.targeting = True
     def copy(self):
         return AllPermanentTargets(self.target_types)
     def check_target(self, card):
@@ -51,7 +49,6 @@ class AllPermanentTargets(MtGObject):
 
 class MultipleTargets(MtGObject):
     def __init__(self, number, target_types=None, exact=True, msg='', selector="controller", untargeted=False):
-        self.targeting = False  # For triggered abilities
         self.number = number
         self.zones = []
         self.target = []
@@ -120,7 +117,7 @@ class MultipleTargets(MtGObject):
 # When I add a new argument to constructor, make sure to add it to the copy function
 # or use the copy module
 class Target(MtGObject):
-    def __init__(self, targeting=None, target_types=None, required=False, msg='', selector="controller", untargeted=False, zone="play", zone_limit=None):
+    def __init__(self, targeting=None, target_types=None, msg='', selector="controller", untargeted=False, zone="play", zone_limit=None):
         self.target = None
         self.zone = zone
         self.zone_limit = zone_limit
@@ -128,19 +125,18 @@ class Target(MtGObject):
         if not (type(target_types) == tuple or type(target_types) == list): self.target_types = [target_types]
         else: self.target_types = target_types
         self.match_condition = lambda t: True
-        self.required = required
+        self.required = True
         self.msg = msg
         self.selector = selector
         self.untargeted = untargeted
     def copy(self):
-        return Target(self.targeting, self.target_types, self.required, self.msg, self.selector, self.untargeted, self.zone, zone_limit=self.zone_limit)
+        return Target(self.targeting, self.target_types, self.msg, self.selector, self.untargeted, self.zone, zone_limit=self.zone_limit)
     def check_target(self, card):
         # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
         if not isPlayer(self.target):
-            return (self.target_zone == self.target.zone) and self.match_condition(self.target) and self.target.canBeTargetedBy(card)
+            return (self.target_zone == str(self.target.zone)) and self.match_condition(self.target) and self.target.canBeTargetedBy(card)
         else: return self.match_condition(self.target) and self.target.canBeTargetedBy(card)
     def get(self, card):
-        if self.target: return True # Target already set - needed for triggered abilities until I split Target
         if not self.targeting:
             if self.msg: prompt=self.msg
             else:
@@ -179,7 +175,7 @@ class Target(MtGObject):
                 if self.target == False: return False
             # Save the zone if we are targetting a permanent (not a player)
             if not isPlayer(self.target):
-                self.target_zone = self.target.zone
+                self.target_zone = str(self.target.zone)
             #self.target.current_role.targeted = True
             # It should still be able to match any target types in the spell
             # See oracle for Putrefy (http://ww2.wizards.com/Gatherer/CardDetails.aspx?name=Putrefy)
@@ -199,15 +195,15 @@ class Target(MtGObject):
         # XXX This is kind of hacky - I don't know if it can generalize
         elif self.targeting == "self":
             self.target = card
-            self.target_zone = self.target.zone
+            self.target_zone = str(self.target.zone)
             self.match_condition = SelfMatch(card)
             return True
         elif self.targeting == "attached":
             self.target = card.attached_to
-            self.target_zone = self.target.zone
+            self.target_zone = str(self.target.zone)
             self.match_condition = card.target_types
             return True
-        elif self.targeting == "controller":
+        elif self.targeting == "you":
             self.target = card.controller
             return True
         elif self.targeting == "owner":
@@ -220,14 +216,44 @@ class Target(MtGObject):
         elif self.targeting == "opponent":
             self.target = card.controller.opponent
             return True
-        # This is a final catchall for lambda functions
-        elif callable(self.targeting):
-            self.target = self.targeting()
-            if not isPlayer(self.target):
-                self.target_zone = self.target.zone
-                self.match_condition = SelfMatch(self.target)
-            return True
         else: return False
+
+class SpecialTarget(MtGObject):
+    def __init__(self, targeting):
+        if not callable(targeting): raise Exception("Argument to SpecialTarget must be a function")
+        self.targeting = targeting
+        self.target = None
+    def copy(self):
+        return SpecialTarget(self.targeting)
+    def check_target(self, card):
+        # This is a final catchall for lambda functions
+        self.target = self.targeting()
+        return True
+    def get(self, card):
+        return True
+
+class TriggeredTarget(MtGObject):
+    def __init__(self, trigger, attribute, sender=False):
+        self.trigger = trigger
+        self.attribute = attribute
+        self.sender = sender
+        self.triggered = False
+    def check_target(self, card):
+        # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
+        if not isPlayer(self.target):
+            return (self.target_zone == str(self.target.zone)) and self.match_condition(self.target)
+        else: return self.match_condition(self.target)
+    def get(self, card):
+        if not self.triggered:
+            if not self.sender: self.target = getattr(self.trigger, self.attribute)
+            else: self.target = getattr(self.trigger.sender, self.attribute)
+            if not isPlayer(self.target):
+                self.target_zone = str(self.target.zone)
+                self.match_condition = SelfMatch(self.target)
+            self.triggered = True
+        return True
+    def copy(self):
+        return TriggeredTarget(self.trigger, self.attribute)
 
 class CounterTarget(MtGObject):
     def __init__(self, target_types=None, msg=''):

@@ -43,7 +43,7 @@ class MultipleAbilities(ActivatedAbility):
         return ", ".join(map(str, self.abilities))
 
 class ManaAbility(ActivatedAbility):
-    def __init__(self, card, cost="0", target=Target(targeting="controller"), effects=[]):
+    def __init__(self, card, cost="0", target=Target(targeting="you"), effects=[]):
         super(ManaAbility,self).__init__(card, cost=cost, target=target, effects=effects)
     def is_mana_ability(self):
         return True
@@ -56,7 +56,7 @@ class EquipAbility(ActivatedAbility):
         super(EquipAbility,self).__init__(card, cost=cost, target=Target(target_types=isCreature), effects=Effect.AttachToPermanent(), limit=Limit.SorceryLimit(card))
 
 class ChoiceAbility(ActivatedAbility):
-    def __init__(self, card, cost="0", msg='', choice_target=Target(targeting="controller"), target=Target(targeting="controller"), effects=[]):
+    def __init__(self, card, cost="0", msg='', choice_target=Target(targeting="you"), target=Target(targeting="you"), effects=[]):
         super(ChoiceAbility, self).__init__(card, cost=cost, target=target,effects=effects)
         self.choice_target = choice_target
         if not msg: msg = "...%s"%', '.join(map(str,self.effects))
@@ -70,7 +70,7 @@ class ChoiceAbility(ActivatedAbility):
         return "You may... %s"%', '.join(map(str,self.effects))
 
 class DoOrAbility(ActivatedAbility):
-    def __init__(self, card, cost="0", target=Target(targeting="controller"), failure_target=Target(targeting="controller"), effects=[], failed=[], copy_targets=False):
+    def __init__(self, card, cost="0", target=Target(targeting="you"), failure_target=Target(targeting="you"), effects=[], failed=[], copy_targets=False):
         super(DoOrAbility, self).__init__(card, cost=cost, target=target,effects=effects,copy_targets=copy_targets)
         if not (type(failed) == list or type(failed) == tuple): failed = [failed]
         self.failed = failed

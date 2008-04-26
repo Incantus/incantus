@@ -2,7 +2,7 @@ from Ability import Ability, PostponeTargeting, PostponedAbility
 from ActivatedAbility import ActivatedAbility, DoOrAbility, StacklessActivatedAbility
 from CastingAbility import CastPermanentSpell
 from Effect import *
-from Target import Target
+from Target import Target, SpecialTarget, TriggeredTarget
 from TriggeredAbility import TriggeredAbility
 from Trigger import EnterTrigger, LeaveTrigger, DealDamageTrigger
 from Limit import Unlimited
@@ -13,7 +13,7 @@ from game.characteristics import all_characteristics
 class DoOrAbilityPostponed(PostponeTargeting, DoOrAbility): pass
 
 class ClashAbility(StacklessActivatedAbility):
-    def __init__(self, card, cost="0", target=Target(targeting="controller"),effects=[]):
+    def __init__(self, card, cost="0", target=Target(targeting="you"),effects=[]):
         super(ClashAbility, self).__init__(card, cost=cost, target=target, effects=effects)
     def resolve(self):
         success = False
@@ -75,7 +75,7 @@ def champion(subrole, card, role=isPermanent, subtypes=None):
                 copy_targets=False))
     champion_return = TriggeredAbility(card, trigger = LeaveTrigger("play", any=True),
             match_condition=SelfMatch(card, lambda x: championed.target and championed.target.zone != None),
-            ability=Ability(card, target=Target(targeting= lambda: championed.target),
+            ability=Ability(card, target=SpecialTarget(targeting= lambda: championed.target),
                 effects=ChangeZone(from_zone="removed", to_zone="play")))
     subrole.triggered_abilities.extend([champion,champion_return])
     def remove_champion():
@@ -103,12 +103,12 @@ def hideaway(subrole, card, limit=None):
     hidden = MoveCards(from_zone="library", to_zone="removed", number=1, subset=4, required=True, func = lambda c: c.faceDown())
     hideaway = TriggeredAbility(card, trigger = EnterTrigger("play"),
             match_condition=SelfMatch(card),
-            ability=PostponedAbility(card, target=Target(targeting="controller"),
+            ability=PostponedAbility(card, target=Target(targeting="you"),
                 effects=[hidden,
                          MoveCards(from_zone="library", from_position="top", to_zone="library", to_position="bottom", number=4)])) # the second MoveCards is 4 because when we select them we haven't moved the first one yet - but it will be ignored
 
     return_hidden = StacklessActivatedAbility(card, MultipleCosts([ManaCost("U"), TapCost()]),
-            target=Target(targeting=lambda: hidden.cardlist[0]),
+            target=SpecialTarget(targeting=lambda: hidden.cardlist[0]),
             effects=PlayCard(cost="0"),
             limit=limit)
 
@@ -129,7 +129,7 @@ def deathtouch(subrole, in_play=False):
     trigger = DealDamageTrigger(sender=card)
     deathtouch = TriggeredAbility(card, trigger = trigger,
             match_condition = lambda sender, to: not isPlayer(to),
-            ability = Ability(card, target=Target(targeting=lambda trigger=trigger: trigger.to),
+            ability = Ability(card, target=TriggeredTarget(trigger, 'to'),
                 effects=Destroy())) 
     subrole.triggered_abilities.append(deathtouch)
     if in_play: deathtouch.enteringPlay()

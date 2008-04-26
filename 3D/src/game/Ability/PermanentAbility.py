@@ -40,8 +40,8 @@ def echo(permanent, subrole, cost="0"):
                        trigger = PlayerTrigger(event=UpkeepStepEvent()),
                        match_condition = lambda player: player == card.controller,
                        ability = DoOrAbility(card, cost="0",
-                                        target=Target(targeting="controller"),
-                                        failure_target=Target(targeting="controller"),
+                                        target=Target(targeting="you"),
+                                        failure_target=Target(targeting="you"),
                                         effects=PayExtraCost(cost),
                                         failed=SacrificeSelf()),
                        expiry=1)]
