@@ -35,7 +35,7 @@ class GameObject(MtGObject):
     #__slots__ = ["name", "cost", "color", "type", "subtypes", "supertypes", "owner", "controller", "zone", "out_play_role", "in_play_role", "_current_role"]
     def __init__(self, owner):
         self.owner = owner
-        self.controller = owner
+        self.controller = None
         self.zone = None
 
         # characteristics
@@ -57,6 +57,16 @@ class GameObject(MtGObject):
 
         self._current_role = None
         self._last_known_role = None
+    def controller():
+        doc = "The controller of this card - only valid when in play or on the stack"
+        def fget(self):
+            if not (str(self.zone) in ["play", "stack"]): return self.owner
+            else: return self._controller
+        def fset(self, controller): 
+            print controller
+            self._controller = controller
+        return locals()
+    #controller = property(**controller())   # properties don't work with __getattr__
     def owner():
         doc = "The owner of this card - only set once when the card is created"
         def fget(self): return self._owner
