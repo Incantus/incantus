@@ -15,9 +15,10 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 flying(subrole)
+target = CounterTarget(target_types=isSpellAbility)
 subrole.abilities = [DoOrAbility(card, cost=SacrificeCost(),
-                                target=Target(targeting="opponent"),
-                                failure_target=CounterTarget(target_types=isSpellAbility),
+                                target=Target(targeting=lambda t=target: t.controller),
+                                failure_target=target,
                                 effects=PayExtraCost("1"),
                                 failed=CounterAbility())]
 subrole.triggered_abilities = []

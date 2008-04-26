@@ -12,7 +12,7 @@ text = ["Remove target creature from the game. Its controller gains life equal t
 
 remove = Target(target_types=isCreature)
 out_play_role.abilities = [CastNonPermanentSpell(card, cost=cost,
-                target=[remove, Target(targeting=lambda t=remove_creature: t.target.controller)],
+                target=[remove, Target(targeting=lambda t=remove: t.target.controller)],
                 effects=[ChangeZoneFromPlay(to_zone="removed"),
                      ChangeLife(lambda life, t=remove:life+t.target.power)],
 		copy_targets=False)]
