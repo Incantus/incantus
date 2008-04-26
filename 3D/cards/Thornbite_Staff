@@ -19,7 +19,7 @@ trigger = EnterTrigger("play", any=True)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger=trigger, 
                                       match_condition=isCreature.with_condition(lambda c: c.subtypes == "Shaman"),
-                                      ability=ChoiceAbility(card, cost="0", target=Target(targeting=lambda t=trigger: t.matched_card),
+                                      ability=ChoiceAbility(card, cost="0", target=TriggeredTarget(trigger, 'matched_card'),
                                                  effects=AttachToPermanent()))]
 
 ability = ActivatedAbility(card, MultipleCosts([ManaCost("2"), TapCost()]), target=Target(target_types=isCreatureOrPlayer), effects=DealDamage(1))

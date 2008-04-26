@@ -21,7 +21,7 @@ trigger = Trigger(ManaEvent())
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = trigger,
                                         match_condition = lambda sender: sender.type == "Land" and sender.tapped,
-                                        ability = Ability(card, target=Target(targeting=lambda t=trigger: t.sender.controller),
+                                        ability = Ability(card, target=TriggeredTarget(trigger, 'controller', sender=True),
                                                         effects=DealDamage(1)))
 ]
 subrole.static_abilities = []

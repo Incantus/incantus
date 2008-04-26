@@ -19,7 +19,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=trigger,
                                         match_condition=isSpell,
                                         ability=Ability(card,
-                                                target =Target(targeting=lambda t=trigger: t.sender.opponent),
+                                                target = TriggeredTarget(trigger, 'opponent', sender=True),
                                                 effects = DependentEffects([SacrificeSelf(), DrawCard(3)])))]
 
 #################################

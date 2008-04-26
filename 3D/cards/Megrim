@@ -18,7 +18,7 @@ trigger = Trigger(DiscardCardEvent())
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = trigger,
                                         match_condition = OpponentMatch(card),
-                                        ability = Ability(card, target=Target(targeting=lambda t=trigger: t.sender),
+                                        ability = Ability(card, target=TriggeredTarget(trigger, 'sender'),
                                                         effects=DealDamage(2)))
 ]
 

@@ -18,7 +18,7 @@ trigger = DealCombatDamageTrigger(sender=card)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                    trigger = trigger,
                                    match_condition = lambda to: isPlayer(to),
-                                   ability = Ability(card, target=Target(targeting=lambda t=trigger: t.to),
+                                   ability = Ability(card, target=TriggeredTarget(trigger, 'to'),
                                                  effects=MoveCards(from_zone="play", to_zone="hand", number=LazyInt(lambda t=trigger: t.amount), card_types=isPermanent)))]
 
 #################################

@@ -19,7 +19,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = trigger,
                                       match_condition = lambda p: True,
                                       ability = Ability(card,
-                                                  target=Target(targeting=lambda t=trigger: t.player),
+                                                  	target=TriggeredTarget(trigger, 'player'),
                                                         effects=MoveCards(from_zone="library", from_position="top", to_zone="graveyard", number=LazyInt(lambda t=trigger: len(t.player.hand)))))
 ]
 

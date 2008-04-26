@@ -16,6 +16,6 @@ trigger = EnterTrigger(zone="graveyard", any=True)
 subrole.triggered_abilities = [TriggeredAbility(card, 
 					trigger=trigger,
 					match_condition = isCard,
-					ability=Ability(card, target=Target(targeting=lambda t=trigger: t.matched_card),
+					ability=Ability(card, target=TriggeredTarget(trigger, 'matched_card'),
                                                  effects=ChangeZone(from_zone="graveyard", to_zone="removed")))
 ]

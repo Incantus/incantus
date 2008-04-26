@@ -19,7 +19,7 @@ trigger = DealDamageTrigger(sender=card)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = trigger,
                                         match_condition = lambda sender, to: isPlayer(to) and not to == sender.controller,
-                                        ability = Ability(card, target=Target(targeting=lambda t=trigger:t.to),
+                                        ability = Ability(card, target=TriggeredTarget(trigger, 'to'),
                                                     effects=DiscardCard(1, random=True)))
 ]
 

@@ -28,7 +28,7 @@ def match_name(card, cards=[], ability=triggered_ability):
         cards[:] = []
         ability.playAbility()
 
-triggered_ability.ability = Ability(card, target=Target(targeting=lambda t=trigger: t.to),
+triggered_ability.ability = Ability(card, target=TriggeredTarget(trigger, 'to'),
                                 effects=MoveCards(from_zone="library", from_position="top", to_zone="removed", number=4, func=match_name))
 
 subrole.triggered_abilities = [triggered_ability]

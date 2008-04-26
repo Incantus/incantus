@@ -18,7 +18,7 @@ trigger = Trigger(BlockerDeclaredEvent())
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = trigger,
                                         match_condition = SelfMatch(card),
-                                        ability = Ability(card, target=[Target(targeting=lambda t=trigger: t.attacker), Target(targeting="self")],                                                        
+                                        ability = Ability(card, target=[TriggeredTarget(trigger, 'attacker'), Target(targeting="self")],                                                        
 								effects=[Destroy(), Destroy()]))
 ]
 
