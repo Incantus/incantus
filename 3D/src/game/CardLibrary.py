@@ -1,13 +1,16 @@
 
 from GameObjects import Card, GameToken, characteristic
-import bsddb, glob, cPickle as pickle
+import bsddb, os, glob, cPickle as pickle
 #from Util import uuid
 
 class CardDatabase(object):
     def __init__(self):
         dirname = "./data/"
         dbnames = glob.glob(dirname+"*.db")
-        dbnames.remove(dirname+"card_images.db")
+        for name in dbnames:
+            if os.path.basename(name) == "card_images.db":
+                dbnames.remove(name)
+                break
         self._dbs = []
         for filename in dbnames:
             self._dbs.append(bsddb.hashopen(filename))
@@ -76,10 +79,10 @@ class _CardLibrary:
         card.name = name
         card.cost = "0"
         card.text = "No card object found"
-        card.base_color = card.color = "C"
-        card.base_type = card.type = "Artifact"
-        card.base_supertype = card.supertype = characteristic(None)
-        card.base_subtypes = card.subtypes = characteristic([])
+        card.base_color = card.color = characteristic('')
+        card.base_type = card.type = characteristic("Artifact")
+        card.base_supertype = card.supertype = characteristic('')
+        card.base_subtypes = card.subtypes = characteristic('')
         card.key = (self.counter, name)
 
         card.out_play_role = CardEnvironment.Spell(card)
