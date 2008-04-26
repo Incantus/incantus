@@ -24,6 +24,13 @@ class Cost(object):
     def __str__(self):
         return ''
 
+class NoCost(object):
+    def compute(self, card, player): return False
+    def pay(self, card, player): return False
+    def __eq__(self, other): return isinstance(other, NoCost)
+    def __str__(self): return ''
+    def converted_cost(self): return 0
+
 class ManaCost(Cost):
     def cost():
         def fget(self):
