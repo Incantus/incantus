@@ -1,5 +1,5 @@
 from game.GameObjects import MtGObject
-from game.Match import isPermanent, isPlayer, SelfMatch
+from game.Match import isPermanent, isPlayer, SelfMatch, PlayerMatch, PlayerOrCreatureMatch
 from game.GameEvent import InvalidTargetEvent
 
 #class Target(MtGObject):
@@ -125,6 +125,11 @@ class Target(MtGObject):
         if not (type(target_types) == tuple or type(target_types) == list): self.target_types = [target_types]
         else: self.target_types = target_types
         self.match_condition = lambda t: True
+        for ttype in self.target_types:
+            if isinstance(ttype, PlayerMatch) or isinstance(ttype, PlayerOrCreatureMatch):
+                self.targeting_player = True
+                break
+        else: self.targeting_player = False
         self.required = True
         self.msg = msg
         self.selector = selector
@@ -160,7 +165,7 @@ class Target(MtGObject):
             elif self.zone_limit == "controller": zones = [sel_zone]
             else: zones = [opponent_zone]
             # If required, make sure there is actually a target available
-            if self.required:
+            if self.required and not self.targeting_player:
                 perm = []
                 for ttype in self.target_types:
                     for zone in zones:
