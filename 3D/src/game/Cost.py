@@ -1,6 +1,7 @@
 from GameEvent import SacrificeEvent, CounterAddedEvent, CounterRemovedEvent
 from LazyInt import LazyInt
 import Mana
+from Match import isCard
 
 class Cost(object):
     def __init__(self):
@@ -322,13 +323,14 @@ class LifeCost(Cost):
 
 
 class DiscardCost(Cost):
-    def __init__(self, cardtype=None, number=1):
+    def __init__(self, number=1, cardtype=isCard, discard_self=False):
         self.number = number
         self.cardtype = cardtype
+        self.discard_self = discard_self
     def compute(self, card, player):
         self.paid = False
         self.discards = []
-        if self.cardtype == None:
+        if self.discard_self:
             # Discard this card
             self.discards = [card]
         else:
