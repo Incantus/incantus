@@ -347,19 +347,22 @@ class SacrificeSelf(Effect):
         return "Sacrifice self"
 
 class ForceSacrifice(Effect):
-    def __init__(self, card_type=isCreature, required=True):
+    def __init__(self, card_type=isCreature, number=1, required=True):
         self.card_type = card_type
+        self.number = number
         self.required = required
     def __call__(self, card, target):
-        if len(target.play.get(self.card_type)) > 0:
+        num_available = len(target.play.get(self.card_type))
+        for i in range(self.number):
+            if num_available == 0: return False
             sacrifice = target.getTarget(self.card_type, zone=target.play, required=self.required, prompt="Select a %s for sacrifice"%self.card_type)
             if not sacrifice: return False
             else:
                 target.moveCard(sacrifice, target.play, sacrifice.owner.graveyard)
-                return True
-        else: return False
+                num_available -= 1
+        return True
     def __str__(self):
-        return "Sacrifice"
+        return "Sacrifice %s"%self.card_type
 
 class PayExtraCost(Effect):
     def __init__(self, cost="0"):
@@ -367,7 +370,8 @@ class PayExtraCost(Effect):
         if type(cost) == str: cost = ManaCost(cost)
         self.cost = cost
     def __call__(self, card, target):
-        if self.cost.compute(card, target):
+        intent = card.controller.getIntention("", "Pay echo cost for %s?"%card)
+        if intent and self.cost.compute(card, target):
             return self.cost.pay(card, target)
         else: return False
     def __str__(self):
