@@ -34,6 +34,7 @@ class AbilityRemovedFromStack(Event): pass
 class AbilityResolved(Event): pass
 class AbilityCountered(Event): pass
 class MorphEvent(Event): pass
+class ClashEvent(Event): pass
 
 class SubroleModifiedEvent(Event): pass
 class ColorModifiedEvent(Event): pass

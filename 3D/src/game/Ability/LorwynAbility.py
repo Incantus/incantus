@@ -9,6 +9,7 @@ from Limit import Unlimited
 from game.Match import SelfMatch, isLandType, isPlayer
 from game.Cost import EvokeCost, ManaCost, TapCost, MultipleCosts
 from game.characteristics import all_characteristics
+from game.GameEvent import ClashEvent
 
 class DoOrAbilityPostponed(PostponeTargeting, DoOrAbility): pass
 
@@ -21,13 +22,20 @@ class ClashAbility(StacklessActivatedAbility):
         opponent = controller.opponent
         clashing_cards = [controller.library.top(), opponent.library.top()]
         converted_costs = []
-        for c in clashing_cards:
-            if isLandType(c): converted_costs.append(0)
-            else: converted_costs.append(c.cost.converted_cost())
+        for c in clashing_cards: converted_costs.append(c.cost.converted_cost())
+        winners = []
         if converted_costs[0] > converted_costs[1]:
             success = True
             msg = "%s wins the clash!"%controller
-        else: msg = "%s wins the clash!"%opponent
+            winners.append(controller)
+        elif converted_costs[1] > converted_costs[0]:
+            success = False
+            msg = "%s wins the clash!"%opponent
+            winners.append(opponent)
+        else:
+            success = False
+            msg = "Noone wins the clash!"
+        card.send(ClashEvent(), winners=winners)
 
         controller.revealCard(clashing_cards, msgs=[controller.name, opponent.name], title=msg, prompt=msg)
         opponent.revealCard(clashing_cards[::-1], msgs=[opponent.name, controller.name], title=msg, prompt=msg)
