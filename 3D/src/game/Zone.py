@@ -67,11 +67,13 @@ class Zone(MtGObject):
 class Play(Zone):
     zone_name = "play"
     def before_card_added(self, card): card.current_role = card.in_play_role
+    #def before_card_removed(self, card): card.save_lki()
 
 class OutPlayZone(Zone):
     #def after_card_added(self, card):
+    #    # Maintain the in_play role as long as possible if it was added from play
+    #    card.current_role = card.out_play_role
     def before_card_added(self, card):
-        # Maintain the in_play role as long as possible if it was added from play
         card.current_role = card.out_play_role
 
 class OrderedOutPlayZone(OutPlayZone):

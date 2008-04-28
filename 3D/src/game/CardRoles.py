@@ -182,9 +182,9 @@ class Permanent(MtGObject):
         # This doesn't create new lists for triggered abilities and static abilities
         newcopy = copy.copy(self)
         rebind_self(newcopy)
-        newcopy.counters = []
-        newcopy.attachments = []
-        newcopy._abilities = []
+        newcopy.counters = copy.copy(self.counters)
+        newcopy.attachments = copy.copy(self.attachments)
+        newcopy._abilities = copy.copy(self._abilities)
         newcopy.subroles = [role.copy(newcopy) for role in self.subroles]
         return newcopy
     def __str__(self):
@@ -195,6 +195,7 @@ class Role(object):
         self.abilities = []
         self.triggered_abilities = []
         self.static_abilities = []
+        self.keywords = keywords()
     def send(self, *args, **named):
         self.perm.card.send(*args, **named)
     def enteringPlay(self, perm):
@@ -223,6 +224,7 @@ class Role(object):
         import copy
         newcopy = copy.deepcopy(self)
         newcopy.perm = perm
+        newcopy.keywords = self.keywords.copy()
         rebind_self(newcopy)
         return newcopy
     def __str__(self):
@@ -282,14 +284,6 @@ class Creature(Role):
         self.attacking = False
         self.blocking = False
         self.blocked = False
-        self.keywords = keywords()
-    def copy(self, perm=None):
-        import copy
-        newcopy = copy.deepcopy(self)
-        newcopy.perm = perm
-        newcopy.keywords = self.keywords.copy()
-        rebind_self(newcopy)
-        return newcopy
     def canBeDamagedBy(self, damager):
         return True
     def combatDamage(self):

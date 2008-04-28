@@ -1,5 +1,6 @@
 from pydispatch import dispatcher
 from characteristics import characteristic
+from GameEvent import HasPriorityEvent
 
 class MtGObject(object):
     #Universal dispatcher
@@ -56,7 +57,7 @@ class GameObject(MtGObject):
         self.base_supertype = None
 
         self._current_role = None
-        self._last_known_role = None
+        self._last_known_info = None
     def controller():
         doc = "The controller of this card - only valid when in play or on the stack"
         def fget(self):
@@ -72,6 +73,11 @@ class GameObject(MtGObject):
         def fget(self): return self._owner
         return locals()
     #owner = property(**owner())
+    def save_lki(self):
+        # How long should we keep LKI?
+        self._last_known_info = self._current_role.copy()
+        def reset_lki(): self._last_known_info = self.in_play_role
+        self.register(reset_lki, event=HasPriorityEvent(), weak=False, expiry=1)
     def current_role():
         doc = '''The current role for this card. Either a Spell (when in hand, library, graveyard or out of game), Spell, (stack) or Permanent (in play)'''
         def fget(self):
@@ -80,7 +86,7 @@ class GameObject(MtGObject):
             # Leaving play
             if role == self.out_play_role and self._current_role != self.out_play_role:
                 #  Keep a reference around in case any spells need it
-                self._last_known_role = self._current_role
+                self.save_lki()
                 self._current_role.leavingPlay()
             # Staying in play
             if role == self.in_play_role and self._current_role.__class__ == self.in_play_role.__class__:
@@ -98,8 +104,8 @@ class GameObject(MtGObject):
 
             # It is about to enter play - let it know
             if role == self.in_play_role:
-                if self._last_known_role: del self._last_known_role
-                self._last_known_role = None
+                if self._last_known_info: del self._last_known_info
+                self._last_known_info = None
                 self._current_role.enteringPlay()
         return locals()
     current_role = property(**current_role())
@@ -110,7 +116,7 @@ class GameObject(MtGObject):
             return getattr(self.current_role,attr)
         else:
             # We are probably out of play - check the last known info
-            return getattr(self._last_known_role, attr)
+            return getattr(self._last_known_info, attr)
     def __repr__(self):
         return "%s at %s"%(str(self),str(id(self)))
 
