@@ -121,36 +121,36 @@ class LeavingTrigger(MoveTrigger):
     def __init__(self, zone=None, any=False):
         super(LeavingTrigger,self).__init__(event=CardLeavingZone(), zone=zone, any=any)
 
-class EnterFromTrigger(CardTrigger):
+class EnterFromTrigger(Trigger):
     def __init__(self, from_zone, to_zone):
         super(EnterFromTrigger,self).__init__(event=CardEnteredZone())
         self.from_zone = from_zone
         self.to_zone = to_zone
         # We need to keep track of all zone changes, to make sure that we catch the right sequence of events
         # although only enter events, since we can infer the correct move from a sequence of enter events
-        self.previous_zones = {}
     def setup_trigger(self, ability, trigger_function, match_condition=None, expiry=-1):
-        super(EnterFromTrigger,self).setup_trigger(ability, trigger_function, match_condition, expiry)
-        # The following covers the case when the match_condition is a SelfMatch, which means the Trigger
-        # is setup when the TriggeredAbility is created (always_on is True)
-        if ability.card.controller: player=ability.card.controller
-        else: player = ability.card.owner
-        player_zone = getattr(player, self.from_zone)
-        opponent_zone = getattr(player.opponent, self.from_zone)
-        #self.to_Z = getattr(player, self.to_zone)
-        # Get all targets that are already in the from zone
-        targets = player_zone.get(self.match_condition) + opponent_zone.get(self.match_condition)
-        for t in targets:
-            self.previous_zones[t] = self.from_zone
-    def filter(self, sender, card):
-        if self.match_condition(card):
-            if not self.previous_zones.has_key(card):
-                if str(sender) == self.from_zone: self.previous_zones[card] = sender
-            else:
-                if str(sender) == self.to_zone:
-                    del self.previous_zones[card]
-                    self.matched_card = card
-                    if (self.expiry == -1 or self.count < self.expiry): self.trigger_function(self)
-                    self.count += 1
-                else:
-                    del self.previous_zones[card]
+        self.entering = set()
+        self.count = 0
+        self.expiry = expiry
+        self.ability = ability
+        self.trigger_function = trigger_function
+        if match_condition: self.match_condition = match_condition
+        else: self.match_condition = lambda *args: True
+        self.events_senders = [(CardEnteringZone(), self.filter_entering), (CardLeftZone(), self.filter_left)]
+        for event, filter in self.events_senders: self.register(filter, event=event)
+    def clear_trigger(self):
+        # XXX closures are not bound properly in loops, so have to define an external function
+        def unregister(event, filter):
+            return lambda: self.unregister(filter, event=event)
+        for event, filter in self.events_senders:
+            self.register(unregister(event, filter), event=TimestepEvent(), weak=False, expiry=1)
+    def filter_entering(self, sender, card):
+        if self.match_condition(card) and str(sender) == self.to_zone:
+            self.entering.add(card)
+    def filter_left(self, sender, card):
+        if card in self.entering:
+            self.entering.remove(card)
+            if str(sender) == self.from_zone and card in self.entering:
+                self.matched_card = card
+                if (self.expiry == -1 or self.count < self.expiry): self.trigger_function(self)
+                self.count += 1
