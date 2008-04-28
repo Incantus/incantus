@@ -120,6 +120,7 @@ class Card(anim.Animable):
         else: return False
     def copy(self): return Card(self.gamecard, self.front, self.back)
     def __str__(self): return self.gamecard.name
+    def __repr__(self): return self.gamecard.name
 
 class StackCard(Card):
     highlighting = anim.Animatable()
