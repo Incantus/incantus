@@ -140,7 +140,7 @@ class _CardLibrary:
             exec card_text in vars(CardEnvironment), vars(card)
         except Exception, e:
             print name, e
-            raise
+            raise KeyError()
         # Get rid of non-standard attributes
         for k in card.__dict__.keys():
             if k not in self.acceptable_keys: del card.__dict__[k]
