@@ -370,7 +370,7 @@ class PayExtraCost(Effect):
         if type(cost) == str: cost = ManaCost(cost)
         self.cost = cost
     def __call__(self, card, target):
-        intent = card.controller.getIntention("", "Pay echo cost for %s?"%card)
+        intent = card.controller.getIntention("", "Pay extra cost for %s?"%card)
         if intent and self.cost.compute(card, target):
             return self.cost.pay(card, target)
         else: return False
@@ -933,9 +933,9 @@ class MoveCards(Effect):
     def __str__(self):
         if self.number > 1: a='s'
         else: a = ''
-        if self.from_position: fpos = "%s of "%self.from_position
+        if self.from_position and not self.from_zone in ["hand", "play"]: fpos = "%s of "%self.from_position
         else: fpos = ''
-        if self.to_position: tpos = "%s of "%self.to_position
+        if self.to_position and not self.to_zone in ["hand", "play"]: tpos = "%s of "%self.to_position
         else: tpos = ''
         return "Move %d %s%s from %s%s to %s%s"%(self.number,' or '.join(map(str,self.card_types)),a,fpos,self.from_zone,tpos,self.to_zone)
 
