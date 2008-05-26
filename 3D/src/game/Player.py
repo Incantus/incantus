@@ -50,6 +50,7 @@ class Player(MtGObject):
         #self.targeted = False
     def match_role(self, role): return False    # XXX This is an ugly hack to get targetting to work uniformly
     def init(self):
+        self.play.init()
         self.library.init()
         self.graveyard.init()
     def __str__(self):
@@ -89,6 +90,7 @@ class Player(MtGObject):
         self.send(DiscardCardEvent())
     def mulligan(self):
         number = 7
+        self.library.disable_ordering()
         while True:
             number -= 1
             if self.getIntention("", "Would you like to mulligan"): #, "Would you like to mulligan?"):
@@ -98,6 +100,7 @@ class Player(MtGObject):
                 for i in range(number): self.draw()
             else: break
             if number == 0: break
+        self.library.enable_ordering()
     def moveCard(self, card, from_location=None, to_location=None):
         # Trigger card moved event
         # move the actual card

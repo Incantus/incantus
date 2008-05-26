@@ -58,40 +58,33 @@ class Zone(MtGObject):
     def after_card_removed(self, card): pass
     def __str__(self): return self.zone_name
 
-# XXX One would think that when the card leaves play all it's triggered and static abilities cease
-# to exist - but there is a brief time when they can exist. For example, whenever a card goes into a
-# graveyard, Planar Chaos removes that card from the game. It also triggers on itself going to a graveyard
-# The only way this works is that the current_role switches to the out play role after it's entered the
-# other zone. So the out play role is set when the card is added to the other zone
-# (4/22/08) this no longer applies
-class Play(Zone):
-    zone_name = "play"
-    def before_card_added(self, card): card.current_role = card.in_play_role
-    #def before_card_removed(self, card): card.save_lki()
-
-class OutPlayZone(Zone):
-    #def after_card_added(self, card):
-    #    # Maintain the in_play role as long as possible if it was added from play
-    #    card.current_role = card.out_play_role
-    def before_card_added(self, card):
-        card.current_role = card.out_play_role
-
-class OrderedOutPlayZone(OutPlayZone):
+class OrderedZone(Zone):
+    ordered = True
     def __init__(self, cards=[]):
-        super(OrderedOutPlayZone, self).__init__(cards)
+        super(OrderedZone, self).__init__(cards)
         self.pending = False
         self.pending_top = []
         self.pending_bottom = []
+        self.ordering = True
     def init(self):
         self.register(self.commit, TimestepEvent())
+    def enable_ordering(self):
+        self.ordering = True
+    def disable_ordering(self):
+        self.ordering = False
     def add_card_post(self, card, position=-1, trigger=True):
-        self.pending = True
-        if position == -1: self.pending_top.append((card, trigger))
-        else: self.pending_bottom.append((card, trigger))
+        if self.ordering:
+            self.pending = True
+            if position == -1: self.pending_top.append((card, trigger))
+            else: self.pending_bottom.append((card, trigger))
+        else:
+            super(OrderedZone, self).add_card_post(card, position, trigger)
     def _get_order(self, cardlist, pos):
         if len(cardlist) > 1:
             player = cardlist[0].owner
-            reorder = player.getCardSelection(cardlist, len(cardlist), from_zone=str(self), from_player=player, required=False, prompt="Order cards entering %s of %s"%(pos, self))
+            if self.ordered: pos = "%s of "%pos
+            else: pos = ''
+            reorder = player.getCardSelection(cardlist, len(cardlist), from_zone=str(self), from_player=player, required=False, prompt="Order cards entering %s%s"%(pos, self))
             if reorder: cardlist = reorder
         return cardlist
     def pre_commit(self): pass
@@ -111,6 +104,32 @@ class OrderedOutPlayZone(OutPlayZone):
             self.pending_bottom[:] = []
             self.post_commit()
             self.pending = False
+
+# XXX One would think that when the card leaves play all it's triggered and static abilities cease
+# to exist - but there is a brief time when they can exist. For example, whenever a card goes into a
+# graveyard, Planar Chaos removes that card from the game. It also triggers on itself going to a graveyard
+# The only way this works is that the current_role switches to the out play role after it's entered the
+# other zone. So the out play role is set when the card is added to the other zone
+# (4/22/08) this no longer applies
+class Play(OrderedZone):
+    zone_name = "play"
+    ordered = False
+    def before_card_added(self, card): card.current_role = card.in_play_role
+    #def before_card_removed(self, card): card.save_lki()
+
+class OrderedOutPlayZone(OrderedZone):
+    #def after_card_added(self, card):
+    #    # Maintain the in_play role as long as possible if it was added from play
+    #    card.current_role = card.out_play_role
+    def before_card_added(self, card):
+        card.current_role = card.out_play_role
+
+class OutPlayZone(Zone):
+    #def after_card_added(self, card):
+    #    # Maintain the in_play role as long as possible if it was added from play
+    #    card.current_role = card.out_play_role
+    def before_card_added(self, card):
+        card.current_role = card.out_play_role
 
 class Library(OrderedOutPlayZone):
     def __init__(self, cards=[]):
