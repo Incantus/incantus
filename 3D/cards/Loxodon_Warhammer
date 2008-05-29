@@ -20,7 +20,7 @@ subrole.abilities = [EquipAbility(card, "3")]
 subrole.attached_abilities = [EquipmentStaticAbility(card,
                                         effects=[AugmentPowerToughness(power=3,toughness=0,expire=False),
                                                  GiveKeyword(trample, expire=False, keyword="trample"),
-                                                 GiveKeyword(lambda role: lifelink(role, True), expire=False, keyword="lifelink")]),
+                                                 GiveKeyword(lambda role: lifelink(role, role.card, True), expire=False, keyword="lifelink")]),
 ]
 
 #################################

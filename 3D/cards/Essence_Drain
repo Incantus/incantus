@@ -10,7 +10,7 @@ text = ['Essence Drain deals 3 damage to target creature or player and you gain 
 
 out_play_role.abilities = [CastNonPermanentSpell(card, cost,
 				target=[Target(target_types=[isCreature, isPlayer]),
-					Target(targeting="controller")],
+					Target(targeting="you")],
 				effects=[DealDamage(3), ChangeLife(3)])
 ]
 

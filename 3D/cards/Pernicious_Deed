@@ -14,8 +14,6 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-# XXX Possible error with ManaCost X and MultipleCosts
-
 mc = ManaCost("X")
 cost_check = lambda p, mc=mc: p.cost.converted_cost() <= mc.X
 targets = [isCreature.with_condition(cost_check), isArtifact.with_condition(cost_check), isEnchantment.with_condition(cost_check)]

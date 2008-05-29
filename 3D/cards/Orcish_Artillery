@@ -15,7 +15,7 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.abilities = [ActivatedAbility(card, TapCost(),
-                                target=[Target(target_types=isPlayerOrCreature), Target(targeting="controller")],
+                                target=[Target(target_types=isPlayerOrCreature), Target(targeting="you")],
                                 effects=[DealDamage(2), DealDamage(3)])
 ]
 

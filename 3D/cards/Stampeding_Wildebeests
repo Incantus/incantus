@@ -22,7 +22,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = PlayerTrigger(event=UpkeepStepEvent()),
                                       match_condition = lambda player, card=card: player == card.controller,
                                       ability = PostponedAbility(card,
-                                                        target=Target(target_types=isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.color == "G"), required=True, untargeted=True),
+                                                        target=Target(target_types=isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.color == "G"), untargeted=True),
                                                         effects=ChangeZoneFromPlay(to_zone="hand")))
 ]
 

@@ -28,9 +28,3 @@ subrole.attached_abilities = [AuraStaticAbility(card,
 ]
 
 #################################
-
-
-
-
-
-

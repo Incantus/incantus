@@ -19,8 +19,8 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = EnterTrigger("play"),
                                       match_condition=SelfMatch(card),
                                       ability=ChoiceAbility(card, "0",
-                                                 choice_target=Target(targeting="controller"),
-                                                 target=Target(targeting="controller"),
+                                                 choice_target=Target(targeting="you"),
+                                                 target=Target(targeting="you"),
                                                  effects=MoveCards(from_zone="graveyard", to_zone="hand", card_types=isArtifactType))),
 ]
 subrole.static_abilities = []

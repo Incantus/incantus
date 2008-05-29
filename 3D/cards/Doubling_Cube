@@ -17,7 +17,7 @@ in_play_role = Permanent(card, subrole)
 def double_mana(card, target): target.manapool.addMana(target.manapool._mana)
 
 subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("3"), TapCost()]),
-                                target=Target(targeting="controller"),
+                                target=Target(targeting="you"),
                                 effects=NullEffect(double_mana))
 ]
 subrole.triggered_abilities = []

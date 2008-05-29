@@ -16,7 +16,7 @@ in_play_role = Permanent(card, subrole)
 
 mc = ManaCost("X")
 subrole.abilities = [ActivatedAbility(card, MultipleCosts([mc, TapCost()]),
-                            target=Target(targeting="controller"),
+                            target=Target(targeting="you"),
                             effects=[MoveCards(from_zone="library", to_zone="hand",
                                         number=1,
                                         card_types=isCreatureType.with_condition(lambda c, mc=mc: c.cost <= mc.X),

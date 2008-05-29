@@ -19,7 +19,7 @@ in_play_role = Permanent(card, subrole)
 target = Target(target_types=isCreature.with_condition(lambda c, self=card: c.controller==self.controller))
 subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("W"), TapCost()]),
 				target=[Target(target_types=isAuraType.with_condition(lambda aura: aura.in_play_role.target_types == isCreature), zone="graveyard"), target],
-				effects=[ChangeZone(from_zone="graveyard", to_zone="play", func=lambda aura, target=target: aura.attach(target.target)), NullEffect()],
+				effects=[ChangeZoneToPlay(from_zone="graveyard", func=lambda aura, target=target: aura.attach(target.target)), NullEffect()],
 				 copy_targets=False)]
 subrole.static_abilities = []
 

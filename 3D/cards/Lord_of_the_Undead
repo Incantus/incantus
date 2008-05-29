@@ -15,7 +15,7 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("1B"), TapCost()]),
-                                target=Target(targeting="controller"),
+                                target=Target(targeting="you"),
                                 effects=MoveCards(from_zone="graveyard", to_zone="hand", card_types=isCard.with_condition(lambda c: c.subtypes == "Zombie")))
 ]
 subrole.static_abilities = [PermanentTrackingAbility(card,

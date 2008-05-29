@@ -18,7 +18,7 @@ subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = DealDamageTrigger(sender=card),
                                         match_condition = lambda sender, to: isPlayer(to) and not to == sender.controller,                        
-                                        ability = Ability(card, target=Target(targeting="controller"),
+                                        ability = Ability(card, target=Target(targeting="you"),
                                                     effects=DrawCard(1)))
 ]
 subrole.static_abilities = []

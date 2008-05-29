@@ -22,7 +22,7 @@ subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = Trigger(ManaEvent()),
                                         match_condition = lambda sender, c=card: sender==c.attached_to,
-                                        ability = ManaAbility(card, target=Target(targeting=lambda c=card: c.attached_to.controller),
+                                        ability = ManaAbility(card, target=SpecialTarget(targeting=lambda c=card: c.attached_to.controller),
                                                     effects=AddMana("GG"))),
 ]
 subrole.static_abilities = []

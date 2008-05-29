@@ -18,7 +18,7 @@ first_strike(subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = PlayerTrigger(event=UpkeepStepEvent()),
                                       match_condition = lambda player, self=card: player==self.controller,
-                                      ability = DoOrAbility(card, target=Target(targeting="controller"),
+                                      ability = DoOrAbility(card, target=Target(targeting="you"),
                                                         effects=DiscardCard(number=1,required=False),
                                                         failed=SacrificeSelf())),
                                     TriggeredAbility(card,

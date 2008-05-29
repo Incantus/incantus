@@ -16,7 +16,7 @@ in_play_role = Permanent(card, subrole)
 
 subrole.abilities = [ActivatedAbility(card, cost="1", effects=MoveCards(from_zone="library", to_zone="library", to_position="top", number=3, subset=3),
 		     ActivatedAbility(card, cost=TapCost(),
-				target=[Target(targeting="controller"), Target(targeting="self")],
+				target=[Target(targeting="you"), Target(targeting="self")],
 				effects=[DrawCard(1), ChangeZoneFromPlay(to_zone="library", to_position="top")]))]
 
 #################################

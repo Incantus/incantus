@@ -18,7 +18,7 @@ first_strike(subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger("play"),
                                         match_condition=SelfMatch(card),
-                                        ability=Ability(card, target=Target(targeting="controller"),
+                                        ability=Ability(card, target=Target(targeting="you"),
                                                 effects=ChangeLife(lambda l,c=card: l+len(c.controller.graveyard))))]
 
 #################################

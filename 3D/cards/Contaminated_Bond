@@ -21,12 +21,12 @@ in_play_role = Permanent(card, subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = Trigger(AttackerDeclaredEvent()),
                                         match_condition = lambda sender, c=card: sender==c.attached_to,
-                                        ability = Ability(card, target=Target(targeting=lambda c=card: c.attached_to.controller),
+                                        ability = Ability(card, target=SpecialTarget(targeting=lambda c=card: c.attached_to.controller),
                                                     effects=ChangeLife(-3))),
                                     TriggeredAbility(card,
                                         trigger = Trigger(BlockerDeclaredEvent()),
                                         match_condition = lambda sender, c=card: sender==c.attached_to,
-                                        ability = Ability(card, target=Target(targeting=lambda c=card: c.attached_to.controller),
+                                        ability = Ability(card, target=SpecialTarget(targeting=lambda c=card: c.attached_to.controller),
                                                     effects=ChangeLife(-3))),
 ]
 subrole.attached_abilities = []

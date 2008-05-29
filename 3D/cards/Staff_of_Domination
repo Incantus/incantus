@@ -15,19 +15,10 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.abilities = [ActivatedAbility(card, cost="1", target=Target(targeting="self"), effects=UntapTargetPermanent()),
-		     ActivatedAbility(card, cost=MultipleCosts([ManaCost("2"), TapCost()]), target=Target(targeting="controller"), effects=ChangeLife(1)),
+		     ActivatedAbility(card, cost=MultipleCosts([ManaCost("2"), TapCost()]), target=Target(targeting="you"), effects=ChangeLife(1)),
 		     ActivatedAbility(card, cost=MultipleCosts([ManaCost("3"), TapCost()]), target=Target(target_types=isCreature), effects=UntapTargetPermanent()),
 		     ActivatedAbility(card, cost=MultipleCosts([ManaCost("4"), TapCost()]), target=Target(target_types=isCreature), effects=TapTargetPermanent()),
-		     ActivatedAbility(card, cost=MultipleCosts([ManaCost("5"), TapCost()]), target=Target(targeting="controller"), effects=DrawCard(1)),
+		     ActivatedAbility(card, cost=MultipleCosts([ManaCost("5"), TapCost()]), target=Target(targeting="you"), effects=DrawCard(1)),
 ]
 
 #################################
-
-
-
-
-
-
-
-
-

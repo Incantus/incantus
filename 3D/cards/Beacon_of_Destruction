@@ -13,12 +13,3 @@ out_play_role.abilities = [CastNonPermanentSpell(card, cost,
                                         Target(targeting="owner")],
                                 effects=[DealDamage(5), ShuffleIntoLibrary()])
 ]
-
-
-
-
-
-
-
-
-

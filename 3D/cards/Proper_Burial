@@ -1,0 +1,21 @@
+name = 'Proper Burial'
+cardnum = 0
+expansion = ''
+type = characteristic('Enchantment')
+supertype = no_characteristic()
+subtypes = no_characteristic()
+cost = '3W'
+color = characteristic(['W'])
+text = ["Whenever a creature you control is put into a graveyard from play, you gain life equal to that creature's toughness."]
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.triggered_abilities = [TriggeredAbility(card,                                        trigger=EnterFromTrigger(from_zone="play", to_zone="graveyard"),
+             match_condition = lambda card, self=card: isCreatureType(card) and card.controller == self.controller,
+                                        ability = Ability(card, target=Target("you"), effects=ChangeLife(lambda l: l+trigger.)))]
+
+#################################

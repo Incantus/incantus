@@ -21,7 +21,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = EnteringTrigger("play"),
                                         match_condition = SelfMatch(card),
                                         ability = ChoiceAbility(card, 0, msg="clone artifact in play?",
-                                                choice_target = Target(targeting="controller"),
+                                                choice_target = Target(targeting="you"),
                                                 target = Target(target_types=isArtifact),
                                                 effects = Clone()))
 ]

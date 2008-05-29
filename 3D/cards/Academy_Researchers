@@ -18,8 +18,8 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = EnterTrigger("play"),
                                         match_condition = SelfMatch(card),
                                         ability = ChoiceAbility(card, 0, msg="put an Aura card from your hand into play attached to Academy Researchers?",
-                                                choice_target = Target(targeting="controller"),
-                                                target = Target(targeting="controller"),
+                                                choice_target = Target(targeting="you"),
+                                                target = Target(targeting="you"),
                                                 effects = MoveCards(from_zone="hand", to_zone="play", card_types=isAuraType.with_condition(lambda aura: aura.in_play_role.target_types == isCreature), func=lambda aura, self=card: aura.attach(self))))]
 
 #################################

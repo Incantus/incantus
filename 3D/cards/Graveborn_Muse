@@ -20,7 +20,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = trigger,
                                       match_condition = lambda player, card=card: player == card.controller,
                                       ability = Ability(card,
-                                                  target=Target(targeting="controller"),
+                                                  target=Target(targeting="you"),
                                                   effects=[DrawCard(num_zombies), ChangeLife(lambda life, n=num_zombies: life-n)]))
 ]
 

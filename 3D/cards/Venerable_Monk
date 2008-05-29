@@ -19,7 +19,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = EnterTrigger("play"),
                                       match_condition=SelfMatch(card),
                                       ability=Ability(card,
-                                                 target=Target(targeting="controller"),
+                                                 target=Target(targeting="you"),
                                                  effects=ChangeLife(2))),]
 subrole.static_abilities = []
 

@@ -18,7 +18,7 @@ flying(subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = EnterTrigger("play"),
                                       match_condition=SelfMatch(card),
-                                      ability=Ability(card, target=Target(target_types=isPermanent, required=True),
+                                      ability=Ability(card, target=Target(target_types=isPermanent),
                                                 effects=Destroy()))
 ]
 

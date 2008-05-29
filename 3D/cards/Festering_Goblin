@@ -18,7 +18,7 @@ subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger(zone="graveyard"),
                                         match_condition=SelfMatch(card),
-                                        ability=Ability(card, target=Target(target_types=isCreature, required=True),
+                                        ability=Ability(card, target=Target(target_types=isCreature,),
                                                 effects=AugmentPowerToughness(power=-1,toughness=-1))),
 ]
 subrole.static_abilities = []

@@ -16,7 +16,7 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.abilities = [ActivatedAbility(card, MultipleCosts([TapCost(), LifeCost(1), SacrificeCost()]),
-                                target=Target(targeting="controller"),
+                                target=Target(targeting="you"),
                                 effects=[MoveCards(from_zone="library", to_zone="play", card_types=isLandType.with_condition(lambda l: l.subtypes == "Mountain" or l.subtypes == "Forest"), number=1), ShuffleLibrary()])
 ]
 

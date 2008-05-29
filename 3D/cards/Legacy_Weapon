@@ -22,7 +22,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger(zone="graveyard"),
                                         match_condition=SelfMatch(card),
                                         always_on=True,
-                                        ability=Ability(card, target=[Target(targeting="controller"), Target(targeting="self")],
+                                        ability=Ability(card, target=[Target(targeting="you"), Target(targeting="self")],
                                                 effects=[RevealCard(), ShuffleIntoLibrary()]))]
 subrole.static_abilities = []
 

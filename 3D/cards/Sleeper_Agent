@@ -23,7 +23,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                     TriggeredAbility(card,
                                       trigger = PlayerTrigger(event=UpkeepStepEvent()),
                                       match_condition = lambda player, card=card: player == card.controller,
-                                      ability = Ability(card, target=Target(targeting="controller"),
+                                      ability = Ability(card, target=Target(targeting="you"),
                                                         effects=DealDamage(2)))]
 subrole.static_abilities = []
 

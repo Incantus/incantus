@@ -24,13 +24,3 @@ subrole.static_abilities = [PermanentTrackingAbility(card,
 ]
 
 #################################
-
-
-
-
-
-
-
-
-
-

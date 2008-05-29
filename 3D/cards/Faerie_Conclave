@@ -26,18 +26,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('U')),
 in_play_role.tapped = True
 
 #################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

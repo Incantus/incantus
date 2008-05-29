@@ -20,7 +20,7 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('WB')),]
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = EnterTrigger("play"),
                                       match_condition=SelfMatch(card),
-                                      ability=PostponedAbility(card, target=Target(target_types=isLand, zone_limit="controller", required=True),
+                                      ability=PostponedAbility(card, target=Target(target_types=isLand, zone_limit="controller",),
                                                 effects=ChangeZoneFromPlay(to_zone="hand")))]
 
 #################################

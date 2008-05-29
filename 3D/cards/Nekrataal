@@ -19,7 +19,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger("play"),
                                         match_condition = SelfMatch(card),
                                         ability=Ability(card,
-                                                  target=Target(target_types=isCreature.with_condition(lambda creature: not creature.color == "B" and not creature.type == "Artifact"), required=True),
+                                                  target=Target(target_types=isCreature.with_condition(lambda creature: not creature.color == "B" and not creature.type == "Artifact"),),
                                                   effects=DestroyNoRegenerate()))
 ]
 

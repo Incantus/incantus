@@ -16,7 +16,7 @@ in_play_role = Permanent(card, subrole)
 
 subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("B"), TapCost(), SacrificeCost()]),
                                 target=Target(target_types=isCreatureType, zone="graveyard", zone_limit="controller"),
-                                effects=ChangeZone(from_zone="graveyard", to_zone="play"))
+                                effects=ChangeZoneToPlay(from_zone="graveyard"))
 ]
 subrole.triggered_abilities = []
 subrole.static_abilities = []

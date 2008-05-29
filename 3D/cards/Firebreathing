@@ -19,12 +19,10 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.abilities = [ActivatedAbility(card, cost="R",
-                                target=Target(targeting="attached"),
+                                target=SpecialTarget(targeting=lambda c=card: c.attached_to),
                                 effects=AugmentPowerToughness(power=1, toughness=0))]
 subrole.triggered_abilities = []
 subrole.static_abilities = []
 subrole.attached_abilities = []
 
 #################################
-
-

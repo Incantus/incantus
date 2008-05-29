@@ -15,7 +15,7 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.abilities = [ActivatedAbility(card, TapCost(),
-                                target=Target(targeting="controller"),
+                                target=Target(targeting="you"),
                                 effects=MoveCards(from_zone="hand", to_zone="play", card_types=isLandType, number=1),
                                 limit=SorceryLimit(card))
 ]

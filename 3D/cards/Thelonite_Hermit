@@ -23,7 +23,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = Trigger(event=MorphEvent()),
                                       match_condition=SelfMatch(card),
                                       ability=Ability(card,
-                                                target=Target(targeting="controller"),
+                                                target=Target(targeting="you"),
                                                 effects=CreateToken({"name":"Saproling", "type":"Creature", "color":"G", "subtypes":["Saproling"], "role": TokenCreature(1,1)}, number=4)))
 ]
 subrole.static_abilities = [PermanentTrackingAbility(card,

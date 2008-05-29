@@ -1,0 +1,30 @@
+name = 'Hoofprints of the Stag'
+cardnum = 21
+expansion = 'Lorwyn'
+type = characteristic('Enchantment')
+supertype = no_characteristic()
+subtypes = characteristic(['Elemental'])
+cost = '1W'
+color = characteristic(['W'])
+text = ['Whenever you draw a card, you may put a hoofprint counter on Hoofprints of the Stag.', '2W, Remove four hoofprint counters from Hoofprints of the Stag: Put a 4/4 white Elemental creature token with flying into play. Play this ability only during your turn.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+token_role = Creature(4,4)
+flying(token_role)
+token_info = {'name': 'Elemental', 'color': 'W', 'type': 'Creature', 'subtypes': ['Elemental'], 'role': token_role}
+subrole.abilities = [ActivatedAbility(card, cost=MultipleCosts([ManaCost("2W"), CounterCost("hoofprint", number=4)]), effects=CreateToken(token_info=token_info), limit=TurnLimit(card))]
+
+subrole.triggered_abilities = [TriggeredAbility(card,
+			trigger=Trigger(event=DrawCardEvent()),
+			match_condition = lambda sender, self=card: sender == self.controller,
+			ability=ChoiceAbility(card, "0",
+			msg="put a counter on Hoofprints of the Stag?",
+			target=Target(targeting="self"),
+			effects=AddCounter(Counter("hoofprint"))))]
+
+#################################
