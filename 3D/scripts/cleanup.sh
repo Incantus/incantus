@@ -1,7 +1,8 @@
 #!/bin/sh
 
+cd Incantus-linux
 rm -rf Incantus
-cp -r ~/Projects/Incantus/src Incantus
+cp -r ../src Incantus
 find ./ | grep ".py[co]" | xargs rm
 ./run.sh
 cp Incantus/main.py .
@@ -10,4 +11,4 @@ rm -f Incantus/*.pyc Incantus/game/*.pyc Incantus/game/Ability/*.pyc
 #find ./Incantus | grep ".py$" | xargs rm
 mv main.py Incantus
 #rm data/card_images.db
-tar -zcvhf Incantus.tar.gz Incantus/ data/cards.db
+tar -zcvhf ../Incantus.tar.gz Incantus/ data/cards.db --exclude .svn

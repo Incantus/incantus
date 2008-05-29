@@ -36,17 +36,20 @@ setup(
 
     # targets to build.  name of your exe here.
     windows = [{
-               "script":"src/Incantus.py",
+               "script":"src/main.py",
                "icon_resources":[(1,'data/Incantus-win.ico')],
+               "dest_base": "Incantus",
                }],
     options = opts,
-    zipfile = None, # This places the python zip library into the executable
+    zipfile = None, #"library.zip", #None, # This places the python zip library into the executable
     data_files=[],
 )
 
 def copy_data_dirs():
     import shutil
     shutil.copytree("data", os.path.join(dist_dir, "data"))
+    shutil.copytree("decks", os.path.join(dist_dir, "decks"))
+    shutil.copy("incantus.ini", os.path.join(dist_dir, "incantus.ini"))
 
 print "-" * 40
 print "copying files"

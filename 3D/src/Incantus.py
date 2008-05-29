@@ -105,7 +105,7 @@ class GameWindow(window.Window):
         self.otherhand_controller = HandController(self.otherplayer_hand, self)
         self.stack = StackView()
         self.stack_controller = StackController(self.stack, self)
-        self.fps = pyglet.clock.ClockDisplay(color=(0.2, 0.2, 0.2, 0.4))
+        self.fps = pyglet.clock.ClockDisplay(color=(1.0, 1.0, 1.0, 0.3))
         self.zone_animator = ZoneAnimator(self)
         self.start_new_game = False
         self._keep_priority = False
@@ -218,11 +218,11 @@ class GameWindow(window.Window):
         self.stack.render()
         self.zone_animator.render2d()
         self.game_status.render()
+        self.msg_dialog.render()
         self.otherplayer_hand.render()
         self.player_hand.render()
         self.zone_view.render()
         self.selection.render()
-        self.msg_dialog.render()
         #self.fps.draw()
         glDisable(GL_TEXTURE_2D)
         self.unset_2d()
@@ -254,10 +254,10 @@ class GameWindow(window.Window):
                 self.status_controller.set_solitaire()
                 self.otherplayer_hand.set_solitaire()
                 self.action_new_game()
-            elif symbol == key.F6:
-                self.status_controller.set_solitaire()
-                self.otherplayer_hand.set_solitaire()
-                self.restart_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")))
+            #elif symbol == key.F6:
+            #    self.status_controller.set_solitaire()
+            #    self.otherplayer_hand.set_solitaire()
+            #    self.restart_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")))
             elif symbol == key.F7:
                 self.status_controller.set_solitaire()
                 self.otherplayer_hand.set_solitaire()
