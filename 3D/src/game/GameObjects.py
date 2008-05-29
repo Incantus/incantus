@@ -94,7 +94,7 @@ class GameObject(MtGObject):
                 return
             # Make a copy of the role, so that there's no memory whenever we re-enter play
             if role == self.in_play_role: self._current_role = role.copy()
-            else: self._current_role = role
+            else: self._current_role = role   # XXX i need to fix this for blink effects out of play, but i can't just make a copy
 
             # Set up base characteristics
             self.color = self.base_color.copy()
