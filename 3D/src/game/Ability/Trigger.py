@@ -29,6 +29,7 @@ class Trigger(MtGObject):
     def __init__(self, event=None, sender=MtGObject.Any):
         self.trigger_event = event
         self.trigger_sender = sender
+        self.activated = False
     def setup_trigger(self, ability, trigger_function, match_condition=None, expiry=-1):
         self.count = 0
         self.expiry = expiry
@@ -37,10 +38,13 @@ class Trigger(MtGObject):
         if match_condition: self.match_condition = match_condition
         else: self.match_condition = lambda *args: True
         self.register(self.filter, event=self.trigger_event, sender=self.trigger_sender)
+        self.activated = True
     def clear_trigger(self):
         # This guarantees that all simultaneous events are caught by a registered trigger
-        unregister = lambda: self.unregister(self.filter, event=self.trigger_event, sender=self.trigger_sender)
-        self.register(unregister, event=TimestepEvent(), weak=False, expiry=1)
+        if self.activated:
+            unregister = lambda: self.unregister(self.filter, event=self.trigger_event, sender=self.trigger_sender)
+            self.register(unregister, event=TimestepEvent(), weak=False, expiry=1)
+            self.activated = False
     def filter(self, sender, **keys):
         if robustApply(self.match_condition, sender, **keys) and (self.expiry == -1 or self.count < self.expiry):
             self.sender = sender
@@ -101,12 +105,15 @@ class MoveTrigger(CardTrigger):
             self.events_senders.append((self.trigger_event, trigger_sender))
         for event, sender in self.events_senders:
             self.register(self.filter, event=event, sender=sender)
+        self.activated = True
     def clear_trigger(self):
-        # XXX closures are not bound properly in loops, so have to define an external function
-        def unregister(event, sender):
-            return lambda: self.unregister(self.filter, event=event, sender=sender)
-        for event, sender in self.events_senders:
-            self.register(unregister(event, sender), event=TimestepEvent(), weak=False, expiry=1)
+        if self.activated:
+            # closures are not bound properly in loops, so have to define an external function
+            def unregister(event, sender):
+                return lambda: self.unregister(self.filter, event=event, sender=sender)
+            for event, sender in self.events_senders:
+                self.register(unregister(event, sender), event=TimestepEvent(), weak=False, expiry=1)
+            self.activated = False
 
 class EnterTrigger(MoveTrigger):
     def __init__(self, zone=None, any=False):
@@ -138,12 +145,15 @@ class EnterFromTrigger(Trigger):
         else: self.match_condition = lambda *args: True
         self.events_senders = [(CardEnteringZone(), self.filter_entering), (CardLeftZone(), self.filter_left)]
         for event, filter in self.events_senders: self.register(filter, event=event)
+        self.activated = True
     def clear_trigger(self):
-        # XXX closures are not bound properly in loops, so have to define an external function
-        def unregister(event, filter):
-            return lambda: self.unregister(filter, event=event)
-        for event, filter in self.events_senders:
-            self.register(unregister(event, filter), event=TimestepEvent(), weak=False, expiry=1)
+        if self.activated:
+            # closures are not bound properly in loops, so have to define an external function
+            def unregister(event, filter):
+                return lambda: self.unregister(filter, event=event)
+            for event, filter in self.events_senders:
+                self.register(unregister(event, filter), event=TimestepEvent(), weak=False, expiry=1)
+            self.activated = False
     def filter_entering(self, sender, card):
         if self.match_condition(card) and str(sender) == self.to_zone:
             self.entering.add(card)
