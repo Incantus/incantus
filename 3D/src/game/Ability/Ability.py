@@ -47,6 +47,7 @@ class Ability(MtGObject):
         success = True
         if self.needs_target() and not self.check_target(): return False
         if not self.preresolve(): return False
+        self.send(TimestepEvent())    # This is for any cards that are moved into play
         for i, effect in enumerate(self.effects):
             if len(self.targets) == 1: i = 0
             if effect(self.card, self.targets[i].target) == False: success=False
