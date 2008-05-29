@@ -773,19 +773,23 @@ class AugmentPowerToughness(Effect):
 # Change Zone is used when targeting specific cards to move between zones
 # unlike MoveCards, which selects the cards once the ability resolves
 class ChangeZone(Effect):
-    def __init__(self, from_zone, to_zone, to_position="top", func=lambda card: None, expire=False):
+    def __init__(self, from_zone, to_zone, to_position="top", to_owner=True, func=lambda card: None, expire=False):
+        if from_zone == to_zone: raise Exception("Cannot ChangeZone from a zone to the same zone")
         self.from_zone = from_zone
         self.to_zone = to_zone
         self.to_position = to_position
+        self.to_owner = to_owner
         self.func = func
         self.expire = expire
     def __call__(self, card, target):
         if self.from_zone == "play": from_zone = target.controller.play
         else: from_zone = getattr(target.owner, self.from_zone)
-        if self.to_zone == "play":
-            to_zone = card.controller.play
-            target.controller = card.controller
-        else: to_zone = getattr(target.owner, self.to_zone)
+        if self.to_owner: to_zone = getattr(target.owner, self.to_zone)
+        else: to_zone = getattr(card.controller, self.to_zone)
+        #if self.to_zone == "play":
+        #    to_zone = card.controller.play
+        #    target.controller = card.controller
+        #else: to_zone = getattr(target.owner, self.to_zone)
         if self.to_position == "top": position = -1
         else: position = 0
         to_zone.move_card(target, from_zone, position=position)
@@ -802,6 +806,10 @@ class ChangeZone(Effect):
 class ChangeZoneFromPlay(ChangeZone):
     def __init__(self, to_zone, to_position="top", func=lambda card: None):
         super(ChangeZoneFromPlay,self).__init__(from_zone="play", to_zone=to_zone, to_position=to_position, func = func)
+
+class ChangeZoneToPlay(ChangeZone):
+    def __init__(self, from_zone, to_owner=False, func=lambda card: None):
+        super(ChangeZoneToPlay,self).__init__(from_zone=from_zone, to_zone="play", to_owner=to_owner, func = func)
 
 class PlayCard(Effect):
     def __init__(self, cost=None):
