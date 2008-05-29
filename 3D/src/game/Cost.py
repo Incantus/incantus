@@ -256,8 +256,13 @@ class MultipleCosts(Cost):
             if type(c) == str: manacost.append(ManaCost(c))
             elif isinstance(c,ManaCost): manacost.append(c)
             else: newcost.append(c)
-        if manacost: return [reduce(lambda x,y: x+y, manacost)]+newcost
-        else: return costs
+        # If this first ManaCost has an X, the following reduce will ensure that we keep it as the final ManaCost object
+        if manacost: costs = [reduce(lambda x,y: x+y, manacost)]+newcost
+        return costs
+    def precompute(self, card, player):
+        for c in self.costs:
+            if not c.precompute(card, player): return False
+        return True
     def compute(self, card, player):
         self.paid = False
         for c in self.costs:
@@ -297,9 +302,11 @@ class ConditionalCost(Cost):
         self.new_cost = new_cost
         self.cost = self.orig_cost
         self.func = func
-    def compute(self, card, player):
+    def precompute(self, card, player):
         if self.func(card, player):
             self.cost = self.new_cost
+        return self.cost.precompute(card, player)
+    def compute(self, card, player):
         return self.cost.compute(card, player)
     def pay(self, card, player):
         return self.cost.pay(card, player)
@@ -366,6 +373,7 @@ class DiscardCost(Cost):
         return "Discard %d %s%s"%(self.number, txt, a)
 
 class ConvokeCost(Cost):
+    # XXX Incomplete
     def __init__(self, convoke):
         if type(convoke) == str: convoke = ManaCost(convoke)
         self.cost = convoke
@@ -378,20 +386,6 @@ class ConvokeCost(Cost):
     def __str__(self):
         return "Convoke %s"%str(self.cost)
 
-# XXX This is unnecessary
-class BuybackCost(Cost):
-    def __init__(self, buyback):
-        if type(buyback) == str: buyback = ManaCost(buyback)
-        self.cost = buyback
-    def compute(self, card, player):
-        return self.cost.compute(card, player)
-    def pay(self, card, player):
-        return self.cost.pay(card, player)
-    def reverse(self, card, player):
-        self.cost.reverse(card, player)
-    def __str__(self):
-        return "Buyback %s"%str(self.cost)
-
 class EvokeCost(Cost):
     def __init__(self, orig_cost, evoke_cost):
         if type(orig_cost) == str: orig_cost = ManaCost(orig_cost)
@@ -399,6 +393,9 @@ class EvokeCost(Cost):
         self.orig_cost = orig_cost
         self.evoke_cost = evoke_cost
         self.cost = self.orig_cost
+    def precompute(self, card, player):
+        # XXX This is wrong
+        return True
     def compute(self, card, player):
         self.evoked = False
         self.evoked = player.getIntention("Pay evoke cost?", "...pay evoke cost?")
@@ -420,6 +417,9 @@ class ProwlCost(Cost):
         self.prowl_cost = prowl_cost
         self.cost = self.orig_cost
         self.can_prowl = False
+    def precompute(self, card, player):
+        # XXX This is wrong
+        return True
     def compute(self, card, player):
         if self.can_prowl:
             self.prowled = player.getIntention("Pay prowl cost?", "...pay prowl cost?")
