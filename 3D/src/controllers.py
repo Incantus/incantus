@@ -36,6 +36,7 @@ class MessageController(object):
         elif symbol in [key.F2, key.F3]:
             return True
     def on_mouse_press(self, x, y, button, modifiers):
+        if (button == mouse.RIGHT or modifiers & key.MOD_OPTION): return False
         x -= self.dialog.pos.x
         y -= self.dialog.pos.y
         item, result = self.dialog.handle_click(x, y)
@@ -44,6 +45,7 @@ class MessageController(object):
             item.main_text.color = (0.5, 0.5, 0.5, 1.0)
         return True
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        if (buttons == mouse.RIGHT or modifiers & key.MOD_OPTION): return False
         if self.click:
             x -= self.dialog.pos.x
             y -= self.dialog.pos.y
@@ -52,6 +54,7 @@ class MessageController(object):
             else: item.main_text.color = (0.5, 0.5, 0.5, 1.0)
         return True
     def on_mouse_release(self, x, y, button, modifiers):
+        if (button == mouse.RIGHT or modifiers & key.MOD_OPTION): return False
         if self.click:
             x -= self.dialog.pos.x
             y -= self.dialog.pos.y
@@ -165,7 +168,9 @@ class CardSelector(object):
         else:
             if not is_opponent: status = self.mainstatus
             else: status = self.otherstatus
-            if from_zone == "hand": self.zone_view.pos = status.pos + status.symbols["life"].pos
+            if from_zone == "hand" or from_zone == "play": 
+               #self.zone_view.pos = status.pos + status.symbols["life"].pos
+               self.zone_view.pos = euclid.Vector3(self.window.width/2, self.window.height/2, 0)
             else: self.zone_view.pos = status.pos + status.symbols[from_zone].pos
         self.zone_view.build(sellist, is_opponent)
         self.zone_view.show()
@@ -676,11 +681,14 @@ class HandController(object):
                     self.card_clicked = card
                     if (button == mouse.RIGHT or modifiers & key.MOD_OPTION):
                         self.zooming = True
-                        hand.zoom_card(card)
+                        hand.zoom_card(self.card_clicked)
         else: self.mouse_down = False
         return self.mouse_down
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        if self.mouse_down: return True
+        #if self.mouse_down: return True
+        hand = self.player_hand
+        x -= hand.pos.x
+        y -= hand.pos.y
         if self.mouse_down and self.card_clicked:
             if not self.zooming:
                 self.drag_x += dx
@@ -689,16 +697,23 @@ class HandController(object):
                 if self.drag_x > w or self.drag_x < -w:
                     if self.drag_x > w:
                         for i in range(int(self.drag_x/w)):
-                            if self.player_hand.dir == 1: self.player_hand.shift_right(self.card_clicked)
-                            else: self.player_hand.shift_left(self.card_clicked)
+                            if hand.dir == 1: hand.shift_right(self.card_clicked)
+                            else: hand.shift_left(self.card_clicked)
                     elif self.drag_x < -w:
                         for i in range(int(self.drag_x/-w)):
-                            if self.player_hand.dir == 1: self.player_hand.shift_left(self.card_clicked)
-                            else: self.player_hand.shift_right(self.card_clicked)
-                    self.player_hand.layout()
+                            if hand.dir == 1: hand.shift_left(self.card_clicked)
+                            else: hand.shift_right(self.card_clicked)
+                    hand.layout()
                     self.drag_x = 0
                 self.card_clicked._pos.set(self.card_clicked.pos)
                 self.card_clicked._pos.x = self.card_clicked.pos.x + dx
+            elif (buttons == mouse.RIGHT or modifiers & key.MOD_OPTION):
+                for card in hand.cards[::-1]:
+                    sx, sy, sw, sh = card.pos.x, card.pos.y, card.width*card.size/2, card.height*card.size/2
+                    if x > sx-sw and x < sx+sw and y >= sy-sh and y <= sy+sh and not card == self.card_clicked:
+                        hand.restore_card(self.card_clicked)
+                        hand.zoom_card(card)
+                        self.card_clicked = card
         return self.mouse_down
     def on_mouse_release(self, x, y, button, modifiers):
         if self.mouse_down:
@@ -706,7 +721,7 @@ class HandController(object):
             if self.card_clicked:
                 if self.zooming:
                     self.zooming = False
-                    self.player_hand.restore_card()
+                    self.player_hand.restore_card(self.card_clicked)
                 elif self.dragged:
                     # Move the card
                     self.dragged = False

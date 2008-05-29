@@ -124,7 +124,7 @@ class HandView(CardView):
         self.layout()
         #super(HandView,self).hide()
     def add_card(self, card):
-        newcard = CardLibrary.CardLibrary.getCard(card)
+        newcard = CardLibrary.CardLibrary.getHandCard(card)
         if self.is_opponent and not self.solitaire: newcard.hidden = True
         newcard._pos.set_transition(dt=0.8, method="sine") #self.pos_transition)
         newcard._orientation.set_transition(dt=0.2, method=self.orientation_transition)
@@ -134,7 +134,7 @@ class HandView(CardView):
         if len(self.cards): self.visible = 1.0
         self.layout()
     def remove_card(self, card):
-        card = CardLibrary.CardLibrary.getCard(card)
+        card = CardLibrary.CardLibrary.getHandCard(card)
         # XXX This if statement is an ugly hack, I should remove it once I figure out
         # how to place cards from hand to the stack
         if card in self.cards:
@@ -148,7 +148,7 @@ class HandView(CardView):
         # XXX This is a big ugly hack
         from game.Ability import CastSpell
         if not isinstance(ability, CastSpell): return
-        card = CardLibrary.CardLibrary.getCard(ability.card)
+        card = CardLibrary.CardLibrary.getHandCard(ability.card)
         if card in self.cards:
             self.cards.remove(card)
             if self.focus_dir < 0: self.focus_idx += self.focus_dir
@@ -160,7 +160,7 @@ class HandView(CardView):
         # XXX This is a big ugly hack
         from game.Ability import CastSpell
         if not isinstance(ability, CastSpell): return
-        card = CardLibrary.CardLibrary.getCard(ability.card)
+        card = CardLibrary.CardLibrary.getHandCard(ability.card)
         if card in self.played:
             self.played.remove(card)
             self.cards.append(card)
@@ -174,9 +174,9 @@ class HandView(CardView):
         if idx != len(self.cards)-1:
             self.cards[idx+1], self.cards[idx] = self.cards[idx], self.cards[idx+1]
     def zoom_card(self, card):
-        if self.zooming == 0:
-            self.zooming_card = card
-            self.zooming = anim.animate(0, 1, dt=0.3, method="linear")
+        if card.zooming == 0:
+            #self.zooming_card = card
+            card.zooming = anim.animate(0, 1, dt=0.3, method="linear")
             card.old_pos = card.pos
             card.old_size = card.size
             if card.pos.x+card.width/2 > self.avail_width: pos_shift = self.avail_width - card.width/1.5
@@ -184,11 +184,11 @@ class HandView(CardView):
             card._pos.set_transition(dt=0.2, method="sine") #self.pos_transition)
             card.pos = euclid.Vector3(pos_shift, (self.height+card.height/2)*self.dir, 0)
             card.size = 1.0
-    def restore_card(self):
+    def restore_card(self, card):
         #if self.zooming == 1.0: # This will finish the zooming motion
         if True:
-            self.zooming = anim.animate(1, 0, dt=0.3, method="linear")
-            card = self.zooming_card
+            card.zooming = anim.animate(1, 0, dt=0.3, method="linear")
+            #card = self.zooming_card
             card.size = card.old_size
             card.pos = card.old_pos
     def unfocused_layout(self):

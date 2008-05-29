@@ -122,6 +122,12 @@ class Card(anim.Animable):
     def __str__(self): return self.gamecard.name
     def __repr__(self): return self.gamecard.name
 
+class HandCard(Card):
+    zooming = anim.Animatable()
+    def __init__(self, gamecard, front, back):
+        super(HandCard, self).__init__(gamecard, front, back)
+        self.zooming = 0
+
 class StackCard(Card):
     highlighting = anim.Animatable()
     triggeredlist = None

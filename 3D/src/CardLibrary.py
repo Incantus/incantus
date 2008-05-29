@@ -7,7 +7,7 @@ from cStringIO import StringIO
 from lrucache import LRUCache
 import pyglet.image
 
-from card import Card, PlayCard, StackCard
+from card import Card, PlayCard, HandCard, StackCard
 
 token_img_info = [("10e", ["Soldier","Zombie","Dragon","Goblin","Saproling","Wasp"]),
 ("lorwyn",["Avatar","Elemental","Kithkin Soldier","Merfolk Wizard","Goblin Rogue","Elemental Shaman","Beast","Elemental","Elf Warrior","Wolf","Shapeshifter"]),
@@ -21,6 +21,7 @@ class _CardLibrary:
     img_cache = LRUCache(size=50)
     card_cache = {}
     play_card_cache = {}
+    hand_card_cache = {}
     #datapath = "./data/cards/"
     #cardlists = {}
 
@@ -103,6 +104,9 @@ class _CardLibrary:
         card = self.getCard(gamecard)
         stack_card = StackCard(card.gamecard, card.front, card.back, self.trigger, triggered)
         return stack_card
+
+    def getHandCard(self, gamecard):
+        return self.getCard(gamecard,HandCard,self.hand_card_cache)
 
     def getPlayCard(self, gamecard):
         card = self.getCard(gamecard,PlayCard,self.play_card_cache)
