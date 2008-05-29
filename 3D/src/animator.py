@@ -218,7 +218,7 @@ class ZoneAnimator(object):
         self.stack.remove_ability(ability)
     def controller_changed(self, card, original):
         start_zone = self.play_zones[original.play]
-        end_zone = self.play_zones[card.zone]
+        end_zone = self.play_zones[card.controller.play]
         guicard = start_zone.get_card(card)
         start_pos = self.window.project_to_window(*tuple(start_zone.pos+guicard.pos))
         start_zone.remove_card(card, clock)
