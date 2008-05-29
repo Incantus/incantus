@@ -65,20 +65,12 @@ class OrderedZone(Zone):
         self.pending = False
         self.pending_top = []
         self.pending_bottom = []
-        self.ordering = True
     def init(self):
         self.register(self.commit, TimestepEvent())
-    def enable_ordering(self):
-        self.ordering = True
-    def disable_ordering(self):
-        self.ordering = False
     def add_card_post(self, card, position=-1, trigger=True):
-        if self.ordering:
-            self.pending = True
-            if position == -1: self.pending_top.append((card, trigger))
-            else: self.pending_bottom.append((card, trigger))
-        else:
-            super(OrderedZone, self).add_card_post(card, position, trigger)
+        self.pending = True
+        if position == -1: self.pending_top.append((card, trigger))
+        else: self.pending_bottom.append((card, trigger))
     def _get_order(self, cardlist, pos):
         if len(cardlist) > 1:
             player = cardlist[0].owner
@@ -96,6 +88,7 @@ class OrderedZone(Zone):
             bottomlist = self._get_order([c[0] for c in self.pending_bottom], "bottom")
             self.cards = bottomlist[::-1] + self.cards + toplist[::-1]
             for card in toplist+bottomlist:
+                # XXX Do I ever not want to trigger?
                 trigger = True
                 card.zone = self
                 if trigger == True: self.send(CardEnteredZone(), card=card)
@@ -135,6 +128,11 @@ class Library(OrderedOutPlayZone):
     def __init__(self, cards=[]):
         super(Library, self).__init__(cards)
         self.needs_shuffle = False
+        self.ordering = True
+    def enable_ordering(self):
+        self.ordering = True
+    def disable_ordering(self):
+        self.ordering = False
     def setup_card(self, card):
         self.before_card_added(card)
         self.send(CardEnteringZone(), card=card)
@@ -142,6 +140,16 @@ class Library(OrderedOutPlayZone):
         card.zone = self
         self.send(CardEnteredZone(), card=card)
         self.after_card_added(card)
+    def add_card_post(self, card, position=-1, trigger=True):
+        if self.ordering:
+            super(Library, self).add_card_post(card, position, trigger)
+        else:
+            # XXX Same as Zone.add_card_post
+            if position == -1: self.cards.append(card)
+            else: self.cards.insert(position, card)
+            card.zone = self
+            if trigger == True: self.send(CardEnteredZone(), card=card)
+            self.after_card_added(card)
     def shuffle(self):
         if not self.pending: random.shuffle(self.cards)
         else: self.needs_shuffle = True
