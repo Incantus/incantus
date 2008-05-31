@@ -330,14 +330,13 @@ class LifeCost(Cost):
 
 
 class DiscardCost(Cost):
-    def __init__(self, number=1, cardtype=isCard, discard_self=False):
+    def __init__(self, number=1, cardtype=None):
         self.number = number
         self.cardtype = cardtype
-        self.discard_self = discard_self
     def compute(self, card, player):
         self.paid = False
         self.discards = []
-        if self.discard_self:
+        if not self.cardtype:
             # Discard this card
             self.discards = [card]
         else:
@@ -366,11 +365,11 @@ class DiscardCost(Cost):
         if self.paid:
             for c in self.discards: player.moveCard(c, player.graveyard, player.hand)
     def __str__(self):
-        if self.cardtype: txt = str(self.cardtype)
-        else: txt = ''
-        if self.number > 1: a = 's'
-        else: a = ''
-        return "Discard %d %s%s"%(self.number, txt, a)
+        if self.cardtype:
+            txt = "%d %s"%(self.number, str(self.cardtype))
+            if self.number > 1: txt += 's'
+        else: txt = 'this card'
+        return "Discard %s"%txt
 
 class ConvokeCost(Cost):
     # XXX Incomplete
