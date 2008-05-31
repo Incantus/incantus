@@ -1,3 +1,4 @@
+
 name = 'Root Maze'
 cardnum = 292
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = 'G'
 color = characteristic(['G'])
 text = ['Artifacts and lands come into play tapped.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Enchantment()
 
 in_play_role = Permanent(card, subrole)

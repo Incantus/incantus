@@ -1,3 +1,4 @@
+
 name = 'Doubling Cube'
 cardnum = 321
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '2'
 color = no_characteristic()
 text = ['3, T: Double the amount of each type of mana in your mana pool.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Artifact()
 
 in_play_role = Permanent(card, subrole)
@@ -24,9 +26,3 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
-
-
-
-
-
-

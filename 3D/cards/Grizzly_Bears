@@ -1,3 +1,4 @@
+
 name = 'Grizzly Bears'
 cardnum = 268
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '1G'
 color = characteristic(['G'])
 text = []
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(2, 2)
 
 in_play_role = Permanent(card, subrole)
@@ -15,5 +17,3 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 #################################
-
-

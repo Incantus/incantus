@@ -1,3 +1,4 @@
+
 name = 'Ascendant Evincar'
 cardnum = 127
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '4BB'
 color = characteristic(['B'])
 text = ['Flying', 'Other black creatures get +1/+1.', 'Nonblack creatures get -1/-1.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(3, 3)
 
 in_play_role = Permanent(card, subrole)
@@ -26,11 +28,3 @@ subrole.static_abilities = [PermanentTrackingAbility(card,
 ]
 
 #################################
-
-
-
-
-
-
-
-

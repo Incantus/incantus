@@ -1,10 +1,11 @@
+
 name = 'Sunhome, Fortress of the Legion'
 cardnum = 275
 expansion = 'Ravnica'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T: Add 1 to your mana pool.','2RW,T: Target creature gains double strike until end of turn.']
 
@@ -21,4 +22,3 @@ subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('1')),
 			effects = GiveKeyword(double_strike, expire=True, keyword="double-strike"))]
 
 #################################
-

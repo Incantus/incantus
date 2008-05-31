@@ -1,3 +1,4 @@
+
 name = 'Discombobulate'
 cardnum = 81
 expansion = '10E'
@@ -8,8 +9,7 @@ cost = '2UU'
 color = characteristic(['U'])
 text = ['Counter target spell. Look at the top four cards of your library, then put them back in any order.']
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastInstantSpell(card, cost,
                                 target=[CounterTarget(target_types=isSpellAbility), Target(targeting="you")],
                                 effects=[CounterAbility(),MoveCards(from_zone="library", to_zone="library", to_position="top", number=4, subset=4)])
 ]
-

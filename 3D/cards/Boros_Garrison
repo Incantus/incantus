@@ -1,10 +1,11 @@
+
 name = 'Boros Garrison'
 cardnum = 275
 expansion = 'Ravnica'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['Boros Garrison comes into play tapped.', "When Boros Garrison comes into play, return a land you control to its owner's hand.", 'T: Add RW to your mana pool.']
 
@@ -21,15 +22,8 @@ subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('RW'))]
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = EnterTrigger("play"),
                                       match_condition=SelfMatch(card),
-                                      ability=PostponedAbility(card, target=Target(target_types=isLand, zone_limit="controller",), 
+                                      ability=PostponedAbility(card, target=Target(target_types=isLand, player_zone="controller",), 
                                                 effects=ChangeZoneFromPlay(to_zone="hand")))
 ]
 
 #################################
-
-
-
-
-
-
-

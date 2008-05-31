@@ -1,3 +1,4 @@
+
 name = 'Pyroclasm'
 cardnum = 222
 expansion = '10E'
@@ -8,7 +9,7 @@ cost = '1R'
 color = characteristic(['R'])
 text = ['Pyroclasm deals 2 damage to each creature.']
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastSorcerySpell(card, cost,
                                 target=AllPermanentTargets(target_types=isCreature),
                                 effects=ForEach(DealDamage(2)))
 ]

@@ -1,3 +1,4 @@
+
 name = 'Aura of Silence'
 cardnum = 6
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '1WW'
 color = characteristic(['W'])
 text = ['Artifact and enchantment spells your opponents play cost 2 more to play.', 'Sacrifice Aura of Silence: Destroy target artifact or enchantment.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Enchantment()
 
 in_play_role = Permanent(card, subrole)
@@ -28,5 +30,3 @@ subrole.static_abilities = [GlobalStaticAbility(card,
 ]
 
 #################################
-
-

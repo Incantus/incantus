@@ -1,10 +1,11 @@
+
 name = 'Tundra'
 cardnum = 285
 expansion = 'Beta'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = characteristic(['Plains','Island'])
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T: Add W to your mana pool.','T: Add U to your mana pool.']
 

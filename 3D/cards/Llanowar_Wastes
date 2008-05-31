@@ -1,10 +1,11 @@
+
 name = 'Llanowar Wastes'
 cardnum = 355
 expansion = '10E'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T: Add 1 to your mana pool.', 'T: Add B or G to your mana pool. Llanowar Wastes deals 1 damage to you.']
 
@@ -20,5 +21,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
 ]
 
 #################################
-
-

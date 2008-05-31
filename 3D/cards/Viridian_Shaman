@@ -1,3 +1,4 @@
+
 name = 'Viridian Shaman'
 cardnum = 308
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '2G'
 color = characteristic(['G'])
 text = ['When Viridian Shaman comes into play, destroy target artifact.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(2, 2)
 
 in_play_role = Permanent(card, subrole)
@@ -22,5 +24,3 @@ subrole.triggered_abilities = [TriggeredAbility(card,
 ]
 
 #################################
-
-

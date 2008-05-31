@@ -1,3 +1,4 @@
+
 name = 'March of the Machines'
 cardnum = 91
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '3U'
 color = characteristic(['U'])
 text = ['Each noncreature artifact is an artifact creature with power and toughness each equal to its converted mana cost.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Enchantment()
 
 in_play_role = Permanent(card, subrole)
@@ -23,13 +25,3 @@ subrole.static_abilities = [PermanentTrackingAbility(card,
 ]
 
 #################################
-
-
-
-
-
-
-
-
-
-

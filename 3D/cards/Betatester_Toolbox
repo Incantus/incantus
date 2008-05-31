@@ -8,6 +8,7 @@ cost = '0'
 color = no_characteristic()
 text = ['0 Target player draws a card', '0 Target player discards a card', '0 Add one mana of any color to your mana pool', "0 Return target card from any graveyard to its owner's hand", "0 Return target permanent to its owner's hand", '0 Take an extra turn after this one']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Artifact()
 
 in_play_role = Permanent(card, subrole)
@@ -24,22 +25,15 @@ subrole.abilities = [
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=Destroy()),
   ActivatedAbility(card, cost="0", target=AllPermanentTargets(target_types=[isEnchantment.with_condition(lambda e: not e.subtypes == "Aura"), isCreature]), effects=ForEach(Destroy())),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=DestroyNoRegenerate()),
-  ActivatedAbility(card, cost="0", target=Target(target_types=[isCreature, isPlayer]), effects=DealDamage(amount=1)),
-  ActivatedAbility(card, cost="0", target=Target(target_types=[isCreature, isPlayer]), effects=DealDamage(amount=11)),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isCreatureOrPlayer), effects=DealDamage(amount=1)),
   ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=GiveKeyword(haste, keyword="haste")),
-  ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=GiveKeyword(lambda role: lifelink(role, role.card, True), keyword="lifelink")),
-  ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=GiveKeyword(vigilance, keyword="vigilance")),
   ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=AddPowerToughnessCounter()),
-  ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=AddCounter(Counter("time"), number=4)),
   ActivatedAbility(card, cost="0", target=CounterTarget(target_types=isAbility), effects=CounterAbility()),
   ActivatedAbility(card, cost="0", target=Target(targeting="you"), effects=MoveCards("library", "hand")),
-  ActivatedAbility(card, cost="0", target=Target(targeting="you"), effects=MoveCards("library", "play", number=2)),
-  ActivatedAbility(card, cost="0", target=Target(target_types=isPlayer), effects=MoveCards(from_zone="graveyard", to_zone="play", card_types=isPermanentType)),
+  ActivatedAbility(card, cost="0", target=Target(targeting="you"), effects=MoveCards("library", "play")),
+  ActivatedAbility(card, cost="0", target=Target(target_types=isPermanentType, zone="graveyard"), effects=ChangeZoneCards(from_zone="graveyard", to_zone="play")),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanent), effects=ChangeZoneFromPlay(to_zone="hand")),
   ActivatedAbility(card, cost="0", target=Target(targeting="you"), effects=MoveCards(from_zone="graveyard", to_zone="hand", number=1)),
-  ActivatedAbility(card, cost="0", target=Target(targeting="you"), effects=MoveCards(from_zone="hand", to_zone="library", to_position="top", number=2)),
-  ActivatedAbility(card, cost="0", target=Target(targeting="you"), effects=MoveCards(from_zone="hand", to_zone="library", to_position="bottom", number=2)),
-  ActivatedAbility(card, cost="0", target=Target(targeting="you"), effects=MoveCards(from_zone="library", to_zone="graveyard", from_position="top", number=LazyInt(lambda c=card: len(c.controller.library)/2))),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPlayer), effects=DiscardCard(1)),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPlayer), effects=DiscardCard(-1)),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPlayer), effects=DrawCard(1)),

@@ -1,3 +1,4 @@
+
 name = 'Kavu Climber'
 cardnum = 273
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '3GG'
 color = characteristic(['G'])
 text = ['When Kavu Climber comes into play, draw a card.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(3, 3)
 
 in_play_role = Permanent(card, subrole)
@@ -22,10 +24,3 @@ subrole.triggered_abilities = [TriggeredAbility(card,
 ]
 
 #################################
-
-
-
-
-
-
-

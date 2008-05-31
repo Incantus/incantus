@@ -1,3 +1,4 @@
+
 name = 'Assassinate'
 cardnum = 128
 expansion = '10E'
@@ -8,8 +9,6 @@ cost = '2B'
 color = characteristic(['B'])
 text = ['Destroy target tapped creature.']
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastSorcerySpell(card, cost,
 				target=Target(target_types=isCreature.with_condition(lambda c: c.tapped)),
 				effects=Destroy())]
-
-

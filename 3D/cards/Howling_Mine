@@ -8,6 +8,7 @@ cost = '2'
 color = no_characteristic()
 text = ["At the beginning of each player's draw step, if Howling Mine is untapped, that player draws a card."]
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Artifact()
 
 in_play_role = Permanent(card, subrole)

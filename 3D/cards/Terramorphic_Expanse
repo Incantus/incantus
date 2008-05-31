@@ -1,10 +1,11 @@
+
 name = 'Terramorphic Expanse'
 cardnum = 360
 expansion = '10E'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T, Sacrifice Terramorphic Expanse: Search your library for a basic land card and put it into play tapped. Then shuffle your library.']
 
@@ -21,5 +22,3 @@ subrole.abilities = [ActivatedAbility(card, MultipleCosts([TapCost(), SacrificeC
 ]
 
 #################################
-
-

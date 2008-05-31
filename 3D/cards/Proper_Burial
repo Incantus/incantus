@@ -1,3 +1,4 @@
+
 name = 'Proper Burial'
 cardnum = 0
 expansion = ''
@@ -8,6 +9,7 @@ cost = '3W'
 color = characteristic(['W'])
 text = ["Whenever a creature you control is put into a graveyard from play, you gain life equal to that creature's toughness."]
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Enchantment()
 
 in_play_role = Permanent(card, subrole)

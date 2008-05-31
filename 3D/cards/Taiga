@@ -1,10 +1,11 @@
+
 name = 'Taiga'
 cardnum = 283
 expansion = 'Beta'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = characteristic(['Mountain','Forest'])
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T: Add R to your mana pool.','T: Add G to your mana pool.']
 

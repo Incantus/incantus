@@ -1,10 +1,11 @@
+
 name = "Nantuko Monastery"
 cardnum = 142
 expansion = 'Judgment'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ["T: Add 1 to your mana pool.", "Threshold - GW: Nantuko Monastery becomes a 4/4 green and white Insect Monk creature with first strike until end of turn. It's still a land. Play this ability only if seven or more cards are in your graveyard."]
 

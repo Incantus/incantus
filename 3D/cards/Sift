@@ -1,3 +1,4 @@
+
 name = 'Sift'
 cardnum = 108
 expansion = '10E'
@@ -8,6 +9,6 @@ cost = '3U'
 color = characteristic(['U'])
 text = ['Draw three cards, then discard a card.']
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastSorcerySpell(card, cost,
                                 effects=[DrawCard(3), DiscardCard(1)])
 ]

@@ -1,10 +1,11 @@
+
 name = 'Savannah'
 cardnum = 281
 expansion = 'Beta'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = characteristic(['Forest','Plains'])
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T: Add G to your mana pool.','T: Add W to your mana pool.']
 

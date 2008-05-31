@@ -1,3 +1,4 @@
+
 name = 'Benalish Knight'
 cardnum = 11
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '2W'
 color = characteristic(['W'])
 text = ['Flash', 'First strike']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(2, 2)
 
 in_play_role = Permanent(card, subrole)
@@ -18,6 +20,3 @@ flash(card)
 first_strike(subrole)
 
 #################################
-
-
-

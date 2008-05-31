@@ -1,3 +1,4 @@
+
 name = "Gilt-Leaf Ambush"
 cardnum = 214
 expansion = 'Lorwyn'
@@ -10,7 +11,7 @@ text = ["Put two 1/1 green Elf Warrior creature tokens into play", "Clash with a
 
 
 # XXX Clash not implemented yet for non-permanents
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastInstantSpell(card, cost,
 				target=Target(targeting="you"),
 				effects = CreateToken(number=2, token_info={"name": "Elf Warrior", "type": "Creature", "subtypes": ["Elf", "Warrior"], "color": "G", "role": TokenCreature(1,1)}))
 ]

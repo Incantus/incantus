@@ -1,3 +1,4 @@
+
 name = 'Darkest Hour'
 cardnum = 128
 expansion = '7E'
@@ -8,6 +9,7 @@ cost = 'B'
 color = characteristic(['B'])
 text = ['All creatures are black.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Enchantment()
 
 in_play_role = Permanent(card, subrole)

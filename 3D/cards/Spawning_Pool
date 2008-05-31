@@ -1,10 +1,11 @@
+
 name = 'Spawning Pool'
 cardnum = 358
 expansion = '10E'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['Spawning Pool comes into play tapped.', 'T: Add B to your mana pool.', '1B: Spawning Pool becomes a 1/1 black Skeleton creature with "B: Regenerate this creature" until end of turn. It\'s still a land.']
 

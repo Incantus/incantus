@@ -1,3 +1,4 @@
+
 name = 'Verdant Force'
 cardnum = 307
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '5GGG'
 color = characteristic(['G'])
 text = ['At the beginning of each upkeep, put a 1/1 green Saproling creature token into play under your control.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(7, 7)
 
 in_play_role = Permanent(card, subrole)
@@ -24,4 +26,3 @@ subrole.triggered_abilities = [TriggeredAbility(card,
 subrole.static_abilities = []
 
 #################################
-

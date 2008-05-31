@@ -1,3 +1,4 @@
+
 name = 'Stampeding Wildebeests'
 cardnum = 300
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '2GG'
 color = characteristic(['G'])
 text = ['Trample', "At the beginning of your upkeep, return a green creature you control to its owner's hand."]
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(5, 4)
 
 in_play_role = Permanent(card, subrole)

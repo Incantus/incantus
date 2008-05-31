@@ -1,3 +1,4 @@
+
 name = 'Grave Pact'
 cardnum = 144
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '1BBB'
 color = characteristic(['B'])
 text = ['Whenever a creature you control is put into a graveyard from play, each other player sacrifices a creature.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Enchantment()
 
 in_play_role = Permanent(card, subrole)
@@ -21,12 +23,3 @@ subrole.triggered_abilities = [TriggeredAbility(card,
 ]
 
 #################################
-
-
-
-
-
-
-
-
-

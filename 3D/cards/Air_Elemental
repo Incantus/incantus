@@ -1,3 +1,4 @@
+
 name = 'Air Elemental'
 cardnum = 64
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '3UU'
 color = characteristic(['U'])
 text = ['Flying']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(4, 4)
 
 in_play_role = Permanent(card, subrole)
@@ -17,9 +19,3 @@ in_play_role = Permanent(card, subrole)
 flying(subrole)
 
 #################################
-
-
-
-
-
-

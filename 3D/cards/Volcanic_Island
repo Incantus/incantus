@@ -1,10 +1,11 @@
+
 name = 'Volcanic Island'
 cardnum = 287
 expansion = 'Beta'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = characteristic(['Island','Mountain'])
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T: Add U to your mana pool.','T: Add R to your mana pool.']
 

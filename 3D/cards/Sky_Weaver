@@ -1,3 +1,4 @@
+
 name = 'Sky Weaver'
 cardnum = 109
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '1U'
 color = characteristic(['U'])
 text = ['2: Target white or black creature gains flying until end of turn.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(2, 1)
 
 in_play_role = Permanent(card, subrole)

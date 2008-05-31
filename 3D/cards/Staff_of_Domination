@@ -1,3 +1,4 @@
+
 name = 'Staff of Domination'
 cardnum = 156
 expansion = "Fifth Dawn"
@@ -8,6 +9,7 @@ cost = '3'
 color = no_characteristic()
 text = ['1: Untap Staff of Domination.', '2, T You gain 1 life.', '3, T Untap target creature.', '4, T Tap target creature.', '5, T Draw a card.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Artifact()
 
 in_play_role = Permanent(card, subrole)

@@ -1,3 +1,4 @@
+
 name = "Kraken's Eye"
 cardnum = 329
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '2'
 color = no_characteristic()
 text = ['Whenever a player plays a blue spell, you may gain 1 life.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Artifact()
 
 in_play_role = Permanent(card, subrole)
@@ -21,6 +23,3 @@ subrole.triggered_abilities = [TriggeredAbility(card,
 ]
 
 #################################
-
-
-

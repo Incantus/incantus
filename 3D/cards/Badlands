@@ -4,7 +4,7 @@ expansion = 'Beta'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = characteristic(['Swamp','Mountain'])
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T: Add B to your mana pool.','T: Add R to your mana pool.']
 

@@ -1,3 +1,4 @@
+
 name = 'Rod of Ruin'
 cardnum = 341
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '4'
 color = no_characteristic()
 text = ['3, T: Rod of Ruin deals 1 damage to target creature or player.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Artifact()
 
 in_play_role = Permanent(card, subrole)

@@ -1,3 +1,4 @@
+
 name = 'Mox Pearl'
 cardnum = 264
 expansion = 'Beta'
@@ -8,6 +9,7 @@ cost = '0'
 color = no_characteristic()
 text = ['T: Add W to your mana pool.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Artifact()
 
 in_play_role = Permanent(card, subrole)
@@ -17,11 +19,3 @@ in_play_role = Permanent(card, subrole)
 subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana("W"))]
 
 #################################
-
-
-
-
-
-
-
-

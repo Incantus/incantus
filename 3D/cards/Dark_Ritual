@@ -1,3 +1,4 @@
+
 name = 'Dark Ritual'
 cardnum = 153
 expansion = '5E'
@@ -10,12 +11,7 @@ text = ['Add BBB to your mana pool.']
 
 #################################
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastInstantSpell(card, cost,
                                 effects=AddMana('BBB'))]
 
 #################################
-
-
-
-
-

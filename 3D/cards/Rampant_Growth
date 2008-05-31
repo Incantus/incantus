@@ -1,3 +1,4 @@
+
 name = 'Rampant Growth'
 cardnum = 288
 expansion = '10E'
@@ -8,8 +9,7 @@ cost = '1G'
 color = characteristic(['G'])
 text = ['Search your library for a basic land card and put that card into play tapped. Then shuffle your library.']
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastSorcerySpell(card, cost,
                                 target=Target(targeting="you"),
                                 effects=MoveCards(from_zone="library", to_zone="play", card_types=isLandType.with_condition(lambda l: l.supertype == "Basic"), number=1, func=lambda card: card.tap()))
 ]
-

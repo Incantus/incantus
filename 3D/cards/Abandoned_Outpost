@@ -4,7 +4,7 @@ expansion = 'Odyssey'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['Abandoned Outpost comes into play tapped.','T: Add W to your mana pool.','T, Sacrifice Abandoned Outpost: Add one mana of any color to your mana pool.']
 

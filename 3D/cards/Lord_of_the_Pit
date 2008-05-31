@@ -1,3 +1,4 @@
+
 name = 'Lord of the Pit'
 cardnum = 154
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '4BBB'
 color = characteristic(['B'])
 text = ['Flying, trample', "At the beginning of your upkeep, sacrifice a creature other than Lord of the Pit. If you can't, Lord of the Pit deals 7 damage to you."]
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(7, 7)
 
 in_play_role = Permanent(card, subrole)
@@ -25,13 +27,3 @@ subrole.triggered_abilities = [TriggeredAbility(card,
 ]
 
 #################################
-
-
-
-
-
-
-
-
-
-

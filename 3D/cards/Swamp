@@ -4,7 +4,7 @@ expansion = '10E'
 type = characteristic('Land')
 supertype = characteristic('Basic')
 subtypes = characteristic(['Swamp'])
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['[B]']
 

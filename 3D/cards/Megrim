@@ -1,3 +1,4 @@
+
 name = 'Megrim'
 cardnum = 157
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '2B'
 color = characteristic(['B'])
 text = ['Whenever an opponent discards a card, Megrim deals 2 damage to that player.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Enchantment()
 
 in_play_role = Permanent(card, subrole)

@@ -1,3 +1,4 @@
+
 name = 'Head Games'
 cardnum = 148
 expansion = '10E'
@@ -10,6 +11,6 @@ text = ["Target opponent puts the cards from his or her hand on top of his or he
 
 target = Target(target_types=OpponentMatch(card))
 size_hand = LazyInt(lambda t=target: len(t.target.hand), finalize=True)
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastSorcerySpell(card, cost,
                                 target=target,
                                 effects=[MoveCards(from_zone="hand", from_position="top", to_zone="library", to_position="top", number=size_hand), MoveCards(from_zone="library", to_zone="hand", number=size_hand, peek=True, required=True)], copy_targets=False)]

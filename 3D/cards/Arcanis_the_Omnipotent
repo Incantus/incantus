@@ -1,3 +1,4 @@
+
 name = 'Arcanis the Omnipotent'
 cardnum = 66
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '3UUU'
 color = characteristic(['U'])
 text = ['T: Draw three cards.', "2UU: Return Arcanis the Omnipotent to its owner's hand."]
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(3, 4)
 
 in_play_role = Permanent(card, subrole)
@@ -19,6 +21,3 @@ subrole.abilities = [ActivatedAbility(card, TapCost(), effects=DrawCard(3)),
 ]
 
 #################################
-
-
-

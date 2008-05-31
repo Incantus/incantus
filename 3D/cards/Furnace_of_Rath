@@ -1,3 +1,4 @@
+
 name = 'Furnace of Rath'
 cardnum = 204
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '1RRR'
 color = characteristic(['R'])
 text = ['If a source would deal damage to a creature or player, it deals double that damage to that creature or player instead.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Enchantment()
 
 in_play_role = Permanent(card, subrole)
@@ -25,4 +27,3 @@ subrole.static_abilities = [GlobalStaticAbility(card,
 ]
 
 #################################
-

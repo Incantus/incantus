@@ -1,3 +1,4 @@
+
 name = 'Rain of Tears'
 cardnum = 170
 expansion = '10E'
@@ -8,6 +9,6 @@ cost = '1BB'
 color = characteristic(['B'])
 text = ['Destroy target land.']
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastSorcerySpell(card, cost,
                                 target=Target(target_types=isLand),
                                 effects=Destroy())]

@@ -1,3 +1,4 @@
+
 name = 'Colossus of Sardia'
 cardnum = 317
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '9'
 color = no_characteristic()
 text = ['Trample', "Colossus of Sardia doesn't untap during your untap step.", '9: Untap Colossus of Sardia. Play this ability only during your upkeep.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(9, 9)
 
 in_play_role = Permanent(card, [subrole, Artifact()])
@@ -22,7 +24,3 @@ subrole.abilities = [ActivatedAbility(card, cost="9",
 ]
 
 #################################
-
-
-
-

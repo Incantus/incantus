@@ -1,10 +1,11 @@
+
 name = 'Treetop Village'
 cardnum = 361
 expansion = '10E'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['Treetop Village comes into play tapped.', 'T: Add G to your mana pool.', "1G: Treetop Village becomes a 3/3 green Ape creature with trample until end of turn. It's still a land."]
 
@@ -26,8 +27,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('G')),
 in_play_role.tapped = True
 
 #################################
-
-
-
-
-

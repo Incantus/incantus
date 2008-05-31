@@ -1,3 +1,4 @@
+
 name = 'Lava Axe'
 cardnum = 215
 expansion = '10E'
@@ -8,9 +9,7 @@ cost = '4R'
 color = characteristic(['R'])
 text = ['Lava Axe deals 5 damage to target player.']
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastSorcerySpell(card, cost,
                                 target=Target(target_types=isPlayer),
                                 effects=DealDamage(5))
 ]
-
-

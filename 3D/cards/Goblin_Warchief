@@ -1,3 +1,4 @@
+
 name = 'Goblin Warchief'
 cardnum = 97
 expansion = 'Scourge'
@@ -8,6 +9,7 @@ cost = '1RR'
 color = characteristic(['R'])
 text = ['Goblin spells you play cost 1 less to play.','Goblin creatures you control have haste.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(2, 2)
 
 in_play_role = Permanent(card, subrole)
@@ -31,9 +33,3 @@ subrole.static_abilities = [PermanentTrackingAbility(card,
                                effects=OverrideGlobal(compute, "compute", ManaCost, logical_and, reverse=False, expire=False))]
 
 #################################
-
-
-
-
-
-

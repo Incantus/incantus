@@ -1,10 +1,11 @@
+
 name = 'Flooded Strand'
 cardnum = 316
 expansion = 'Onslaught'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T, Pay 1 Life, Sacrifice Flooded Strand: Search your library for an Plains or Island card and put it into play. Then shuffle your library.']
 
@@ -21,9 +22,3 @@ subrole.abilities = [ActivatedAbility(card, MultipleCosts([TapCost(), LifeCost(1
 ]
 
 #################################
-
-
-
-
-
-

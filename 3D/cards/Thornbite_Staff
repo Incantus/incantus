@@ -1,3 +1,4 @@
+
 name = 'Thornbite Staff'
 cardnum = 145
 expansion = 'Morningtide'
@@ -8,6 +9,7 @@ cost = '2'
 color = no_characteristic()
 text = ['Equipped creature has "2, T: This creature deals 1 damage to target creature or player" and "Whenever a creature is put into a graveyard from play, untap this creature."', 'Whenever a Shaman creature comes into play, you may attach Thornbite Staff to it.','Equip 4']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Equipment()
 
 in_play_role = Permanent(card, subrole)

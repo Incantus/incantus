@@ -1,10 +1,11 @@
+
 name = 'Polluted Delta'
 cardnum = 321
 expansion = 'Onslaught'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T, Pay 1 Life, Sacrifice Polluted Delta: Search your library for an Island or Swamp card and put it into play. Then shuffle your library.']
 
@@ -21,20 +22,3 @@ subrole.abilities = [ActivatedAbility(card, MultipleCosts([TapCost(), LifeCost(1
 ]
 
 #################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

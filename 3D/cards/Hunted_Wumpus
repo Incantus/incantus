@@ -8,6 +8,7 @@ cost = '3G'
 color = characteristic(['G'])
 text = ['When Hunted Wumpus comes into play, each other player may put a creature card from his or her hand into play.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(6, 6)
 
 in_play_role = Permanent(card, subrole)

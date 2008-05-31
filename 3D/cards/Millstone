@@ -1,3 +1,4 @@
+
 name = 'Millstone'
 cardnum = 334
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '2'
 color = no_characteristic()
 text = ['2, T Target player puts the top two cards of his or her library into his or her graveyard.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Artifact()
 
 in_play_role = Permanent(card, subrole)

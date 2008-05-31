@@ -1,3 +1,4 @@
+
 name = 'Cancel'
 cardnum = 71
 expansion = '10E'
@@ -8,7 +9,7 @@ cost = '1UU'
 color = characteristic(['U'])
 text = ['Counter target spell.']
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastInstantSpell(card, cost,
 				target=CounterTarget(target_types=isSpellAbility),
 				effects=CounterAbility())
 ]

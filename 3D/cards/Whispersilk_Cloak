@@ -1,3 +1,4 @@
+
 name = 'Whispersilk Cloak'
 cardnum = 345
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '3'
 color = no_characteristic()
 text = ['Equipped creature is unblockable and has shroud.', 'Equip 2']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Equipment()
 
 in_play_role = Permanent(card, subrole)
@@ -23,6 +25,3 @@ subrole.attached_abilities = [EquipmentStaticAbility(card,
 ]
 
 #################################
-
-
-

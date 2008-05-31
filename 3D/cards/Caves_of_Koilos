@@ -1,10 +1,11 @@
+
 name = 'Caves of Koilos'
 cardnum = 350
 expansion = '10E'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T: Add 1 to your mana pool.', 'T: Add W or B to your mana pool. Caves of Koilos deals 1 damage to you.']
 
@@ -20,6 +21,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
 ]
 
 #################################
-
-
-

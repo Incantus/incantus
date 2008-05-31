@@ -1,3 +1,4 @@
+
 name = 'Quirion Dryad'
 cardnum = 287
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '1G'
 color = characteristic(['G'])
 text = ['Whenever you play a white, blue, black, or red spell, put a +1/+1 counter on Quirion Dryad.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(1, 1)
 
 in_play_role = Permanent(card, subrole)

@@ -1,3 +1,4 @@
+
 name = 'Distress'
 cardnum = 136
 expansion = '10E'
@@ -11,9 +12,7 @@ text = ['Target player reveals his or her hand. You choose a nonland card from i
 # XXX This doesn't work as a discard, so DiscardEvent won't be sent
 # Needs to work with the new hand view
 move_cards = MoveCards(from_zone="hand", to_zone="graveyard", card_types=isNonLandType, number=1)
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastSorcerySpell(card, cost,
 				target=Target(target_types=isPlayer), #Target(targeting=)],
 				effects=move_cards) #,Discard]),
 ]
-
-

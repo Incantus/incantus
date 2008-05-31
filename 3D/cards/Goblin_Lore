@@ -1,3 +1,4 @@
+
 name = 'Goblin Lore'
 cardnum = 208
 expansion = '10E'
@@ -8,8 +9,7 @@ cost = '1R'
 color = characteristic(['R'])
 text = ['Draw four cards, then discard three cards at random.']
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastSorcerySpell(card, cost,
                                 target=Target(targeting="you"),
                                 effects=[DrawCard(4), PauseEffect("Discard 3 at random"), DiscardCard(3, random=True)])
 ]
-

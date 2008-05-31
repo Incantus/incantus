@@ -1,10 +1,11 @@
+
 name = 'Wasteland'
 cardnum = 340
 expansion = 'Tempest'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ["T: Add 1 to your mana pool.", "T, Sacrifice Wasteland: Destroy target nonbasic land."]
 
@@ -22,13 +23,3 @@ subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
                                 
 
 #################################
-
-
-
-
-
-
-
-
-
-

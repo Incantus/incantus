@@ -1,10 +1,11 @@
+
 name = 'Island'
 cardnum = 371
 expansion = '10E'
 type = characteristic('Land')
 supertype = characteristic('Basic')
 subtypes = characteristic(['Island'])
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['[U]']
 
@@ -18,9 +19,3 @@ in_play_role = Permanent(card, subrole)
 
 
 #################################
-
-
-
-
-
-

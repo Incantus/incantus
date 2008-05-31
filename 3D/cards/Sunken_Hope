@@ -1,3 +1,4 @@
+
 name = 'Sunken Hope'
 cardnum = 112
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '3UU'
 color = characteristic(['U'])
 text = ["At the beginning of each player's upkeep, that player returns a creature he or she controls to its owner's hand."]
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Enchantment()
 
 in_play_role = Permanent(card, subrole)
@@ -24,4 +26,3 @@ subrole.triggered_abilities = [TriggeredAbility(card,
 ]
 
 #################################
-

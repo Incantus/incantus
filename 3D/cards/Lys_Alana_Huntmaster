@@ -1,3 +1,4 @@
+
 name = 'Lys Alana Huntmaster'
 cardnum = 229
 expansion = 'Lorwyn'
@@ -8,6 +9,7 @@ cost = '2GG'
 color = characteristic(['G'])
 text = ["Whenever you play an Elf spell, you may put a 1/1 green Elf Warrior creature token into play."]
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(3, 3)
 
 in_play_role = Permanent(card, subrole)

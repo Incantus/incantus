@@ -1,3 +1,4 @@
+
 name = 'Crafty Pathmage'
 cardnum = 77
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '2U'
 color = characteristic(['U'])
 text = ['T: Target creature with power 2 or less is unblockable this turn.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(1, 1)
 
 in_play_role = Permanent(card, subrole)
@@ -22,7 +24,3 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
-
-
-
-

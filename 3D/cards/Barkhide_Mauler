@@ -1,3 +1,4 @@
+
 name = 'Barkhide Mauler'
 cardnum = 246
 expansion = 'Onslaught'
@@ -8,9 +9,8 @@ cost = '4G'
 color = characteristic(['G'])
 text = ["Cycling 2."]
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(4,4)
 in_play_role = Permanent(card, subrole)
 
 out_play_role.abilities = [CastPermanentSpell(card, cost), Cycling(card, "2")]
-
-

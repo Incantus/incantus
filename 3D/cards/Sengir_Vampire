@@ -1,3 +1,4 @@
+
 name = 'Sengir Vampire'
 cardnum = 176
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '3BB'
 color = characteristic(['B'])
 text = ['Flying', 'Whenever a creature dealt damage by Sengir Vampire this turn is put into a graveyard, put a +1/+1 counter on Sengir Vampire.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(4, 4)
 
 in_play_role = Permanent(card, subrole)

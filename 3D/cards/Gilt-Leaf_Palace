@@ -1,10 +1,11 @@
+
 name = 'Gilt-Leaf Palace'
 cardnum = 268
 expansion = 'Lorwyn'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ["As Gilt-Leaf Palace comes into play, you may reveal an Elf card from your hand. If you don't, Gilt-Leaf Palace comes into play tapped.", 'T Add B or G to your mana pool.']
 
@@ -21,7 +22,7 @@ subrole.abilities = [ManaAbility(card, TapCost(), effects=ManaChoice(['B', 'G'])
 subrole.triggered_abilities = [TriggeredAbility(card, trigger = EnteringTrigger(zone="play"),
             				match_condition=SelfMatch(card),
             				ability=StacklessDoOrAbility(card, "0",
-                			target=Target(target_types=isCard.with_condition(lambda c: c.subtypes == "Elf"), zone="hand", zone_limit="controller"),
+                			target=Target(target_types=isCard.with_condition(lambda c: c.subtypes == "Elf"), zone="hand", player_zone="controller"),
 						failure_target=Target(targeting="self"),
                 				effects=RevealCard(),
                 				failed=NullEffect(lambda c, t: t.tap(False))))

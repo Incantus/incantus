@@ -1,3 +1,4 @@
+
 name = 'Angelic Chorus'
 cardnum = 4
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '3WW'
 color = characteristic(['W'])
 text = ['Whenever a creature comes into play under your control, you gain life equal to its toughness.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Enchantment()
 
 in_play_role = Permanent(card, subrole)
@@ -23,5 +25,3 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                                  effects=ChangeLife(lambda l, t=trigger:l+t.matched_card.toughness)))]
 
 #################################
-
-

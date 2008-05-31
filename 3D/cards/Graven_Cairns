@@ -1,10 +1,11 @@
+
 name = 'Graven Cairns'
 cardnum = 0
 expansion = 'Future Sight'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T: Add 1 to your mana pool.', '(B/R),T: Add BB, BR, or RR to your mana pool.']
 

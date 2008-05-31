@@ -1,3 +1,4 @@
+
 name = 'Plagiarize'
 cardnum = 97
 expansion = '10E'
@@ -11,7 +12,7 @@ text = ['Until end of turn, if target player would draw a card, instead that pla
 # Skip the player's draw, and I draw
 def draw(self, card=card): card.controller.draw()
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastInstantSpell(card, cost,
                                 target=Target(target_types=isPlayer),
                                 effects=ReplacementEffect(draw, "draw", txt=name, expire=True))
 ]

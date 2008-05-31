@@ -1,3 +1,4 @@
+
 name = 'Elvish Berserker'
 cardnum = 260
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = 'G'
 color = characteristic(['G'])
 text = ['Whenever Elvish Berserker becomes blocked, it gets +1/+1 until end of turn for each creature blocking it.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(1, 1)
 
 in_play_role = Permanent(card, subrole)
@@ -17,10 +19,3 @@ in_play_role = Permanent(card, subrole)
 berserker(subrole)
 
 #################################
-
-
-
-
-
-
-

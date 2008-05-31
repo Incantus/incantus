@@ -1,3 +1,4 @@
+
 name = "Lightning Crafter"
 cardnum = 93
 expansion = 'Morningtide'
@@ -8,6 +9,7 @@ cost = '3R'
 color = characteristic(['R'])
 text = ['Champion a Goblin or Shaman', 'T: Lightning Crafter deals 3 damage to target creature or player.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(3, 3)
 
 in_play_role = Permanent(card, subrole)
@@ -18,4 +20,3 @@ subrole.abilities = [ActivatedAbility(card, TapCost(), target=Target(target_type
 champion(subrole, card)
 
 #################################
-

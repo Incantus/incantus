@@ -1,3 +1,4 @@
+
 name = 'Avatar of Might'
 cardnum = 251
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '6GG'
 color = characteristic(['G'])
 text = ['If an opponent controls at least four more creatures than you, Avatar of Might costs 6 less to play.', 'Trample']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(8, 8)
 
 in_play_role = Permanent(card, subrole)
@@ -18,4 +20,3 @@ cost = ConditionalCost(cost, 'GG', lambda card, player: len(player.opponent.play
 trample(subrole)
 
 #################################
-

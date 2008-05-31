@@ -1,3 +1,4 @@
+
 name = 'Citanul Flute'
 cardnum = 315
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '5'
 color = no_characteristic()
 text = ['X, T: Search your library for a creature card with converted mana cost X or less, reveal it, and put it into your hand. Then shuffle your library.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Artifact()
 
 in_play_role = Permanent(card, subrole)
@@ -25,9 +27,3 @@ subrole.abilities = [ActivatedAbility(card, MultipleCosts([mc, TapCost()]),
 ]
 
 #################################
-
-
-
-
-
-

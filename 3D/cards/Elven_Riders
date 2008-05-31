@@ -1,3 +1,4 @@
+
 name = 'Elven Riders'
 cardnum = 259
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '3GG'
 color = characteristic(['G'])
 text = ["Elven Riders can't be blocked except by Walls and/or creatures with flying."]
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(3, 3)
 
 in_play_role = Permanent(card, subrole)
@@ -18,10 +20,3 @@ def canBeBlockedBy(self, blocker): return "flying" in blocker.keywords or blocke
 override(subrole, "canBeBlockedBy", canBeBlockedBy)
 
 #################################
-
-
-
-
-
-
-

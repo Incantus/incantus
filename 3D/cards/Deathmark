@@ -1,3 +1,4 @@
+
 name = 'Deathmark'
 cardnum = 134
 expansion = '10E'
@@ -8,21 +9,7 @@ cost = 'B'
 color = characteristic(['B'])
 text = ['Destroy target green or white creature.']
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastSorcerySpell(card, cost,
 				target=Target(target_types=isCreature.with_condition(lambda c: c.color == "G" or c.color == "W")),
 				effects=Destroy())
 ]
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,3 +1,4 @@
+
 name = 'Steel Golem'
 cardnum = 344
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '3'
 color = no_characteristic()
 text = ["You can't play creature spells."]
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(3, 4)
 
 in_play_role = Permanent(card, [subrole, Artifact()])

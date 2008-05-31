@@ -1,3 +1,4 @@
+
 name = 'Angelic Blessing'
 cardnum = 3
 expansion = '10E'
@@ -8,10 +9,8 @@ cost = '2W'
 color = characteristic(['W'])
 text = ['Target creature gets +3/+3 and gains flying until end of turn.']
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastSorcerySpell(card, cost,
                                 target=Target(target_types=isCreature),
                                 effects=[AugmentPowerToughness(power=3, toughness=3),
                                          GiveKeyword(flying)])
 ]
-
-

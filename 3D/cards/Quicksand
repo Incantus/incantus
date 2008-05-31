@@ -1,10 +1,11 @@
+
 name = 'Quicksand'
 cardnum = 356
 expansion = '10E'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T: Add 1 to your mana pool.', 'T, Sacrifice Quicksand: Target attacking creature without flying gets -1/-2 until end of turn.']
 

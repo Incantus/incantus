@@ -1,3 +1,4 @@
+
 name = 'Venerable Monk'
 cardnum = 55
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '2W'
 color = characteristic(['W'])
 text = ['When Venerable Monk comes into play, you gain 2 life.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(2, 2)
 
 in_play_role = Permanent(card, subrole)

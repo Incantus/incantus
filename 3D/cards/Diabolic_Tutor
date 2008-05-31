@@ -1,3 +1,4 @@
+
 name = 'Diabolic Tutor'
 cardnum = 135
 expansion = '10E'
@@ -8,9 +9,7 @@ cost = '2BB'
 color = characteristic(['B'])
 text = ['Search your library for a card and put that card into your hand. Then shuffle your library.']
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastSorcerySpell(card, cost,
 				target=Target(targeting="you"),
 				effects=[MoveCards(from_zone="library", to_zone="hand", number=1, required=False), ShuffleLibrary()])
 ]
-
-

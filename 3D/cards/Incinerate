@@ -1,3 +1,4 @@
+
 name = 'Incinerate'
 cardnum = 213
 expansion = '10E'
@@ -12,7 +13,6 @@ text = ['Incinerate deals 3 damage to target creature or player. A creature deal
 # I'm not too sure how to do it. Should I have a replacement effect that can override all the others?
 # Possibly, since negative effects always overrule positive effects
 
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastInstantSpell(card, cost,
 				target=Target(target_types=[isCreature, isPlayer]),
 				effects=[DealDamage(3), GiveKeyword(lambda role: override(role, "canDestroy", lambda self: True, reverse=False), keyword="Can't regenerate", expire=True)])]
-

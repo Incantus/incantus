@@ -1,3 +1,4 @@
+
 name = 'Nekrataal'
 cardnum = 163
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '2BB'
 color = characteristic(['B'])
 text = ['First strike', "When Nekrataal comes into play, destroy target nonartifact, nonblack creature. That creature can't be regenerated."]
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(2, 1)
 
 in_play_role = Permanent(card, subrole)

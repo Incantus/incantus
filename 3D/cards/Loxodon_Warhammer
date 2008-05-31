@@ -1,3 +1,4 @@
+
 name = 'Loxodon Warhammer'
 cardnum = 332
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '3'
 color = no_characteristic()
 text = ['Equipped creature gets +3/+0 and has lifelink and trample.', 'Equip 3']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Equipment()
 
 in_play_role = Permanent(card, subrole)

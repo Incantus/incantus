@@ -1,3 +1,4 @@
+
 name = 'Sculpting Steel'
 cardnum = 342
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '3'
 color = no_characteristic()
 text = ['As Sculpting Steel comes into play, you may choose an artifact in play. If you do, Sculpting Steel comes into play as a copy of that artifact.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Artifact()
 
 in_play_role = Permanent(card, subrole)

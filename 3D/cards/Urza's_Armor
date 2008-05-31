@@ -1,3 +1,4 @@
+
 name = 'Urza\'s Armor'
 cardnum = 318
 expansion = '8E'
@@ -8,6 +9,7 @@ cost = '6'
 color = no_characteristic()
 text = ['If a source would deal damage to you, prevent 1 of that damage.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Artifact()
 
 in_play_role = Permanent(card, subrole)
@@ -19,4 +21,3 @@ subrole.static_abilities = [GlobalStaticAbility(card,
 ]
 
 #################################
-

@@ -1,10 +1,11 @@
+
 name = 'Pendelhaven'
 cardnum = 120
 expansion = 'Legends'
 type = characteristic('Land')
 supertype = characteristic('Legendary')
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ["T: Add G to your mana pool.", "T: Target 1/1 creature gets +1/+2 until end of turn."]
 

@@ -1,10 +1,11 @@
+
 name = 'Reflecting Pool'
 cardnum = 351
 expansion = 'Shadowmoor'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['Add to your mana pool one mana of any type that a land you control could produce.']
 

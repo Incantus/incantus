@@ -1,3 +1,4 @@
+
 name = 'The Hive'
 cardnum = 324
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '5'
 color = no_characteristic()
 text = ['5, T Put a 1/1 Insect artifact creature token with flying named Wasp into play.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Artifact()
 
 in_play_role = Permanent(card, subrole)
@@ -24,13 +26,3 @@ subrole.triggered_abilities = []
 subrole.static_abilities = []
 
 #################################
-
-
-
-
-
-
-
-
-
-

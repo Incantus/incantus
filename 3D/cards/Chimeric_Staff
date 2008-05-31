@@ -1,3 +1,4 @@
+
 name = 'Chimeric Staff'
 cardnum = 313
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '4'
 color = no_characteristic()
 text = ['X: Chimeric Staff becomes an X/X Construct artifact creature until end of turn.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Artifact()
 
 in_play_role = Permanent(card, subrole)
@@ -20,11 +22,3 @@ subrole.abilities = [ActivatedAbility(card, mc,
 ]
 
 #################################
-
-
-
-
-
-
-
-

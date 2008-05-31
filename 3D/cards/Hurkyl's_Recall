@@ -1,3 +1,4 @@
+
 name = "Hurkyl's Recall"
 cardnum = 88
 expansion = '10E'
@@ -9,7 +10,7 @@ color = characteristic(['U'])
 text = ['Return all artifacts target player owns to his or her hand.']
 
 target=Target(target_types=isPlayer)
-out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+out_play_role.abilities = [CastInstantSpell(card, cost,
                                 target=[target, AllPermanentTargets(target_types=isArtifact.with_condition(lambda a, t=target: a.owner==t.target))],
                                 effects=[NullEffect(), ForEach(ChangeZoneFromPlay(to_zone="hand"))], copy_targets=False)
 ]

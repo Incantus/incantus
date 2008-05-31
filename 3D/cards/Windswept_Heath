@@ -1,10 +1,11 @@
+
 name = 'Windswept Heath'
 cardnum = 328
 expansion = 'Onslaught'
 type = characteristic('Land')
 supertype = no_characteristic()
 subtypes = no_characteristic()
-cost = ''
+cost = NoCost()
 color = no_characteristic()
 text = ['T, Pay 1 Life, Sacrifice Windswept Heath: Search your library for an Forest or Plains card and put it into play. Then shuffle your library.']
 
@@ -21,9 +22,3 @@ subrole.abilities = [ActivatedAbility(card, MultipleCosts([TapCost(), LifeCost(1
 ]
 
 #################################
-
-
-
-
-
-

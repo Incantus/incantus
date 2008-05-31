@@ -1,3 +1,4 @@
+
 name = 'Llanowar Sentinel'
 cardnum = 275
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '2G'
 color = characteristic(['G'])
 text = ['When Llanowar Sentinel comes into play, you may pay 1G. If you do, search your library for a card named Llanowar Sentinel and put that card into play. Then shuffle your library.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(2, 3)
 
 in_play_role = Permanent(card, subrole)

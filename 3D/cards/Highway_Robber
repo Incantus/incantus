@@ -1,3 +1,4 @@
+
 name = 'Highway Robber'
 cardnum = 150
 expansion = '10E'
@@ -8,6 +9,7 @@ cost = '2BB'
 color = characteristic(['B'])
 text = ['When Highway Robber comes into play, you gain 2 life and target opponent loses 2 life.']
 
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(2, 2)
 
 in_play_role = Permanent(card, subrole)
