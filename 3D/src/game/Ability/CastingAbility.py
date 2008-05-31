@@ -1,37 +1,40 @@
+from game.GameEvent import PlaySpellEvent
 from ActivatedAbility import *
-from Limit import MultipleLimits, ZoneLimit
+from Limit import MultipleLimits, SorceryLimit
 
+# XXX Fix the controller of the spell
 class CastSpell(object):
-    def __init__(self, card, cost="0", target=None, effects=[], limit=None, copy_targets=True):
-        #limit = MultipleLimits([limit, ZoneLimit("hand")])
-        super(CastSpell, self).__init__(card, cost=cost,target=target,effects=effects, limit=limit, copy_targets=copy_targets, zone="hand")
+    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None):
+        super(CastSpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit, zone="hand")
     def setup_card_controller(self):
         # Subclasses decide what to do with the card
         player = self.card.owner
         self.card.controller = player
         return player
+    def played(self):
+        super(CastSpell, self).played()
+        self.controller.send(PlaySpellEvent(), card=self.card)
     def countered(self):
         super(CastSpell,self).countered()
         player = self.setup_card_controller()
         player.discard(self.card)
-    #def __str__(self):
-    #    return "%s: Cast Spell"%self.cost
 
 class PermanentSpell(CastSpell):
     def __init__(self, card, cost="0", target=None, effects=[], limit=None, copy_targets=True):
-        super(CastSpell, self).__init__(card, cost=cost,target=target,effects=effects, limit=limit, copy_targets=copy_targets, zone="hand")
-    # Auras break if I put it into play afterward
+        if limit: limit = MultipleLimits([SorceryLimit(card), limit])
+        else: limit = SorceryLimit(card)
+        super(PermanentSpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit)
     def preresolve(self):
         # The card is put into play before any effects resolve
-        controller = self.card.controller #self.setup_card_controller()
+        controller = self.card.controller # XXX self.setup_card_controller()
         controller.moveCard(self.card, self.card.zone, controller.play)
         return super(PermanentSpell, self).preresolve()
     def __str__(self):
         return "%s: Put into play"%self.cost
 
-class NonPermanentSpell(CastSpell):  # This class is a composite of abilities for Instants and Sorceries
+class NonPermanentSpell(CastSpell):
     def resolved(self):
-        # The discard comes after the card does its thing 
+        # The discard comes after the card does its thing
         # See oracle for Planar Void to get an idea
         controller = self.setup_card_controller()
         # Don't put in graveyard if it's no longer there
@@ -42,8 +45,12 @@ class NonPermanentSpell(CastSpell):  # This class is a composite of abilities fo
         return "%s: %s"%(self.cost, ', '.join(map(str,self.effects)))
 
 class CastPermanentSpell(PermanentSpell, ActivatedAbility): pass
-class CastNonPermanentSpell(NonPermanentSpell, ActivatedAbility): pass
-class CastDoOrNonPermanentSpell(NonPermanentSpell, DoOrAbility): pass
+class CastInstantSpell(NonPermanentSpell, ActivatedAbility): pass
+class CastSorcerySpell(NonPermanentSpell, ActivatedAbility):
+    def __init__(self, card, cost="0", target=None, effects=[], limit=None, copy_targets=True):
+        if limit: limit = MultipleLimits([SorceryLimit(card), limit])
+        else: limit = SorceryLimit(card)
+        super(CastSorcerySpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit)
 
 class BuybackSpell(CastSpell):
     def resolved(self):
@@ -60,7 +67,7 @@ def buyback(out_play_role, buyback="0"):
     main_spell = out_play_role.abilities[0]
     cost = main_spell.cost + buyback
 
-    out_play_role.abilities.append(CastBuybackSpell(out_play_role.card, cost, main_spell.targets, main_spell.effects, main_spell.limit, main_spell.copy_targets))
+    out_play_role.abilities.append(CastBuybackSpell(out_play_role.card, cost, main_spell.targets, main_spell.effects, main_spell.copy_targets, main_spell.limit))
 
 class Cycling(ActivatedAbility):
     def __init__(self, card, cost="0", triggered=None):
@@ -70,6 +77,7 @@ class Cycling(ActivatedAbility):
         super(Cycling, self).__init__(card, cost=cost, effects=DrawCard(1), zone="hand")
         self.triggered = triggered
     def played(self):
+        super(Cycling, self).played()
         import TriggeredAbility
         if self.triggered: TriggeredAbility.Play(self.card, self.triggered.copy())
     def __str__(self):

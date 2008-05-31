@@ -11,13 +11,13 @@ class Unlimited(Limit):
     def __call__(self):
         return False
 
-NoLimit = Unlimited
-
 class MultipleLimits(Limit):
     def __init__(self, card, limits):
         super(MultipleLimits,self).__init__(card)
         self.limits = limits
-    def __call_(self):
+    def __iter__(self):
+        return iter(self.limits)
+    def __call__(self):
         for l in self.limits:
             if l():
                 limited = True
@@ -25,12 +25,12 @@ class MultipleLimits(Limit):
         else: limited = False
         return limited
 
-class ZoneLimit(Limit):
-    def __init__(self, card, zone):
-        super(ZoneLimit,self).__init__(card)
-        self.zone = zone
-    def __call__(self):
-        return not self.card.zone == getattr(self.card.controller, self.zone)
+#class ZoneLimit(Limit):
+#    def __init__(self, card, zone):
+#        super(ZoneLimit,self).__init__(card)
+#        self.zone = zone
+#    def __call__(self):
+#        return not self.card.zone == getattr(self.card.controller, self.zone)
 
 class ConditionalLimit(Limit):
     def __init__(self, card, condition):

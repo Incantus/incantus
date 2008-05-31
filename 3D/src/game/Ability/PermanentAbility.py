@@ -1,12 +1,17 @@
 from Ability import Ability
-from ActivatedAbility import DoOrAbility
-from Effect import RemoveCounter, SacrificeSelf, TriggerEffect, PayExtraCost
+from ActivatedAbility import ActivatedAbility, DoOrAbility
+from Effect import RemoveCounter, SacrificeSelf, TriggerEffect, PayExtraCost, AttachToPermanent
 from Target import Target
 from TriggeredAbility import TriggeredAbility
 from Trigger import PlayerTrigger, Trigger
 from Counters import Counter
+from Limit import SorceryLimit
 from game.GameEvent import UpkeepStepEvent, CounterRemovedEvent, EndTurnEvent
-from game.Match import SelfMatch
+from game.Match import SelfMatch, isCreature
+
+class EquipAbility(ActivatedAbility):
+    def __init__(self, card, cost="0"):
+        super(EquipAbility,self).__init__(card, cost=cost, target=Target(target_types=isCreature), effects=AttachToPermanent(), limit=SorceryLimit(card))
 
 def vanishing(permanent, subrole, number):
     card = permanent.card

@@ -105,7 +105,7 @@ class SelectionList(Widget):
         self.visible = anim.animate(1., 0.0, dt=0.1)
     def construct(self, prompt, sellist):
         self.prompt.set_text(prompt)
-        self.options = [(Label(val[0], size=self.large_size, halign="center", shadow=False), val[1]) for val in sellist]
+        self.options = [(Label(str(val[0]), size=self.large_size, halign="center", shadow=False), val[1]) for val in sellist]
         y = 0
         method = "linear" #sine"
         dt = 0.3

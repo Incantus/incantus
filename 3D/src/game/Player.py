@@ -4,8 +4,8 @@ from GameObjects import MtGObject, Card
 from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeChangedEvent, TargetedByEvent, InvalidTargetEvent, DealsDamageEvent
 from Mana import ManaPool
 from Zone import Library, Hand, Play, Graveyard, Removed
-from Action import PlaySpell, ActivateForMana, PlayInstant, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
-from Match import isCreature, isPlayer, isGameObject, isCard
+from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
+from Match import isCreature, isPlayer, isGameObject, isCard, isLandType
 from data_structures import keywords
 
 class Player(MtGObject):
@@ -138,15 +138,15 @@ class Player(MtGObject):
             self.life -= manaburn
         return True
     def getMainAction(self):
-        self.allowable_actions.extend([PlayLand, PlaySpell, ActivateForMana, PlayInstant, PlayAbility])
-        num_added_actions = 5
+        self.allowable_actions.extend([PlayLand, ActivateForMana, PlayAbility])
+        num_added_actions = 3
         action = self.get(prompt="Play Spells or Activated Abilities")
         [self.allowable_actions.pop() for i in range(num_added_actions)]
         return action
     def getAction(self):
-        self.allowable_actions.extend([ActivateForMana, PlayInstant, PlayAbility])
+        self.allowable_actions.extend([ActivateForMana, PlayAbility])
         action = self.get(prompt="Play Instants or Activated Abilities")
-        [self.allowable_actions.pop() for i in range(3)]
+        [self.allowable_actions.pop() for i in range(2)]
         return action
     def attackingIntention(self):
         # First check to make sure you have cards in play
@@ -280,9 +280,11 @@ class Player(MtGObject):
             if isinstance(action, PassPriority) or isinstance(action, CancelAction): return action
             sel = action.selection
             if isGameObject(sel)  and sel.controller == self:
-                zone = action.zone
-                if zone == self.play: return PlayAbility(sel)
-                else: return sel.play_action(sel)
+                if isLandType(sel) and not action.zone == self.play: return PlayLand(sel)
+                else: return PlayAbility(sel)
+                #zone = action.zone
+                #if zone == self.play: return PlayAbility(sel)
+                #else: return sel.play_action(sel)
             else: return False
         if not process: process = convert_gui_action
         context = {"get_ability": True, "process": process}

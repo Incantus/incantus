@@ -49,10 +49,9 @@ class ManaCleared(Event): pass
 class CardTapped(Event): pass
 class CardUntapped(Event): pass
 
-class PlayActionEvent(Event): pass
 class PlayLandEvent(Event): pass
-class PlaySpellEvent(Event): pass
 class PlayAbilityEvent(Event): pass
+class PlaySpellEvent(Event): pass
 class DeclareAttackersEvent(Event): pass
 class DeclareBlockersEvent(Event): pass
 

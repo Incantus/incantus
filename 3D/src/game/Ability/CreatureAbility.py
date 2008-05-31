@@ -300,8 +300,14 @@ def trample_old(subrole):
     return remove_trample
 
 def flash(card):
-    from game.Action import PlayInstant
-    card.play_action = PlayInstant
+    from Limit import Unlimited, SorceryLimit, MultipleLimits
+    casting_ability = card.out_play_role.abilities[0]
+    if isinstance(casting_ability.limit, SorceryLimit):
+        casting_ability.limit = Unlimited(card)
+    elif isinstance(casting_ability.limit, MultipleLimits):
+        for i, limit in enumerate(casting_ability.limit):
+            if isinstance(limit, SorceryLimit): break
+        casting_ability.limit.limits.pop(i)
 
 def morph(permanent, cost="0"):
     # XXX Not implemented

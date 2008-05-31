@@ -1,16 +1,20 @@
 from Ability import Ability, Stackless
 from Target import Target
-from game.Match import isCard, isCreature
+from Limit import Unlimited
 import game.Cost
 
 class ActivatedAbility(Ability):
-    def __init__(self, card, cost="0", target=None, effects=[], limit=None, copy_targets=True, zone="play"):
-        super(ActivatedAbility,self).__init__(card, target=target, effects=effects, limit=limit, copy_targets=copy_targets)
+    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="play"):
+        super(ActivatedAbility,self).__init__(card, target=target, effects=effects, copy_targets=copy_targets)
         if type(cost) == str or type(cost) == int: cost = game.Cost.ManaCost(cost)
         self.cost = cost
+        if limit == None: limit = Unlimited(card)
+        self.limit = limit
         self.zone = zone
     def is_limited(self):
-        return not self.card.zone == getattr(self.card.controller, self.zone) or super(ActivatedAbility,self).is_limited()
+        return not self.card.zone == getattr(self.card.controller, self.zone) or self.limit()
+    def is_mana_ability(self):
+        return False
     def precompute_cost(self):
         return self.cost.precompute(self.card, self.card.controller)
     def compute_cost(self):
@@ -22,6 +26,8 @@ class ActivatedAbility(Ability):
         else: return "%s: %s"%(self.cost,super(ActivatedAbility,self).__str__())
 
 class MultipleAbilities(ActivatedAbility):
+    # XXX This doesn't override all the functions it should
+    # Is there a better way of doing this? Currently only used by Broken Ambitions
     def __init__(self, card, cost="0", abilities=[]):
         super(MultipleAbilities, self).__init__(card, cost)
         self.abilities = abilities
@@ -49,11 +55,6 @@ class ManaAbility(ActivatedAbility):
         return True
     def needs_stack(self):
         return False
-
-class EquipAbility(ActivatedAbility):
-    def __init__(self, card, cost="0"):
-        import Limit, Effect
-        super(EquipAbility,self).__init__(card, cost=cost, target=Target(target_types=isCreature), effects=Effect.AttachToPermanent(), limit=Limit.SorceryLimit(card))
 
 class ChoiceAbility(ActivatedAbility):
     def __init__(self, card, cost="0", msg='', choice_target=Target(targeting="you"), target=Target(targeting="you"), effects=[]):

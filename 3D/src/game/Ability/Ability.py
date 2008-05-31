@@ -1,26 +1,23 @@
 from game.GameObjects import MtGObject
-from game.GameEvent import AbilityCountered, AbilityResolved, TimestepEvent
+from game.GameEvent import PlayAbilityEvent, AbilityCountered, AbilityResolved, TimestepEvent
 from Target import Target
-from Limit import Unlimited
 
 class Ability(MtGObject):
-    def __init__(self, card, target=None, effects=[], limit=None, copy_targets=True, txt=''):
+    def __init__(self, card, target=None, effects=[], copy_targets=True, txt=''):
         self.card = card
+        self.controller = None
         if not (type(effects) == list or type(effects) == tuple):
             self.effects = [effects]
         else: self.effects = effects
         if target == None: target = [Target(targeting="you")]
-        elif not (type(target) == list or type(target) == tuple):
-            target = [target]
+        elif not (type(target) == list or type(target) == tuple): target = [target]
         self.targets = target
-        self.txt = txt
-        if not limit: limit=Unlimited(card)
-        self.limit = limit
         self.copy_targets = copy_targets
-    def is_limited(self):
-        return self.limit()
-    def is_mana_ability(self):
-        return False
+        self.txt = txt
+    def played(self):
+        # XXX This is done in Action.py
+        #self.controller.send(PlayAbilityEvent(), ability=self)
+        pass
     def needs_stack(self):
         return True
     def needs_target(self):
@@ -39,6 +36,7 @@ class Ability(MtGObject):
             if len(self.targets) == 1: i = 0
             if not effect.process_target(self.card, self.targets[i].target): target_aquired = False
         return not target_aquired == False
+    def preresolve(self): return True
     def do_resolve(self):
         if self.resolve(): self.resolved()
         else: self.countered()
@@ -53,8 +51,6 @@ class Ability(MtGObject):
             if effect(self.card, self.targets[i].target) == False: success=False
             self.send(TimestepEvent())
         return success
-    def preresolve(self): return True
-    def played(self): pass
     def resolved(self): self.card.send(AbilityResolved())
     def can_be_countered(self): return True
     def countered(self): self.card.send(AbilityCountered())
@@ -75,8 +71,6 @@ class Ability(MtGObject):
 class Stackless(object):
     def needs_stack(self): return False
 
-class StacklessAbility(Stackless, Ability): pass
-
 class PostponeTargeting(object):
     def get_target(self):
         return True
@@ -84,4 +78,5 @@ class PostponeTargeting(object):
         if not super(PostponeTargeting, self).get_target(): return False
         return super(PostponeTargeting, self).resolve()
 
+class StacklessAbility(Stackless, Ability): pass
 class PostponedAbility(PostponeTargeting, Ability): pass

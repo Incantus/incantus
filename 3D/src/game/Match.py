@@ -148,9 +148,11 @@ isCard = CardMatch()
 isGameObject = GameObjectMatch()
 
 from Ability import Ability
-from Ability.CastingAbility import CastSpell, CastNonPermanentSpell
+from Ability.CastingAbility import CastSpell, CastSorcerySpell, CastInstantSpell
 from Ability.ActivatedAbility import ActivatedAbility
 isAbility = AbilityMatch(Ability, "Ability")
 isSpellAbility = AbilityMatch(CastSpell, "Spell")
-isNonPermanentSpellAbility = AbilityMatch(CastNonPermanentSpell, "Instant or Sorcery")
+#isNonPermanentSpellAbility = AbilityMatch(CastNonPermanentSpell, "Instant or Sorcery")
+isInstantSpell = AbilityMatch(CastInstantSpell, "Instant")
+isSorcerySpell = AbilityMatch(CastSorcerySpell, "Sorcery")
 isActivatedAbility = AbilityMatch(ActivatedAbility, "Activated Ability")

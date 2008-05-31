@@ -1,5 +1,5 @@
 
-from GameEvent import PlayActionEvent, PlayLandEvent, PlayAbilityEvent, PlaySpellEvent
+from GameEvent import PlayLandEvent, PlayAbilityEvent, PlaySpellEvent
 
 class Action(object):
     def __eq__(self, other):
@@ -46,67 +46,36 @@ class XSelected(Action):
     def __init__(self, amount):
         self.amount = amount
 
-class PlayAction(Action):
+class PlayAbility(Action):
     def __init__(self, card):
         self.card = card
     def perform(self, player):
-        payed_cost = False
-        # Do all the stuff in rule 409.1
-        numabilities = len(self.card.current_role.abilities)
+        card = self.card
+        success = False
+        # Replace the representation of a with the text from the card
+        # XXX Must use the index of the ability, since we can't pickle abilities for network games
+        abilities = [(ability, i) for i, ability in enumerate(card.current_role.abilities) if not ability.is_limited()]
+        numabilities = len(abilities)
         if numabilities == 0: return False
-
-        success = True
-        if numabilities > 1:
-            # Replace the representation of a with the text from the card
-            abilities = [(str(a), i) for i, a in enumerate(self.card.current_role.abilities) if not a.is_limited()]
-            # XXX Must use the index of the ability, since we can't pickle abilities for network games
-            if not abilities: return False
-            index = player.getSelection(abilities, 1, required=False,prompt="%s: Select ability"%self.card)
-            if index is False: return False
-            ability = self.card.current_role.abilities[index]
+        elif numabilities == 1: ability = abilities[0][0]
         else:
-            ability = self.card.current_role.abilities[0]
-            if ability.is_limited(): return False
+            index = player.getSelection(abilities, 1, required=False, prompt="%s: Select ability"%self.card)
+            if index is False: return False
+            ability = abilities[index][0]
 
         # Now make a copy of the ability to populate it
         ability = ability.copy()
+        ability.controller = player
 
         self.card.current_role.onstack = True
         if ability.needs_stack(): success = player.stack.announce(ability)
         else: success = player.stack.stackless(ability)
         if success:
             #print "%s plays (%s) of %s"%(player.name,ability,self.card)
-            player.send(PlayActionEvent(), card=self.card, ability=ability)
+            player.send(PlayAbilityEvent(), ability=ability)
         else:
             #print "%s: Failed playing %s - %s"%(player.name, self.card, ability)
             self.card.current_role.onstack = False
-        return success
-
-class PlayAbility(PlayAction):
-    # The function of this is identical to PlayAction - the only reason I need it
-    # is to differentiate the times when only Instants/Abilities can be played
-    # XXX There might be a better way to structure this - probably when coding Flash (502.57)
-    def perform(self, player):
-        success = super(PlayAbility,self).perform(player)
-        if success: player.send(PlayAbilityEvent(), card=self.card)
-        return success
-
-class PlayInstant(PlayAction):
-    # The function of this is identical to PlayAction - the only reason I need it
-    # is to differentiate the times when only Instants/Abilities can be played
-    # XXX There might be a better way to structure this - probably when coding Flash (502.57)
-    def perform(self, player):
-        success = super(PlayInstant,self).perform(player)
-        if success: player.send(PlaySpellEvent(), card=self.card)
-        return success
-
-class PlaySpell(PlayAction):
-    # The function of this is identical to PlayAction - the only reason I need it
-    # is to differentiate the times when only Instants/Abilities can be played
-    # XXX There might be a better way to structure this
-    def perform(self, player):
-        success = super(PlaySpell,self).perform(player)
-        if success: player.send(PlaySpellEvent(), card=self.card)
         return success
 
 class PlayLand(Action):
@@ -130,24 +99,17 @@ class ActivateForMana(Action):
     def __init__(self, card):
         self.card = card
     def perform(self, player):
+        card = self.card
         # Check if the card can be provide mana
-        mana_abilities = []
-        for ability in self.card.current_role.abilities:
-            if ability.is_mana_ability(): # and ability.cost == "0": 
-                mana_abilities.append(ability)
+        abilities = [(ability, i) for i, ability in enumerate(card.current_role.abilities) if ability.is_mana_ability() and not ability.is_limited()]
 
-        if mana_abilities:
-            if len(mana_abilities) > 1:
-                # XXX Must use the index of the ability, since we can't pickle abilities for network games
-                abilities = [(str(a), i) for i, a in enumerate(mana_abilities)]
-                index = player.getSelection(abilities, 1, required=False, prompt="%s - Mana abilities"%self.card)
-                if index is False: return False
-                ability = mana_abilities[index]
-                # Ask which mana ability to use
-            else: ability = mana_abilities[0]
-            if not ability: return False
+        numabilities = len(abilities)
+        if numabilities == 0: return False
+        elif numabilities == 1: ability = abilities[0][0]
+        else:
+            index = player.getSelection(abilities, 1, required=False, prompt="%s - Mana abilities"%self.card)
+            if index is False: return False
+            ability = abilities[index][0]
 
-            ability = ability.copy()
-            return player.stack.stackless(ability)
-        else: return False
-
+        ability = ability.copy()
+        return player.stack.stackless(ability)
