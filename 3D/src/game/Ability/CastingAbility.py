@@ -1,6 +1,6 @@
 from game.GameEvent import PlaySpellEvent
 from ActivatedAbility import *
-from Limit import MultipleLimits, SorceryLimit
+from Limit import SorceryLimit
 
 # XXX Fix the controller of the spell
 class CastSpell(object):
@@ -21,7 +21,7 @@ class CastSpell(object):
 
 class PermanentSpell(CastSpell):
     def __init__(self, card, cost="0", target=None, effects=[], limit=None, copy_targets=True):
-        if limit: limit = MultipleLimits([SorceryLimit(card), limit])
+        if limit: limit += SorceryLimit(card)
         else: limit = SorceryLimit(card)
         super(PermanentSpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit)
     def preresolve(self):

@@ -12,7 +12,7 @@ class ActivatedAbility(Ability):
         self.limit = limit
         self.zone = zone
     def is_limited(self):
-        return not self.card.zone == getattr(self.card.controller, self.zone) or self.limit()
+        return not (self.card.zone == getattr(self.card.controller, self.zone) and self.limit())
     def is_mana_ability(self):
         return False
     def precompute_cost(self):

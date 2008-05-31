@@ -5,11 +5,11 @@ class Limit(MtGObject):
     def __init__(self, card):
         self.card = card
     def __call__(self):
-        return True
+        return False
 
 class Unlimited(Limit):
     def __call__(self):
-        return False
+        return True
 
 class MultipleLimits(Limit):
     def __init__(self, card, limits):
@@ -18,26 +18,20 @@ class MultipleLimits(Limit):
     def __iter__(self):
         return iter(self.limits)
     def __call__(self):
+        # XXX This is broken
         for l in self.limits:
-            if l():
-                limited = True
+            if not l():
+                limited = False
                 break
-        else: limited = False
+        else: limited = True
         return limited
-
-#class ZoneLimit(Limit):
-#    def __init__(self, card, zone):
-#        super(ZoneLimit,self).__init__(card)
-#        self.zone = zone
-#    def __call__(self):
-#        return not self.card.zone == getattr(self.card.controller, self.zone)
 
 class ConditionalLimit(Limit):
     def __init__(self, card, condition):
         super(ConditionalLimit, self).__init__(card)
         self.condition = condition
     def __call__(self):
-        return not self.condition(self.card)
+        return self.condition(self.card)
 
 class CountLimit(Limit):
     def __init__(self, card, count):
@@ -50,7 +44,7 @@ class CountLimit(Limit):
         self.count = self.original_count
     def __call__(self):
         self.count -= 1
-        return self.count < 0
+        return self.count >= 0
 
 class TurnLimit(Limit):
     def __init__(self, card):
@@ -60,7 +54,7 @@ class TurnLimit(Limit):
     def state(self, sender, player):
         self.your_turn = player == self.card.controller
     def __call__(self):
-        return not self.your_turn
+        return self.your_turn
 
 class UpkeepLimit(Limit):
     def __init__(self, card):
@@ -73,7 +67,7 @@ class UpkeepLimit(Limit):
             self.upkeep = True
         else: self.upkeep = False
     def __call__(self):
-        return not self.upkeep
+        return self.upkeep
 
 class SorceryLimit(Limit):
     def __init__(self, card):
@@ -86,5 +80,10 @@ class SorceryLimit(Limit):
             self.main_phase = True
         else: self.main_phase= False
     def __call__(self):
-        return not (self.main_phase and self.card.controller.stack.empty())
+        return (self.main_phase and self.card.controller.stack.empty())
 
+class ThresholdLimit(Limit):
+    def __init__(self, card):
+        super(ThresholdLimit, self).__init__(card)
+    def __call__(self):
+        return len(self.card.controller.graveyard) >= 7

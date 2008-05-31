@@ -5,13 +5,19 @@ from Target import Target
 from TriggeredAbility import TriggeredAbility
 from Trigger import PlayerTrigger, Trigger
 from Counters import Counter
-from Limit import SorceryLimit
+from Limit import ThresholdLimit, SorceryLimit
 from game.GameEvent import UpkeepStepEvent, CounterRemovedEvent, EndTurnEvent
 from game.Match import SelfMatch, isCreature
 
 class EquipAbility(ActivatedAbility):
     def __init__(self, card, cost="0"):
         super(EquipAbility,self).__init__(card, cost=cost, target=Target(target_types=isCreature), effects=AttachToPermanent(), limit=SorceryLimit(card))
+
+class ThresholdAbility(ActivatedAbility):
+    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="play"):
+        if limit: limit += ThresholdLimit(card)
+        else: limit = ThresholdLimit(card)
+        super(ThresholdAbility,self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit, zone=zone)
 
 def vanishing(permanent, subrole, number):
     card = permanent.card
