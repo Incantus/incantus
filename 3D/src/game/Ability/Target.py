@@ -118,10 +118,10 @@ class MultipleTargets(MtGObject):
 # When I add a new argument to constructor, make sure to add it to the copy function
 # or use the copy module
 class Target(MtGObject):
-    def __init__(self, targeting=None, target_types=None, msg='', selector="controller", untargeted=False, zone="play", zone_limit=None):
+    def __init__(self, targeting=None, target_types=None, msg='', selector="controller", untargeted=False, zone="play", player_zone=None):
         self.target = None
         self.zone = zone
-        self.zone_limit = zone_limit
+        self.player_zone = player_zone
         self.targeting = targeting
         if not (type(target_types) == tuple or type(target_types) == list): self.target_types = [target_types]
         else: self.target_types = target_types
@@ -142,7 +142,7 @@ class Target(MtGObject):
         self.selector = selector
         self.untargeted = untargeted
     def copy(self):
-        return Target(self.targeting, self.target_types, self.msg, self.selector, self.untargeted, self.zone, zone_limit=self.zone_limit)
+        return Target(self.targeting, self.target_types, self.msg, self.selector, self.untargeted, self.zone, player_zone=self.player_zone)
     def check_target(self, card):
         # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
         if not isPlayer(self.target):
@@ -153,12 +153,12 @@ class Target(MtGObject):
             if self.msg: prompt=self.msg
             else:
                 if self.zone != "play":
-                    if self.zone_limit == None: zl = " in any %s"%self.zone
-                    elif self.zone_limit == "controller": zl = " in your %s"%self.zone
+                    if self.player_zone == None: zl = " in any %s"%self.zone
+                    elif self.player_zone == "controller": zl = " in your %s"%self.zone
                     else: zl == " in opponent %s"%self.zone
                 else:
-                    if self.zone_limit == None: zl = ""
-                    elif self.zone_limit == "controller": zl = " you control"
+                    if self.player_zone == None: zl = ""
+                    elif self.player_zone == "controller": zl = " you control"
                     else: zl == " opponent controls"
                 prompt="Target %s%s for %s"%(' or '.join([str(t) for t in self.target_types]), zl, card)
             if self.selector == "opponent": selector = card.controller.opponent
@@ -168,8 +168,8 @@ class Target(MtGObject):
             else: selector = card.controller
             sel_zone = getattr(selector, self.zone)
             opponent_zone = getattr(selector.opponent, self.zone)
-            if self.zone_limit == None: zones = [sel_zone, opponent_zone]
-            elif self.zone_limit == "controller": zones = [sel_zone]
+            if self.player_zone == None: zones = [sel_zone, opponent_zone]
+            elif self.player_zone == "controller": zones = [sel_zone]
             else: zones = [opponent_zone]
             # If required, make sure there is actually a target available
             if self.required and not self.targeting_player:
