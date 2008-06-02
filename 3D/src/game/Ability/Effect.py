@@ -662,7 +662,7 @@ class AddActivatedAbility(Effect):
         self.expire = expire
     def __call__(self, card, target):
         new_ability = self.ability.copy()
-        new_ability.card = target.card
+        new_ability.card = target #.card
         target.abilities.append(new_ability)
         restore = lambda a=target.abilities: a.remove(new_ability)
         if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)

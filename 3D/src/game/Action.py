@@ -67,7 +67,6 @@ class PlayAbility(Action):
         ability = ability.copy()
         ability.controller = player
 
-        self.card.current_role.onstack = True
         if ability.needs_stack(): success = player.stack.announce(ability)
         else: success = player.stack.stackless(ability)
         if success:
@@ -75,7 +74,7 @@ class PlayAbility(Action):
             player.send(PlayAbilityEvent(), ability=ability)
         else:
             #print "%s: Failed playing %s - %s"%(player.name, self.card, ability)
-            self.card.current_role.onstack = False
+            pass
         return success
 
 class PlayLand(Action):

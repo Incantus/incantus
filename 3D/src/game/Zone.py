@@ -26,9 +26,13 @@ class Zone(MtGObject):
         # Retrieve all of a type of Card in current location
         return [card for card in iter(self.cards[::-1]) if match(card)]
     def remove_card(self, card, trigger=True):
+        self.remove_card_pre(card, trigger)
+        self.remove_card_post(card, trigger)
+    def remove_card_pre(self, card, trigger=True):
         self.before_card_removed(card)
         # All zones do this the same
         if trigger == True: self.send(CardLeavingZone(), card=card)
+    def remove_card_post(self, card, trigger=True):
         self.cards.remove(card)
         card.zone = None
         if trigger == True: self.send(CardLeftZone(), card=card)
@@ -46,10 +50,12 @@ class Zone(MtGObject):
         if trigger == True: self.send(CardEnteredZone(), card=card)
         self.after_card_added(card)
     def move_card(self, card, from_zone, position=-1):
+        from_zone.remove_card_pre(card, trigger=True)
         # This function always triggers entering and leaving events
         self.add_card_pre(card)
+        # XXX See Golgari grave-troll
         # Remove card from previous zone
-        from_zone.remove_card(card, trigger=True)
+        from_zone.remove_card_post(card, trigger=True)
         self.add_card_post(card, position)
     # The next four are for subclasses to define for additional processing before sending an Event signal
     def before_card_added(self, card): pass
@@ -107,24 +113,23 @@ class OrderedZone(Zone):
 class Play(OrderedZone):
     zone_name = "play"
     ordered = False
-    def before_card_added(self, card): card.current_role = card.in_play_role
-    #def before_card_removed(self, card): card.save_lki()
+    def before_card_added(self, card):
+        card.current_role = card.in_play_role
+    #def after_card_added(self, card):
+        # This should be before it moves, so it can capture Entering and Entered events
+        card.current_role.enteringPlay()
+    def before_card_removed(self, card):
+        card.save_lki()
+        card.current_role.leavingPlay()
 
-class OrderedOutPlayZone(OrderedZone):
+class OutPlayMixin(object):
     #def after_card_added(self, card):
     #    # Maintain the in_play role as long as possible if it was added from play
     #    card.current_role = card.out_play_role
     def before_card_added(self, card):
         card.current_role = card.out_play_role
 
-class OutPlayZone(Zone):
-    #def after_card_added(self, card):
-    #    # Maintain the in_play role as long as possible if it was added from play
-    #    card.current_role = card.out_play_role
-    def before_card_added(self, card):
-        card.current_role = card.out_play_role
-
-class Library(OrderedOutPlayZone):
+class Library(OutPlayMixin, OrderedZone):
     def __init__(self, cards=[]):
         super(Library, self).__init__(cards)
         self.needs_shuffle = False
@@ -159,10 +164,14 @@ class Library(OrderedOutPlayZone):
             random.shuffle(self.cards)
     zone_name = "library"
 
-class Graveyard(OrderedOutPlayZone):
+class Graveyard(OutPlayMixin, OrderedZone):
     zone_name = "graveyard"
+    def after_card_added(self, card):
+        card.current_role.enteringGraveyard()
+    def before_card_removed(self, card):
+        card.current_role.leavingGraveyard()
 
-class Hand(OutPlayZone):
+class Hand(OutPlayMixin, Zone):
     zone_name = "hand"
-class Removed(OutPlayZone):
+class Removed(OutPlayMixin, Zone):
     zone_name = "removed"

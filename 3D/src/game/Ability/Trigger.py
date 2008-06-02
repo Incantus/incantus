@@ -130,7 +130,7 @@ class LeavingTrigger(MoveTrigger):
 
 class EnterFromTrigger(Trigger):
     def __init__(self, from_zone, to_zone):
-        super(EnterFromTrigger,self).__init__(event=CardEnteredZone())
+        super(EnterFromTrigger,self).__init__(event=None)
         self.from_zone = from_zone
         self.to_zone = to_zone
         # We need to keep track of all zone changes, to make sure that we catch the right sequence of events

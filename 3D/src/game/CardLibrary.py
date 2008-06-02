@@ -82,7 +82,7 @@ class _CardLibrary:
         card.base_subtypes = card.subtypes = characteristic('')
         card.key = (self.counter, name)
 
-        card.out_play_role = CardEnvironment.Spell(card)
+        card.out_play_role = CardEnvironment.CardRole(card)
         card.out_play_role.abilities = [CardEnvironment.CastPermanentSpell(card, card.cost)]
 
         # XXX This is just hackery to get it working with arbitrary cards
@@ -96,7 +96,7 @@ class _CardLibrary:
         if card_desc[3] == True: print "%s is marked with an error"%name
 
         # XXX This should be changed because out of play roles are different depending on the Zone
-        card.out_play_role = CardEnvironment.Spell(card)
+        card.out_play_role = CardEnvironment.CardRole(card)
 
         # Now set up the card
         # This is a bit of a hack to get everything to load properly
@@ -122,9 +122,6 @@ class _CardLibrary:
 
         if (card.type == "Instant" or card.type == "Sorcery"):
             card.in_play_role = CardEnvironment.NoRole(card)
-        #elif not card.type == "Land" and len(card.out_play_role.abilities) == 0:
-        #    # This takes care of Basic and other Lands, since they aren't considered spells
-        #    card.out_play_role.abilities = [CardEnvironment.CastPermanentSpell(card, card.cost)]
 
     def __getitem__(self, key):
         # This is for unpickling during network transfer - we don't want to send the card across

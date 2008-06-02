@@ -76,7 +76,9 @@ class GameObject(MtGObject):
     def save_lki(self):
         # How long should we keep LKI?
         self._last_known_info = self._current_role.copy()
-        def reset_lki(): self._last_known_info = self.in_play_role
+        def reset_lki(): 
+            del self._last_known_info
+            self._last_known_info = None #self.in_play_role
         self.register(reset_lki, event=HasPriorityEvent(), weak=False, expiry=1)
     def current_role():
         doc = '''The current role for this card. Either a Spell (when in hand, library, graveyard or out of game), Spell, (stack) or Permanent (in play)'''
@@ -84,17 +86,18 @@ class GameObject(MtGObject):
             return self._current_role
         def fset(self, role):
             # Leaving play
-            if role == self.out_play_role and self._current_role != self.out_play_role:
-                #  Keep a reference around in case any spells need it
-                self.save_lki()
-                self._current_role.leavingPlay()
+            #if role == self.out_play_role and self._current_role != self.out_play_role:
+            #    #  Keep a reference around in case any spells need it
+            #    self.save_lki()
+            #    self._current_role.leavingPlay()
             # Staying in play
-            if role == self.in_play_role and self._current_role.__class__ == self.in_play_role.__class__:
-                # Do nothing - when we change controllers
-                return
+            #if role == self.in_play_role and self._current_role.__class__ == self.in_play_role.__class__:
+            #    # Do nothing - when we change controllers
+            #    return
             # Make a copy of the role, so that there's no memory whenever we re-enter play
-            if role == self.in_play_role: self._current_role = role.copy()
-            else: self._current_role = role   # XXX i need to fix this for blink effects out of play, but i can't just make a copy
+            #if role == self.in_play_role: self._current_role = role.copy()
+            #else: self._current_role = role   # XXX i need to fix this for blink effects out of play, but i can't just make a copy
+            self._current_role = role.copy()
 
             # Set up base characteristics
             self.color = self.base_color.copy()
@@ -103,10 +106,8 @@ class GameObject(MtGObject):
             self.supertypes = self.base_supertype.copy()
 
             # It is about to enter play - let it know
-            if role == self.in_play_role:
-                if self._last_known_info: del self._last_known_info
-                self._last_known_info = None
-                self._current_role.enteringPlay()
+            #if role == self.in_play_role:
+            #    self._current_role.enteringPlay()
         return locals()
     current_role = property(**current_role())
     # I should probably get rid of the getattr call, and make everybody refer to current_role directly

@@ -30,7 +30,7 @@ class TriggeredAbility(MtGObject):
 
 def Play(card, ability):
     # This is identical to Action.PlaySpell - there's probably a way to combine them
-    player = card.controller
-    if ability.needs_stack(): player.stack.add_triggered(ability)
-    else: player.stack.stackless(ability)
+    ability.controller = card.controller
+    if ability.needs_stack(): ability.controller.stack.add_triggered(ability)
+    else: ability.controller.stack.stackless(ability)
     return True

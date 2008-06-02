@@ -54,7 +54,7 @@ class Ability(MtGObject):
     def resolved(self): self.card.send(AbilityResolved())
     def can_be_countered(self): return True
     def countered(self): self.card.send(AbilityCountered())
-    def cleanup(self): self.card.out_play_role.onstack = False
+    def cleanup(self): pass
     def copy(self):
         import copy
         newcopy = copy.copy(self)

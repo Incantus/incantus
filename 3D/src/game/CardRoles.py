@@ -3,7 +3,7 @@ from GameObjects import MtGObject
 from data_structures import keywords
 from GameEvent import DealsDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, ReceivesDamageEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent
 
-import new, inspect
+import new, inspect, copy
 def rebind_self(obj):
     # Bind all unbound functions
     for name, func in inspect.getmembers(obj, inspect.ismethoddescriptor):
@@ -11,15 +11,12 @@ def rebind_self(obj):
             func.rebind(obj)
             #func.im_self != obj: setattr(obj, name, new.instancemethod(func.im_func, obj, func.im_class))
 
-class NoRole(MtGObject):   # This is for lands
+class NoRole(MtGObject):
     # For token objects out of play
     def __init__(self, card):
         self.card = card
-        self.facedown = False
-    def faceDown(self):
-        self.facedown = True
-    def faceUp(self):
-        self.facedown = False
+    def enteringGraveyard(self): pass
+    def leavingGraveyard(self): pass
     def copy(self):
         return NoRole(self.card)
     def match_role(self, matchrole):
@@ -27,11 +24,40 @@ class NoRole(MtGObject):   # This is for lands
     def __str__(self):
         return "NoRole"
 
-class Spell(MtGObject):
+class CardRole(MtGObject):  # Cards out of play
     def __init__(self, card):
         self.card = card
-        self.onstack = False
         self.abilities = []
+        self.graveyard_abilities = []
+        self.removed_abilities = []
+    def enteringGraveyard(self):
+        # I should change the name of these entering and leaving functions - maybe enteringZone
+        for ability in self.graveyard_abilities: ability.enteringPlay()
+    def leavingGraveyard(self):
+        for ability in self.graveyard_abilities: ability.leavingPlay()
+    def canDealDamage(self):
+        return True
+    def dealDamage(self, target, amount, combat=False):
+        if target.canBeDamagedBy(self.card) and amount > 0:
+            target.assignDamage(amount, source=self.card, combat=combat)
+    def canBeTargetedBy(self, targeter): return True
+    def isTargetedBy(self, targeter):
+        self.card.send(TargetedByEvent(), targeter=targeter)
+    def copy(self):
+        newcopy = copy.copy(self)
+        rebind_self(newcopy)
+        newcopy.abilities = copy.copy(self.abilities)
+        newcopy.graveyard_abilities = copy.copy(self.graveyard_abilities)
+        newcopy.removed_abilities = copy.copy(self.removed_abilities)
+        return newcopy
+    def match_role(self, matchrole):
+        return matchrole == self.__class__
+    def __str__(self):
+        return "CardRole"
+
+class Spell(MtGObject):  # Spells on the stack
+    def __init__(self, card):
+        self.card = card
         self.facedown = False
     # the damage stuff seems kind of hacky
     def canDealDamage(self):
@@ -46,12 +72,10 @@ class Spell(MtGObject):
         self.facedown = True
     def faceUp(self):
         self.facedown = False
-    def copy(self):
-        import copy
-        newcopy = copy.copy(self)
-        rebind_self(newcopy)
-        newcopy.abilities = []
-        return newcopy
+    #def copy(self):
+    #    newcopy = copy.copy(self)
+    #    rebind_self(newcopy)
+    #    return newcopy
     def match_role(self, matchrole):
         return matchrole == self.__class__
     def __str__(self):
@@ -75,7 +99,6 @@ class Permanent(MtGObject):
         self.flipped = False
         self.facedown = False
         self.attachments = []
-        #self.targeted = False
         self.counters = []          # Any counters on permanent
         self.continuously_in_play = False
     def get_subrole(self, matchrole):
@@ -178,8 +201,6 @@ class Permanent(MtGObject):
         for role in self.subroles: role.leavingPlay()
         for attached in self.attachments: attached.attachedLeavingPlay()
     def copy(self):
-        import copy
-        # This doesn't create new lists for triggered abilities and static abilities
         newcopy = copy.copy(self)
         rebind_self(newcopy)
         newcopy.counters = copy.copy(self.counters)
@@ -190,7 +211,7 @@ class Permanent(MtGObject):
     def __str__(self):
         return str(self.__class__.__name__)
 
-class Role(object):
+class SubRole(object):
     def __init__(self):
         self.abilities = []
         self.triggered_abilities = []
@@ -212,8 +233,7 @@ class Role(object):
     def canTap(self): return True
     def __deepcopy__(self, memo,mutable=set([list,set,dict])):
         # This only copies one level deep
-        # So the in_play_role is always the pristine one specified in the card definition
-        import copy
+        # So the subrole(s) are always the pristine one specified in the card definition
         role = self.__class__.__new__(self.__class__)
         for attr, value in self.__dict__.iteritems():
             if type(value) in mutable:
@@ -221,7 +241,6 @@ class Role(object):
             else: setattr(role,attr,value)
         return role
     def copy(self, perm=None):
-        import copy
         newcopy = copy.deepcopy(self)
         newcopy.perm = perm
         newcopy.keywords = self.keywords.copy()
@@ -230,7 +249,7 @@ class Role(object):
     def __str__(self):
         return self.__class__.__name__
 
-class Land(Role):
+class Land(SubRole):
     def __init__(self, color):
         super(Land,self).__init__()
         self.color = color
@@ -246,7 +265,7 @@ class PTModifiers(list):
         self.role.send(PowerToughnessChangedEvent())
         return super(PTModifiers,self).remove(object)
 
-class Creature(Role):
+class Creature(SubRole):
     def power():
         def fget(self):
             # Calculate layering rules
@@ -382,8 +401,8 @@ class TokenCreature(Creature):
         self.send(TokenLeavingPlay())
         super(TokenCreature,self).leavingPlay()
 
-class Artifact(Role): pass
-class Enchantment(Role): pass
+class Artifact(SubRole): pass
+class Enchantment(SubRole): pass
 
 class Attachment(object):
     def attach(self, target):
