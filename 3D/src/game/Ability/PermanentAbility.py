@@ -44,6 +44,7 @@ def vanishing(permanent, subrole, number):
 def suspend(subrole, card, number):
     pass
 
+# XXX This doesn't work when the controller is changed - need to reset the triggered ability somehow
 def echo(permanent, subrole, cost="0"):
     card = permanent.card
     #At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.
