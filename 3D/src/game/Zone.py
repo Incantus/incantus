@@ -4,8 +4,9 @@ from GameObjects import MtGObject
 from GameEvent import CardLeavingZone, CardEnteringZone, CardLeftZone, CardEnteredZone, TimestepEvent
 
 class Zone(MtGObject):
-    def __init__(self, cards=None):
+    def __init__(self, player, cards=None):
         if not cards: cards = []
+        self.player = player
         self.cards = cards
         for card in self.cards: card.zone = self
     def __len__(self):
@@ -77,25 +78,22 @@ class OrderedZone(Zone):
         self.pending = True
         if position == -1: self.pending_top.append((card, trigger))
         else: self.pending_bottom.append((card, trigger))
-    def _get_order(self, cardlist, pos):
+    def get_card_order(self, cardlist, pos):
         if len(cardlist) > 1:
-            player = cardlist[0].owner
             if self.ordered: pos = "%s of "%pos
             else: pos = ''
-            reorder = player.getCardSelection(cardlist, len(cardlist), from_zone=str(self), from_player=player, required=False, prompt="Order cards entering %s%s"%(pos, self))
-            if reorder: cardlist = reorder
+            reorder = self.player.getCardSelection(cardlist, len(cardlist), from_zone=str(self), from_player=self.player, required=False, prompt="Order cards entering %s%s"%(pos, self))
+            if reorder: cardlist = reorder[::-1]
         return cardlist
     def pre_commit(self): pass
     def post_commit(self): pass
     def commit(self):
         if self.pending_top or self.pending_bottom:
             self.pre_commit()
-            toplist = self._get_order([c[0] for c in self.pending_top], "top")
-            bottomlist = self._get_order([c[0] for c in self.pending_bottom], "bottom")
-            self.cards = bottomlist[::-1] + self.cards + toplist[::-1]
-            for card in toplist+bottomlist:
-                # XXX Do I ever not want to trigger?
-                trigger = True
+            toplist = self.get_card_order([c[0] for c in self.pending_top], "top")
+            bottomlist = self.get_card_order([c[0] for c in self.pending_bottom], "bottom")
+            self.cards = bottomlist + self.cards + toplist
+            for card, trigger in self.pending_top+self.pending_bottom:
                 card.zone = self
                 if trigger == True: self.send(CardEnteredZone(), card=card)
                 self.after_card_added(card)

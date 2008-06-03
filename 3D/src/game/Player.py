@@ -33,11 +33,11 @@ class Player(MtGObject):
         self.name = name
         self._life = 20
         self.poison = 0
-        self.library = Library()
-        self.hand = Hand()
-        self.graveyard = Graveyard()
-        self.removed = Removed()
-        self.play = Play()
+        self.library = Library(self)
+        self.hand = Hand(self)
+        self.graveyard = Graveyard(self)
+        self.removed = Removed(self)
+        self.play = Play(self)
         self.manapool = ManaPool()
         self.allowable_actions = [PassPriority]
         self.land_actions = -1
