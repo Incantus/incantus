@@ -186,7 +186,7 @@ class ChangeController(Effect):
         target.current_role.continuously_in_play = False
         target.summoningSickness()
         card.send(CardControllerChanged(), card=target, original=old_controller)
-        restore = lambda : self.reverse(card, target, old_controller)
+        restore = lambda: str(target.zone) == "play" and self.reverse(card, target, old_controller)
         if self.expire: card.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
     def reverse(self, card, target, old_controller):
