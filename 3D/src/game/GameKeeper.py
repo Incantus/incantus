@@ -452,6 +452,7 @@ class GameKeeper(MtGObject):
 
             # Clear all nonlethal damage
             self.send(CleanupEvent())
+            self.send(TimestepEvent())
             for player in [self.curr_player, self.other_player]:
                 for creature in player.play.get(Match.isCreature):
                     creature.clearDamage()
