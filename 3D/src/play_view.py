@@ -168,7 +168,9 @@ class PlayView(Widget):
         for cardlist in [self.creatures,self.other_perms,self.attached]+self.lands.values():
             if guicard in cardlist: break
         guicard.alpha = anim.animate(1, 0.25, dt=1.5, method="ease_in_circ")
-        clock.schedule_once(lambda t: cardlist.remove(guicard) or self.layout(), 1.5)
+        clock.schedule_once(lambda t: cardlist.remove(guicard), 1.4)
+        clock.schedule_once(lambda t: self.layout(), 1.5)
+        #clock.schedule_once(lambda t: cardlist.remove(guicard) or self.layout(), 1.5)
     #def card_attached_new(self, sender, attached):
     # XXX This is to handle attaching to the other player's permanents
     #    attachment = CardLibrary.CardLibrary.getPlayCard(sender)
