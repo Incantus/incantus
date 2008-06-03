@@ -39,11 +39,12 @@ class Trigger(MtGObject):
         else: self.match_condition = lambda *args: True
         self.register(self.filter, event=self.trigger_event, sender=self.trigger_sender)
         self.activated = True
-    def clear_trigger(self):
+    def clear_trigger(self, wait=True):
         # This guarantees that all simultaneous events are caught by a registered trigger
         if self.activated:
             unregister = lambda: self.unregister(self.filter, event=self.trigger_event, sender=self.trigger_sender)
-            self.register(unregister, event=TimestepEvent(), weak=False, expiry=1)
+            if wait: self.register(unregister, event=TimestepEvent(), weak=False, expiry=1)
+            else: unregister()
             self.activated = False
     def filter(self, sender, **keys):
         if robustApply(self.match_condition, sender, **keys) and (self.expiry == -1 or self.count < self.expiry):
@@ -106,13 +107,14 @@ class MoveTrigger(CardTrigger):
         for event, sender in self.events_senders:
             self.register(self.filter, event=event, sender=sender)
         self.activated = True
-    def clear_trigger(self):
+    def clear_trigger(self, wait=True):
         if self.activated:
             # closures are not bound properly in loops, so have to define an external function
             def unregister(event, sender):
                 return lambda: self.unregister(self.filter, event=event, sender=sender)
             for event, sender in self.events_senders:
-                self.register(unregister(event, sender), event=TimestepEvent(), weak=False, expiry=1)
+                if wait: self.register(unregister(event, sender), event=TimestepEvent(), weak=False, expiry=1)
+                else: self.unregister(self.filter, event=event, sender=sender)
             self.activated = False
 
 class EnterTrigger(MoveTrigger):
@@ -146,13 +148,14 @@ class EnterFromTrigger(Trigger):
         self.events_senders = [(CardEnteringZone(), self.filter_entering), (CardLeftZone(), self.filter_left)]
         for event, filter in self.events_senders: self.register(filter, event=event)
         self.activated = True
-    def clear_trigger(self):
+    def clear_trigger(self, wait=True):
         if self.activated:
             # closures are not bound properly in loops, so have to define an external function
             def unregister(event, filter):
                 return lambda: self.unregister(filter, event=event)
             for event, filter in self.events_senders:
-                self.register(unregister(event, filter), event=TimestepEvent(), weak=False, expiry=1)
+                if wait: self.register(unregister(event, filter), event=TimestepEvent(), weak=False, expiry=1)
+                else: self.unregister(filter, event=event)
             self.activated = False
     def filter_entering(self, sender, card):
         if self.match_condition(card) and str(sender) == self.to_zone:
