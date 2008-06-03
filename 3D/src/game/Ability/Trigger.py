@@ -84,59 +84,47 @@ class CardTrigger(Trigger):
             self.trigger_function(self)
             self.count += 1
 
-class MoveTrigger(CardTrigger):
-    def __init__(self, event=None, zone=None, any=False):
+class MoveTrigger(Trigger):
+    def __init__(self, event, zone, player="controller"):
         super(MoveTrigger, self).__init__(event=event)
         self.zone = zone
-        self.any = any
-    def setup_trigger(self, ability, trigger_function, match_condition=None, expiry=-1):
-        self.count = 0
-        self.expiry = expiry
-        self.ability = ability
-        self.trigger_function = trigger_function
-        if match_condition: self.match_condition = match_condition
-        else: self.match_condition = lambda *args: True
-        self.events_senders = []
-        if self.any:
-            self.events_senders.append((self.trigger_event, getattr(ability.card.controller, self.zone)))
-            self.events_senders.append((self.trigger_event, getattr(ability.card.controller.opponent, self.zone)))
-        else:
-            if self.zone == "play": trigger_sender = getattr(ability.card.controller, self.zone)
-            else: trigger_sender = getattr(ability.card.owner, self.zone)
-            self.events_senders.append((self.trigger_event, trigger_sender))
-        for event, sender in self.events_senders:
-            self.register(self.filter, event=event, sender=sender)
-        self.activated = True
-    def clear_trigger(self, wait=True):
-        if self.activated:
-            # closures are not bound properly in loops, so have to define an external function
-            def unregister(event, sender):
-                return lambda: self.unregister(self.filter, event=event, sender=sender)
-            for event, sender in self.events_senders:
-                if wait: self.register(unregister(event, sender), event=TimestepEvent(), weak=False, expiry=1)
-                else: self.unregister(self.filter, event=event, sender=sender)
-            self.activated = False
+        self.player = player
+    def check_player(self, sender, card):
+        if self.zone == "play": player_cmp = card.controller
+        else: player_cmp = card.owner
+
+        if self.player == "controller" and card.controller == self.ability.card.controller: return True
+        elif self.player == "opponent" and not card.controller == self.ability.card.controller: return True
+        elif self.player == "any": return True
+        else: return False
+    def filter(self, sender, card):
+        if (self.match_condition(card) and (self.expiry == -1 or self.count < self.expiry) and
+           self.zone == str(sender) and self.check_player(sender, card)):
+            self.sender = sender
+            self.matched_card = card
+            self.trigger_function(self)
+            self.count += 1
 
 class EnterTrigger(MoveTrigger):
-    def __init__(self, zone=None, any=False):
-        super(EnterTrigger,self).__init__(event=CardEnteredZone(), zone=zone, any=any)
+    def __init__(self, zone=None, player="controller"):
+        super(EnterTrigger,self).__init__(event=CardEnteredZone(), zone=zone, player=player)
 class LeaveTrigger(MoveTrigger):
-    def __init__(self, zone=None, any=False):
-        super(LeaveTrigger,self).__init__(event=CardLeftZone(), zone=zone, any=any)
+    def __init__(self, zone=None, player="controller"):
+        super(LeaveTrigger,self).__init__(event=CardLeftZone(), zone=zone, player=player)
 class EnteringTrigger(MoveTrigger):
-    def __init__(self, zone=None, any=False):
-        super(EnteringTrigger,self).__init__(event=CardEnteringZone(), zone=zone, any=any)
+    def __init__(self, zone=None, player="controller"):
+        super(EnteringTrigger,self).__init__(event=CardEnteringZone(), zone=zone, player=player)
 class LeavingTrigger(MoveTrigger):
-    def __init__(self, zone=None, any=False):
-        super(LeavingTrigger,self).__init__(event=CardLeavingZone(), zone=zone, any=any)
+    def __init__(self, zone=None, player="controller"):
+        super(LeavingTrigger,self).__init__(event=CardLeavingZone(), zone=zone, player=player)
 
 class EnterFromTrigger(Trigger):
-    def __init__(self, from_zone, to_zone):
+    # We need to keep track of all zone changes, to make sure that we catch the right sequence of events
+    def __init__(self, from_zone, to_zone, player="any"):
         super(EnterFromTrigger,self).__init__(event=None)
         self.from_zone = from_zone
         self.to_zone = to_zone
-        # We need to keep track of all zone changes, to make sure that we catch the right sequence of events
-        # although only enter events, since we can infer the correct move from a sequence of enter events
+        self.player = player
     def setup_trigger(self, ability, trigger_function, match_condition=None, expiry=-1):
         self.entering = set()
         self.count = 0
@@ -157,13 +145,21 @@ class EnterFromTrigger(Trigger):
                 if wait: self.register(unregister(event, filter), event=TimestepEvent(), weak=False, expiry=1)
                 else: self.unregister(filter, event=event)
             self.activated = False
+    def check_player(self, sender, card):
+        if self.to_zone == "play": player_cmp = card.controller
+        else: player_cmp = card.owner
+
+        if self.player == "controller" and card.controller == self.ability.card.controller: return True
+        elif self.player == "opponent" and not card.controller == self.ability.card.controller: return True
+        elif self.player == "any": return True
+        else: return False
     def filter_entering(self, sender, card):
-        if self.match_condition(card) and str(sender) == self.to_zone:
+        if self.match_condition(card) and str(sender) == self.to_zone and self.check_player(sender, card):
             self.entering.add(card)
     def filter_left(self, sender, card):
         if card in self.entering:
             self.entering.remove(card)
-            if str(sender) == self.from_zone and card in self.entering:
+            if str(sender) == self.from_zone:
                 self.matched_card = card
                 if (self.expiry == -1 or self.count < self.expiry): self.trigger_function(self)
                 self.count += 1
