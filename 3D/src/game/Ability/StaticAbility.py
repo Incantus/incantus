@@ -43,8 +43,8 @@ class PermanentTrackingAbility(StaticAbility):
     def __init__(self, card, condition, events = [], effects=[]):
         super(PermanentTrackingAbility, self).__init__(card, effects)
         self.condition = condition
-        self.enter_trigger = EnterTrigger("play", any=True)
-        self.leave_trigger = LeaveTrigger("play", any=True)
+        self.enter_trigger = EnterTrigger("play", player="any")
+        self.leave_trigger = LeaveTrigger("play", player="any")
         if not type(events) == list: events = [events]
         self.other_triggers = [CardTrigger(event) for event in [SubroleModifiedEvent(), CardControllerChanged()] + events]
         self.effect_tracking = {}

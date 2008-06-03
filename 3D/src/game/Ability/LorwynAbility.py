@@ -81,7 +81,7 @@ def champion(subrole, card, role=isPermanent, subtypes=None):
                 effects=ChangeZone(from_zone="play", to_zone="removed"),
                 failed=SacrificeSelf(),
                 copy_targets=False))
-    champion_return = TriggeredAbility(card, trigger = LeaveTrigger("play", any=True),
+    champion_return = TriggeredAbility(card, trigger = LeaveTrigger("play", player="any"),
             match_condition=SelfMatch(card, lambda x: championed.target and championed.target.zone != None),
             ability=Ability(card, target=SpecialTarget(targeting= lambda: championed.target),
                 effects=ChangeZone(from_zone="removed", to_zone="play")))
