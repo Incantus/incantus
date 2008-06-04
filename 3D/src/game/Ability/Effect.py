@@ -220,7 +220,7 @@ class CreateToken(Effect):
             token.controller = target
             token.in_play_role = Permanent(token, [])
             token.in_play_role.subroles.append(self.token_role.copy(token.in_play_role))
-            token.out_play_role = NoRole(token)
+            token.current_role = token.out_play_role = NoRole(token)
             # Now put it into play
             token.controller.play.add_card(token)
             card.send(TokenPlayed())
