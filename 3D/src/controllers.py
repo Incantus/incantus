@@ -685,12 +685,12 @@ class HandController(object):
         else: self.mouse_down = False
         return self.mouse_down
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        #if self.mouse_down: return True
         hand = self.player_hand
         x -= hand.pos.x
         y -= hand.pos.y
         if self.mouse_down and self.card_clicked:
             if not self.zooming:
+                return True
                 self.drag_x += dx
                 self.dragged = True
                 w = self.card_clicked.width*self.card_clicked.size
