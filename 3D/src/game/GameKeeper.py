@@ -37,7 +37,7 @@ class Stack(MtGObject):
                 abilities = [(str(a), i) for i, a in enumerate(triggered)]
                 results = []
                 if len(abilities) > 1:
-                    results = player.getSelection(abilities, len(abilities), required=False, prompt="Order triggered abilities")
+                    results = player.getSelection(abilities, len(abilities), required=False, prompt="Order triggered abilities\n(Top ability resolves first)")
                 if not results: results = range(len(triggered))
                 # Now reorder
                 for i in results: self.announce(triggered[i])
@@ -83,11 +83,12 @@ class Stack(MtGObject):
         ability.played()
     def on_stack(self, ability):
         return ability in self.stack
-    def pop(self):
+    def resolve(self):
         ability = self.stack.pop()
+        ability.do_resolve()
         self.send(AbilityRemovedFromStack(), ability=ability)
         #self.send(CardLeftZone(), card=ability.card)
-        return ability
+        del ability
     def counter(self, ability):
         self.stack.remove(ability)
         self.send(AbilityRemovedFromStack(), ability=ability)
@@ -470,10 +471,7 @@ class GameKeeper(MtGObject):
         stack_less_action = self.playStackSpells()
         # Time to unwind
         while not self.stack.empty() or stack_less_action:
-            if not stack_less_action:
-                ability = self.stack.pop()
-                ability.do_resolve()
-                del ability
+            if not stack_less_action: self.stack.resolve()
             # Now it's the active player's turn to play something
             if self.stack.empty(): stack_less_action = self.playStackSpells()
             else: self.playStackInstant()
@@ -495,9 +493,7 @@ class GameKeeper(MtGObject):
         self.playStackInstant()
         # Time to unwind
         while not self.stack.empty():
-            ability = self.stack.pop()
-            ability.do_resolve()
-            del ability
+            self.stack.resolve()
             # Now it's the active player's turn to play something
             self.playStackInstant()
     def playStackInstant(self, skip_first=False):
