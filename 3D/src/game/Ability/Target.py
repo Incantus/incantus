@@ -1,5 +1,5 @@
 from game.GameObjects import MtGObject
-from game.Match import isPermanent, isPlayer, SelfMatch, PlayerMatch, PlayerOrCreatureMatch
+from game.Match import isPermanent, isPlayer, SelfMatch, PlayerMatch, OpponentMatch, PlayerOrCreatureMatch
 from game.GameEvent import InvalidTargetEvent
 
 #class Target(MtGObject):
@@ -133,7 +133,7 @@ class Target(MtGObject):
             else: return False
         self.match_types = match_types
         for ttype in self.target_types:
-            if isinstance(ttype, PlayerMatch) or isinstance(ttype, PlayerOrCreatureMatch):
+            if any([isinstance(ttype, match) for match in [PlayerMatch, OpponentMatch, PlayerOrCreatureMatch]]):
                 self.targeting_player = True
                 break
         else: self.targeting_player = False
