@@ -21,7 +21,7 @@ class TriggeredAbility(MtGObject):
             self.trigger.setup_trigger(self,self.playAbility,self.match_condition,self.expiry)
     def leavingPlay(self):
         if not self.always_on:
-            self.trigger.clear_trigger(wait=True)
+            self.trigger.clear_trigger(wait=False)
     def playAbility(self, trigger=None): # We don't care about the trigger
         Play(self.card, self.ability.copy())
     def copy(self):

@@ -133,10 +133,12 @@ class EnterFromTrigger(Trigger):
         self.trigger_function = trigger_function
         if match_condition: self.match_condition = match_condition
         else: self.match_condition = lambda *args: True
-        self.events_senders = [(CardEnteringZone(), self.filter_entering), (CardLeftZone(), self.filter_left)]
+        self.events_senders = [(CardEnteringZone(), self.filter_entering), (CardLeavingZone(), self.filter_leaving)]
         for event, filter in self.events_senders: self.register(filter, event=event)
         self.activated = True
-    def clear_trigger(self, wait=True):
+    def clear_trigger(self, wait):
+        # XXX We want to wait because of the nature of the events we are catching
+        wait = True
         if self.activated:
             # closures are not bound properly in loops, so have to define an external function
             def unregister(event, filter):
@@ -156,7 +158,7 @@ class EnterFromTrigger(Trigger):
     def filter_entering(self, sender, card):
         if self.match_condition(card) and str(sender) == self.to_zone and self.check_player(sender, card):
             self.entering.add(card)
-    def filter_left(self, sender, card):
+    def filter_leaving(self, sender, card):
         if card in self.entering:
             self.entering.remove(card)
             if str(sender) == self.from_zone:
