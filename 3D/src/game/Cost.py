@@ -4,18 +4,9 @@ import Mana
 from Match import isCard
 
 class Cost(object):
-    def __init__(self):
-        self.paid = False
-    def precompute(self, card, player):
-        return True
-    def compute(self, card, player):
-        return True
-    def pay(self, card, player):
-        return False
-    def reverse(self, card, player):
-        # Since costs will not need to call reverse, since if they fail they won't have been paid anyway
-        # If MultipleCost fails then it will need to back out previous payments
-        pass
+    def precompute(self, card, player): return True
+    def compute(self, card, player): return True
+    def pay(self, card, player): pass
     def __add__(self, other):
         if isinstance(other, str): return MultipleCosts([self,ManaCost(other)])
         elif isinstance(other, MultipleCosts): return MultipleCosts([self]+other.costs)
@@ -26,8 +17,8 @@ class Cost(object):
         return ''
 
 class NoCost(object):
+    def precompute(self, card, player): return False
     def compute(self, card, player): return False
-    def pay(self, card, player): return False
     def __eq__(self, other): return isinstance(other, NoCost)
     def __str__(self): return ''
     def converted_cost(self): return 0
@@ -53,30 +44,26 @@ class ManaCost(Cost):
         self._X = X
         return X >= 0
     def compute(self, card, player):
-        # XXX This is where I should check if the player has enough mana
+        # XXX This is where I should check if the player has enough mana and the player should be
+        # able to generate more mana
         mp = player.manapool
-        self.paid = False
-        self.final_cost = mp.convert_mana_string(self.cost)
-        self.final_cost[-1] += self._X
-        return True
-    def pay(self, card, player):
-        mp = player.manapool
-        cost = self.final_cost
+        cost = mp.convert_mana_string(self.cost)
+        cost[-1] += self._X
         for i, val in enumerate(cost):
             if val < 0: cost[i] = 0
+        self.final_cost = cost
         while not mp.checkMana(cost):
             if not player.getMoreMana(): return False
         # Now I have enough mana - how do I distribute it?
         payment = mp.distributeMana(cost)
         # Consolidate any X's in the mana string
         if not payment: payment = player.getManaChoice(required=mp.convert_to_mana_string(cost))
-        if not payment: return False
-        player.manapool.spend(payment)
-        self.payment = payment
-        self.paid = True
-        return self.paid
-    def reverse(self, card, player):
-        if self.paid: player.manapool.addMana(self.payment)
+        if payment:
+            self.payment = payment
+            return True
+        else: return False
+    def pay(self, card, player):
+        player.manapool.spend(self.payment)
     def hasX(self):
         return 'X' in self.cost
     def converted_cost(self):
@@ -102,35 +89,22 @@ class SacrificeCost(Cost):
         self.cardtype = cardtype
         self.location = location
     def compute(self, card, player):
-        self.paid = False
-        # Sacrifice myself
-        if self.cardtype == None: 
+        if self.cardtype == None:
+            # Sacrifice myself
             self.target = card
-            return True
-        # get target for sacrifice
-        location = getattr(player, self.location)
-        if len(location.get(self.cardtype)) == 0: return False
-        target = player.getTarget(self.cardtype, zone=location, required=False, prompt="Select %s for sacrifice"%self.cardtype)
-        if not target: return False
-        self.target = target
+        else:
+            # get target for sacrifice
+            location = getattr(player, self.location)
+            if len(location.get(self.cardtype)) == 0: return False
+            target = player.getTarget(self.cardtype, zone=location, required=False, prompt="Select %s for sacrifice"%self.cardtype)
+            if not target: return False
+            self.target = target
         return True
     def pay(self, card, player):
-        #if not self.compute(card, player): return False
+        target = self.target
         location = getattr(player, self.location)
-        # Make sure the sacrifice is still valid - this can not be replaced by regeneration
-        if self.target.zone == location:
-            # Make a copy of the current status in case the cost is canceled
-            self.copy_cost = self.target.current_role.copy()
-            player.moveCard(self.target, location, self.target.owner.graveyard)
-            self.paid = True
-            #player.send(Sacrifice())
-        return self.paid
-    def reverse(self, card, player):
-        # XXX put the card back into play
-        location = getattr(player, self.location)
-        if self.paid: 
-            player.moveCard(self.target, player.graveyard, location)
-            self.target.current_role = self.copy_cost
+        player.moveCard(target, location, target.owner.graveyard)
+        #player.send(Sacrifice())
     def __str__(self):
         return 'Sacrifice'
 
@@ -139,69 +113,52 @@ class CounterCost(Cost):
         self.counter_type = counter_type
         self.number = number
     def compute(self, card, player):
-        self.paid = False
         self.counters = [counter for counter in card.counters if counter == self.counter_type]
         return len(self.counters) >= self.number
     def pay(self, card, player):
         for i in range(self.number):
             card.counters.remove(self.counters[i])
             card.send(CounterRemovedEvent(), counter=self.counters[i])
-        self.paid = True
-        return self.paid
-    def reverse(self, card, player):
-        if self.paid:
-            for counter in self.counters[:self.number]:
-                card.counters.append(counter)
-                card.send(CounterAddedEvent(), counter=counter)
     def __str__(self):
         return "%d %s counter(s)"%(self.number, self.counter_type)
 
 class TapCost(Cost):
     def __init__(self, cardtype=None, number=1):
         super(TapCost,self).__init__()
-        #if cardtype: self.cardtype = cardtype.with_condition(lambda c: not c.tapped and c.canTap())
-        #else: self.cardtype = None
         self.cardtype = cardtype
         self.number = number
+    def precompute(self, card, player):
+        location = player.play
+        if self.cardtype == None: return card.current_role.canTap()
+        else: return len(location.get(self.cardtype)) >= self.number
     def compute(self, card, player):
-        self.paid = False
         self.targets = []
         # Tap myself
-        if self.cardtype == None: 
+        if self.cardtype == None:
             self.targets.append(card)
-            return not card.current_role.tapped and card.current_role.canTap()
         # otherwise see if there are enough targets for tapping
-        location = player.play
-        if not len(location.get(self.cardtype)) >= self.number: return False
-        prompt = "Select %d %s(s) for tapping"%(self.number-len(self.targets), self.cardtype)
-        while True:
-            target = player.getTarget(self.cardtype, zone=location, required=False, prompt=prompt)
-            if target == False: return False
-            if target in self.targets:
-                prompt = "Target already selected - select again"
-                player.send(InvalidTargetEvent(), target=target)
-            elif target.tapped:
-                prompt = "Target already tapped - select again"
-                player.send(InvalidTargetEvent(), target=target)
-            else:
-                prompt = "Select %d %s(s) for tapping"%(self.number-len(self.targets), self.cardtype)
-                self.targets.append(target)
-            if len(self.targets) == self.number: break
+        else:
+            location = player.play
+            prompt = "Select %d %s(s) for tapping"%(self.number-len(self.targets), self.cardtype)
+            while True:
+                target = player.getTarget(self.cardtype, zone=location, required=False, prompt=prompt)
+                if target == False: return False
+                if target in self.targets:
+                    prompt = "Target already selected - select again"
+                    player.send(InvalidTargetEvent(), target=target)
+                elif target.tapped:
+                    prompt = "Target already tapped - select again"
+                    player.send(InvalidTargetEvent(), target=target)
+                elif not target.canBeTapped():
+                    prompt = "Target cannot be tapped - select again"
+                    player.send(InvalidTargetEvent(), target=target)
+                else:
+                    prompt = "Select %d %s(s) for tapping"%(self.number-len(self.targets), self.cardtype)
+                    self.targets.append(target)
+                if len(self.targets) == self.number: break
         return True
     def pay(self, card, player):
-        # 104.4 Creatures that haven't been under a player's control continuously since the beginning of his or her most recent turn can't use any ability of theirs with the tap symbol in the cost.
-        # canTap doesn't check for whether the card is already tapped - it's more for replacement effects that restrict tapping
-        for target in self.targets:
-            if not target.current_role.tapped: # and target.current_role.canTap():
-                target.current_role.tap()
-            else: 
-                self.paid = False
-                break
-        else: self.paid = True
-        return self.paid
-    def reverse(self, card, player):
-        if self.paid:
-            for target in self.targets: target.untap()
+        for target in self.targets: target.tap()
     def __str__(self):
         if self.cardtype: who = " %s"%self.cardtype
         else: who = ""
@@ -212,33 +169,31 @@ class ReturnToHandCost(Cost):
         super(ReturnToHandCost,self).__init__()
         self.cardtypes = cardtypes
         self.number = number
-    def compute(self, card, player):
-        self.paid = False
-        self.targets = []
-        # otherwise see if there are enough targets for tapping
+    def precompute(self, card, player):
         location = player.play
-        if not len(location.get(self.cardtypes)) >= self.number: return False
-        prompt = "Select %d %s(s) to return to hand"%(self.number-len(self.targets), self.cardtypes)
-        while True:
-            target = player.getTarget(self.cardtypes, zone=location, required=False, prompt=prompt)
-            if target == False: return False
-            if target in self.targets:
-                prompt = "%s already selected - select again"%self.cardtypes
-                player.send(InvalidTargetEvent(), target=target)
-            else:
-                prompt = "Select %d %s(s) to return to hand"%(self.number-len(self.targets), self.cardtypes)
-                self.targets.append(target)
-            if len(self.targets) == self.number: break
+        if self.cardtypes == None: return card.current_role.canTap()
+        else: return len(location.get(self.cardtype)) >= self.number
+    def compute(self, card, player):
+        self.targets = []
+        if self.cardtypes == None:
+            self.targets.append(card)
+        else:
+            location = player.play
+            prompt = "Select %d %s(s) to return to hand"%(self.number-len(self.targets), self.cardtypes)
+            while True:
+                target = player.getTarget(self.cardtypes, zone=location, required=False, prompt=prompt)
+                if target == False: return False
+                if target in self.targets:
+                    prompt = "%s already selected - select again"%self.cardtypes
+                    player.send(InvalidTargetEvent(), target=target)
+                else:
+                    prompt = "Select %d %s(s) to return to hand"%(self.number-len(self.targets), self.cardtypes)
+                    self.targets.append(target)
+                if len(self.targets) == self.number: break
         return True
     def pay(self, card, player):
         for target in self.targets:
             player.moveCard(target, target.zone, player.hand) 
-        self.paid = True
-        return self.paid
-    def reverse(self, card, player):
-        # return the cards to the play
-        if self.paid:
-            for target in self.targets: player.moveCard(target, target.zone, player.play)
     def __str__(self):
         if self.cardtypes: txt = str(self.cardtypes)
         else: txt = ''
@@ -260,13 +215,12 @@ class MultipleCosts(Cost):
         if manacost: costs = [reduce(lambda x,y: x+y, manacost)]+newcost
         return costs
     def precompute(self, card, player):
-        for c in self.costs:
-            if not c.precompute(card, player): return False
+        for cost in self.costs:
+            if not cost.precompute(card, player): return False
         return True
     def compute(self, card, player):
-        self.paid = False
-        for c in self.costs:
-            if not c.compute(card, player): return False
+        for cost in self.costs:
+            if not cost.compute(card, player): return False
         return True
     def __iadd__(self, other):
         if isinstance(other, str): self.costs.append(ManaCost(other))
@@ -278,19 +232,8 @@ class MultipleCosts(Cost):
         elif isinstance(other, MultipleCosts): return MultipleCosts(self.costs+other.costs)
         elif isinstance(other, Cost): return MultipleCosts(self.costs+[other])
     def pay(self, card, player):
-        # Sacrifice costs are always last, this way we don't actually move the card out of the graveyard
-        # if other costs fail
-        failed = False
-        for c in self.costs:
-            if not c.pay(card, player):
-                failed = True
-                # Reverse all the costs we've already paid
-                self.reverse(card, player)
-                break
-        return not failed
-    def reverse(self, card, player):
-        # Don't check for self paid, because we need to ask each subcost if it was paid
-        for c in self.costs: c.reverse(card, player)
+        for cost in self.costs:
+            cost.pay(card, player)
     def __str__(self):
         return ','.join([str(c) for c in self.costs])
 
@@ -309,32 +252,28 @@ class ConditionalCost(Cost):
     def compute(self, card, player):
         return self.cost.compute(card, player)
     def pay(self, card, player):
-        return self.cost.pay(card, player)
-    def reverse(self, card, player):
-        self.cost.reverse(card, player)
+        self.cost.pay(card, player)
     def __str__(self):
         return str(self.cost)
 
 class LifeCost(Cost):
     def __init__(self, amt):
         self.amt = amt
-    def compute(self, card, player):
+    def precompute(self, card, player):
         return player.life - self.amt > 0
     def pay(self, card, player):
         player.life -= self.amt
-        return True
-    def reverse(self, card, player):
-        player.life += self.amt
     def __str__(self):
         return "Pay %d life"%self.amt
-
 
 class DiscardCost(Cost):
     def __init__(self, number=1, cardtype=None):
         self.number = number
         self.cardtype = cardtype
+    def precompute(self, card, player):
+        if not self.cardtype:
+            return len(player.hand.get(self.cardtype)) >= self.number
     def compute(self, card, player):
-        self.paid = False
         self.discards = []
         if not self.cardtype:
             # Discard this card
@@ -342,7 +281,6 @@ class DiscardCost(Cost):
         else:
             if self.number > 1: a='s'
             else: a = ''
-            if len(player.hand.get(self.cardtype)) < self.number: return False
             num = 0
             prompt = "Select %s card%s to discard: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
             while num < self.number:
@@ -358,12 +296,6 @@ class DiscardCost(Cost):
     def pay(self, card, player):
         for c in self.discards:
             player.discard(c)
-        self.paid = True
-        return self.paid
-    def reverse(self, card, player):
-        # return the cards to the players hand
-        if self.paid:
-            for c in self.discards: player.moveCard(c, player.graveyard, player.hand)
     def __str__(self):
         if self.cardtype:
             txt = "%d %s"%(self.number, str(self.cardtype))
@@ -371,21 +303,17 @@ class DiscardCost(Cost):
         else: txt = 'this card'
         return "Discard %s"%txt
 
-class ConvokeCost(Cost):
-    # XXX Incomplete
-    def __init__(self, convoke):
-        if type(convoke) == str: convoke = ManaCost(convoke)
-        self.cost = convoke
+class SpecialCost(Cost):
+    def precompute(self, card, player):
+        return self.cost.precompute(card, player)
     def compute(self, card, player):
         return self.cost.compute(card, player)
     def pay(self, card, player):
-        return self.cost.pay(card, player)
-    def reverse(self, card, player):
-        self.cost.reverse(card, player)
+        self.cost.pay(card, player)
     def __str__(self):
-        return "Convoke %s"%str(self.cost)
+        return str(self.cost)
 
-class EvokeCost(Cost):
+class EvokeCost(SpecialCost):
     def __init__(self, orig_cost, evoke_cost):
         if type(orig_cost) == str: orig_cost = ManaCost(orig_cost)
         if type(evoke_cost) == str: evoke_cost = ManaCost(evoke_cost)
@@ -393,21 +321,12 @@ class EvokeCost(Cost):
         self.evoke_cost = evoke_cost
         self.cost = self.orig_cost
     def precompute(self, card, player):
-        # XXX This is wrong
-        return True
-    def compute(self, card, player):
         self.evoked = False
         self.evoked = player.getIntention("Pay evoke cost?", "...pay evoke cost?")
         if self.evoked: self.cost = self.evoke_cost
-        return self.cost.compute(card, player)
-    def pay(self, card, player):
-        return self.cost.pay(card, player)
-    def reverse(self, card, player):
-        self.cost.reverse(card, player)
-    def __str__(self):
-        return str(self.cost)
+        return super(EvokeCost, self).precompute(card, player)
 
-class ProwlCost(Cost):
+class ProwlCost(SpecialCost):
     def __init__(self, orig_cost, prowl_cost):
         if type(orig_cost) == str: orig_cost = ManaCost(orig_cost)
         if type(prowl_cost) == str: prowl_cost = ManaCost(prowl_cost)
@@ -417,16 +336,7 @@ class ProwlCost(Cost):
         self.cost = self.orig_cost
         self.can_prowl = False
     def precompute(self, card, player):
-        # XXX This is wrong
-        return True
-    def compute(self, card, player):
         if self.can_prowl:
             self.prowled = player.getIntention("Pay prowl cost?", "...pay prowl cost?")
             if self.prowled: self.cost = self.prowl_cost
-        return self.cost.compute(card, player)
-    def pay(self, card, player):
-        return self.cost.pay(card, player)
-    def reverse(self, card, player):
-        self.cost.reverse(card, player)
-    def __str__(self):
-        return str(self.cost)
+        return super(ProwlCost, self).precompute(card, player)

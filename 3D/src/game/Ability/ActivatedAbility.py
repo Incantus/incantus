@@ -20,7 +20,8 @@ class ActivatedAbility(Ability):
     def compute_cost(self):
         return self.cost.compute(self.card, self.card.controller)
     def pay_cost(self):
-        return self.cost.pay(self.card, self.card.controller)
+        self.cost.pay(self.card, self.card.controller)
+        return True
     def __str__(self):
         if self.txt: return self.txt
         else: return "%s: %s"%(self.cost,super(ActivatedAbility,self).__str__())
@@ -42,7 +43,9 @@ class MultipleAbilities(ActivatedAbility):
         return success
     def precompute_cost(self): return self.process_abilities("precompute_cost")
     def compute_cost(self): return self.process_abilities("compute_cost")
-    def pay_cost(self): return self.process_abilities("pay_cost")
+    def pay_cost(self):
+        self.process_abilities("pay_cost")
+        return True
     def get_target(self): return self.process_abilities("get_target")
     def resolve(self): return self.process_abilities("resolve")
     def __str__(self):
