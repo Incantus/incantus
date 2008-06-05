@@ -153,7 +153,7 @@ class Permanent(MtGObject):
     def canTap(self): # Called as a result of user action
         for role in self.subroles:
             if not role.canTap(): return False
-        else: return True
+        else: return not self.tapped
     def tap(self, trigger=True):
         # Don't tap if already tapped:
         if not self.tapped:
