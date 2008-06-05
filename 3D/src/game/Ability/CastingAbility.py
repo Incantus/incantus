@@ -38,6 +38,7 @@ class NonPermanentSpell(CastSpell):
         # See oracle for Planar Void to get an idea
         controller = self.setup_card_controller()
         # Don't put in graveyard if it's no longer there
+        # XXX Fix this when making the stack a zone
         if self.card.zone == controller.hand:
             controller.moveCard(self.card, controller.hand, controller.graveyard)
         super(NonPermanentSpell, self).resolved()
