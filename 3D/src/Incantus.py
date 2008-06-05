@@ -629,7 +629,7 @@ class GameWindow(window.Window):
                ((player == game.Keeper.other_player and self.state in self.opponent_turn_stops) or 
                (player == game.Keeper.curr_player and self.state in self.my_turn_stops))):
                 self.user_action = game.Action.PassPriority()
-            elif player == game.Keeper.curr_player and self.finish_turn:
+            elif self.finish_turn: #player == game.Keeper.curr_player and self.finish_turn:
                 self.user_action = game.Action.PassPriority()
     def new_turn(self, player):
         self.finish_turn = False
