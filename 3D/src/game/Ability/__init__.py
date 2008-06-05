@@ -8,3 +8,4 @@ from Trigger import *
 from Effect import *
 from Limit import *
 from StaticAbility import *
+from MemoryVariable import *
