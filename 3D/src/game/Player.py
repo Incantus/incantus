@@ -1,7 +1,7 @@
 
 from CardLibrary import CardLibrary
 from GameObjects import MtGObject, Card
-from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeChangedEvent, TargetedByEvent, InvalidTargetEvent, DealsDamageEvent, LogEvent
+from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeChangedEvent, TargetedByEvent, InvalidTargetEvent, DealsDamageEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent
 from Mana import ManaPool
 from Zone import Library, Hand, Play, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
@@ -162,112 +162,100 @@ class Player(MtGObject):
         if not has_creature: return False
         else: return True #self.getIntention("Declare intention to attack", msg="...attack this turn?")
     def declareAttackers(self):
-        attackers = []
-        # XXX First check requirements for all creatures that must attack
-        num_creatures = 0
-        for creature in self.play.get(isCreature):
-            if creature.canAttack():
-                if creature.mustAttack():
-                    attackers.append(creature)
-                    creature.setAttacking()
-                else: num_creatures += 1
-
-        prompt = "Select creatures for attack"
-        while num_creatures > 0:
-            creature = self.getTarget(isCreature, zone=self.play, spell=False, required = False, prompt=prompt)
-            # Make sure the creature can attack and is not tapped
-            # XXX also the creature must have been controlled from the beginning of the turn
-            if creature == False: break
-            if creature.canAttack():
-                if creature.computeAttackCost() and creature.payAttackCost():
-                    attackers.append(creature)
-                    creature.setAttacking()
-                    prompt = "%s selected - Select another creature for attack"%creature.name
-                    num_creatures -= 1
+        all_creatures = self.play.get(isCreature)
+        invalid_attack = True
+        while invalid_attack:
+            attackers = set()
+            done_selecting = False
+            prompt = "Declare attackers (Enter to accept, Escape to reset)"
+            creature = self.getCombatCreature(mine=True, prompt=prompt)
+            while not done_selecting:
+                if creature == True:
+                    done_selecting = True
+                    break
+                elif creature == False:
+                    self.send(AttackersResetEvent())
+                    break
                 else:
-                    self.send(InvalidTargetEvent(), target=creature)
-                    prompt = "Attack cost not paid for %s"%creature.name
-            elif creature.in_combat:
-                prompt = "%s already in combat"%creature.name
-                self.send(InvalidTargetEvent(), target=creature)
-            else:
-                prompt = "%s cannot attack - Select another"%creature.name
-                self.send(InvalidTargetEvent(), target=creature)
-        # XXX Pay costs for attacking (rule 308.2d)
-        #for creature in attackers: creature.setAttacking()
-        # XXX Send AttackerDeclaredEvent with creature as data
-        return attackers
+                    if not creature in attackers and creature.canAttack():
+                        attackers.add(creature)
+                        self.send(AttackerSelectedEvent(), attacker=creature)
+                        prompt = "%s selected - select another"%creature
+                    elif creature in attackers:
+                        self.send(InvalidTargetEvent(), target=creature)
+                        prompt = "%s already in combat - select another"%creature
+                    else:
+                        self.send(InvalidTargetEvent(), target=creature)
+                        prompt = "%s cannot attack - select another"%creature
+                creature = self.getCombatCreature(mine=True, prompt=prompt)
+
+            if done_selecting:
+                invalid_attack = (sum((not creature.checkAttack(attackers) for creature in all_creatures)) or
+                    sum((not creature.computeAttackCost() for creature in attackers)))
+                if not invalid_attack:
+                    for creature in attackers:
+                        creature.payAttackCost()
+                        creature.setAttacking()
+        return list(attackers)
     def declareBlockers(self, attackers):
-        blocking_list = dict([(c, []) for c in attackers])
-        #all_blockers = []
-        # Make sure you have blockers
-        creatures = self.play.get(isCreature)
-        num_creatures = len(creatures)
-        if num_creatures == 0: return blocking_list.items()
-        num_attackers = len(attackers)
-        
-        for attacker in attackers:
-            if attacker.mustBeBlocked():
-                blockers = []
-                # Add all available blockers to block this attacker
-                for blocker in creatures:
-                    if not blocker.tapped and blocker.canBlock() and blocker.canBlockAttacker(attacker) and attacker.canBeBlockedBy(blocker): # and some other stuff
-                        blockers.append(blocker)
-                        num_creatures -= 1
-                        blocker.setBlocking(attacker)
-                blocking_list[attacker] = blockers
-                if blockers:
-                    num_attackers -= 1
-                    attacker.setBlocked(blockers)
-        
-        # Now get the remaining blockers:
-        attack_prompt = "Select attacking creature to defend against"
-        while num_creatures > 0 and num_attackers > 0:
-            # select a creature that is attacking
-            creature = self.getTarget(isCreature, zone=self.opponent.play, spell=False, required=False, prompt=attack_prompt)
-            if not creature: break # Finished or not blocking
-            if not creature.attacking:
-                attack_prompt = "%s is not attacking"%creature.name
-                self.send(InvalidTargetEvent(), target=creature)
-                continue
-            if creature.blocked:
-                attack_prompt = "%s is already blocked"%creature.name
-                self.send(InvalidTargetEvent(), target=creature)
-                continue
-            if not creature.canBeBlocked():
-                attack_prompt = "%s cannot be blocked"%creature.name
-                self.send(InvalidTargetEvent(), target=creature)
-                continue
-            if creature.attacking and not creature.blocked:
-                blockers = []
-                blocker = self.getTarget(isCreature, zone=self.play, spell=False, required=False, prompt="Select creature(s) to block %s"%creature.name)
-                while blocker:
-                    # XXX Make sure that the creature can be blocked and this is a valid block
-                    if blocker.in_combat or blocker.tapped or not blocker.canBlock() or not blocker.canBlockAttacker(creature) or not creature.canBeBlockedBy(blocker): # and some other stuff
-                        if blocker.in_combat: reason = "already blocking"
-                        elif blocker.tapped: reason = "tapped"
+        blocking_list = dict([(attacker, []) for attacker in attackers])
+        # Make sure you have creatures to block
+        all_creatures = self.play.get(isCreature)
+        if len(all_creatures) == 0: return blocking_list.items()
+
+        invalid_block = True
+        while invalid_block:
+            total_blockers = set()
+            done_selecting = False
+            blocker_prompt = "Declare blockers (Enter to accept, Escape to reset)"
+            while not done_selecting:
+                blocker = self.getCombatCreature(mine=True, prompt=blocker_prompt)
+                if blocker == True:
+                    done_selecting = True
+                    break
+                elif blocker == False:
+                    # Reset the block
+                    self.send(BlockersResetEvent())
+                    blocking_list = dict([(attacker, []) for attacker in attackers])
+                    break
+                else:
+                    if blocker in total_blockers or blocker.tapped or not blocker.canBlock():
+                        if blocker in total_blockers: reason = "already blocking"
+                        elif blocker.tapped: reason = "is tapped"
                         elif not blocker.canBlock(): reason = "can't block"
-                        else: reason = "can't block this creature"
                         self.send(InvalidTargetEvent(), target=blocker)
-                        block_prompt = "%s cannot block (%s) - Select again"%(blocker.name,reason)
-                    else: # Add to list of blockers
-                        blockers.append(blocker)
-                        num_creatures -= 1
-                        blocker.setBlocking(creature)
-                        #all_blockers.append(blocker)
-                        block_prompt="Select another creature to block %s"%creature.name
-                    if num_creatures > 0: blocker = self.getTarget(isCreature, zone=self.play, spell=False, required=False, prompt=block_prompt)
-                    else: blocker = False
-                blocking_list[creature] = blockers
-                if blockers:
-                    num_attackers -= 1
-                    creature.setBlocked(blockers)
+                        blocker_prompt = "%s %s - select another blocker"%(blocker, reason)
+                    else:
+                        # Select attacker
+                        valid_attacker = False
+                        attacker_prompt = "Select attacker to block"
+                        while not valid_attacker:
+                            attacker = self.getCombatCreature(mine=False, prompt=attacker_prompt)
+                            if attacker == True: pass # XXX What does enter mean here?
+                            elif attacker == False: break # Pick a new blocker
+                            elif attacker.attacking and attacker.canBeBlocked() and blocker.canBlockAttacker(attacker) and attacker.canBeBlockedBy(blocker):
+                                valid_attacker = True
+                                total_blockers.add(blocker)
+                                blocking_list[attacker].append(blocker)
+                                self.send(BlockerSelectedEvent(), attacker=attacker, blocker=blocker)
+                                attacker_prompt = "Select attacker to block"
+                                blocker_prompt = "Declare blockers (Enter to accept, Escape to reset)"
+                            else:
+                                if not attacker.attacking: reason = "cannot block non attacking %s"%attacker
+                                else: reason = "cannot block %s"%attacker
+                                self.send(InvalidTargetEvent(), target=attacker)
+                                attacker_prompt = "%s %s - select a new attacker"%(blocker,reason)
 
-        #for b in all_blockers: b.pay_blocking_costs()
-        #for b in all_blockers: 
-        #    b.setBlocking()
+            if done_selecting:
+                invalid_block = (sum((not creature.checkBlock(blocking_list) for creature in attackers+all_creatures)) or
+                                  sum((not creature.computeBlockCost() for creature in total_blockers)))
+                if not invalid_block:
+                    for attacker, blockers in blocking_list.items():
+                        attacker.setBlocked(blockers)
+                        for blocker in blockers:
+                            blocker.payBlockCost()
+                            blocker.setBlocking(attacker)
 
-        # XXX Send BlockerDeclaredEvent with creature as data
         return blocking_list.items()
 
     # The following functions interface with the GUI of the game, and as a result they are kind
@@ -344,22 +332,32 @@ class Player(MtGObject):
                 if not invalid: get_selection = False
                 else: break
         return sel
-    def getTarget(self, target_types, zone=[], required=True, spell=True, prompt='Select target'):
+    def getCombatCreature(self, mine=True, prompt='Select target'):
+        def filter(action):
+            if isinstance(action, CancelAction) or isinstance(action, PassPriority):
+                return action
+
+            target = action.selection
+            if isCreature(target) and ((mine and target.zone == self.play) or
+                (not mine and target.zone == self.opponent.play)): return target
+            else:
+                self.send(InvalidTargetEvent(), target=target)
+                return False
+        context = {'get_target': True, 'process': filter}
+        target = self.input(context, "%s: %s"%(self.name,prompt))
+
+        if isinstance(target, PassPriority): return True
+        elif isinstance(target, CancelAction): return False
+        else: return target
+    def getTarget(self, target_types, zone=[], required=True, prompt='Select target'):
         # If required is True (default) then you can't cancel the request for a target
         def filter(action):
             # This function is really convoluted
             # If I return False here then the input function will keep cycling until valid input
-            if spell:  # Disable Pass
-                if isinstance(action, CancelAction):
-                    if not required: return action
-                    else: return False
-                elif isinstance(action, PassPriority): return False
-            else:
-                # Not a spell - then for attacking or blocking
-                if isinstance(action, CancelAction): return False
-                elif isinstance(action, PassPriority):
-                    if required: return False
-                    else: return action
+            if isinstance(action, CancelAction):
+                if not required: return action
+                else: return False
+            elif isinstance(action, PassPriority): return False
 
             target = action.selection
             if not (type(target_types) == list or type(target_types) == tuple): t_types = [target_types]
@@ -374,8 +372,9 @@ class Player(MtGObject):
             return False
         context = {'get_target': True, 'process': filter}
         target = self.input(context, "%s: %s"%(self.name,prompt))
+
         if isinstance(target, CancelAction) or isinstance(target, PassPriority): return False
-        else: return target
+        return target
     def getMoreMana(self): # if necessary when paying a cost
         def convert_gui_action(action):
             if isinstance(action, PassPriority): return False

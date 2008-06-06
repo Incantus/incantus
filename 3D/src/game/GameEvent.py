@@ -57,6 +57,10 @@ class PlaySpellEvent(Event): pass
 class DeclareAttackersEvent(Event): pass
 class DeclareBlockersEvent(Event): pass
 
+class AttackerSelectedEvent(Event): pass
+class AttackersResetEvent(Event): pass
+class BlockerSelectedEvent(Event): pass
+class BlockersResetEvent(Event): pass
 class AttackerDeclaredEvent(Event): pass
 class BlockerDeclaredEvent(Event): pass
 class AttackerBlockedEvent(Event): pass

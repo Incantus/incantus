@@ -24,61 +24,74 @@ class CombatZone(object):
         self.block_zone = block_zone
         self.orig_attack_pos = self.attack_zone.pos
         self.orig_block_pos = self.block_zone.pos
-    def layout_attackers(self, attackers):
-        self.move_blocking_zone = False
+    def setup_attack_zone(self):
         self.orig_card_pos = {}
         if self.attack_zone.is_opponent_view: self.orient = -1
         else: self.orient = 1
         guicard = list(self.attack_zone.cards)[0]
-        self.zone_shift_vec = euclid.Vector3(0,0,guicard.size*guicard.height*self.orient)
+        self.zone_shift_vec = euclid.Vector3(0,0,2.5*self.orient) #guicard.size*guicard.height*self.orient)
         self.attack_zone.pos += self.zone_shift_vec
-
+        self.orig_attacker_pos = {}
+        self.orig_blocker_pos = {}
+        self.attackers = []
+        self.attacker_map = {}
+    def setup_block_zone(self):
         self.block_zone.pos -= self.zone_shift_vec
-        self.move_blocking_zone = True
-
+    def restore_orig_pos(self):
+        self.hide_combat_zones()
+        self.reset_attackers()
+        self.reset_blockers()
+    def hide_combat_zones(self):
+        self.attack_zone.pos = self.orig_attack_pos
+        self.block_zone.pos = self.orig_block_pos
+    def reset_attackers(self):
+        self.attackers = []
+        for guicard, orig_pos in self.orig_attacker_pos.values():
+            guicard.pos = orig_pos
+            guicard.can_layout = True
+        self.attack_zone.layout()
+    def reset_blockers(self):
+        for guicard, orig_pos in self.orig_blocker_pos.values():
+            guicard.pos = orig_pos
+            guicard.can_layout = True
+        self.block_zone.layout()
+    def add_attacker(self, attacker):
+        guicard = self.attack_zone.get_card(attacker)
+        self.orig_attacker_pos[guicard.gamecard] = (guicard,guicard.pos)
+        self.attackers.append(guicard)
+        self.attacker_map[attacker] = guicard
+        self.layout_attackers()
+    def layout_attackers(self):
         shift_vec = -self.zone_shift_vec * 1.5
         x = y = 0
         size = 0.01*1.1*self.orient
-        cards = []
         positions = []
-        for attacker in attackers:
-            guicard = self.attack_zone.get_card(attacker)
-            self.orig_card_pos[guicard.gamecard] = (guicard,guicard.pos)
+        for guicard in self.attackers:
             # XXX For some reason I need to keep the same y pos, or everything gets screwed up (selection wise)
             positions.append(euclid.Vector3(x, guicard.pos.y, 0))
-            cards.append((guicard,attacker))
             x += size*guicard.spacing
-        if positions: avgx = sum([p.x for p in positions])/len(positions)
-        cards.sort(key=lambda a: a[0].pos.x)
-        self.attackers = {}
-        self.blocking_list = [None]*len(attackers)
-        for i, ((guicard, attacker), pos) in enumerate(zip(cards, positions)):
-            self.attackers[attacker] = (guicard,i)
-            self.blocking_list[i] = (guicard, [])
+        avgx = sum([p.x for p in positions])/len(positions)
+        for guicard, pos in zip(self.attackers, positions):
             guicard.pos = pos + shift_vec - euclid.Vector3(avgx, 0, 0)
             guicard.can_layout = False
-        self.total_blockers = 0
-    def set_blockers_for_attacker(self, attacker, blockers):
-        blocker_cards = []
-        for b in blockers:
-            guicard = self.block_zone.get_card(b)
-            guicard.can_layout = False
-            self.orig_card_pos[guicard.gamecard] = (guicard,guicard.pos)
-            blocker_cards.append(guicard)
-        blocker_cards.sort(key=lambda b: b.pos.x)
-        self.total_blockers += len(blocker_cards)
-        attacker_card, idx = self.attackers[attacker]
-        self.blocking_list[idx] = (attacker_card, blocker_cards)
+    def declare_attackers(self):
+        self.blocking_list = dict([(attacker, []) for attacker in self.attackers])
+        self.layout_attackers()
+    def set_blocker_for_attacker(self, attacker, blocker):
+        guicard = self.block_zone.get_card(blocker)
+        guicard.can_layout = False
+        self.orig_blocker_pos[guicard.gamecard] = (guicard,guicard.pos)
+
+        attacker_gui = self.attacker_map[attacker]
+        self.blocking_list[attacker_gui].append(guicard)
         self.layout_all()
-        if not self.move_blocking_zone:
-            self.block_zone.pos -= self.zone_shift_vec
-            self.move_blocking_zone = True
     def layout_all(self):
         shift_vec = self.zone_shift_vec * 1.5
         x = y = 0
         size = 0.01*1.05*self.orient
         combat_sets = []
-        for attacker, blocker_set in self.blocking_list:
+        for attacker in self.attackers:
+            blocker_set = self.blocking_list[attacker]
             half_a = size*attacker.spacing / 2.
             positions = []
             if not blocker_set:
@@ -95,7 +108,7 @@ class CombatZone(object):
                     width += size*blocker.spacing*0.5
                 avgx = sum([p.x for c,p in positions])/len(positions)
             attacker_pos = euclid.Vector3(avgx, attacker.pos.y, attacker.pos.z)
-            if len(blocker_set) < 2: x += half_a #attacker.spacing*self.orient*0.001
+            if len(blocker_set) < 2: x += half_a
             else: x += width+attacker.width*size*0.1
             combat_sets.append((attacker, attacker_pos, blocker_set, positions))
 
@@ -104,14 +117,6 @@ class CombatZone(object):
             attacker.pos = attacker_pos - euclid.Vector3(halfx, 0, 0)
             for blocker, pos in positions:
                 blocker.pos = pos - euclid.Vector3(halfx, 0, 0)
-    def restore_orig_pos(self):
-        self.attack_zone.pos = self.orig_attack_pos
-        self.block_zone.pos = self.orig_block_pos
-        for guicard, orig_pos in self.orig_card_pos.values():
-            guicard.pos = orig_pos
-            guicard.can_layout = True
-        self.attack_zone.layout()
-        self.block_zone.layout()
 
 class PlayView(Widget):
     def cards():
@@ -355,8 +360,8 @@ class Table(object):
                 glEnd()
         if self.render_redzone:
             x = 4*SIZE
-            ymin = -3
-            ymax = 3
+            ymin = -3.2
+            ymax = 3.2
             z += 0.001
             glColor4f(1.0, 0.0, 0.0, 0.8)
             glBegin(GL_QUADS)

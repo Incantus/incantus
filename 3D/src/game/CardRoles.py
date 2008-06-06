@@ -349,16 +349,20 @@ class Creature(SubRole):
         return self.perm.continuously_in_play
     def canAttack(self):
         return (not self.perm.tapped) and (not self.in_combat) and self.continuouslyInPlay()
+    def checkAttack(self, attackers):
+        if self.mustAttack(): return self in attackers
+        else: return True
+    def checkBlock(self, blockers):
+        return True
     def computeBlockCost(self):
-        self.block_cost = []
+        self.block_cost = ["0"]
+        return True
     def payBlockCost(self):
         player = self.card.controller
         from Cost import MultipleCosts
         cost = MultipleCosts(self.block_cost)
         if cost.compute(self.card, player):
             cost.pay(self.card, player)
-            return True
-        else: return False
     def computeAttackCost(self):
         self.attack_cost = ["0"]
         return True
@@ -368,8 +372,6 @@ class Creature(SubRole):
         cost = MultipleCosts(self.attack_cost)
         if cost.compute(self.card, player):
             cost.pay(self.card, player)
-            return True
-        else: return False
     def canBeBlocked(self):
         return True
     def canBeBlockedBy(self, blocker):
@@ -382,21 +384,18 @@ class Creature(SubRole):
         self.setCombat(True)
         self.blocking = True
         self.send(BlockerDeclaredEvent(), attacker=attacker)
-        return True
     def setAttacking(self):
         self.setCombat(True)
         self.perm.tap()
         self.attacking = True
         self.send(AttackerDeclaredEvent())
-        return True
     def setBlocked(self, blockers):
-        self.blocked = True
-        self.send(AttackerBlockedEvent(), blockers=blockers)
-        return True
+        if blockers:
+            self.blocked = True
+            self.send(AttackerBlockedEvent(), blockers=blockers)
     def setCombat(self, in_combat):
         self.in_combat = in_combat
-        return True
-    
+
     # These two override the functions in the Permanent
     def canTap(self): return self.continuouslyInPlay()
     def shouldDestroy(self):

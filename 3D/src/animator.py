@@ -123,10 +123,13 @@ class ZoneAnimator(object):
         dispatcher.connect(self.enter_stack, signal=GameEvent.AbilityAnnounced(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.leave_stack, signal=GameEvent.AbilityRemovedFromStack(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.controller_changed, signal=GameEvent.CardControllerChanged(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.select_attacker, signal=GameEvent.AttackerSelectedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.reset_attackers, signal=GameEvent.AttackersResetEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.declare_attackers, signal=GameEvent.DeclareAttackersEvent(), priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.declare_blockers, signal=GameEvent.DeclareBlockersEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.set_blockers_for_attacker, signal=GameEvent.AttackerBlockedEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.end_combat, signal=GameEvent.EndCombatEvent()) #CombatDamageAssigned())
+        dispatcher.connect(self.select_blocker, signal=GameEvent.BlockerSelectedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.reset_blockers, signal=GameEvent.BlockersResetEvent(), priority=dispatcher.UI_PRIORITY)
+
+        dispatcher.connect(self.end_combat, signal=GameEvent.EndCombatEvent())
         dispatcher.connect(self.card_damage, signal=GameEvent.ReceivesDamageEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.player_life, signal=GameEvent.LifeChangedEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.invalid_target, signal=GameEvent.InvalidTargetEvent(), priority=dispatcher.UI_PRIORITY)
@@ -173,22 +176,30 @@ class ZoneAnimator(object):
         if amount < 0: color = (1, 0, 0, 1)
         else: color = (1, 1, 1, 1)
         self.sparks.add_number_spark(amount, start_pos, end_pos, dt=1.0, color=color, dim=2)
-    def declare_attackers(self, attackers):
-        self.red_zone = None
-        if len(attackers):
+    def select_attacker(self, sender, attacker):
+        if not self.red_zone:
             play_zones = self.play_zones.values()
-            attack_zone = self.play_zones[getattr(attackers[0].controller, "play")]
+            attack_zone = self.play_zones[sender.play]
             play_zones.remove(attack_zone)
             block_zone = play_zones[0]
             self.red_zone = CombatZone(attack_zone, block_zone)
-            self.red_zone.layout_attackers(attackers)
             self.board.render_redzone = True
-    def set_blockers_for_attacker(self, sender, blockers):
-        self.red_zone.set_blockers_for_attacker(sender, blockers)
+            self.red_zone.setup_attack_zone()
+            self.red_zone.setup_block_zone()
+        self.red_zone.add_attacker(attacker)
+    def reset_attackers(self): self.red_zone.reset_attackers()
+    def declare_attackers(self):
+        if self.red_zone: self.red_zone.declare_attackers()
+    def select_blocker(self, sender, attacker, blocker):
+        self.red_zone.set_blocker_for_attacker(attacker, blocker)
+    def reset_blockers(self):
+        self.red_zone.reset_blockers()
+        self.red_zone.declare_attackers()  # To reset the blocking list and re layout the attackers
     def end_combat(self):
         if self.red_zone:
             self.red_zone.restore_orig_pos()
             self.board.render_redzone = False
+            self.red_zone = None
     def enter_stack(self, sender, ability):
         card = ability.card
         if card == "Assign Damage":
