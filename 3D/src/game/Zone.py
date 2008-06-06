@@ -1,7 +1,7 @@
 
 import random
 from GameObjects import MtGObject
-from GameEvent import CardLeavingZone, CardEnteringZone, CardLeftZone, CardEnteredZone, TimestepEvent
+from GameEvent import CardLeavingZone, CardEnteringZone, CardLeftZone, CardEnteredZone, TimestepEvent, ShuffleEvent
 
 class Zone(MtGObject):
     def __init__(self, player, cards=None):
@@ -154,6 +154,7 @@ class Library(OutPlayMixin, OrderedZone):
         if self.needs_shuffle:
             self.needs_shuffle = False
             random.shuffle(self.cards)
+            self.send(ShuffleEvent())
     zone_name = "library"
 
 class Graveyard(OutPlayMixin, OrderedZone):

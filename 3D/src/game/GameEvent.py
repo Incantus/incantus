@@ -16,6 +16,7 @@ class GameFocusEvent(Event): pass
 class LifeChangedEvent(Event): pass
 class DrawCardEvent(Event): pass
 class DiscardCardEvent(Event): pass
+class ShuffleEvent(Event): pass
 class CardEnteringZone(Event): pass
 class CardLeavingZone(Event): pass
 class CardEnteredZone(Event): pass
