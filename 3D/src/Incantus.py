@@ -236,7 +236,7 @@ class GameWindow(window.Window):
         #    self.game_status.toggle_gamelog()
         elif symbol == key.Q:
             self.has_exit=True
-        elif symbol == key.D:
+        elif symbol == key.D and modifiers & key.MOD_SHIFT:
             import pdb
             pdb.set_trace()
         elif symbol == key.F1:
