@@ -38,8 +38,8 @@ class Zone(MtGObject):
         self.cards.remove(card)
         card.zone = None
         if trigger == True:
-            self.after_card_removed(card)
             self.send(CardLeftZone(), card=card)
+            self.after_card_removed(card)
     def add_card(self, card, position=-1, trigger=True):
         self.add_card_pre(card, trigger)
         self.add_card_post(card, position, trigger)
@@ -161,7 +161,7 @@ class Graveyard(OutPlayMixin, OrderedZone):
     def after_card_added(self, card):
         super(Graveyard, self).after_card_added(card)
         card.current_role.enteringGraveyard()
-    def after_card_removed(self, card):
+    def before_card_removed(self, card):
         card.current_role.leavingGraveyard()
 
 class Hand(OutPlayMixin, Zone):
