@@ -182,7 +182,7 @@ class Player(MtGObject):
                     prompt = "%s selected - Select another creature for attack"%creature.name
                     num_creatures -= 1
                 else:
-                    self.send(InvalidTargetEvent(), target=target)
+                    self.send(InvalidTargetEvent(), target=creature)
                     prompt = "Attack cost not paid for %s"%creature.name
             elif creature.in_combat:
                 prompt = "%s already in combat"%creature.name
