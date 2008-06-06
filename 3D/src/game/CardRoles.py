@@ -355,7 +355,10 @@ class Creature(SubRole):
         player = self.card.controller
         from Cost import MultipleCosts
         cost = MultipleCosts(self.block_cost)
-        return cost.compute(self.card, player) and cost.pay(self.card, player)
+        if cost.compute(self.card, player):
+            cost.pay(self.card, player)
+            return True
+        else: return False
     def computeAttackCost(self):
         self.attack_cost = ["0"]
         return True
@@ -363,7 +366,10 @@ class Creature(SubRole):
         player = self.card.controller
         from Cost import MultipleCosts
         cost = MultipleCosts(self.attack_cost)
-        return cost.compute(self.card, player) and cost.pay(self.card, player)
+        if cost.compute(self.card, player):
+            cost.pay(self.card, player)
+            return True
+        else: return False
     def canBeBlocked(self):
         return True
     def canBeBlockedBy(self, blocker):
