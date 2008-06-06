@@ -1,5 +1,5 @@
 
-from GameEvent import PlayLandEvent, PlayAbilityEvent, PlaySpellEvent
+from GameEvent import PlayLandEvent, PlayAbilityEvent, PlaySpellEvent, LogEvent
 
 class Action(object):
     def __eq__(self, other):
@@ -70,11 +70,10 @@ class PlayAbility(Action):
         if ability.needs_stack(): success = player.stack.announce(ability)
         else: success = player.stack.stackless(ability)
         if success:
-            #print "%s plays (%s) of %s"%(player.name,ability,self.card)
             player.send(PlayAbilityEvent(), ability=ability)
+            player.send(LogEvent(), msg="%s plays (%s) of %s"%(player.name,ability,self.card))
         else:
-            #print "%s: Failed playing %s - %s"%(player.name, self.card, ability)
-            pass
+            player.send(LogEvent(), msg="%s: Failed playing %s - %s"%(player.name, self.card, ability))
         return success
 
 class PlayLand(Action):
@@ -91,7 +90,7 @@ class PlayLand(Action):
         # This signals to everyone the move
         player.moveCard(self.card, self.card.zone, player.play)
         player.send(PlayLandEvent(), card=self.card)
-        #print "%s plays %s"%(player.name,self.card)
+        player.send(LogEvent(), msg="%s plays %s"%(player.name,self.card))
         return True
 
 class ActivateForMana(Action):

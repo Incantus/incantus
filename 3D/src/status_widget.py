@@ -212,8 +212,9 @@ class GameStatus(Widget):
         self.prompt.border = 3
         self.prompt._pos.set_transition(dt=0.5, method="sine")
         self.show_log = False
-        self.gamelog = [Label('', size=14, halign="left", width=400) for i in range(5)]
-        self.logger = LoggingOutput()
+        self.width = 400
+        self.gamelog = [Label('', size=14, halign="left", width=self.width) for i in range(15)]
+        self.logger = []
     def clear(self):
         self.prompt.set_text("")
     def resize(self, width, height, avail_width):
@@ -224,27 +225,34 @@ class GameStatus(Widget):
     def log(self, prompt):
         self.prompt.set_text(prompt)
         self.layout()
+    def log_event(self, sender, msg):
+        self.logger.append((len(self.logger)+1, sender, msg))
+        if self.show_log: self.construct_gamelog()
     def layout(self): pass
     def toggle_gamelog(self):
         self.show_log = not self.show_log
-        # reconstruct
-        if self.show_log:
-            height = 0
-            for i, line in enumerate(self.logger[-5:]):
-                text = self.gamelog[i]
-                text.set_text(line)
-                height += text.height
-                text.pos = euclid.Vector3(0, -height, 0)
-            self.width = 400 #width
-            self.height = height
+        self.construct_gamelog()
+    def construct_gamelog(self):
+        height = 0
+        for text, (i, sender, line) in zip(self.gamelog, self.logger[-len(self.gamelog):]):
+            text.set_text("%d. %s"%(i, line))
+            height += text.height
+            text.pos = euclid.Vector3(0, -height, 0)
+        self.height = height
     def render_after_transform(self):
         self.prompt.render()
         if self.show_log:
             border = 10
-            glColor4f(0.1, 0.1, 0.1, 0.7) #self.alpha)
-            glDisable(GL_TEXTURE_2D)
-            glBegin(GL_QUADS)
             w = border+self.width/2; h=border+self.height/2
+            glDisable(GL_TEXTURE_2D)
+            glBegin(GL_LINE_LOOP)
+            glVertex2f(-w, -h)
+            glVertex2f(w, -h)
+            glVertex2f(w,h)
+            glVertex2f(-w, h)
+            glEnd()
+            glColor4f(0.1, 0.1, 0.1, 0.9)
+            glBegin(GL_QUADS)
             glVertex2f(-w, -h)
             glVertex2f(w, -h)
             glVertex2f(w,h)

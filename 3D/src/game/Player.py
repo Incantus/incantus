@@ -1,7 +1,7 @@
 
 from CardLibrary import CardLibrary
 from GameObjects import MtGObject, Card
-from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeChangedEvent, TargetedByEvent, InvalidTargetEvent, DealsDamageEvent
+from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeChangedEvent, TargetedByEvent, InvalidTargetEvent, DealsDamageEvent, LogEvent
 from Mana import ManaPool
 from Zone import Library, Hand, Play, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
@@ -85,15 +85,18 @@ class Player(MtGObject):
         else:
             self.moveCard(card, from_location=self.library, to_location=self.hand)
             self.send(DrawCardEvent())
+            #self.send(LogEvent(), msg="%s draws a card"%self)
     def discard(self, card):
         self.moveCard(card, from_location=self.hand, to_location=self.graveyard)
         self.send(DiscardCardEvent())
+        self.send(LogEvent(), msg="%s discards %s"%(self, card))
     def mulligan(self):
         number = 7
         self.library.disable_ordering()
         while True:
             number -= 1
             if self.getIntention("", "Would you like to mulligan"): #, "Would you like to mulligan?"):
+                self.send(LogEvent(), msg="%s mulligans"%self)
                 for card in self.hand:
                     self.moveCard(card, from_location=self.hand, to_location=self.library)
                 self.shuffleDeck()

@@ -232,8 +232,8 @@ class GameWindow(window.Window):
             self.user_action = game.Action.PassPriority()
         elif symbol == key.ESCAPE:
             self.user_action = game.Action.CancelAction()
-        #elif symbol == key.TAB:
-        #    self.game_status.toggle_gamelog()
+        elif symbol == key.TAB:
+            self.game_status.toggle_gamelog()
         elif symbol == key.Q:
             self.has_exit=True
         elif symbol == key.D and modifiers & key.MOD_SHIFT:
@@ -588,8 +588,7 @@ class GameWindow(window.Window):
         dispatcher.connect(self.phase_status.set_phase, signal=game.GameEvent.GameStepEvent(), priority=dispatcher.UI_PRIORITY)
         #dispatcher.connect(self.phase_status.pass_priority, signal=game.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.phase_status.change_focus, signal=game.GameEvent.GameFocusEvent(), priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.game_status.set_phase, signal=game.GameEvent.GameStepEvent(), priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.game_status.pass_priority, signal=game.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.game_status.log_event, signal=game.GameEvent.LogEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.mainplayer_status.new_turn, signal=game.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.otherplayer_status.new_turn, signal=game.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.mainplayer_status.pass_priority, signal=game.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)

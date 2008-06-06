@@ -1,7 +1,7 @@
 from game.characteristics import characteristic, stacked_characteristic
 from game.GameObjects import MtGObject
 from game.Match import isPlayer, isCreature, isCard, isPermanent, isLandType
-from game.GameEvent import CardControllerChanged, TokenPlayed, ManaEvent, SacrificeEvent, CleanupEvent, CounterAddedEvent, CounterRemovedEvent,  PowerToughnessChangedEvent, InvalidTargetEvent, SubroleModifiedEvent, ColorModifiedEvent, SubtypeModifiedEvent
+from game.GameEvent import CardControllerChanged, TokenPlayed, ManaEvent, SacrificeEvent, CleanupEvent, CounterAddedEvent, CounterRemovedEvent,  PowerToughnessChangedEvent, InvalidTargetEvent, SubroleModifiedEvent, ColorModifiedEvent, SubtypeModifiedEvent, LogEvent
 
 class Effect(MtGObject):
     def __call__(self, card, target):
@@ -69,6 +69,7 @@ class RevealCard(Effect):
         else: showcard = card
         target.revealCard(showcard)
         if self.both: target.opponent.revealCard(showcard, prompt="%s reveals %s"%(target, showcard))
+        target.send(LogEvent(), msg="%s reveals %s"%(target, showcard))
         return True
 
 class ForEach(Effect):
@@ -937,7 +938,9 @@ class MoveCards(Effect):
 
         # XXX if there is a library access in here, then we might need to shuffle it
         #if self.from_zone == "library" and not self.from_position: from_zone.shuffle()
-        if self.reveal == True and self.cardlist: self.selector.opponent.revealCard(self.cardlist, prompt="%s reveals card(s) "%self.selector)
+        if self.reveal == True and self.cardlist:
+            self.selector.opponent.revealCard(self.cardlist, prompt="%s reveals card(s) "%self.selector)
+            self.selector.send(LogEvent(), msg="%s reveals %s"%(self.selector, ', '.join(map(str, self.cardlist))))
         return True
     def __str__(self):
         if self.number > 1: a='s'

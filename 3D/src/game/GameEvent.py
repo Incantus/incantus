@@ -12,6 +12,7 @@ class GameOver(Exception):
 class HasPriorityEvent(Event): pass
 class TimestepEvent(Event): pass
 class GameFocusEvent(Event): pass
+class LogEvent(Event): pass
 
 class LifeChangedEvent(Event): pass
 class DrawCardEvent(Event): pass
