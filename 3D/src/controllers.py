@@ -807,7 +807,7 @@ class StackController(object):
     def on_mouse_press(self, x, y, button, modifiers):
         idx, card = self.stack_gui.handle_click(x, y)
         if idx != -1:
-            if (button == mouse.RIGHT or modifiers & key.MOD_SHIFT):
+            if (button == mouse.RIGHT or modifiers & key.MOD_OPTION):
                 self.focused = True
                 self.stack_gui.focus(idx)
                 self.highlight_targets()
