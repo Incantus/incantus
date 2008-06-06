@@ -147,8 +147,9 @@ class Label(Widget):
             self.font = font.load(fontname, size, dpi=96)
             self.value = self.value
     def set_text(self, v, width=None):
-        self._fixed_width = width
-        if width and self.background: self._fixed_width -= self.border
+        if width:
+            self._fixed_width = width
+            if self.background: self._fixed_width -= self.border
         v = str(v)
         if not v == self.value: self.value = v
     def render_background(self):
