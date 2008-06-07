@@ -341,37 +341,14 @@ class Creature(SubRole):
         self.attacking = False
         self.blocking = False
         self.blocked = False
-    def mustAttack(self):
-        return False
-    def mustBeBlocked(self):
-        return False
     def continuouslyInPlay(self):
         return self.perm.continuously_in_play
+    def checkAttack(self, attackers):
+        return True
     def canAttack(self):
         return (not self.perm.tapped) and (not self.in_combat) and self.continuouslyInPlay()
-    def checkAttack(self, attackers):
-        if self.mustAttack(): return self in attackers
-        else: return True
-    def checkBlock(self, blockers):
+    def checkBlock(self, blocking_list):
         return True
-    def computeBlockCost(self):
-        self.block_cost = ["0"]
-        return True
-    def payBlockCost(self):
-        player = self.card.controller
-        from Cost import MultipleCosts
-        cost = MultipleCosts(self.block_cost)
-        if cost.compute(self.card, player):
-            cost.pay(self.card, player)
-    def computeAttackCost(self):
-        self.attack_cost = ["0"]
-        return True
-    def payAttackCost(self):
-        player = self.card.controller
-        from Cost import MultipleCosts
-        cost = MultipleCosts(self.attack_cost)
-        if cost.compute(self.card, player):
-            cost.pay(self.card, player)
     def canBeBlocked(self):
         return True
     def canBeBlockedBy(self, blocker):
@@ -395,6 +372,24 @@ class Creature(SubRole):
             self.send(AttackerBlockedEvent(), blockers=blockers)
     def setCombat(self, in_combat):
         self.in_combat = in_combat
+    def computeBlockCost(self):
+        self.block_cost = ["0"]
+        return True
+    def payBlockCost(self):
+        player = self.card.controller
+        from Cost import MultipleCosts
+        cost = MultipleCosts(self.block_cost)
+        if cost.compute(self.card, player):
+            cost.pay(self.card, player)
+    def computeAttackCost(self):
+        self.attack_cost = ["0"]
+        return True
+    def payAttackCost(self):
+        player = self.card.controller
+        from Cost import MultipleCosts
+        cost = MultipleCosts(self.attack_cost)
+        if cost.compute(self.card, player):
+            cost.pay(self.card, player)
 
     # These two override the functions in the Permanent
     def canTap(self): return self.continuouslyInPlay()
