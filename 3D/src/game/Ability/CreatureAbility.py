@@ -102,6 +102,8 @@ def trample(subrole):
     subrole.keywords.add("trample")
     return lambda: subrole.keywords.remove("trample")
 
+
+# XXX I don't like the way these are overriden - there must be a better way
 def vigilance(subrole):
     def setAttacking(self):
         from game.GameEvent import AttackerDeclaredEvent
