@@ -70,7 +70,7 @@ class CombatZone(object):
             # XXX For some reason I need to keep the same y pos, or everything gets screwed up (selection wise)
             positions.append(euclid.Vector3(x, guicard.pos.y, 0))
             x += size*guicard.spacing
-        avgx = sum([p.x for p in positions])/len(positions)
+        if positions: avgx = sum([p.x for p in positions])/len(positions)
         for guicard, pos in zip(self.attackers, positions):
             guicard.pos = pos + shift_vec - euclid.Vector3(avgx, 0, 0)
             guicard.can_layout = False
