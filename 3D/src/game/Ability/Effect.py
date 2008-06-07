@@ -126,6 +126,13 @@ class DependentEffects(MultipleEffects):
         else: success = True
         return success
 
+class ChoiceEffect(MultipleEffects):
+    def __call__(self, card, target):
+        choices = [(str(effect), effect) for effect in self.effects]
+        choice = card.controller.getSelection(choices, 1, prompt="Select effect")
+        return choice(card, target)
+    def __str__(self):
+        return " or ".join(map(str,self.effects))
 
 class DistributeDamage(Effect):
     def __init__(self, amount):
