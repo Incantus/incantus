@@ -59,15 +59,15 @@ class ManaAbility(ActivatedAbility):
     def needs_stack(self):
         return False
 
-class ChoiceAbility(ActivatedAbility):
+class MayAbility(ActivatedAbility):
     def __init__(self, card, cost="0", msg='', choice_target=Target(targeting="you"), target=Target(targeting="you"), effects=[]):
-        super(ChoiceAbility, self).__init__(card, cost=cost, target=target,effects=effects)
+        super(MayAbility, self).__init__(card, cost=cost, target=target,effects=effects)
         self.choice_target = choice_target
         if not msg: msg = "...%s"%', '.join(map(str,self.effects))
         self.msg = msg
     def get_target(self):
         if not self.choice_target.get(self.card): return False
-        else: return super(ChoiceAbility,self).get_target()
+        else: return super(MayAbility,self).get_target()
     def preresolve(self):
         return self.choice_target.target.getIntention(prompt=self.msg,msg=self.msg)
     def __str__(self):
