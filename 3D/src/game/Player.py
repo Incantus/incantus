@@ -157,17 +157,16 @@ class Player(MtGObject):
         has_creature = False
         for creature in self.play.get(isCreature):
             if creature.canAttack():
-                if creature.mustAttack(): return True
                 has_creature = True
         if not has_creature: return False
         else: return True #self.getIntention("Declare intention to attack", msg="...attack this turn?")
     def declareAttackers(self):
         all_creatures = self.play.get(isCreature)
         invalid_attack = True
+        prompt = "Declare attackers (Enter to accept, Escape to reset)"
         while invalid_attack:
             attackers = set()
             done_selecting = False
-            prompt = "Declare attackers (Enter to accept, Escape to reset)"
             creature = self.getCombatCreature(mine=True, prompt=prompt)
             while not done_selecting:
                 if creature == True:
@@ -196,6 +195,8 @@ class Player(MtGObject):
                     for creature in attackers:
                         creature.payAttackCost()
                         creature.setAttacking()
+                else: prompt = "Invalid attack - choose another"
+            else: prompt = "Declare attackers (Enter to accept, Escape to reset)"
         return list(attackers)
     def declareBlockers(self, attackers):
         blocking_list = dict([(attacker, []) for attacker in attackers])
