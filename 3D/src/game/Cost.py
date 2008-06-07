@@ -123,7 +123,7 @@ class CounterCost(Cost):
         return "%d %s counter(s)"%(self.number, self.counter_type)
 
 class TapCost(Cost):
-    def __init__(self, cardtype=None, number=1):
+    def __init__(self, number=1, cardtype=None):
         super(TapCost,self).__init__()
         self.cardtype = cardtype
         self.number = number
@@ -165,7 +165,7 @@ class TapCost(Cost):
         return 'T%s'%who
 
 class ReturnToHandCost(Cost):
-    def __init__(self, cardtypes=None, number=1):
+    def __init__(self, number=1, cardtypes=None):
         super(ReturnToHandCost,self).__init__()
         self.cardtypes = cardtypes
         self.number = number
