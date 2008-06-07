@@ -1,4 +1,4 @@
-from GameEvent import SacrificeEvent, CounterAddedEvent, CounterRemovedEvent
+from GameEvent import SacrificeEvent, CounterAddedEvent, CounterRemovedEvent, InvalidTargetEvent
 from LazyInt import LazyInt
 import Mana
 from Match import isCard
