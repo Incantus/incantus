@@ -641,7 +641,7 @@ class PlayController(object):
             if buttons == mouse.MIDDLE or modifiers & key.MOD_OPTION:
                 self.camera.move_by(euclid.Vector3(0,-dy,0))
     def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
-        if not self.zooming: self.camera.move_by(euclid.Vector3(0,scroll_y,0))
+        if not self.zooming: self.camera.move_by(euclid.Vector3(0,scroll_y*-10,0))
     def on_mouse_release(self, x, y, button, modifiers):
         if self.selected is not None:
             if self.zooming:
