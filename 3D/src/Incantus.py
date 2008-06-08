@@ -59,18 +59,21 @@ class Camera:
         self._orientation.rotate_axis(-127*math.pi/256, euclid.Vector3(1,0,0))
         #self._orientation.rotate_axis(-math.pi/2, euclid.Vector3(1,0,0))
         self.vis_distance = 6.5
+        self.x_limit = (-20, 20)
+        self.y_limit = (8, 30)
+        self.z_limit = (-20, 20)
     def setup(self):
         glLoadIdentity()
         glMultMatrixf(sixteenfv(*tuple(self.orientation.conjugated().get_matrix())))
         glTranslatef(*tuple(-1*self.pos))
     def move_by(self, delta):
         self._pos -= delta*0.1
-        if self.pos.x < -20: self._pos.x = -20
-        elif self.pos.x > 20: self._pos.x = 20
-        if self.pos.y <= 10: self._pos.y = 10
-        elif self.pos.y >= 25: self._pos.y = 25
-        if self.pos.z < -20: self._pos.z = -20
-        elif self.pos.z > 20: self._pos.z = 20
+        if self.pos.x < self.x_limit[0]: self._pos.x = self.x_limit[0]
+        elif self.pos.x > self.x_limit[1]: self._pos.x = self.x_limit[1]
+        if self.pos.y <= self.y_limit[0]: self._pos.y = self.y_limit[0]
+        elif self.pos.y >= self.y_limit[1]: self._pos.y = self.y_limit[1]
+        if self.pos.z < self.z_limit[0]: self._pos.z = self.z_limit[0]
+        elif self.pos.z > self.z_limit[1]: self._pos.z = self.z_limit[1]
     def switch_viewpoint(self):
         self._orientation.rotate_axis(math.pi, euclid.Vector3(0,0,1))
 
