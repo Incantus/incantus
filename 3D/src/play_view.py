@@ -26,8 +26,12 @@ class CombatZone(object):
         self.orig_block_pos = self.block_zone.pos
     def setup_attack_zone(self):
         self.orig_card_pos = {}
-        if self.attack_zone.is_opponent_view: self.orient = -1
-        else: self.orient = 1
+        if self.attack_zone.is_opponent_view:
+            self.orient = -1
+            self.compare = min
+        else:
+            self.orient = 1
+            self.compare = max
         guicard = list(self.attack_zone.cards)[0]
         self.zone_shift_vec = euclid.Vector3(0,0,2.5*self.orient) #guicard.size*guicard.height*self.orient)
         self.attack_zone.pos += self.zone_shift_vec
@@ -60,20 +64,21 @@ class CombatZone(object):
         self.orig_attacker_pos[guicard.gamecard] = (guicard,guicard.pos)
         self.attackers.append(guicard)
         self.attacker_map[attacker] = guicard
+        guicard.can_layout = False
         self.layout_attackers()
     def layout_attackers(self):
         shift_vec = -self.zone_shift_vec * 1.5
-        x = y = 0
         size = 0.01*1.1*self.orient
-        positions = []
-        for guicard in self.attackers:
-            # XXX For some reason I need to keep the same y pos, or everything gets screwed up (selection wise)
-            positions.append(euclid.Vector3(x, guicard.pos.y, 0))
-            x += size*guicard.spacing
-        if positions: avgx = sum([p.x for p in positions])/len(positions)
-        for guicard, pos in zip(self.attackers, positions):
-            guicard.pos = pos + shift_vec - euclid.Vector3(avgx, 0, 0)
-            guicard.can_layout = False
+        self.attack_zone.layout_subset(self.attackers, size, 0.1, 0.001, shift_vec.z, self.compare, combat=True)
+        #x = 0
+        #positions = []
+        #for guicard in self.attackers:
+        #    # XXX For some reason I need to keep the same y pos, or everything gets screwed up (selection wise)
+        #    positions.append(euclid.Vector3(x, guicard.pos.y, 0))
+        #    x += size*guicard.spacing
+        #if positions: avgx = sum([p.x for p in positions])/len(positions)
+        #for guicard, pos in zip(self.attackers, positions):
+        #    guicard.pos = pos + shift_vec - euclid.Vector3(avgx, 0, 0)
     def declare_attackers(self):
         self.blocking_list = dict([(attacker, []) for attacker in self.attackers])
         self.layout_attackers()
@@ -85,9 +90,72 @@ class CombatZone(object):
         attacker_gui = self.attacker_map[attacker]
         self.blocking_list[attacker_gui].append(guicard)
         self.layout_all()
+    def layout_card(self, zone, card, size, startx, y, row):
+        positions = []
+        cards = []
+        big_halfx = size*card.spacing*0.5
+        x = z = 0
+        if not len(card.gamecard.attachments): halfx = big_halfx
+        else:
+            x += big_halfx
+            halfx = 0.1*size*card.spacing*0.5
+        for attachment in card.gamecard.attachments[::-1]:
+            attachment = zone.get_card(attachment)
+            if not attachment: continue
+            x += halfx
+            positions.append(euclid.Vector3(x, y, row+z))
+            cards.append(attachment)
+            x += halfx
+            z += 0.1*size*card.height
+            y += 0.01
+        x += halfx
+        positions.append(euclid.Vector3(x, y, row+z))
+        avgx = startx-sum([pos.x for pos in positions])/len(positions)
+        cards.append(card)
+        for pos in positions: pos += euclid.Vector3(avgx, 0, 0)
+        width = x #+big_halfx
+        return (width, cards, positions)
     def layout_all(self):
         shift_vec = self.zone_shift_vec * 1.5
-        x = y = 0
+        x = 0
+        size = 0.01*1.05*self.orient
+        cards = []
+        total_positions = []
+        for attacker in self.attackers:
+            blocker_set = self.blocking_list[attacker]
+            half_a = size*attacker.spacing / 2.
+            positions = []
+            if not blocker_set:
+                x += half_a # size*attacker.spacing
+                avgx = x
+            else:
+                if len(blocker_set) == 1:
+                    width = -blocker_set[0].spacing*size*0.5
+                    x += half_a
+                else: width = 0
+                for blocker in blocker_set:
+                    width += size*blocker.spacing*0.5
+                    #positions.append(euclid.Vector3(x+width, blocker.pos.y, shift_vec.z))
+                    #cards.append(blocker)
+                    #width += size*blocker.spacing*0.5
+                    half_b, blocker_cards, blocker_positions = self.layout_card(self.block_zone, blocker, size, x+width, blocker.pos.y, shift_vec.z)
+                    cards.extend(blocker_cards)
+                    positions.extend(blocker_positions)
+                    width += half_b
+                avgx = sum([pos.x for pos in positions])/len(positions)
+                total_positions.extend(positions)
+            half_a, attacker_cards, positions = self.layout_card(self.attack_zone, attacker, size, avgx, attacker.pos.y, -shift_vec.z)
+            total_positions.extend(positions)
+            cards.extend(attacker_cards)
+            if len(blocker_set) < 2: x += half_a
+            else: x += width+attacker.width*size*0.1
+
+        halfx = x/2
+        for card, position in zip(cards, total_positions):
+            card.pos = position - euclid.Vector3(halfx, 0, 0)
+    def layout_all2(self):
+        shift_vec = self.zone_shift_vec * 1.5
+        x = 0
         size = 0.01*1.05*self.orient
         combat_sets = []
         for attacker in self.attackers:
@@ -225,55 +293,55 @@ class PlayView(Widget):
         if card in self.cards:
             card.untap()
             self.layout()
+    def layout_subset(self, cardlist, size, y, y_incr, row, compare, combat=False):
+        x = 0
+        max_row_height = 0
+        positions = []
+        cards = []
+        for card in cardlist:
+            if not combat and not card.can_layout: continue
+            z = 0
+            big_halfx = size*card.spacing*0.5
+            if not len(card.gamecard.attachments): halfx = big_halfx
+            else:
+                x += big_halfx
+                halfx = 0.1*size*card.spacing*0.5
+            for attachment in card.gamecard.attachments[::-1]:
+                attachment = self.get_card(attachment)
+                if not attachment: continue
+                x += halfx
+                positions.append(euclid.Vector3(x, y, row+z))
+                cards.append(attachment)
+                x += halfx
+                z += 0.1*size*card.height
+                y += y_incr
+                max_row_height = compare(max_row_height, z+size*card.height)
+            x += halfx
+            positions.append(euclid.Vector3(x, y, row+z))
+            cards.append(card)
+            y += y_incr
+            max_row_height = compare(max_row_height, z+size*card.height)
+            x += big_halfx
+
+        if positions: avgx = sum([p.x for p in positions])/len(positions)
+        for pos, card in zip(positions, cards):
+            if not combat and not card.can_layout: continue
+            card.pos = pos - euclid.Vector3(avgx, 0, 0)
+        return (y,max_row_height)
     def layout(self):
         if self.is_opponent_view:
             orient = -1
             compare = min
-        else: 
+        else:
             orient = 1
             compare = max
         size = 0.01*1.1 * orient
         y_incr = 0.001
         row = 0
-        def layout_subset(cardlist, y, row):
-            x = 0
-            max_row_height = 0
-            positions = []
-            cards = []
-            for card in cardlist:
-                if not card.can_layout: continue
-                z = 0
-                big_halfx = size*card.spacing*0.5
-                if not len(card.gamecard.attachments): halfx = big_halfx
-                else:
-                    x += big_halfx
-                    halfx = 0.1*size*card.spacing*0.5
-                for attachment in card.gamecard.attachments[::-1]:
-                    attachment = self.get_card(attachment)
-                    if not attachment: continue
-                    x += halfx
-                    positions.append(euclid.Vector3(x, y, row+z))
-                    cards.append(attachment)
-                    x += halfx
-                    z += 0.1*size*card.height
-                    y += y_incr
-                    max_row_height = compare(max_row_height, z+size*card.height)
-                x += halfx
-                positions.append(euclid.Vector3(x, y, row+z))
-                cards.append(card)
-                y += y_incr
-                max_row_height = compare(max_row_height, z+size*card.height)
-                x += big_halfx
 
-            if positions: avgx = sum([p.x for p in positions])/len(positions)
-            for pos, card in zip(positions, cards):
-                if not card.can_layout: continue
-                card.pos = pos - euclid.Vector3(avgx, 0, 0)
-            return (y,max_row_height)
-
-        y, max_row_height = layout_subset(self.creatures, 0.1, row)
+        y, max_row_height = self.layout_subset(self.creatures, size, 0.1, y_incr, row, compare)
         row += max_row_height
-        y, max_row_height = layout_subset(self.other_perms+self.lands["Other"], y, row)
+        y, max_row_height = self.layout_subset(self.other_perms+self.lands["Other"], size, y, y_incr, row, compare)
         row += max_row_height
 
         x = 0.
@@ -307,7 +375,7 @@ class PlayView(Widget):
                 i += 1
         #lands = self.lands["Other"]
         #row += max_row_height
-        #y, max_row_height = layout_subset(lands, y, row)
+        #y, max_row_height = self.layout_subset(lands, size, y, y_incr, row, compare)
     def get_card(self, gamecard):
         for card in self.cards:
             if card.gamecard == gamecard: return card
