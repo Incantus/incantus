@@ -24,11 +24,11 @@ def replacement(funcs, obj, *args, **kw):
     replace = [(txt,i+1) for i,(marked,func,txt,cond) in enumerate(funcs[1:]) if not marked and check_condition(func, cond, *args, **kw)]
     if not len(replace) == 0:
         if len(replace) > 1:
-            if isPlayer(obj): player = obj
+            if isPlayer(obj): player = affected = obj
             # In this case it is either a Permanent or a subrole
             # XXX I've only seen the subrole case for Creatures, not sure if anything else can be replaced
-            else: player = obj.perm.card.controller
-            i = player.getSelection(replace, numselections=1, required=True, prompt="Choose replacement effect")
+            else: player, affected = obj.perm.card.controller, obj.perm.card
+            i = player.getSelection(replace, numselections=1, required=True, prompt="Choose replacement effect to affect %s"%(affected))
         else: i = replace[0][1]
         func = funcs[i][1]
         # Mark the function as having processed this event
@@ -83,6 +83,13 @@ class replacement_stacked_function(stacked_function):
         self.funcs.append(func)
     def remove_func(self, func):
         if func in self.funcs: self.funcs.remove(func)
+    def rebind(self, obj):
+        # XXX This is really ugly
+        # To truly emulate a method, i should save the obj in __get__ and keep unbound functions
+        self.obj = obj
+        for i, func in enumerate(self.funcs):
+            marked,old_func,txt,cond = func
+            self.funcs[i] = [marked, new.instancemethod(old_func.im_func, obj, old_func.im_class),txt,cond]
     def __call__(self, *args, **kw):
         if self.first_call:
             # Build the replacement list
