@@ -5,7 +5,7 @@ from GameKeeper import Keeper
 from CardRoles import *
 from Match import *
 from Cost import *
-from LazyInt import LazyInt
+from LazyInt import LazyInt, X
 from GameEvent import *
 
 from Ability import *

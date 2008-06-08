@@ -7,7 +7,6 @@ class LazyInt:
         if not callable(func): raise Exception("Argument to LazyInt init must be a function")
         self._func = func
         self._final_value = None
-        self.finalize = False
         self.finalize = finalize
         def reset(self=self): self._final_value = None
         if self.finalize: dispatcher.connect(reset, signal=event, weak=False)
@@ -26,3 +25,13 @@ class LazyInt:
         return int(self.value())
     def __str__(self):
         return str(self.value())
+
+
+class X(LazyInt):
+    def __init__(self, card):
+        self.card = card
+        func = lambda: card.controller.getX()
+        LazyInt.__init__(self, func, finalize=False)
+    def value(self):
+        if not self._final_value: self._final_value = self._func()
+        else: return self._final_value
