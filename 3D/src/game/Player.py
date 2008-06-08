@@ -205,10 +205,10 @@ class Player(MtGObject):
         if len(all_creatures) == 0: return blocking_list.items()
 
         invalid_block = True
+        blocker_prompt = "Declare blockers (Enter to accept, Escape to reset)"
         while invalid_block:
             total_blockers = set()
             done_selecting = False
-            blocker_prompt = "Declare blockers (Enter to accept, Escape to reset)"
             while not done_selecting:
                 blocker = self.getCombatCreature(mine=True, prompt=blocker_prompt)
                 if blocker == True:
@@ -220,9 +220,8 @@ class Player(MtGObject):
                     blocking_list = dict([(attacker, []) for attacker in attackers])
                     break
                 else:
-                    if blocker in total_blockers or blocker.tapped or not blocker.canBlock():
+                    if blocker in total_blockers or not blocker.canBlock():
                         if blocker in total_blockers: reason = "already blocking"
-                        elif blocker.tapped: reason = "is tapped"
                         elif not blocker.canBlock(): reason = "can't block"
                         self.send(InvalidTargetEvent(), target=blocker)
                         blocker_prompt = "%s %s - select another blocker"%(blocker, reason)
@@ -248,7 +247,8 @@ class Player(MtGObject):
                                 attacker_prompt = "%s %s - select a new attacker"%(blocker,reason)
 
             if done_selecting:
-                invalid_block = (sum((not creature.checkBlock(blocking_list) for creature in attackers+all_creatures)) or
+                nonblockers = set(all_creatures)-total_blockers
+                invalid_block = (sum((not creature.checkBlock(blocking_list, nonblockers) for creature in attackers+all_creatures)) or
                                   sum((not creature.computeBlockCost() for creature in total_blockers)))
                 if not invalid_block:
                     for attacker, blockers in blocking_list.items():
@@ -256,6 +256,8 @@ class Player(MtGObject):
                         for blocker in blockers:
                             blocker.payBlockCost()
                             blocker.setBlocking(attacker)
+                else: blocker_prompt = "Invalid defense - choose another"
+            else: blocker_prompt = "Declare blockers (Enter to accept, Escape to reset)"
 
         return blocking_list.items()
 

@@ -77,8 +77,9 @@ def haste(subrole):
     return override(subrole,"continuouslyInPlay",continuouslyInPlay, keyword="haste", combiner=logical_or)
 
 def must_attack(subrole):
-    def mustAttack(self): return True
-    return override(subrole, "mustAttack", mustAttack, combiner=logical_or)
+    def checkAttack(self, attackers):
+        return not (self.canAttack() and not self.card in attackers)
+    return override(subrole, "checkAttack", checkAttack, combiner=logical_and)
 
 def defender(subrole):
     def canAttack(self): return False
@@ -193,14 +194,6 @@ def unblockable(subrole):
     return override(subrole,"canBeBlocked",canBeBlocked)
 
 
-# XXX The next 3 don't work with the stacked_functions because they can replace the new function
-# with the original within the new function - maybe they don't need to be stacked because they are never
-# externally removed, they either expire naturally or from being called
-# XXX Actually, they are replacement effects, which are slightly different (since two replacement effects looking
-# for the same event can be ordered by the player affected by the event), and usually once one finishes the other won't
-# be relevant
-# XXX Fixed 03/01/08
-
 def prevent_damage(subrole, amt, txt=None, condition=None, next=True):
     if txt == None:
         if amt == -1: amtstr = 'all'
@@ -247,7 +240,6 @@ def redirect_damage(from_target, to_target, amt, txt=None, next=True, condition=
         else: nextstr = ""
         txt = 'Redirect %s %s damage from %s to %s'%(nextstr, amtstr, from_target, to_target)
     def redirectDamage(self, amt, source, combat=False):
-        #print "redirecting from ", from_target, "to", to_target
         if redirectDamage.curr_amt != -1:
             if next:
                 redirected = min([amt,redirectDamage.curr_amt])

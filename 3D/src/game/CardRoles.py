@@ -347,14 +347,14 @@ class Creature(SubRole):
         return True
     def canAttack(self):
         return (not self.perm.tapped) and (not self.in_combat) and self.continuouslyInPlay()
-    def checkBlock(self, blocking_list):
+    def checkBlock(self, blocking_list, not_blocking):
         return True
     def canBeBlocked(self):
         return True
     def canBeBlockedBy(self, blocker):
         return True
     def canBlock(self):
-        return not self.in_combat
+        return not (self.perm.tapped or self.in_combat)
     def canBlockAttacker(self, attacker):
         return True
     def setBlocking(self, attacker):
