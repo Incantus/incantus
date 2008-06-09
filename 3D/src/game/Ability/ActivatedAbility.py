@@ -60,8 +60,8 @@ class ManaAbility(ActivatedAbility):
         return False
 
 class MayAbility(ActivatedAbility):
-    def __init__(self, card, cost="0", msg='', choice_target=Target(targeting="you"), target=Target(targeting="you"), effects=[]):
-        super(MayAbility, self).__init__(card, cost=cost, target=target,effects=effects)
+    def __init__(self, card, cost="0", msg='', choice_target=Target(targeting="you"), target=Target(targeting="you"), effects=[], limit=None, zone="play"):
+        super(MayAbility, self).__init__(card, cost=cost, target=target,effects=effects,limit=limit,zone=zone)
         self.choice_target = choice_target
         if not msg: msg = "...%s"%', '.join(map(str,self.effects))
         self.msg = msg
