@@ -347,9 +347,10 @@ class DamageSelector(object):
         return True
 
 class StatusController(object):
-    def __init__(self, mainstatus, otherstatus, zone_view, window):
+    def __init__(self, mainstatus, otherstatus, zone_view, phase_status, window):
         self.mainstatus = mainstatus
         self.otherstatus = otherstatus
+        self.phase_status = phase_status
         self.zone_view = zone_view
         self.window = window
         self.value = None
@@ -401,6 +402,11 @@ class StatusController(object):
                         self.zone_view.build(zone, status.is_opponent)
                         self.zone_view.show()
                 return True
+        # Check phase status
+        value = self.phase_status.handle_click(x, y)
+        if value:
+            self.window.user_action = Action.PassPriority()
+            return True
 
 class XSelector(object):
     def __init__(self, mana_gui, window):
