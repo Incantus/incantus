@@ -1,4 +1,5 @@
 import CardRoles
+import Planeswalker
 
 class Match(object):
     def __init__(self, condition=None):
@@ -111,6 +112,7 @@ isEnchantment = RoleMatch(CardRoles.Enchantment)
 isEquipment = RoleMatch(CardRoles.Equipment)
 isAura = RoleMatch(CardRoles.Aura)
 isAttachment = RoleMatch(CardRoles.Attachment)
+isPlaneswalker = RoleMatch(Planeswalker.Planeswalker)
 
 class ArtifactCreatureMatch(ObjMatch):
     def match(self, obj):

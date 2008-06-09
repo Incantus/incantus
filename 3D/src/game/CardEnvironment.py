@@ -3,6 +3,7 @@ from characteristics import characteristic, all_characteristics, no_characterist
 from Player import Player
 from GameKeeper import Keeper
 from CardRoles import *
+from Planeswalker import Planeswalker
 from Match import *
 from Cost import *
 from LazyInt import LazyInt, X

@@ -235,6 +235,9 @@ class GameKeeper(MtGObject):
                     actions.append(MoveToGraveyard(creature, player))
                 elif creature.shouldDestroy():
                     actions.append(creature.destroy)
+            for walker in player.play.get(Match.isPlaneswalker):
+                if walker.shouldDestroy():
+                    actions.append(walker.destroy)
 
         # 420.5d An Aura attached to an illegal object or player, or not attached to an object or player, is put into its owner's graveyard.
         def DestroyAura(aura, player):
@@ -261,6 +264,21 @@ class GameKeeper(MtGObject):
                 for legend in remove:
                     player = legend.controller
                     player.moveCard(legend, player.play, legend.owner.graveyard)
+            actions.append(SBE)
+        # 2 or more Planeswalkers with the same name
+        planeswalkers = []
+        for player in players: planeswalkers.extend(player.play.get(Match.isPlaneswalker))
+        remove = []
+        for i, l1 in enumerate(planeswalkers):
+            for l2 in planeswalkers[i+1:]:
+                if l1.subtypes.intersects(l2.subtypes):
+                    remove.extend([l1,l2])
+                    break
+        if len(remove) > 0:
+            def SBE():
+                for walker in remove:
+                    player = walker.controller
+                    player.moveCard(walker, player.play, walker.owner.graveyard)
             actions.append(SBE)
 
         # 420.5f A token in a zone other than the in-play zone ceases to exist.

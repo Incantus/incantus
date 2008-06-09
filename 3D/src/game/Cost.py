@@ -108,6 +108,26 @@ class SacrificeCost(Cost):
     def __str__(self):
         return 'Sacrifice'
 
+class LoyaltyCost(Cost):
+    def __init__(self, number=0):
+        self.number = number
+    def compute(self, card, player):
+        from Ability.Counters import Counter
+        if self.number < 0:
+            self.counters = [counter for counter in card.counters if counter == "loyalty"]
+            return len(self.counters) >= -self.number
+        else:
+            self.counters = [Counter("loyalty") for i in range(self.number)]
+            return True
+    def pay(self, card, player):
+        if self.number < 0: func, event = card.counters.remove, CounterRemovedEvent
+        else: func, event = card.counters.append, CounterAddedEvent
+        for counter in self.counters:
+            func(counter)
+            card.send(event(), counter=counter)
+    def __str__(self):
+        return "%d loyalty"%(self.number)
+
 class CounterCost(Cost):
     def __init__(self, counter_type, number=1):
         self.counter_type = counter_type
@@ -121,6 +141,20 @@ class CounterCost(Cost):
             card.send(CounterRemovedEvent(), counter=self.counters[i])
     def __str__(self):
         return "%d %s counter(s)"%(self.number, self.counter_type)
+
+class AddCounterCost(Cost):
+    def __init__(self, counter, number=1):
+        self.counter = counter
+        self.number = number
+    def compute(self, card, player):
+        self.counters = [self.counter.copy() for i in range(self.number)]
+        return True
+    def pay(self, card, player):
+        card.counters.extend(self.counters)
+        for i in range(self.number):
+            card.send(CounterAddedEvent(), counter=self.counters[i])
+    def __str__(self):
+        return "Add %d %s counter(s)"%(self.number, self.counter)
 
 class TapCost(Cost):
     def __init__(self, number=1, cardtype=None):
