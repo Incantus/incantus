@@ -76,12 +76,20 @@ class OrderedZone(Zone):
         self.pending = False
         self.pending_top = []
         self.pending_bottom = []
+        self.ordering = True
+    def enable_ordering(self):
+        self.ordering = True
+    def disable_ordering(self):
+        self.ordering = False
     def init(self):
         self.register(self.commit, TimestepEvent())
     def add_card_post(self, card, position=-1, trigger=True):
-        self.pending = True
-        if position == -1: self.pending_top.append((card, trigger))
-        else: self.pending_bottom.append((card, trigger))
+        if trigger and self.ordering:
+            self.pending = True
+            if position == -1: self.pending_top.append((card, trigger))
+            else: self.pending_bottom.append((card, trigger))
+        else:
+            super(OrderedZone, self).add_card_post(card, position, trigger)
     def get_card_order(self, cardlist, pos):
         if len(cardlist) > 1:
             if self.ordered: pos = "%s of "%pos
@@ -125,11 +133,6 @@ class Library(OutPlayMixin, OrderedZone):
     def __init__(self, cards=[]):
         super(Library, self).__init__(cards)
         self.needs_shuffle = False
-        self.ordering = True
-    def enable_ordering(self):
-        self.ordering = True
-    def disable_ordering(self):
-        self.ordering = False
     def setup_card(self, card):
         self.before_card_added(card)
         self.send(CardEnteringZone(), card=card)
