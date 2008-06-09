@@ -181,7 +181,7 @@ class ChangeSelfController(Effect):
         return "Change controller"
 
 class ChangeController(Effect):
-    def __init__(self, expire=False):
+    def __init__(self, expire=True):
         self.expire = expire
     def __call__(self, card, target):
         if card.controller == target.controller: return lambda: None
@@ -826,20 +826,27 @@ class PlayCard(Effect):
         if type(cost) == str: cost = ManaCost(cost)
         self.cost = cost
     def __call__(self, card, target):
-        from game.Action import PlayInstant
-        if isPermanent(target): return False
-        if not isLandType(target): action = PlayInstant(target)
-        else: action = target.play_action(target)
-
-        # Different cost to play
-        casting_ability = target.abilities[0]
-        if self.cost and hasattr(casting_ability, "cost"):
+        from game.Action import PlayAbility, PlayLand
+        from game.GameEvent import PlayAbilityEvent, LogEvent
+        if isPermanent(target): raise Exception("Can't play a permanent") # XXX Do i need this?
+        if not isLandType(target):
+            player = card.controller
             # XXX Generally the first ability of the spell is casting it - might not always be the case
-            original_cost = casting_ability.cost
-            casting_ability.cost = self.cost
-        result = action.perform(card.controller)
-        if self.cost and hasattr(casting_ability, "cost"): casting_ability.cost = original_cost
-        return result
+            ability = target.abilities[0].copy()
+            ability.controller = player
+
+            # Different cost to play
+            if self.cost and hasattr(ability, "cost"): ability.cost = self.cost
+            success = player.stack.announce(ability)
+            if success:
+                player.send(PlayAbilityEvent(), ability=ability)
+                player.send(LogEvent(), msg="%s plays (%s) of %s"%(player,ability,target))
+            else:
+                player.send(LogEvent(), msg="%s: Failed playing %s - %s"%(player,target,ability))
+        else:
+            action = PlayLand(target)
+            success = action.perform(card.controller)
+        return success
     def __str__(self):
         return "Play card"
 
