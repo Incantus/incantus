@@ -274,6 +274,7 @@ class ManaImage(Image):
     pos = property(**pos())
     def __init__(self, fname):
         super(ManaImage,self).__init__(fname)
+        self._pos.set_transition(dt=0.3, method="ease_out_back")
         self.glow = Image("glow")
         self.glow.color = (1.0, 0.9, 0.0, 0.5)
         self.glow.visible = 0
@@ -296,7 +297,7 @@ class ManaView(Widget):
         from game import Mana
         super(ManaView,self).__init__(pos)
         self.reverse = reverse
-        self._pos.set_transition(dt=0.5, method="ease_out_back")
+        self._pos.set_transition(dt=0.4, method="ease_out_back")
         self.colors = ["white", "blue", "black", "red", "green", "colorless"]
         self.colormap = dict(zip(self.colors, "WUBRG"))
         self.nummana = len(self.colors)
@@ -394,12 +395,13 @@ class ManaView(Widget):
                 spacer = symbol.width*0.1
                 amount = self.spend[-1]
                 amount.pos = euclid.Vector3(x+spacer, -amount.height/2, 0)
+                self.spend[-1].visible = 1.0
                 self.pool[-1].visible = 0
-                for symbol, current, pay in zip(self.symbols, self.pool, self.spend)[:-1]:
-                    symbol.visible = 0
+                for symb, current, pay in zip(self.symbols, self.pool, self.spend)[:-1]:
+                    symb.visible = 0
                     pay.visible = 0
                     current.visible = 0
-                self.cost.pos = euclid.Vector3((x-symbol.width)/2, symbol.height+spacer, 0)
+                self.cost.pos = euclid.Vector3((x-symbol.width)/2, symbol.height*0.7, 0)
             self.width = x - symbol.width - spacer
         self.height = symbol.height
     def render_after_transform(self):

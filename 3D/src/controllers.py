@@ -422,6 +422,7 @@ class XSelector(object):
         self.colorless.set_text(0)
     def activate(self, x=False):
         self.mana.select(x)
+        self.mana.pos = euclid.Vector3((self.window.width-self.mana.width)/2, self.window.height/2, 0)
         self.window.push_handlers(self)
     def deactivate(self):
         self.colorless.set_text(self.orig_colorless)
