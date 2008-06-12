@@ -114,8 +114,9 @@ class LoyaltyCost(Cost):
     def compute(self, card, player):
         from Ability.Counters import Counter
         if self.number < 0:
-            self.counters = [counter for counter in card.counters if counter == "loyalty"]
-            return len(self.counters) >= -self.number
+            number = -self.number
+            self.counters = [counter for counter in card.counters if counter == "loyalty"][:number]
+            return len(self.counters) >= number
         else:
             self.counters = [Counter("loyalty") for i in range(self.number)]
             return True
@@ -353,9 +354,11 @@ class EvokeCost(SpecialCost):
         if type(evoke_cost) == str: evoke_cost = ManaCost(evoke_cost)
         self.orig_cost = orig_cost
         self.evoke_cost = evoke_cost
+        self.reset()
+    def reset(self):
+        self.evoked = False
         self.cost = self.orig_cost
     def precompute(self, card, player):
-        self.evoked = False
         self.evoked = player.getIntention("Pay evoke cost?", "...pay evoke cost?")
         if self.evoked: self.cost = self.evoke_cost
         return super(EvokeCost, self).precompute(card, player)
@@ -364,11 +367,13 @@ class ProwlCost(SpecialCost):
     def __init__(self, orig_cost, prowl_cost):
         if type(orig_cost) == str: orig_cost = ManaCost(orig_cost)
         if type(prowl_cost) == str: prowl_cost = ManaCost(prowl_cost)
-        self.prowled = False
         self.orig_cost = orig_cost
         self.prowl_cost = prowl_cost
-        self.cost = self.orig_cost
+        self.reset()
+    def reset(self):
+        self.prowled = False
         self.can_prowl = False
+        self.cost = self.orig_cost
     def precompute(self, card, player):
         if self.can_prowl:
             self.prowled = player.getIntention("Pay prowl cost?", "...pay prowl cost?")
