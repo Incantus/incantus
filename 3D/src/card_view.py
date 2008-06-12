@@ -179,7 +179,8 @@ class HandView(CardView):
             card.zooming = anim.animate(0, 1, dt=0.3, method="linear")
             card.old_pos = card.pos
             card.old_size = card.size
-            if card.pos.x+card.width/2 > self.avail_width: pos_shift = self.avail_width - card.width/1.5
+            if self.is_opponent and card.pos.x-card.width/2 < 0: pos_shift = card.width/1.5
+            elif card.pos.x+card.width/2 > self.avail_width: pos_shift = self.avail_width - card.width/1.5
             else: pos_shift = card.pos.x
             card._pos.set_transition(dt=0.2, method="sine") #self.pos_transition)
             card.pos = euclid.Vector3(pos_shift, (self.height+card.height/2)*self.dir, 0)
