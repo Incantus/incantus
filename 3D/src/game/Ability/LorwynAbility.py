@@ -1,5 +1,5 @@
-from Ability import Ability, PostponeTargeting, PostponedAbility
-from ActivatedAbility import ActivatedAbility, DoOrAbility, StacklessActivatedAbility
+from Ability import Ability, PostponeTargeting
+from ActivatedAbility import ActivatedAbility, DoOrAbility, StacklessActivatedAbility, MayAbility
 from CastingAbility import CastPermanentSpell
 from Effect import *
 from Target import Target, SpecialTarget, TriggeredTarget
@@ -102,20 +102,18 @@ def evoke(subrole, card, cost):
     evoke = TriggeredAbility(card, trigger = EnterTrigger("play"),
             match_condition=SelfMatch(card, lambda x: evoke_cost.evoked),
             ability=Ability(card, target=Target(targeting="self"),
-                effects=SacrificeSelf()))
+                effects=[SacrificeSelf(), NullEffect(lambda c, t: evoke_cost.reset())]))
     subrole.triggered_abilities.append(evoke)
 
-def hideaway(subrole, card, limit=None):
+def hideaway(subrole, card, cost="0", limit=None):
     if limit==None: limit=Unlimited(card)
     card.in_play_role.tapped = True
-    hidden = MoveCards(from_zone="library", to_zone="removed", number=1, subset=4, required=True, func = lambda c: c.faceDown())
+    hidden = MoveCards(from_zone="library", to_zone="removed", return_position="bottom", number=1, subset=4, required=True, func = lambda c: None) #XXX c.faceDown())
     hideaway = TriggeredAbility(card, trigger = EnterTrigger("play"),
             match_condition=SelfMatch(card),
-            ability=PostponedAbility(card, target=Target(targeting="you"),
-                effects=[hidden,
-                         MoveCards(from_zone="library", from_position="top", to_zone="library", to_position="bottom", number=4)])) # the second MoveCards is 4 because when we select them we haven't moved the first one yet - but it will be ignored
+            ability=Ability(card, target=Target(targeting="you"), effects=hidden))
 
-    return_hidden = StacklessActivatedAbility(card, MultipleCosts([ManaCost("U"), TapCost()]),
+    return_hidden = MayAbility(card, cost,
             target=SpecialTarget(targeting=lambda: hidden.cardlist[0]),
             effects=PlayCard(cost="0"),
             limit=limit)
