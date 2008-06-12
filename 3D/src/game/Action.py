@@ -72,8 +72,6 @@ class PlayAbility(Action):
         if success:
             player.send(PlayAbilityEvent(), ability=ability)
             player.send(LogEvent(), msg="%s plays (%s) of %s"%(player.name,ability,self.card))
-        else:
-            player.send(LogEvent(), msg="%s: Failed playing %s - %s"%(player.name, self.card, ability))
         return success
 
 class PlayLand(Action):
