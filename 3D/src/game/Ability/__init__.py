@@ -1,4 +1,4 @@
-from Ability import Ability, StacklessAbility, PostponeTargeting
+from Ability import Ability, StacklessAbility, PostponeTargeting, PostponedAbility
 from AssignDamage import AssignDamage
 from ActivatedAbility import ActivatedAbility, ManaAbility, MayAbility, DoOrAbility, StacklessDoOrAbility
 from Target import AllPlayerTargets, AllPermanentTargets, CounterTarget, Target, MultipleTargets, TriggeredTarget, SpecialTarget
