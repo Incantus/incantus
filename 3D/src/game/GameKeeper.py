@@ -476,11 +476,10 @@ class GameKeeper(MtGObject):
                 for creature in player.play.get(Match.isCreature):
                     creature.clearDamage()
             triggered_once = False
-            while self.checkSBE():
-                triggered_once = True
-                self.playInstantaneous()
-
-            if not triggered_once: break
+            while self.checkSBE(): triggered_once = True
+            if self.stack.process_triggered(): triggered_once = True
+            if triggered_once: self.playInstantaneous()
+            else: break
         self.setState("EndTurn")
 
     # The next set of functions deals with the operation of the stack
