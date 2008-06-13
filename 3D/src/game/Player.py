@@ -319,21 +319,16 @@ class Player(MtGObject):
                 else: return False
             if not isinstance(action, PassPriority): return action.selection
             else: return False
-        if numselections > len(sellist): numselections = len(sellist)
-        context = {'get_cards': True, 'list':sellist, 'numselections': numselections, 'required': required, 'process': filter, 'from_zone': from_zone, 'from_player': from_player}
-        get_selection = True
         if not (type(card_types) == list or type(card_types) == tuple): card_types = [card_types]
-        while get_selection:
-            sel = self.input(context,"%s: %s"%(self.name,prompt))
-            if isinstance(sel, CancelAction): return False
-            invalid = False
-            for card in sel:
-                for ctype in card_types:
-                    if ctype(card):
-                        break
-                else: invalid = True
-                if not invalid: get_selection = False
-                else: break
+        def check_card(card):
+            valid = True
+            for ctype in card_types:
+                if ctype(card): break
+            else: valid = False
+            return valid
+        if numselections > len(sellist): numselections = len(sellist)
+        context = {'get_cards': True, 'list':sellist, 'numselections': numselections, 'required': required, 'process': filter, 'from_zone': from_zone, 'from_player': from_player, 'check_card': check_card}
+        sel = self.input(context, "%s: %s"%(self.name,prompt))
         return sel
     def getCombatCreature(self, mine=True, prompt='Select target'):
         def filter(action):

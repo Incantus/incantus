@@ -158,10 +158,11 @@ class CardSelector(object):
         self.otherstatus = otherstatus
         self.zone_view = zone_view
         self.window = window
-    def activate(self, sellist, from_zone, number=1, required=False, is_opponent=False):
+    def activate(self, sellist, from_zone, number=1, required=False, is_opponent=False, filter=None):
         self.required = required
         self.number = number
         self.tmp_dx = 0
+        self.filter = filter
         self.window.push_handlers(self)
         # Figure out where to pop up
         if from_zone == '': self.zone_view.pos = euclid.Vector3(self.window.width/2, self.window.height/2, 0)
@@ -222,7 +223,7 @@ class CardSelector(object):
             flag, result = self.zone_view.handle_click(x, y)
             if flag == 0:
                 if len(self.zone_view.cards):
-                    if len(self.zone_view.selected) < self.number:
+                    if len(self.zone_view.selected) < self.number and self.filter(result.gamecard):
                         self.zone_view.select_card(result)
             elif flag == 1:
                 self.zone_view.deselect_card(result)

@@ -715,8 +715,9 @@ class GameWindow(window.Window):
             required = context['required']
             from_zone = context['from_zone']
             from_player = context['from_player']
+            check_card = context['check_card']
             #if self.hand_controller.activated: self.hand_controller.deactivate()
-            self.card_selector.activate(sellist, from_zone, numselections, required=required, is_opponent=(from_player != self.player1))
+            self.card_selector.activate(sellist, from_zone, numselections, required=required, is_opponent=(from_player != self.player1), filter=check_card)
         elif context.get("get_selection", False):
             sellist = context['list']
             numselections = context['numselections']
