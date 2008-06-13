@@ -269,9 +269,9 @@ class GameWindow(window.Window):
                 self.status_controller.set_solitaire()
                 self.otherplayer_hand.set_solitaire()
                 self.action_new_game(False)
-            elif symbol == key.C: # client
+            elif symbol == key.C and modifiers & key.MOD_SHIFT: # client
                 self.start_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")), False)
-            elif symbol == key.S: #server
+            elif symbol == key.S and modifiers & key.MOD_SHIFT: #server
                 self.start_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")), True)
         elif self.start_new_game:
             if symbol == key.F2:
