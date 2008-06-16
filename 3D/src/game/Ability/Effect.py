@@ -988,26 +988,27 @@ class DiscardCard(Effect):
         if not isPlayer(target): raise Exception("Invalid target (not a player)")
         # Prefilter the list to only show valid card types
         selection = target.hand.get(self.card_types)
-        if len(selection) < self.number: return False
+        if len(selection) <= self.number: num_discard = -1 #len(selection)
+        else: num_discard = self.number
         if self.random:
             import random
-            result = [selection[i] for i in random.sample(range(len(selection)), self.number)]
-        elif self.number == -1: #Discard all
+            result = [selection[i] for i in random.sample(range(len(selection)), num_discard)]
+        elif num_discard == -1: #Discard all
             result = selection
         else:
-            if self.number > 1: a='s'
+            if num_discard > 1: a='s'
             else: a = ''
-            num = 0
-            prompt = "Select %s card%s to discard: %d left of %d"%(self.card_types, a, self.number-num,self.number)
+            num_selected = 0
+            prompt = "Select %s card%s to discard: %d left of %d"%(self.card_types, a, num_discard-num_selected,num_discard)
             result = []
-            while num < self.number:
+            while num_selected < num_discard:
                 card = target.getTarget(self.card_types, zone=target.hand,required=self.required,prompt=prompt)
                 if not card and not self.required: return False
                 if not card in result:
                     result.append(card)
-                    num += 1
-                    prompt = "Select %s card%s to discard: %d left of %d"%(self.card_types, a, self.number-num,self.number)
-                else: prompt = "Card already selected. Select %s card%s to discard: %d left of %d"%(self.card_types, a, self.number-num,self.number)
+                    num_selected += 1
+                    prompt = "Select %s card%s to discard: %d left of %d"%(self.card_types, a, num_discard-num_selected,num_discard)
+                else: prompt = "Card already selected. Select %s card%s to discard: %d left of %d"%(self.card_types, a, num_discard-num_selected,num_discard)
         for card in result: target.discard(card)
         return True
     def __str__(self):
