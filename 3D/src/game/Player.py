@@ -329,7 +329,8 @@ class Player(MtGObject):
         if numselections > len(sellist): numselections = len(sellist)
         context = {'get_cards': True, 'list':sellist, 'numselections': numselections, 'required': required, 'process': filter, 'from_zone': from_zone, 'from_player': from_player, 'check_card': check_card}
         sel = self.input(context, "%s: %s"%(self.name,prompt))
-        return sel
+        if isinstance(sel, CancelAction): return False
+        else: return sel
     def getCombatCreature(self, mine=True, prompt='Select target'):
         def filter(action):
             if isinstance(action, CancelAction) or isinstance(action, PassPriority):
