@@ -131,7 +131,6 @@ class HandView(CardView):
         newcard.size = anim.animate(newcard.size, newcard.size, dt=0.2, method="sine")
         newcard.alpha = anim.animate(0, 1.0, dt=1.0, method="ease_out_circ")
         self.cards.append(newcard)
-        if len(self.cards): self.visible = 1.0
         self.layout()
     def remove_card(self, card):
         card = CardLibrary.CardLibrary.getHandCard(card)
@@ -143,7 +142,6 @@ class HandView(CardView):
             if self.focus_idx > len(self)-1: self.focus_idx = len(self)-1
             elif self.focus_idx < 0: self.focus_idx = 0
             self.layout()
-            if not len(self.cards): self.visible = 0
     def card_on_stack(self, ability):
         # XXX This is a big ugly hack
         from game.Ability import CastSpell
@@ -194,12 +192,13 @@ class HandView(CardView):
             card.pos = card.old_pos
     def unfocused_layout(self):
         numhand = len(self.cards)
+        self.hand_size.set_text(numhand)
+        if not self.is_opponent: self.hand_size.pos = euclid.Vector3(self.avail_width-10, 0, 0)
+        else: self.hand_size.pos = euclid.Vector3(10, 0, 0)
+        avail_width = self.avail_width - self.hand_size.width - 20
+        size = self.unfocused_size[1]
         if numhand > 0:
-            self.hand_size.set_text(numhand)
-            if not self.is_opponent: self.hand_size.pos = euclid.Vector3(self.avail_width-10, 0, 0)
-            else: self.hand_size.pos = euclid.Vector3(10, 0, 0)
-            avail_width = self.avail_width - self.hand_size.width - 20
-            size = self.unfocused_size[1]
+            self.visible = 1.0
             cardwidth = self.cards[0].width
             # First lay out, then overlap, and then scale
             spacing = self.unfocused_spacing
@@ -220,7 +219,9 @@ class HandView(CardView):
                 card._pos.set_transition(dt=0.8, method="sine")
                 card.pos = euclid.Vector3(x,y,z)
                 x -= x_incr
-            self.box = (-5, -self.height/2-5, self.avail_width, self.height/2+5)
+        else:
+            self.visible = 0.0
+        self.box = (-5, -self.height/2-5, self.avail_width, self.height/2+5)
     def layout_original(self):
         if len(self) > 0:
             if self.focus_idx == -1: self.focus_idx = len(self)-1
@@ -274,12 +275,8 @@ class HandView(CardView):
             i += 0.001
             card.orientation = euclid.Quaternion()
             card.size = self.focus_size
-            #Q = euclid.Quaternion.new_rotate_axis(incr_arc*(len(self)-self.focus_idx)+extra_arc, euclid.Vector3(0,0,1))
-            #incr_arc *= -1
-            #y_incr = (len(self)-self.focus_idx-1)*h*0.1*self.small_size
             Q = euclid.Quaternion.new_rotate_axis(-extra_arc, euclid.Vector3(0,0,-1))
             y_incr += h*0.1*self.small_size
-            #for card in cards[-1:self.focus_idx:-1]:
             for card in cards[self.focus_idx+1:]:
                 card.orientation = Q
                 card.pos = Q*euclid.Vector3(0,radius,0) - euclid.Vector3(0,radius+y_incr,i)
