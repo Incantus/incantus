@@ -1,0 +1,39 @@
+name = 'Jace Beleren'
+cardnum = 0
+expansion = ''
+type = characteristic('Planeswalker')
+supertype = no_characteristic()
+subtypes = characteristic(['Jace'])
+cost = '1UU'
+color = characteristic(['U'])
+text = ['[+2]: Each player draws a card.', '[-1]: Target player draws a card.', '[-10]: Target player puts the top twenty cards of his or her library into his or her graveyard. ']
+
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
+
+subrole = Planeswalker.Planeswalker(3)
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(
+  card,
+  cost=LoyaltyCost(2),
+  target=AllPlayerTargets(),
+  effects=ForEach(DrawCard(1))),
+ActivatedAbility(
+  card,
+  cost=LoyaltyCost(-1),
+  target=Target(target_types=isPlayer),
+  effects=DrawCard(1)),
+ActivatedAbility(
+  card,
+  cost=LoyaltyCost(-10),
+  target=Target(target_types=isPlayer),
+  effects=MoveCards(
+      from_zone="library",
+      from_position="top",
+      to_zone="graveyard",
+      number=20))]
+#jace dies whenever a loyalty counter is removed with an ability
+
+#################################

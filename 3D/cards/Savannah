@@ -1,4 +1,3 @@
-
 name = 'Savannah'
 cardnum = 281
 expansion = 'Beta'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['T: Add G to your mana pool.','T: Add W to your mana pool.']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

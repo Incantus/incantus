@@ -18,8 +18,17 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
+def checkBlock(self, blocking_list, nonblockers):
+    # Check to see that all creatures that can block are blocking
+    if not self.card in blocking_list: return True
+    if not self.canBeBlocked(): return True
+    self_blockers = set(blocking_list[self.card])
+    defenders = set(sum(blocking_list.values(), [])).union(nonblockers)
+    return self_blockers == set([blocker for blocker in defenders if blocker.canBlock() and blocker.canBlockAttacker(self.card) and self.card.canBeBlockedBy(blocker)])
+
+
 subrole.attached_abilities = [AuraStaticAbility(card,
-                                        effects=GiveKeyword(lambda role: override(role, "mustBeBlocked", lambda self: True, combiner=logical_or), keyword="Must be blocked if able", expire=False))
+                                        effects=GiveKeyword(lambda role, checkBlock=checkBlock: override(role, "checkBlock", checkBlock, combiner=logical_and), keyword="Must be blocked if able", expire=False))
 ]
 
 #################################

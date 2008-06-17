@@ -1,4 +1,3 @@
-
 name = 'Graven Cairns'
 cardnum = 0
 expansion = 'Future Sight'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['T: Add 1 to your mana pool.', '(B/R),T: Add BB, BR, or RR to your mana pool.']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

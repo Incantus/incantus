@@ -1,4 +1,3 @@
-
 name = 'Aura Graft'
 cardnum = 67
 expansion = '10E'
@@ -12,6 +11,6 @@ text = ["Gain control of target Aura that's attached to a permanent. Attach it t
 target = Target(target_types=isAura)
 out_play_role.abilities = [CastInstantSpell(card, cost,
 				target=[target, SpecialTarget(targeting=lambda t=target: t.target)],
-				effects=[ChangeController(), ChangeAttachment(must_be_different=True)],
+				effects=[ChangeController(expire=False), ChangeAttachment(must_be_different=True)],
 				copy_targets=False)
 ]

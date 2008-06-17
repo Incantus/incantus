@@ -1,4 +1,3 @@
-
 name = 'Doubling Season'
 cardnum = 158
 expansion = 'Ravnica'
@@ -15,6 +14,7 @@ subrole = Enchantment()
 in_play_role = Permanent(card, subrole)
 
 #################################
+# XXX This should only work for the controller
 
 subrole.static_abilities = [GlobalStaticAbility(card,
                                         effects=OverrideGlobalReplacement(lambda self: 2*self.number, "get_number", CreateToken, expire=False)),

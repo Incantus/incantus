@@ -1,4 +1,3 @@
-
 name = 'Thornbite Staff'
 cardnum = 145
 expansion = 'Morningtide'
@@ -17,17 +16,17 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.abilities = [EquipAbility(card, "4")]
-trigger = EnterTrigger("play", any=True)
+trigger = EnterTrigger("play", player="any")
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger=trigger, 
                                       match_condition=isCreature.with_condition(lambda c: c.subtypes == "Shaman"),
-                                      ability=ChoiceAbility(card, cost="0", target=TriggeredTarget(trigger, 'matched_card'),
+                                      ability=MayAbility(card, target=TriggeredTarget(trigger, 'matched_card'),
                                                  effects=AttachToPermanent()))]
 
 ability = ActivatedAbility(card, MultipleCosts([ManaCost("2"), TapCost()]), target=Target(target_types=isCreatureOrPlayer), effects=DealDamage(1))
 triggered_ability = TriggeredAbility(card,
                                         trigger=EnterFromTrigger(from_zone="play",to_zone="graveyard"),
-                                        match_condition = isCreatureType,
+                                        match_condition = isCreature,
                                         ability=Ability(card,
                                                 target=Target(targeting="self"),
                                                  effects=UntapTargetPermanent()))

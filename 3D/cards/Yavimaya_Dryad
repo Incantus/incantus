@@ -1,4 +1,3 @@
-
 name = 'Yavimaya Dryad'
 cardnum = 235
 expansion = 'Time Spiral'
@@ -22,7 +21,7 @@ forestwalk(subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = EnterTrigger("play"),
                                       match_condition=SelfMatch(card),
-                                      ability=ChoiceAbility(card, cost="0", msg="search library for Forest to put into play under target player's control?",
+                                      ability=MayAbility(card, msg="search library for Forest to put into play under target player's control?",
 						target=Target(target_types=isPlayer),
 						effects=[MoveCards(from_zone="library", to_zone="play", card_types=isLandType.with_condition(lambda l: l.subtypes == "Forest"), number=1, func=lambda card: card.tap()), ShuffleLibrary()]))
 ]

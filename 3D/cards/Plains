@@ -1,4 +1,3 @@
-
 name = 'Plains'
 cardnum = 367
 expansion = '10E'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['[W]']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('W'))]
 

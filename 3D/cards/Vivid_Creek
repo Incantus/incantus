@@ -1,4 +1,3 @@
-
 name = 'Vivid Creek'
 cardnum = 276
 expansion = 'Lorwyn'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['Vivid Creek comes into play tapped with two charge counters on it.', 'T: Add U to your mana pool.', 'T, Remove a charge counter from Vivid Creek: Add one mana of any color to your mana pool.']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

@@ -1,4 +1,3 @@
-
 name = 'Gravedigger'
 cardnum = 146
 expansion = '10E'
@@ -20,7 +19,7 @@ subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger("play"),
                                         match_condition = SelfMatch(card),
-                                        ability = ChoiceAbility(card,
+                                        ability = MayAbility(card,
  target=Target(target_types=isCreatureType, zone="graveyard", player_zone="controller"),
                                 effects=ChangeZone(from_zone="graveyard", to_zone="hand")))
 ]

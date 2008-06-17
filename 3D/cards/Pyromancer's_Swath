@@ -1,4 +1,3 @@
-
 name = 'Pyromancer\'s Swath'
 cardnum = 104
 expansion = 'Future Sight'
@@ -22,7 +21,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                         ability = Ability(card, effects=DiscardCard(number=-1)))
 ]
 
-condition = lambda amt, source, combat, card=card: isSpell(source) and source.controller == card.controller
+condition = lambda self, amt, source, combat, card=card: isSpell(source) and source.controller == card.controller
 def plusTwoDamage(self, amt, source, combat=False):
     '''Pyromancer's Swath - damage + 2'''
     self.assignDamage(amt+2, source, combat)

@@ -8,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['[B]']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('B'))]
 

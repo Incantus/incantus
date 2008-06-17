@@ -1,4 +1,3 @@
-
 name = 'Forest'
 cardnum = 383
 expansion = '10E'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['[G]']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('G'))]
 

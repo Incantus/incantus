@@ -1,4 +1,3 @@
-
 name = 'Razormane Masticore'
 cardnum = 340
 expansion = '10E'
@@ -26,7 +25,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                     TriggeredAbility(card,
                                       trigger = PlayerTrigger(event=DrawStepEvent()),
                                       match_condition = lambda player, self=card: player==self.controller,
-                                      ability = ChoiceAbility(card, "0", msg="deal 3 damage to target creature?",
+                                      ability = MayAbility(card, msg="deal 3 damage to target creature?",
                                                         target=Target(target_types=isCreature),
                                                         effects=DealDamage(3)))
 ]

@@ -1,4 +1,3 @@
-
 name = 'Windswept Heath'
 cardnum = 328
 expansion = 'Onslaught'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['T, Pay 1 Life, Sacrifice Windswept Heath: Search your library for an Forest or Plains card and put it into play. Then shuffle your library.']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

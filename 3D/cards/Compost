@@ -1,0 +1,24 @@
+name = 'Compost'
+cardnum = 235
+expansion = '7E'
+type = characteristic('Enchantment')
+supertype = no_characteristic()
+subtypes = no_characteristic()
+cost = '1G'
+color = characteristic(['G'])
+text = ["Whenever a black card is put into an opponent's graveyard from anywhere, you may draw a card."]
+
+card.out_play_role.abilities = [CastPermanentSpell(card, card.cost)]
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger=EnterTrigger(zone="graveyard", player="opponent"),
+                                        match_condition = isCard.with_condition(lambda c: c.color == "B"),
+                                        ability=MayAbility(card, effects=DrawCard(1)))]
+
+#################################

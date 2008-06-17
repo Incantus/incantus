@@ -1,4 +1,3 @@
-
 name = 'Condemn'
 cardnum = 13
 expansion = '10E'
@@ -11,6 +10,6 @@ text = ["Put target attacking creature on the bottom of its owner's library. Its
 
 attacking = Target(target_types=isCreature.with_condition(lambda c: c.attacking))
 out_play_role.abilities = [CastInstantSpell(card, cost=cost,
-				target=[attacking, Target(lambda t=attacking: t.target.controller)],
+				target=[attacking, SpecialTarget(lambda t=attacking: t.target.controller)],
 				effects=[ChangeZoneFromPlay(to_zone="library", to_position="bottom"),
 					 ChangeLife(lambda life, t=attacking:life+t.target.toughness)], copy_targets=False)]

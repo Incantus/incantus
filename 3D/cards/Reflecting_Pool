@@ -1,4 +1,3 @@
-
 name = 'Reflecting Pool'
 cardnum = 351
 expansion = 'Shadowmoor'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['Add to your mana pool one mana of any type that a land you control could produce.']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

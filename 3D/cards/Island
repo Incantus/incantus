@@ -1,4 +1,3 @@
-
 name = 'Island'
 cardnum = 371
 expansion = '10E'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['[U]']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('U'))]
 

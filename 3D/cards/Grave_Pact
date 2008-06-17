@@ -1,4 +1,3 @@
-
 name = 'Grave Pact'
 cardnum = 144
 expansion = '10E'
@@ -18,7 +17,7 @@ in_play_role = Permanent(card, subrole)
 
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterFromTrigger(from_zone="play", to_zone="graveyard"),
-                                        match_condition = lambda card, self=card: isCreatureType(card) and card.controller == self.controller,
+                                        match_condition = lambda card, self=card: isCreature(card) and card.controller == self.controller,
                                         ability = Ability(card, target=Target("opponent"), effects=ForceSacrifice()))
 ]
 

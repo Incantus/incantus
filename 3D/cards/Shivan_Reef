@@ -1,4 +1,3 @@
-
 name = 'Shivan Reef'
 cardnum = 357
 expansion = '10E'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['T: Add 1 to your mana pool.', 'T: Add U or R to your mana pool. Shivan Reef deals 1 damage to you.']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

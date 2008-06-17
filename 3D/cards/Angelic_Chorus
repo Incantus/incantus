@@ -1,4 +1,3 @@
-
 name = 'Angelic Chorus'
 cardnum = 4
 expansion = '10E'
@@ -16,12 +15,12 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
+# XXX Doesn't work correctly for multiple creatures entering play at the same time (or even while triggered ability is on the stack) - uses the last triggered creature's toughness for all abilities on the stack
+
 trigger = EnterTrigger("play")
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger=trigger,
-                                      match_condition=isCreature,
-                                      #match_condition = lambda card, self=card: isCreature(card) and card.controller==self.controller,
-                                      ability=Ability(card, target=Target("controller"),
-                                                 effects=ChangeLife(lambda l, t=trigger:l+t.matched_card.toughness)))]
+                                      match_condition = lambda c, self=card: isCreature(c) and c.controller==self.controller,
+                                      ability=Ability(card, effects=ChangeLife(lambda l, t=trigger:l+t.matched_card.toughness)))]
 
 #################################

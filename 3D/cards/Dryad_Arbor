@@ -1,4 +1,3 @@
-
 name = 'Dryad Arbor'
 cardnum = 174
 expansion = 'Future Sight'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = characteristic(['G'])
 text = ["(Dryad Arbor isn't a spell, it's affected by summoning sickness, and it has \"T: Add Green Mana to your mana pool.\")", "Dryad Arbor is green."]
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('G'))]
 

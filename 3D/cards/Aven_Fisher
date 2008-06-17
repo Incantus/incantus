@@ -1,4 +1,3 @@
-
 name = 'Aven Fisher'
 cardnum = 68
 expansion = '10E'
@@ -20,7 +19,7 @@ flying(subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterFromTrigger(from_zone="play", to_zone="graveyard"),
                                         match_condition=SelfMatch(card),
-                                        ability = ChoiceAbility(card, "0", msg="like to draw a card?",
+                                        ability = MayAbility(card, msg="like to draw a card?",
                                                 effects=DrawCard(1)))
 ]
 

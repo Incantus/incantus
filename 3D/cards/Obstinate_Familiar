@@ -1,4 +1,3 @@
-
 name = 'Obstinate Familiar'
 cardnum = 210
 expansion = 'Odyssey'
@@ -15,12 +14,15 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
+condition = lambda self, card=card: self == card.controller
+
 def draw(self):
+    '''Obstinate Familiar - skip draw?'''
     if not self.getIntention("Would you like to skip this draw?", "Obstinate Familiar\n...skip this draw?"):
         self.draw()
 
 subrole.static_abilities = [GlobalStaticAbility(card,
-                                        effects=ReplacementEffect(draw, "draw", txt=name, expire=False))
+                                        effects=OverrideGlobalReplacement(draw, "draw", Player, expire=False, condition=condition))
 ]
 
 #################################

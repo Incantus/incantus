@@ -1,4 +1,3 @@
-
 name = 'Volrath\'s Stronghold'
 cardnum = 137
 expansion = 'Stronghold'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ["T: Add 1 to your mana pool.", "1B, T: Put target creature card from your graveyard on top of your library."]
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

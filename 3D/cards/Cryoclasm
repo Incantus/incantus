@@ -1,4 +1,3 @@
-
 name = 'Cryoclasm'
 cardnum = 195
 expansion = '10E'
@@ -12,6 +11,6 @@ text = ["Destroy target Plains or Island. Cryoclasm deals 3 damage to that land'
 target = Target(target_types=isLand.with_condition(lambda l:l.subtypes == "Plains" or l.subtypes == "Island"))
 
 out_play_role.abilities = [CastSorcerySpell(card, cost, 
-				target=[target, Target(lambda t=target: t.target.controller)],
+				target=[target, SpecialTarget(lambda t=target: t.target.controller)],
 				effects=[Destroy(), DealDamage(3)], copy_targets=False)
 ]

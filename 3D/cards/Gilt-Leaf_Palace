@@ -1,4 +1,3 @@
-
 name = 'Gilt-Leaf Palace'
 cardnum = 268
 expansion = 'Lorwyn'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ["As Gilt-Leaf Palace comes into play, you may reveal an Elf card from your hand. If you don't, Gilt-Leaf Palace comes into play tapped.", 'T Add B or G to your mana pool.']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

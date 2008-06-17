@@ -1,4 +1,3 @@
-
 name = 'Boros Garrison'
 cardnum = 275
 expansion = 'Ravnica'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['Boros Garrison comes into play tapped.', "When Boros Garrison comes into play, return a land you control to its owner's hand.", 'T: Add RW to your mana pool.']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

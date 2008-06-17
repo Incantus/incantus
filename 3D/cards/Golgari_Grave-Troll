@@ -1,0 +1,33 @@
+name = 'Golgari Grave-Troll'
+cardnum = 167
+expansion = 'Ravnica: City of Guilds'
+type = characteristic('Creature')
+supertype = no_characteristic()
+subtypes = characteristic(['Skeleton', 'Troll'])
+cost = '4G'
+color = characteristic(['G'])
+text = ['Golgari Grave-Troll comes into play with a +1/+1 counter on it for each creature card in your graveyard.', '1, Remove a +1/+1 counter from Golgari Grave-Troll: Regenerate Golgari Grave-Troll.', 'Dredge 6']
+
+card.out_play_role.abilities = [CastPermanentSpell(card, card.cost)]
+
+subrole = Creature(0, 0)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+# XXX Dredge not implemented yet
+
+creatures_in_graveyard = lambda c=card: len(c.controller.graveyard.get(isCreatureType))
+
+subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("1"), CounterCost("+1+1")]),
+                        target=Target(targeting="self"),
+                        effects=GiveKeyword(regenerate))
+]
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger=EnteringTrigger(zone="play"),
+                                        match_condition = SelfMatch(card),
+                                        ability=StacklessAbility(card,
+                                                target=Target(targeting="self"), 			effects=AddPowerToughnessCounter(1,1,number=LazyInt(creatures_in_graveyard))))
+]
+#################################

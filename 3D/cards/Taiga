@@ -1,4 +1,3 @@
-
 name = 'Taiga'
 cardnum = 283
 expansion = 'Beta'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['T: Add R to your mana pool.','T: Add G to your mana pool.']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

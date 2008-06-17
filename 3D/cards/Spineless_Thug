@@ -1,4 +1,3 @@
-
 name = 'Spineless Thug'
 cardnum = 180
 expansion = '10E'
@@ -16,8 +15,7 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-def canBlock(self): return False
-override(subrole, "canBlock", canBlock)
+override(subrole, "canBlock", lambda self: False)
 subrole.abilities = []
 subrole.triggered_abilities = []
 subrole.static_abilities = []

@@ -1,4 +1,3 @@
-
 name = 'Orzhov Basilica'
 cardnum = 161
 expansion = 'Guildpact'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['Orzhov Basilica comes into play tapped.','When Orzhov Basilica comes into play, return a land you control to its owner\'s hand.','T: Add WB to your mana pool.']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

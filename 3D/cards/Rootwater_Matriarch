@@ -1,4 +1,3 @@
-
 name = 'Rootwater Matriarch'
 cardnum = 103
 expansion = '10E'
@@ -20,7 +19,7 @@ in_play_role = Permanent(card, subrole)
 target=Target(target_types=isCreature.with_condition(lambda c: c.enchanted))
 subrole.abilities = [ActivatedAbility(card, TapCost(),
                                 target=target,
-                                effects=DoUntil(effect=ChangeController(), event=UnAttachedEvent(), match_condition= lambda sender, unattached, t=target: unattached==t.target),
+                                effects=DoUntil(effect=ChangeController(expire=False), event=UnAttachedEvent(), match_condition= lambda sender, unattached, t=target: unattached==t.target),
                                 copy_targets=False)
 ]
 subrole.triggered_abilities = []

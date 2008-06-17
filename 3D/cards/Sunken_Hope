@@ -1,4 +1,3 @@
-
 name = 'Sunken Hope'
 cardnum = 112
 expansion = '10E'
@@ -21,7 +20,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = trigger,
                                       match_condition = lambda player: True,
                                       ability = PostponedAbility(card,
-                                                        target=Target(target_types=isCreature.with_condition(lambda c, t=trigger: c.controller == t.player),, selector="current_player"),
+                                                        target=Target(target_types=isCreature.with_condition(lambda c, t=trigger: c.controller == t.player), selector="current_player"),
                                                         effects=ChangeZoneFromPlay(to_zone="hand")))
 ]
 

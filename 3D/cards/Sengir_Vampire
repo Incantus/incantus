@@ -1,4 +1,3 @@
-
 name = 'Sengir Vampire'
 cardnum = 176
 expansion = '10E'
@@ -28,7 +27,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                         match_condition = lambda sender, source, c=card, te=te: source == c and te.setData(("sender",sender)),
                                         ability = StacklessAbility(card, effects=te)),
                                     TriggeredAbility(card,
-                                        trigger=EnterTrigger(card.owner.opponent.graveyard),
+                                        trigger=EnterTrigger(zone="graveyard", player="any"),
                                         match_condition = lambda card, te=te: te.trigger and card == te.sender,
                                         ability = Ability(card, target=Target(targeting="self"),
                                                 effects = AugmentPowerToughness(power=1,toughness=1,expire=False))),

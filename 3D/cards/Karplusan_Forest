@@ -1,4 +1,3 @@
-
 name = 'Karplusan Forest'
 cardnum = 354
 expansion = '10E'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['T: Add 1 to your mana pool.', 'T: Add R or G to your mana pool. Karplusan Forest deals 1 damage to you.']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

@@ -24,7 +24,3 @@ subrole.attached_abilities = [AuraStaticAbility(card,
                                         effects=GiveKeyword(lambda role: override(role, "canDealDamage", lambda self: False), keyword="Doesn't deal damage", expire=False, perm=True))
 ]
 #################################
-
-
-
-

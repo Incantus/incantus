@@ -1,4 +1,3 @@
-
 name = 'Faerie Conclave'
 cardnum = 351
 expansion = '10E'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['Faerie Conclave comes into play tapped.', 'T Add U to your mana pool.', "1U: Faerie Conclave becomes a 2/1 blue Faerie creature with flying until end of turn. It's still a land."]
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

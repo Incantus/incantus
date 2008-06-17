@@ -1,4 +1,3 @@
-
 name = "Mishra's Factory"
 cardnum = 361
 expansion = '4E'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ["T: Add 1 to your mana pool.", "1: Mishra's Factory becomes a 2/2 Assembly-Worker artifact creature until end of turn. It's still a land.", "T: Target Assembly-Worker creature gets +1/+1 until end of turn."]
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

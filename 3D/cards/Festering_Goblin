@@ -1,4 +1,3 @@
-
 name = 'Festering Goblin'
 cardnum = 143
 expansion = '10E'
@@ -16,13 +15,11 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
-                                        trigger=EnterTrigger(zone="graveyard"),
+                                        trigger=EnterFromTrigger(from_zone="play", to_zone="graveyard"),
                                         match_condition=SelfMatch(card),
                                         ability=Ability(card, target=Target(target_types=isCreature,),
                                                 effects=AugmentPowerToughness(power=-1,toughness=-1))),
 ]
-subrole.static_abilities = []
 
 #################################

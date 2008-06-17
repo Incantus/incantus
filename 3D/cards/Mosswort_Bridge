@@ -1,0 +1,21 @@
+name = 'Mosswort Bridge'
+cardnum = 0
+expansion = ''
+type = characteristic('Land')
+supertype = no_characteristic()
+subtypes = no_characteristic()
+cost = NoCost()
+color = no_characteristic()
+text = ['Hideaway', 'T Add G to your mana pool.', 'G, T You may play the removed card without paying its mana cost if creatures you control have total power 10 or greater. ']
+
+subrole = Land(color)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('G'))]
+
+hideaway(subrole, card, cost=MultipleCosts([ManaCost("G"), TapCost()]), limit=ConditionalLimit(card, lambda card: sum([creature.power for creature in card.controller.play.get(isCreature)]) >= 10))
+
+#################################

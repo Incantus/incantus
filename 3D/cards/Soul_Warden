@@ -1,4 +1,3 @@
-
 name = 'Soul Warden'
 cardnum = 44
 expansion = '10E'
@@ -17,7 +16,7 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.triggered_abilities = [TriggeredAbility(card,
-                                        trigger=EnterTrigger("play", any=True),
+                                        trigger=EnterTrigger("play", player="any"),
                                         match_condition = lambda c, card=card: isCreature(c) and not c == card,
                                         ability = Ability(card, target=Target(targeting="you"),
                                                         effects=ChangeLife(1))),

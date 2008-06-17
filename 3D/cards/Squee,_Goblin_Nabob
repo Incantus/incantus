@@ -1,4 +1,3 @@
-
 name = 'Squee, Goblin Nabob'
 cardnum = 239
 expansion = '10E'
@@ -16,16 +15,14 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = []
-subrole.triggered_abilities = [TriggeredAbility(card, always_on=True,
+out_play_role.graveyard_abilities = [TriggeredAbility(card, 
                                       trigger = PlayerTrigger(event=UpkeepStepEvent()),
-                                      match_condition = lambda player, card=card: player == card.owner and card.zone == card.owner.graveyard,
-                                      ability = ChoiceAbility(card, "0",
+                                      match_condition = lambda player, self=card: player == self.owner,
+                                      ability = MayAbility(card,
                                                         msg="move %s from graveyard to your hand?"%card.name,
                                                         choice_target=Target(targeting="owner"),
                                                         target=Target(targeting="self"),
                                                         effects=ChangeZone(from_zone="graveyard", to_zone="hand")))
 ]
-subrole.static_abilities = []
 
 #################################

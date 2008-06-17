@@ -1,4 +1,3 @@
-
 name = 'Hoofprints of the Stag'
 cardnum = 21
 expansion = 'Lorwyn'
@@ -24,7 +23,7 @@ subrole.abilities = [ActivatedAbility(card, cost=MultipleCosts([ManaCost("2W"), 
 subrole.triggered_abilities = [TriggeredAbility(card,
 			trigger=Trigger(event=DrawCardEvent()),
 			match_condition = lambda sender, self=card: sender == self.controller,
-			ability=ChoiceAbility(card, "0",
+			ability=MayAbility(card,
 			msg="put a counter on Hoofprints of the Stag?",
 			target=Target(targeting="self"),
 			effects=AddCounter(Counter("hoofprint"))))]

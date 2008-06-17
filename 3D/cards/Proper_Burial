@@ -1,4 +1,3 @@
-
 name = 'Proper Burial'
 cardnum = 0
 expansion = ''
@@ -16,8 +15,9 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.triggered_abilities = [TriggeredAbility(card,                                        trigger=EnterFromTrigger(from_zone="play", to_zone="graveyard"),
-             match_condition = lambda card, self=card: isCreatureType(card) and card.controller == self.controller,
-                                        ability = Ability(card, target=Target("you"), effects=ChangeLife(lambda l: l+trigger.)))]
+trigger = EnterFromTrigger(from_zone="play", to_zone="graveyard")
+subrole.triggered_abilities = [TriggeredAbility(card,                                        trigger=trigger,
+             match_condition = lambda c, self=card: isCreature(c) and c.controller == self.controller,
+                                        ability = Ability(card, target=Target("you"), effects=ChangeLife(lambda l, t=trigger: l+t.matched_card.toughness)))]
 
 #################################

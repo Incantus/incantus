@@ -1,4 +1,3 @@
-
 name = 'Tundra'
 cardnum = 285
 expansion = 'Beta'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['T: Add W to your mana pool.','T: Add U to your mana pool.']
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

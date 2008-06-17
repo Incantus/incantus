@@ -1,4 +1,3 @@
-
 name = "Demon's Horn"
 cardnum = 320
 expansion = '10E'
@@ -19,7 +18,7 @@ in_play_role = Permanent(card, subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = CardTrigger(event=PlaySpellEvent()),
                                         match_condition = CardMatch(lambda card: card.color == "B"),
-                                        ability = ChoiceAbility(card, effects = ChangeLife(1)))
+                                        ability = MayAbility(card, effects = ChangeLife(1)))
 ]
 
 #################################

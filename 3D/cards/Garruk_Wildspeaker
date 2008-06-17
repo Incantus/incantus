@@ -1,0 +1,32 @@
+name = 'Garruk Wildspeaker'
+cardnum = 0
+expansion = 'Lorwyn'
+type = characteristic('Planeswalker')
+supertype = no_characteristic()
+subtypes = characteristic(['Garruk'])
+cost = '2GG'
+color = characteristic(['G'])
+text = ['[+1]: Untap two target lands.', '[-1]: Put a 3/3 green Beast creature token into play.', '[-4]: Creatures you control get +3/+3 and gain trample until end of turn.']
+
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
+
+subrole = Planeswalker.Planeswalker(3)
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, 
+  cost=LoyaltyCost(1), 
+  target=MultipleTargets(number=2, target_types=isLand), 
+  effects=ForEach(UntapTargetPermanent())),
+ActivatedAbility(card, 
+  cost=LoyaltyCost(-1), 
+  target=Target(targeting="you"), 
+  effects=CreateToken(token_info={"name": "Beast", "type": "Creature", "subtypes": ["Beast"], "color": "G", "role": TokenCreature(3,3)})),
+ActivatedAbility(card, 
+  cost=LoyaltyCost(-4), 
+  target=AllPermanentTargets(target_types=isCreature.with_condition(lambda c, self=card: c.controller==self.controller)), 
+  effects=[ForEach(AugmentPowerToughness(power=3,toughness=3)),
+           ForEach(GiveKeyword(trample, keyword="trample"))])]
+
+#################################

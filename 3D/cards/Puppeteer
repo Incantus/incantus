@@ -1,4 +1,3 @@
-
 name = 'Puppeteer'
 cardnum = 98
 expansion = '10E'
@@ -16,14 +15,9 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-# XXX The choice should be on resolution
-
 subrole.abilities = [ActivatedAbility(card, cost=MultipleCosts([ManaCost("U"), TapCost()]),
                                 target = Target(target_types=isCreature),
-                                effects = TapTargetPermanent()),
-                          ActivatedAbility(card, cost=MultipleCosts([ManaCost("U"), TapCost()]),
-                                target = Target(target_types=isCreature),
-                                effects = UntapTargetPermanent()),
+                                effects = ChoiceEffect([TapTargetPermanent(), UntapTargetPermanent()])),
 ]
 
 #################################

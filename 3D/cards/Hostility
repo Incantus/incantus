@@ -1,4 +1,3 @@
-
 name = 'Hostility'
 cardnum = 176
 expansion = 'Lorwyn'
@@ -28,7 +27,7 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                                 effects=ShuffleIntoLibrary()))
 ]
 
-def condition(amt, source, combat, card=card):
+def condition(self, amt, source, combat, card=card):
     return isSpell(source) and source.controller == card.controller
 
 def replaceDamage(self, amt, source, combat=False, card=card):

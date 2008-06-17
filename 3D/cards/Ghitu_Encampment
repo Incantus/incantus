@@ -1,4 +1,3 @@
-
 name = 'Ghitu Encampment'
 cardnum = 353
 expansion = '10E'
@@ -9,7 +8,6 @@ cost = NoCost()
 color = no_characteristic()
 text = ['Ghitu Encampment comes into play tapped.', 'T Add R to your mana pool.', "1R: Ghitu Encampment becomes a 2/1 red Warrior creature with first strike until end of turn. It's still a land."]
 
-out_play_role = NoRole(card)
 subrole = Land(color)
 
 in_play_role = Permanent(card, subrole)

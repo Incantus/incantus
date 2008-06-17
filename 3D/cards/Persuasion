@@ -18,6 +18,6 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.attached_abilities = [AuraStaticAbility(card, effects=ChangeController())]
+subrole.attached_abilities = [AuraStaticAbility(card, effects=ChangeController(expire=False))]
 
 #################################
