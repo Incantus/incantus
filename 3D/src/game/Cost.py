@@ -23,6 +23,58 @@ class NoCost(object):
     def __str__(self): return ''
     def converted_cost(self): return 0
 
+class MultipleCosts(Cost):
+    def __init__(self, costs):
+        super(MultipleCosts,self).__init__()
+        self.costs = self.consolidate(costs)
+    def consolidate(self, costs):
+        # This combines all mana costs
+        newcost = []
+        manacost = []
+        for c in costs:
+            if type(c) == str: manacost.append(ManaCost(c))
+            elif isinstance(c,ManaCost): manacost.append(c)
+            else: newcost.append(c)
+        # If this first ManaCost has an X, the following reduce will ensure that we keep it as the final ManaCost object
+        if manacost: costs = [reduce(lambda x,y: x+y, manacost)]+newcost
+        return costs
+    def precompute(self, card, player):
+        for cost in self.costs:
+            if not cost.precompute(card, player): return False
+        return True
+    def compute(self, card, player):
+        for cost in self.costs:
+            if not cost.compute(card, player): return False
+        return True
+    def pay(self, card, player):
+        for cost in self.costs:
+            cost.pay(card, player)
+    def __iadd__(self, other):
+        if isinstance(other, str): self.costs.append(ManaCost(other))
+        elif isinstance(other, MultipleCosts): self.costs.extend(other.costs)
+        elif isinstance(other, Cost): self.costs.append(other)
+        return self
+    def __add__(self, other):
+        if isinstance(other, str): return MultipleCosts(self.costs+[ManaCost(other)])
+        elif isinstance(other, MultipleCosts): return MultipleCosts(self.costs+other.costs)
+        elif isinstance(other, Cost): return MultipleCosts(self.costs+[other])
+    def __str__(self):
+        return ','.join([str(c) for c in self.costs])
+
+class ChoiceCost(object):
+    def __init__(self, *costs):
+        super(ChoiceCost,self).__init__()
+        self.costs = costs
+        self.selected_cost = None
+    def precompute(self, card, player):
+        costs = [(str(c), c) for c in self.costs]
+        self.selected_cost = player.getSelection(costs, 1, "Select cost")
+        self.selected_cost.precompute(card, player)
+    def compute(self, card, player): self.selected_cost.compute(card, player)
+    def pay(self, card, player): self.selected_cost.pay(card, player)
+    def __str__(self):
+        return "Choose between %s"%' or '.join([str(c) for c in self.costs])
+
 class ManaCost(Cost):
     def cost():
         def fget(self):
@@ -234,44 +286,6 @@ class ReturnToHandCost(Cost):
         else: txt = ''
         return "Return to hand %s"%txt
 
-class MultipleCosts(Cost):
-    def __init__(self, costs):
-        super(MultipleCosts,self).__init__()
-        self.costs = self.consolidate(costs)
-    def consolidate(self, costs):
-        # This combines all mana costs
-        newcost = []
-        manacost = []
-        for c in costs:
-            if type(c) == str: manacost.append(ManaCost(c))
-            elif isinstance(c,ManaCost): manacost.append(c)
-            else: newcost.append(c)
-        # If this first ManaCost has an X, the following reduce will ensure that we keep it as the final ManaCost object
-        if manacost: costs = [reduce(lambda x,y: x+y, manacost)]+newcost
-        return costs
-    def precompute(self, card, player):
-        for cost in self.costs:
-            if not cost.precompute(card, player): return False
-        return True
-    def compute(self, card, player):
-        for cost in self.costs:
-            if not cost.compute(card, player): return False
-        return True
-    def __iadd__(self, other):
-        if isinstance(other, str): self.costs.append(ManaCost(other))
-        elif isinstance(other, MultipleCosts): self.costs.extend(other.costs)
-        elif isinstance(other, Cost): self.costs.append(other)
-        return self
-    def __add__(self, other):
-        if isinstance(other, str): return MultipleCosts(self.costs+[ManaCost(other)])
-        elif isinstance(other, MultipleCosts): return MultipleCosts(self.costs+other.costs)
-        elif isinstance(other, Cost): return MultipleCosts(self.costs+[other])
-    def pay(self, card, player):
-        for cost in self.costs:
-            cost.pay(card, player)
-    def __str__(self):
-        return ','.join([str(c) for c in self.costs])
-
 class ConditionalCost(Cost):
     def __init__(self, orig_cost, new_cost, func):
         if type(orig_cost) == str: orig_cost = ManaCost(orig_cost)
@@ -281,8 +295,7 @@ class ConditionalCost(Cost):
         self.cost = self.orig_cost
         self.func = func
     def precompute(self, card, player):
-        if self.func(card, player):
-            self.cost = self.new_cost
+        if self.func(card, player): self.cost = self.new_cost
         return self.cost.precompute(card, player)
     def compute(self, card, player):
         return self.cost.compute(card, player)
