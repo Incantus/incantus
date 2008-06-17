@@ -302,15 +302,17 @@ class Player(MtGObject):
         if not msg: msg = prompt
         result = self.input(context, "%s: %s"%(self.name,prompt))
         return isinstance(result, OKAction)
-    def getSelection(self, sellist, numselections, required=True, msg='', prompt=''):
+    def getSelection(self, sellist, numselections, required=True, idx=True, msg='', prompt=''):
         def filter(action):
             if isinstance(action, CancelAction) and not required: return action
             if not isinstance(action, PassPriority): return action.selection
             return False
         if msg == '': msg = prompt
+        if idx == True: sellist = [(val, i) for i, val in enumerate(sellist)]
         context = {'get_selection': True, 'list':sellist, 'numselections': numselections, 'required': required, 'msg': msg, 'process': filter}
         sel = self.input(context,"%s: %s"%(self.name,prompt))
         if isinstance(sel, CancelAction): return False
+        elif idx == True: return sellist[sel][0]
         else: return sel
     def getCardSelection(self, sellist, numselections, from_zone, from_player, card_types=isGameObject, required=True, prompt=''):
         def filter(action):

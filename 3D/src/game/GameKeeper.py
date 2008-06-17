@@ -37,7 +37,7 @@ class Stack(MtGObject):
                 abilities = [(str(a), i) for i, a in enumerate(triggered)]
                 results = []
                 if len(abilities) > 1:
-                    results = player.getSelection(abilities, len(abilities), required=False, prompt="Drag to reorder triggered abilities\n(Top ability resolves first)")
+                    results = player.getSelection(abilities, len(abilities), required=False, idx=False, prompt="Drag to reorder triggered abilities\n(Top ability resolves first)")
                 if not results: results = range(len(triggered))
                 # Now reorder
                 for i in results: self.announce(triggered[i])

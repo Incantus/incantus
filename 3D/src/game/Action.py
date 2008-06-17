@@ -54,14 +54,13 @@ class PlayAbility(Action):
         success = False
         # Replace the representation of a with the text from the card
         # XXX Must use the index of the ability, since we can't pickle abilities for network games
-        abilities = [(ability, i) for i, ability in enumerate(card.current_role.abilities) if not ability.is_limited()]
+        abilities = [ability for ability in card.current_role.abilities if not ability.is_limited()]
         numabilities = len(abilities)
         if numabilities == 0: return False
-        elif numabilities == 1: ability = abilities[0][0]
+        elif numabilities == 1: ability = abilities[0]
         else:
-            index = player.getSelection(abilities, 1, required=False, prompt="%s: Select ability"%self.card)
-            if index is False: return False
-            ability = abilities[index][0]
+            ability = player.getSelection(abilities, 1, required=False, prompt="%s: Select ability"%self.card)
+            if ability == False: return False
 
         # Now make a copy of the ability to populate it
         ability = ability.copy()
@@ -97,15 +96,14 @@ class ActivateForMana(Action):
     def perform(self, player):
         card = self.card
         # Check if the card can be provide mana
-        abilities = [(ability, i) for i, ability in enumerate(card.current_role.abilities) if ability.is_mana_ability() and not ability.is_limited()]
+        abilities = [ability for ability in card.current_role.abilities if ability.is_mana_ability() and not ability.is_limited()]
 
         numabilities = len(abilities)
         if numabilities == 0: return False
-        elif numabilities == 1: ability = abilities[0][0]
+        elif numabilities == 1: ability = abilities[0]
         else:
-            index = player.getSelection(abilities, 1, required=False, prompt="%s - Mana abilities"%self.card)
-            if index is False: return False
-            ability = abilities[index][0]
+            ability = player.getSelection(abilities, 1, required=False, prompt="%s - Mana abilities"%self.card)
+            if ability is False: return False
 
         ability = ability.copy()
         return player.stack.stackless(ability)

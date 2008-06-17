@@ -128,8 +128,7 @@ class DependentEffects(MultipleEffects):
 
 class ChoiceEffect(MultipleEffects):
     def __call__(self, card, target):
-        choices = [(str(effect), effect) for effect in self.effects]
-        choice = card.controller.getSelection(choices, 1, prompt="Select effect")
+        choice = card.controller.getSelection(self.effects, 1, prompt="Select effect")
         return choice(card, target)
     def __str__(self):
         return " or ".join(map(str,self.effects))
@@ -268,7 +267,7 @@ class ManaChoice(Effect):
     def __call__(self, card, target):
         if not isPlayer(target): raise Exception("Invalid target for adding mana")
         choices = [("Add %s to your mana pool"%c,c) for c in self.choices]
-        choice = target.getSelection(choices, 1, prompt="Select mana to add")
+        choice = target.getSelection(choices, 1, idx=False, prompt="Select mana to add")
         target.manapool.addMana(choice)
         card.send(ManaEvent())
         return True

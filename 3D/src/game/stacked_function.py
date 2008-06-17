@@ -28,7 +28,7 @@ def replacement(funcs, obj, *args, **kw):
             # In this case it is either a Permanent or a subrole
             # XXX I've only seen the subrole case for Creatures, not sure if anything else can be replaced
             else: player, affected = obj.perm.card.controller, obj.perm.card
-            i = player.getSelection(replace, numselections=1, required=True, prompt="Choose replacement effect to affect %s"%(affected))
+            i = player.getSelection(replace, numselections=1, required=True, idx=False, prompt="Choose replacement effect to affect %s"%(affected))
         else: i = replace[0][1]
         func = funcs[i][1]
         # Mark the function as having processed this event

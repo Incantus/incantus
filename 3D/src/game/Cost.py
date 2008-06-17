@@ -67,8 +67,7 @@ class ChoiceCost(object):
         self.costs = costs
         self.selected_cost = None
     def precompute(self, card, player):
-        costs = [(str(c), c) for c in self.costs]
-        self.selected_cost = player.getSelection(costs, 1, prompt="Select additional cost")
+        self.selected_cost = player.getSelection(self.costs, 1, prompt="Select additional cost")
         return self.selected_cost.precompute(card, player)
     def compute(self, card, player): return self.selected_cost.compute(card, player)
     def pay(self, card, player): self.selected_cost.pay(card, player)
