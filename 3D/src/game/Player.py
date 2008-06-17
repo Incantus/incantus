@@ -95,7 +95,7 @@ class Player(MtGObject):
         self.library.disable_ordering()
         while True:
             number -= 1
-            if self.getIntention("", "Would you like to mulligan"): #, "Would you like to mulligan?"):
+            if self.getIntention("", "Would you like to mulligan?"): #, "Would you like to mulligan?"):
                 self.send(LogEvent(), msg="%s mulligans"%self)
                 for card in self.hand:
                     self.moveCard(card, from_location=self.hand, to_location=self.library)
