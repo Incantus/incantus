@@ -121,7 +121,7 @@ class Play(OrderedZone):
     def after_card_added(self, card):
         card.current_role = card.in_play_role
         card.current_role.enteringPlay()
-    def after_card_removed(self, card):
+    def before_card_removed(self, card):
         card.save_lki()
         card.current_role.leavingPlay()
 
