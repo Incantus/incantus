@@ -658,13 +658,13 @@ class PhaseStatus(Widget):
         self.current = 0
         self.select = False
         self.curr_player = None
+        self.turn_label = Label("", size=24, halign="center", valign="top", shadow=False)
         self.render_after_transform = self.render_game
     def toggle_select(self, other=False):
         self.select = not self.select
         if self.select:
             self.old_dir = self.dir
             self.old_align = self.state_labels[0].main_text.halign
-            self.turn_label = Label("", size=24, halign="center", valign="top", shadow=False)
             if other:
                 self.turn_label.set_text("Opponent's turn")
                 self.dir = -1

@@ -561,7 +561,7 @@ class PhaseController(object):
             label = self.phases.state_labels[i]
             if other: label.main_text.halign = "right"
             else: label.main_text.halign = "left"
-            if key == "Untap":
+            if key == "Untap" or key == "Cleanup":
                 state.visible = 0
                 label.visible = 0
             elif key.lower() in self.stops:
