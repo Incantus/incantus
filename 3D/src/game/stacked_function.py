@@ -18,10 +18,10 @@ def last_only(funcs, *args, **kw):
 def replacement(funcs, obj, *args, **kw):
     # XXX This is UGLY! and very recursive
     #obj = args[0]
-    def check_condition(func, cond, *args, **kw):
-        if func.im_self: return cond(*args, **kw)
-        else: return cond(obj, *args, **kw)
-    replace = [(txt,i+1) for i,(marked,func,txt,cond) in enumerate(funcs[1:]) if not marked and check_condition(func, cond, *args, **kw)]
+    #def check_condition(func, cond, *args, **kw):
+    #    if func.im_self: return cond(*args, **kw)
+    #    else: return cond(obj, *args, **kw)
+    replace = [(txt,i+1) for i,(marked,func,txt,cond) in enumerate(funcs[1:]) if not marked and cond(obj, *args, **kw)] #check_condition(func, cond, *args, **kw)]
     if not len(replace) == 0:
         if len(replace) > 1:
             if isPlayer(obj): player = affected = obj
