@@ -68,9 +68,9 @@ class ChoiceCost(object):
         self.selected_cost = None
     def precompute(self, card, player):
         costs = [(str(c), c) for c in self.costs]
-        self.selected_cost = player.getSelection(costs, 1, "Select cost")
-        self.selected_cost.precompute(card, player)
-    def compute(self, card, player): self.selected_cost.compute(card, player)
+        self.selected_cost = player.getSelection(costs, 1, prompt="Select additional cost")
+        return self.selected_cost.precompute(card, player)
+    def compute(self, card, player): return self.selected_cost.compute(card, player)
     def pay(self, card, player): self.selected_cost.pay(card, player)
     def __str__(self):
         return "Choose between %s"%' or '.join([str(c) for c in self.costs])
@@ -258,8 +258,8 @@ class ReturnToHandCost(Cost):
         self.number = number
     def precompute(self, card, player):
         location = player.play
-        if self.cardtypes == None: return card.current_role.canTap()
-        else: return len(location.get(self.cardtype)) >= self.number
+        if self.cardtypes == None: return True
+        else: return len(location.get(self.cardtypes)) >= self.number
     def compute(self, card, player):
         self.targets = []
         if self.cardtypes == None:
@@ -314,13 +314,42 @@ class LifeCost(Cost):
     def __str__(self):
         return "Pay %d life"%self.amt
 
+class RevealCost(Cost):
+    def __init__(self, number=1, cardtype=isCard):
+        self.number = number
+        self.cardtype = cardtype
+    def precompute(self, card, player):
+        return len(player.hand.get(self.cardtype)) >= self.number
+    def compute(self, card, player):
+        self.reveals = []
+        if self.number > 1: a='s'
+        else: a = ''
+        num = 0
+        prompt = "Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
+        while num < self.number:
+            card = player.getTarget(self.cardtype, zone=player.hand, required=False,prompt=prompt)
+            if not card: return False
+            if not card in self.reveals:
+                self.reveals.append(card)
+                num += 1
+                prompt = "Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
+            else:
+                prompt = "Card already selected. Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
+        return True
+    def pay(self, card, player):
+        player.opponent.revealCard(self.reveals)
+    def __str__(self):
+        txt = "%d %s"%(self.number, str(self.cardtype))
+        if self.number > 1: txt += 's'
+        return "Reveal %s"%txt
+
 class DiscardCost(Cost):
     def __init__(self, number=1, cardtype=None):
         self.number = number
         self.cardtype = cardtype
     def precompute(self, card, player):
-        if not self.cardtype:
-            return len(player.hand.get(self.cardtype)) >= self.number
+        if self.cardtype: return len(player.hand.get(self.cardtype)) >= self.number
+        else: return True
     def compute(self, card, player):
         self.discards = []
         if not self.cardtype:
