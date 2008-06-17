@@ -129,9 +129,12 @@ def hideaway(subrole, card, cost="0", limit=None):
 
 
 # XXX Deathtouch is broken for multiple blockers - since the same trigger object is shared
-def deathtouch(subrole, in_play=False):
+def deathtouch(subrole, card=None):
     subrole.keywords.add("deathtouch")
-    card = subrole.card
+    if not card:
+        card = subrole.card
+        in_play = False
+    else: in_play=True
     trigger = DealDamageTrigger(sender=card)
     deathtouch = TriggeredAbility(card, trigger = trigger,
             match_condition = lambda sender, to: not isPlayer(to),
