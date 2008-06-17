@@ -284,7 +284,7 @@ class GameKeeper(MtGObject):
         # 420.5f A token in a zone other than the in-play zone ceases to exist.
         if len(self.tokens_out_play) > 0:
             def SBE():
-                for token in self.tokens_out_play: token.zone.remove_card(token, trigger=False)
+                for token in self.tokens_out_play: token.zone.cease_to_exist(token)
                 # XXX Now only CardLibrary has a reference to the token - we need to delete it somehow
                 self.tokens_out_play[:] = []
             actions.append(SBE)

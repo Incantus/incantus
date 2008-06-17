@@ -1,7 +1,7 @@
 
 import random
 from GameObjects import MtGObject
-from GameEvent import CardLeavingZone, CardEnteringZone, CardLeftZone, CardEnteredZone, TimestepEvent, ShuffleEvent
+from GameEvent import CardLeavingZone, CardEnteringZone, CardLeftZone, CardEnteredZone, CardCeasesToExist, TimestepEvent, ShuffleEvent
 
 class Zone(MtGObject):
     def __init__(self, player, cards=None):
@@ -26,6 +26,9 @@ class Zone(MtGObject):
     def get(self, match=lambda c: True):
         # Retrieve all of a type of Card in current location
         return [card for card in iter(self.cards[::-1]) if match(card)]
+    def cease_to_exist(self, card):
+        self.cards.remove(card)
+        self.send(CardCeasesToExist(), card=card)
     def remove_card(self, card, trigger=True):
         self.remove_card_pre(card, trigger)
         self.remove_card_post(card, trigger)
@@ -115,9 +118,10 @@ class OrderedZone(Zone):
             self.post_commit()
             self.pending = False
 
-class Play(OrderedZone):
+class Play(Zone): #OrderedZone):
     zone_name = "play"
     ordered = False
+    def init(self): pass
     def after_card_added(self, card):
         card.current_role = card.in_play_role
         card.current_role.enteringPlay()

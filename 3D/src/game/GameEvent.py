@@ -22,6 +22,7 @@ class CardEnteringZone(Event): pass
 class CardLeavingZone(Event): pass
 class CardEnteredZone(Event): pass
 class CardLeftZone(Event): pass
+class CardCeasesToExist(Event): pass
 class CardControllerChanged(Event): pass
 class TokenPlayed(Event): pass
 class TokenLeavingPlay(Event): pass
