@@ -165,18 +165,21 @@ def indestructible(permanent):
 
 def protection(subrole, attribute_match):
     #subrole.keywords.add("protection")
-    # XXX I'm not sure if I should use canBeDamagedBy or assignDamage, since it is a prevention effect
+    # DEBT is an acronym. It stands for Damage, Enchantments/Equipment, Blocking, and Targeting
     def canBeDamagedBy(self, damager):
         return not attribute_match(damager)
-    def canBeTargetedBy(self, targeter):
-        return not attribute_match(targeter)
+    def canBeAttachedBy(self, attachment):
+        return not attribute_match(attachment)
     def canBeBlockedBy(self, blocker):
         return not attribute_match(blocker)
+    def canBeTargetedBy(self, targeter):
+        return not attribute_match(targeter)
     remove1 = override(subrole,"canBeDamagedBy", canBeDamagedBy)
-    remove2 = override(subrole,"canBeTargetedBy", canBeTargetedBy)
+    remove2 = override(subrole,"canBeAttachedBy", canBeAttachedBy)
     remove3 = override(subrole,"canBeBlockedBy", canBeBlockedBy)
+    remove4 = override(subrole,"canBeTargetedBy", canBeTargetedBy)
     def remove_protection():
-        for remove in [remove1, remove2, remove3]: remove()
+        for remove in [remove1, remove2, remove3, remove4]: remove()
     return remove_protection
 
 protection_from_black = lambda subrole: protection(subrole, attribute_match = lambda other: other.color == "B")

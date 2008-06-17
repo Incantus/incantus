@@ -41,6 +41,7 @@ class CardRole(MtGObject):  # Cards out of play
         if target.canBeDamagedBy(self.card) and amount > 0:
             target.assignDamage(amount, source=self.card, combat=combat)
     def canBeTargetedBy(self, targeter): return True
+    def canBeAttachedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
         self.card.send(TargetedByEvent(), targeter=targeter)
     def copy(self):
@@ -66,6 +67,7 @@ class Spell(MtGObject):  # Spells on the stack
         if target.canBeDamagedBy(self.card) and amount > 0:
             target.assignDamage(amount, source=self.card, combat=combat)
     def canBeTargetedBy(self, targeter): return True
+    def canBeAttachedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
         self.card.send(TargetedByEvent(), targeter=targeter)
     def faceDown(self):
@@ -139,6 +141,13 @@ class Permanent(MtGObject):
         result = True
         for role in self.subroles: 
             if not role.canBeTargetedBy(targeter):
+                result = False
+                break
+        return result
+    def canBeAttachedBy(self, targeter):
+        result = True
+        for role in self.subroles: 
+            if not role.canBeAttachedBy(targeter):
                 result = False
                 break
         return result
@@ -230,6 +239,7 @@ class SubRole(object):
     def canDestroy(self): return True
     def shouldDestroy(self): return False
     def canBeTargetedBy(self, targeter): return True
+    def canBeAttachedBy(self, targeter): return True
     def canTap(self): return True
     def __deepcopy__(self, memo,mutable=set([list,set,dict])):
         # This only copies one level deep
@@ -426,15 +436,23 @@ class Attachment(object):
         self.unattach()
         super(Attachment,self).leavingPlay()
         return True
+    def isValidAttachment(self): return False
 
 class Equipment(Attachment, Artifact):
     def __init__(self):
+        from Match import isCreature
         super(Equipment,self).__init__()
         self.attached_to = None
-        self.target_types = None
+        self.target_types = isCreature
+    def isValidAttachment(self):
+        attachment = self.attached_to
+        return (str(attachment.zone) == "play" and self.target_types.match(attachment) and attachment.canBeAttachedBy(self.card))
 
 class Aura(Attachment, Enchantment):
     def __init__(self, target_types=None):
         super(Aura,self).__init__()
         self.attached_to = None
         self.target_types = target_types
+    def isValidAttachment(self):
+        attachment = self.attached_to
+        return (attachment and str(attachment.zone) == "play" and self.target_types.match(attachment) and attachment.canBeAttachedBy(self.card))

@@ -247,7 +247,7 @@ class GameKeeper(MtGObject):
             return SBE
         for player in players:
             for aura in player.play.get(Match.isAura):
-                if not (aura.attached_to and str(aura.attached_to.zone) == "play" and aura.target_types.match(aura.attached_to) and aura.attached_to.canBeTargetedBy(aura)):
+                if not aura.isValidAttachment():
                     actions.append(DestroyAura(aura, player))
         # 420.5e If two or more legendary permanents with the same name are in play, all are put into their owners' graveyards. This is called the "legend rule." If only one of those permanents is legendary, this rule doesn't apply.
         legendaries = []
@@ -300,6 +300,14 @@ class GameKeeper(MtGObject):
         # 420.5i If two or more permanents have the supertype world, all except the one that has been a permanent with the world supertype in play for the shortest amount of time are put into their owners' graveyards. In the event of a tie for the shortest amount of time, all are put into their owners' graveyards. This is called the "world rule."
         # 420.5j A copy of a spell in a zone other than the stack ceases to exist. A copy of a card in any zone other than the stack or the in-play zone ceases to exist.
         # 420.5k An Equipment or Fortification attached to an illegal permanent becomes unattached from that permanent. It remains in play.
+        def Unattach(equipment):
+            def SBE():
+                equipment.unattach()
+            return SBE
+        for player in players:
+            for equipment in player.play.get(Match.isEquipment):
+                if equipment.attached_to and not equipment.isValidAttachment():
+                    actions.append(Unattach(equipment))
         # 420.5m A permanent that's neither an Aura, an Equipment, nor a Fortification, but is attached to another permanent, becomes unattached from that permanent. It remains in play.
         # 420.5n If a permanent has both a +1/+1 counter and a -1/-1 counter on it, N +1/+1 and N -1/-1 counters are removed from it, where N is the smaller of the number of +1/+1 and -1/-1 counters on it. 
 
