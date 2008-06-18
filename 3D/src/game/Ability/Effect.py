@@ -1,4 +1,4 @@
-from game.characteristics import characteristic, stacked_characteristic
+from game.characteristics import characteristic, stacked_characteristic, add_characteristic
 from game.GameObjects import MtGObject
 from game.Match import isPlayer, isCreature, isCard, isPermanent, isLandType
 from game.GameEvent import CardControllerChanged, TokenPlayed, ManaEvent, SacrificeEvent, CleanupEvent, CounterAddedEvent, CounterRemovedEvent,  PowerToughnessChangedEvent, InvalidTargetEvent, SubroleModifiedEvent, ColorModifiedEvent, SubtypeModifiedEvent, LogEvent
@@ -590,7 +590,7 @@ class AddSubRole(Effect):
         target.add_subrole(subrole)
         stacked = []
         for char_str, val in self.subrole_info.items():
-            val = characteristic(val)
+            val = add_characteristic(val)
             chr = getattr(target, char_str)
             if not hasattr(chr, "stacked"):
                 stacked_char = stacked_characteristic(chr)
