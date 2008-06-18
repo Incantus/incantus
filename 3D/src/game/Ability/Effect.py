@@ -766,7 +766,7 @@ class AugmentPowerToughness(Effect):
         self.toughness = toughness
         self.expire = expire
     def __call__(self, card, target):
-        PT = self.PowerToughnessCounter(self.power, self.toughness)
+        PT = self.PowerToughnessCounter(int(self.power), int(self.toughness))
         if self.expire: modifiers_list = target.PT_other_modifiers
         else: modifiers_list = target.PT_static_modifiers
         modifiers_list.append(PT)
