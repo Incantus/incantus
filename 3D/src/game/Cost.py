@@ -135,27 +135,38 @@ class ManaCost(Cost):
         return cmp(Mana.converted_mana_cost(self.cost), value)
 
 class SacrificeCost(Cost):
-    def __init__(self, cardtype=None, location="play"):
+    def __init__(self, cardtype=None, number=1):
         super(SacrificeCost,self).__init__()
         self.cardtype = cardtype
-        self.location = location
+        self.number = number
+    def precompute(self, card, player):
+        location = player.play
+        if self.cardtype == None: return True
+        else: return len(location.get(self.cardtype)) >= self.number
     def compute(self, card, player):
+        self.targets = []
         if self.cardtype == None:
             # Sacrifice myself
-            self.target = card
+            self.targets.append(card)
         else:
-            # get target for sacrifice
-            location = getattr(player, self.location)
-            if len(location.get(self.cardtype)) == 0: return False
-            target = player.getTarget(self.cardtype, zone=location, required=False, prompt="Select %s for sacrifice"%self.cardtype)
-            if not target: return False
-            self.target = target
+            location = player.play
+            prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
+            while True:
+                target = player.getTarget(self.cardtype, zone=location, required=False, prompt=prompt)
+                if target == False: return False
+                if target in self.targets:
+                    prompt = "Target already selected - select again"
+                    player.send(InvalidTargetEvent(), target=target)
+                else:
+                    self.targets.append(target)
+                    prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
+                if len(self.targets) == self.number: break
         return True
     def pay(self, card, player):
-        target = self.target
-        location = getattr(player, self.location)
-        player.moveCard(target, location, target.owner.graveyard)
-        #player.send(Sacrifice())
+        location = player.play
+        for target in self.targets:
+            player.moveCard(target, location, target.owner.graveyard)
+            #player.send(Sacrifice())
     def __str__(self):
         return 'Sacrifice'
 
@@ -239,8 +250,8 @@ class TapCost(Cost):
                     prompt = "Target cannot be tapped - select again"
                     player.send(InvalidTargetEvent(), target=target)
                 else:
-                    prompt = "Select %d %s(s) for tapping"%(self.number-len(self.targets), self.cardtype)
                     self.targets.append(target)
+                    prompt = "Select %d %s(s) for tapping"%(self.number-len(self.targets), self.cardtype)
                 if len(self.targets) == self.number: break
         return True
     def pay(self, card, player):
