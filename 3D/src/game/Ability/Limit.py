@@ -1,5 +1,5 @@
 from game.GameObjects import MtGObject
-from game.GameEvent import EndTurnEvent, UpkeepStepEvent, DrawStepEvent, MainPhaseEvent, EndMainPhaseEvent, NewTurnEvent
+from game.GameEvent import EndTurnEvent, UpkeepStepEvent, MainPhaseEvent, EndMainPhaseEvent, NewTurnEvent
 
 class Limit(MtGObject):
     def __init__(self, card):
@@ -60,12 +60,13 @@ class UpkeepLimit(Limit):
     def __init__(self, card):
         super(UpkeepLimit, self).__init__(card)
         self.register(self.state, event=UpkeepStepEvent())
-        self.register(self.state, event=DrawStepEvent())
+        self.register(self.state, event=MainPhaseEvent())
         self.upkeep = False
     def state(self, signal, sender):
         if sender.curr_player == self.card.controller and signal == UpkeepStepEvent():
             self.upkeep = True
-        else: self.upkeep = False
+        else:
+            self.upkeep = False
     def __call__(self):
         return self.upkeep
 
