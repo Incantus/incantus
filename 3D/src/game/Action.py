@@ -1,5 +1,5 @@
 
-from GameEvent import PlayLandEvent, PlayAbilityEvent, PlaySpellEvent, LogEvent
+from GameEvent import PlayLandEvent, PlayAbilityEvent, LogEvent
 
 class Action(object):
     def __eq__(self, other):
