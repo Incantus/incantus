@@ -4,7 +4,7 @@ from CastingAbility import CastPermanentSpell
 from Effect import *
 from Target import Target, SpecialTarget, TriggeredTarget
 from TriggeredAbility import TriggeredAbility
-from Trigger import EnterTrigger, LeaveTrigger, DealDamageTrigger
+from Trigger import EnterTrigger, LeavingTrigger, DealDamageTrigger
 from Limit import Unlimited
 from game.Match import SelfMatch, isLandType, isPlayer
 from game.Cost import EvokeCost, ManaCost, TapCost, MultipleCosts
@@ -81,7 +81,7 @@ def champion(subrole, card, role=isPermanent, subtypes=None):
                 effects=ChangeZone(from_zone="play", to_zone="removed"),
                 failed=SacrificeSelf(),
                 copy_targets=False))
-    champion_return = TriggeredAbility(card, trigger = LeaveTrigger("play", player="any"),
+    champion_return = TriggeredAbility(card, trigger = LeavingTrigger("play"),
             match_condition=SelfMatch(card, lambda x: championed.target and championed.target.zone != None),
             ability=Ability(card, target=SpecialTarget(targeting= lambda: championed.target),
                 effects=ChangeZone(from_zone="removed", to_zone="play")))
