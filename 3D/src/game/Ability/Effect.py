@@ -1,3 +1,4 @@
+from game.LazyInt import LazyInt
 from game.characteristics import characteristic, stacked_characteristic, add_characteristic
 from game.GameObjects import MtGObject
 from game.Match import isPlayer, isCreature, isCard, isPermanent, isLandType
@@ -276,7 +277,7 @@ class ManaChoice(Effect):
 
 class ChangeLife(Effect):
     def __init__(self, value=0):
-        if type(value) == int: self.func = lambda l: l+value
+        if type(value) == int or isinstance(value, LazyInt): self.func = lambda l: l+value
         else: self.func = value
     def __call__(self, card, target):
         old_life = target.life
