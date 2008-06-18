@@ -418,7 +418,7 @@ class GameKeeper(MtGObject):
         if regular_combat_damage:
             self.stack.skip_announce(AssignDamage(regular_combat_damage.items(), "Regular Combat Damage"))
             # Send message about damage going on stack
-        self.playInstantaneous()
+            self.playInstantaneous()
     def combatPhase(self):
         # Beginning of combat
         self.setState("PreCombat")
