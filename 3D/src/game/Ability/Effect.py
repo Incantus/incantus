@@ -951,7 +951,7 @@ class MoveCards(Effect):
                 from_zone.move_card(card, from_zone, position=position)
 
         # XXX if there is a library access in here, then we might need to shuffle it
-        #if self.from_zone == "library" and not self.from_position: from_zone.shuffle()
+        if self.from_zone == "library" and not (self.from_position or self.subset): from_zone.shuffle()
         if self.reveal == True and self.cardlist:
             self.selector.opponent.revealCard(self.cardlist, prompt="%s reveals card(s) "%self.selector)
             self.selector.send(LogEvent(), msg="%s reveals %s"%(self.selector, ', '.join(map(str, self.cardlist))))
