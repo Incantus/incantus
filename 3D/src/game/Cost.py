@@ -262,37 +262,37 @@ class TapCost(Cost):
         return 'T%s'%who
 
 class ReturnToHandCost(Cost):
-    def __init__(self, number=1, cardtypes=None):
+    def __init__(self, number=1, cardtype=None):
         super(ReturnToHandCost,self).__init__()
-        self.cardtypes = cardtypes
+        self.cardtype = cardtype
         self.number = number
     def precompute(self, card, player):
         location = player.play
-        if self.cardtypes == None: return True
-        else: return len(location.get(self.cardtypes)) >= self.number
+        if self.cardtype == None: return True
+        else: return len(location.get(self.cardtype)) >= self.number
     def compute(self, card, player):
         self.targets = []
-        if self.cardtypes == None:
+        if self.cardtype == None:
             self.targets.append(card)
         else:
             location = player.play
-            prompt = "Select %d %s(s) to return to hand"%(self.number-len(self.targets), self.cardtypes)
+            prompt = "Select %d %s(s) to return to hand"%(self.number-len(self.targets), self.cardtype)
             while True:
-                target = player.getTarget(self.cardtypes, zone=location, required=False, prompt=prompt)
+                target = player.getTarget(self.cardtype, zone=location, required=False, prompt=prompt)
                 if target == False: return False
                 if target in self.targets:
-                    prompt = "%s already selected - select again"%self.cardtypes
+                    prompt = "%s already selected - select again"%self.cardtype
                     player.send(InvalidTargetEvent(), target=target)
                 else:
-                    prompt = "Select %d %s(s) to return to hand"%(self.number-len(self.targets), self.cardtypes)
+                    prompt = "Select %d %s(s) to return to hand"%(self.number-len(self.targets), self.cardtype)
                     self.targets.append(target)
                 if len(self.targets) == self.number: break
         return True
     def pay(self, card, player):
         for target in self.targets:
-            player.moveCard(target, target.zone, player.hand) 
+            player.moveCard(target, target.zone, target.owner.hand)
     def __str__(self):
-        if self.cardtypes: txt = str(self.cardtypes)
+        if self.cardtype: txt = str(self.cardtype)
         else: txt = ''
         return "Return to hand %s"%txt
 
@@ -365,6 +365,9 @@ class DiscardCost(Cost):
         if not self.cardtype:
             # Discard this card
             self.discards = [card]
+        elif number == -1:
+            # Discard entire hand
+            self.discards.extend([c for c in self.player.hand])
         else:
             if self.number > 1: a='s'
             else: a = ''
