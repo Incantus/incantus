@@ -102,19 +102,19 @@ class ManaCost(Cost):
         cost[-1] += self._X
         for i, val in enumerate(cost):
             if val < 0: cost[i] = 0
-        self.final_cost = cost
         while not mp.checkMana(cost):
             if not player.getMoreMana(): return False
+        self.final_cost = cost
+        return True
+    def pay(self, card, player):
+        mp = player.manapool
         # Now I have enough mana - how do I distribute it?
+        cost = self.final_cost
         payment = mp.distributeMana(cost)
         # Consolidate any X's in the mana string
         if not payment: payment = player.getManaChoice(required=mp.convert_to_mana_string(cost))
-        if payment:
-            self.payment = payment
-            return True
-        else: return False
-    def pay(self, card, player):
-        player.manapool.spend(self.payment)
+        mp.spend(payment)
+        self.payment = payment
     def hasX(self):
         return 'X' in self.cost
     def converted_cost(self):
@@ -362,12 +362,12 @@ class DiscardCost(Cost):
         else: return True
     def compute(self, card, player):
         self.discards = []
-        if not self.cardtype:
+        if self.number == -1:
+            # Discard entire hand
+            self.discards.extend([c for c in player.hand])
+        elif not self.cardtype:
             # Discard this card
             self.discards = [card]
-        elif number == -1:
-            # Discard entire hand
-            self.discards.extend([c for c in self.player.hand])
         else:
             if self.number > 1: a='s'
             else: a = ''
