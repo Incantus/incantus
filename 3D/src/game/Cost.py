@@ -134,91 +134,6 @@ class ManaCost(Cost):
     def __cmp__(self, value):
         return cmp(Mana.converted_mana_cost(self.cost), value)
 
-class SacrificeCost(Cost):
-    def __init__(self, cardtype=None, number=1):
-        super(SacrificeCost,self).__init__()
-        self.cardtype = cardtype
-        self.number = number
-    def precompute(self, card, player):
-        location = player.play
-        if self.cardtype == None: return True
-        else: return len(location.get(self.cardtype)) >= self.number
-    def compute(self, card, player):
-        self.targets = []
-        if self.cardtype == None:
-            # Sacrifice myself
-            self.targets.append(card)
-        else:
-            location = player.play
-            prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
-            while True:
-                target = player.getTarget(self.cardtype, zone=location, required=False, prompt=prompt)
-                if target == False: return False
-                if target in self.targets:
-                    prompt = "Target already selected - select again"
-                    player.send(InvalidTargetEvent(), target=target)
-                else:
-                    self.targets.append(target)
-                    prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
-                if len(self.targets) == self.number: break
-        return True
-    def pay(self, card, player):
-        location = player.play
-        for target in self.targets:
-            player.moveCard(target, location, target.owner.graveyard)
-            #player.send(Sacrifice())
-    def __str__(self):
-        return 'Sacrifice'
-
-class LoyaltyCost(Cost):
-    def __init__(self, number=0):
-        self.number = number
-    def compute(self, card, player):
-        from Ability.Counters import Counter
-        if self.number < 0:
-            number = -self.number
-            self.counters = [counter for counter in card.counters if counter == "loyalty"][:number]
-            return len(self.counters) >= number
-        else:
-            self.counters = [Counter("loyalty") for i in range(self.number)]
-            return True
-    def pay(self, card, player):
-        if self.number < 0: func, event = card.counters.remove, CounterRemovedEvent
-        else: func, event = card.counters.append, CounterAddedEvent
-        for counter in self.counters:
-            func(counter)
-            card.send(event(), counter=counter)
-    def __str__(self):
-        return "%d loyalty"%(self.number)
-
-class CounterCost(Cost):
-    def __init__(self, counter_type, number=1):
-        self.counter_type = counter_type
-        self.number = number
-    def compute(self, card, player):
-        self.counters = [counter for counter in card.counters if counter == self.counter_type]
-        return len(self.counters) >= self.number
-    def pay(self, card, player):
-        for i in range(self.number):
-            card.counters.remove(self.counters[i])
-            card.send(CounterRemovedEvent(), counter=self.counters[i])
-    def __str__(self):
-        return "%d %s counter(s)"%(self.number, self.counter_type)
-
-class AddCounterCost(Cost):
-    def __init__(self, counter, number=1):
-        self.counter = counter
-        self.number = number
-    def compute(self, card, player):
-        self.counters = [self.counter.copy() for i in range(self.number)]
-        return True
-    def pay(self, card, player):
-        card.counters.extend(self.counters)
-        for i in range(self.number):
-            card.send(CounterAddedEvent(), counter=self.counters[i])
-    def __str__(self):
-        return "Add %d %s counter(s)"%(self.number, self.counter)
-
 class TapCost(Cost):
     def __init__(self, number=1, cardtype=None):
         super(TapCost,self).__init__()
@@ -261,9 +176,9 @@ class TapCost(Cost):
         else: who = ""
         return 'T%s'%who
 
-class ReturnToHandCost(Cost):
-    def __init__(self, number=1, cardtype=None):
-        super(ReturnToHandCost,self).__init__()
+class SacrificeCost(Cost):
+    def __init__(self, cardtype=None, number=1):
+        super(SacrificeCost,self).__init__()
         self.cardtype = cardtype
         self.number = number
     def precompute(self, card, player):
@@ -273,28 +188,111 @@ class ReturnToHandCost(Cost):
     def compute(self, card, player):
         self.targets = []
         if self.cardtype == None:
+            # Sacrifice myself
             self.targets.append(card)
         else:
             location = player.play
-            prompt = "Select %d %s(s) to return to hand"%(self.number-len(self.targets), self.cardtype)
+            prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
             while True:
                 target = player.getTarget(self.cardtype, zone=location, required=False, prompt=prompt)
+                if target == False: return False
+                if target in self.targets:
+                    prompt = "Target already selected - select again"
+                    player.send(InvalidTargetEvent(), target=target)
+                else:
+                    self.targets.append(target)
+                    prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
+                if len(self.targets) == self.number: break
+        return True
+    def pay(self, card, player):
+        location = player.play
+        for target in self.targets:
+            player.moveCard(target, location, target.owner.graveyard)
+            #player.send(Sacrifice())
+    def __str__(self):
+        return 'Sacrifice'
+
+class ChangeZoneCost(Cost):
+    def __init__(self, from_zone, to_zone, number=1, cardtype=None):
+        super(ChangeZoneCost,self).__init__()
+        self.cardtype = cardtype
+        self.number = number
+        self.from_zone = from_zone
+        self.to_zone = to_zone
+    def precompute(self, card, player):
+        from_zone = getattr(player, self.from_zone)
+        if self.cardtype == None: return True
+        else: return len(from_zone.get(self.cardtype)) >= self.number
+    def compute(self, card, player):
+        self.targets = []
+        if self.cardtype == None:
+            self.targets.append(card)
+        else:
+            from_zone = getattr(player, self.from_zone)
+            prompt = "Select %d %s(s) to %s"%(self.number-len(self.targets), self.cardtype, self.action_txt)
+            while True:
+                target = player.getTarget(self.cardtype, zone=from_zone, required=False, prompt=prompt)
                 if target == False: return False
                 if target in self.targets:
                     prompt = "%s already selected - select again"%self.cardtype
                     player.send(InvalidTargetEvent(), target=target)
                 else:
-                    prompt = "Select %d %s(s) to return to hand"%(self.number-len(self.targets), self.cardtype)
                     self.targets.append(target)
+                    prompt = "Select %d %s(s) to %s"%(self.number-len(self.targets), self.cardtype, self.action_txt)
                 if len(self.targets) == self.number: break
         return True
     def pay(self, card, player):
         for target in self.targets:
-            player.moveCard(target, target.zone, target.owner.hand)
+            to_zone = getattr(target.owner, self.to_zone)
+            player.moveCard(target, target.zone, to_zone)
     def __str__(self):
         if self.cardtype: txt = str(self.cardtype)
         else: txt = ''
-        return "Return to hand %s"%txt
+        return "%s %s"%(self.action_txt, txt)
+
+
+class ReturnToHandCost(ChangeZoneCost):
+    def __init__(self, number=1, cardtype=None):
+        super(ReturnToHandCost,self).__init__(from_zone="play", to_zone="hand", number=number, cardtype=cardtype)
+        self.action_txt = "return to hand"
+
+class RemoveFromHandCost(ChangeZoneCost):
+    def __init__(self, number=1, cardtype=None):
+        super(RemoveFromHandCost,self).__init__(from_zone="hand", to_zone="removed", number=number, cardtype=cardtype)
+        self.action_txt = "remove from hand"
+
+class RemoveFromGraveyardCost(ChangeZoneCost):
+    def __init__(self, number=1, cardtype=None):
+        super(RemoveFromHandCost,self).__init__(from_zone="graveyard", to_zone="removed", number=number, cardtype=cardtype)
+        self.action_txt = "remove from graveyard"
+
+class CounterCost(Cost):
+    def __init__(self, counter_type, number=1):
+        self.counter_type = counter_type
+        self.number = number
+    def compute(self, card, player):
+        self.counters = [counter for counter in card.counters if counter == self.counter_type]
+        return len(self.counters) >= self.number
+    def pay(self, card, player):
+        for i in range(self.number):
+            card.counters.remove(self.counters[i])
+            card.send(CounterRemovedEvent(), counter=self.counters[i])
+    def __str__(self):
+        return "%d %s counter(s)"%(self.number, self.counter_type)
+
+class AddCounterCost(Cost):
+    def __init__(self, counter, number=1):
+        self.counter = counter
+        self.number = number
+    def compute(self, card, player):
+        self.counters = [self.counter.copy() for i in range(self.number)]
+        return True
+    def pay(self, card, player):
+        card.counters.extend(self.counters)
+        for i in range(self.number):
+            card.send(CounterAddedEvent(), counter=self.counters[i])
+    def __str__(self):
+        return "Add %d %s counter(s)"%(self.number, self.counter)
 
 class ConditionalCost(Cost):
     def __init__(self, orig_cost, new_cost, func):
@@ -392,6 +390,27 @@ class DiscardCost(Cost):
             if self.number > 1: txt += 's'
         else: txt = 'this card'
         return "Discard %s"%txt
+
+class LoyaltyCost(Cost):
+    def __init__(self, number=0):
+        self.number = number
+    def compute(self, card, player):
+        from Ability.Counters import Counter
+        if self.number < 0:
+            number = -self.number
+            self.counters = [counter for counter in card.counters if counter == "loyalty"][:number]
+            return len(self.counters) >= number
+        else:
+            self.counters = [Counter("loyalty") for i in range(self.number)]
+            return True
+    def pay(self, card, player):
+        if self.number < 0: func, event = card.counters.remove, CounterRemovedEvent
+        else: func, event = card.counters.append, CounterAddedEvent
+        for counter in self.counters:
+            func(counter)
+            card.send(event(), counter=counter)
+    def __str__(self):
+        return "%d loyalty"%(self.number)
 
 class SpecialCost(Cost):
     def precompute(self, card, player):
