@@ -56,7 +56,7 @@ class CardRole(MtGObject):  # Cards out of play
     def __str__(self):
         return "CardRole"
 
-class Spell(MtGObject):  # Spells on the stack
+class SpellRole(MtGObject):  # Spells on the stack
     def __init__(self, card):
         self.card = card
         self.facedown = False
@@ -78,6 +78,10 @@ class Spell(MtGObject):  # Spells on the stack
     #    newcopy = copy.copy(self)
     #    rebind_self(newcopy)
     #    return newcopy
+    def copy(self):
+        newcopy = copy.copy(self)
+        rebind_self(newcopy)
+        return newcopy
     def match_role(self, matchrole):
         return matchrole == self.__class__
     def __str__(self):

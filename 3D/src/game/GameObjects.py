@@ -50,6 +50,7 @@ class GameObject(MtGObject):
 
         self.out_play_role = None
         self.in_play_role = None
+        self.stack_role = None
 
         self.base_color = None
         self.base_type = None

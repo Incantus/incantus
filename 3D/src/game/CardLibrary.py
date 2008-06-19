@@ -27,7 +27,7 @@ class CardDatabase(object):
     def close(self): return self.db.close()
 
 class _CardLibrary:
-    acceptable_keys = set(['name', 'zone', '_last_known_info', 'color', 'text', '_current_role', 'expansion', 'supertype', 'controller', 'cost', 'cardnum', 'key', 'owner', 'subtypes', 'type', 'in_play_role', 'out_play_role'])
+    acceptable_keys = set(['name', 'zone', '_last_known_info', 'color', 'text', '_current_role', 'expansion', 'supertype', 'controller', 'cost', 'cardnum', 'key', 'owner', 'subtypes', 'type', 'in_play_role', 'out_play_role', 'stack_role'])
     def __init__(self):
         self.cardfile = CardDatabase()
         total = 0
@@ -82,6 +82,7 @@ class _CardLibrary:
         card.base_subtypes = card.subtypes = characteristic('')
         card.key = (self.counter, name)
 
+        card.stack_role = CardEnvironment.SpellRole(card)
         card.out_play_role = CardEnvironment.CardRole(card)
         card.out_play_role.abilities = [CardEnvironment.CastPermanentSpell(card, card.cost)]
 
@@ -95,6 +96,7 @@ class _CardLibrary:
         card_text = card_desc[0]
         if card_desc[3] == True: print "%s is marked with an error"%name
 
+        card.stack_role = CardEnvironment.SpellRole(card)
         # XXX This should be changed because out of play roles are different depending on the Zone
         card.out_play_role = CardEnvironment.CardRole(card)
 

@@ -98,7 +98,7 @@ class SelfMatch(ObjMatch):
 
 isPlayer = PlayerMatch()
 
-isSpell = RoleMatch(CardRoles.Spell)
+isSpell = RoleMatch(CardRoles.SpellRole)
 isPermanent = RoleMatch(CardRoles.Permanent)
 isLegendaryPermanent = isPermanent.with_condition(lambda c: c.supertype == "Legendary")
 isCreature = RoleMatch(CardRoles.Creature)
@@ -129,8 +129,8 @@ class PlayerOrCreatureMatch(ObjMatch):
 isPlayerOrCreature = PlayerOrCreatureMatch()
 isCreatureOrPlayer = isPlayerOrCreature
 
-isSorceryType = RoleMatch(CardRoles.Spell, condition=lambda s: s.type == "Sorcery")
-isInstantType = RoleMatch(CardRoles.Spell, condition=lambda s: s.type == "Instant")
+isSorceryType = RoleMatch(CardRoles.SpellRole, condition=lambda s: s.type == "Sorcery")
+isInstantType = RoleMatch(CardRoles.SpellRole, condition=lambda s: s.type == "Instant")
 isPermanentType = RoleMatch(CardRoles.Permanent, use_in_play=True)
 isCreatureType = RoleMatch(CardRoles.Creature, use_in_play=True)
 isLandType = RoleMatch(CardRoles.Land, use_in_play=True)

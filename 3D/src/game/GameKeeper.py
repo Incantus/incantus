@@ -48,6 +48,7 @@ class Stack(MtGObject):
         # Do all the stuff in rule 409.1 like pick targets, pay
         # costs, etc
         self.send(AbilityAnnounced(), ability=ability)
+        if Match.isSpellAbility(ability): ability.card.current_role = ability.card.stack_role
         success = True
         if hasattr(ability, "cost"):
             success = ability.precompute_cost()
@@ -58,6 +59,7 @@ class Stack(MtGObject):
         if success: self.push(ability)
         else:
             self.send(AbilityCanceled(), ability=ability)
+            if Match.isSpellAbility(ability): ability.card.current_role = ability.card.out_play_role
             del ability
         return success
     def skip_announce(self, ability):
