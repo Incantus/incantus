@@ -77,10 +77,10 @@ class GameObject(MtGObject):
     def save_lki(self):
         # How long should we keep LKI?
         self._last_known_info = self._current_role.copy()
-        def reset_lki(): 
-            del self._last_known_info
-            self._last_known_info = None #self.in_play_role
-        self.register(reset_lki, event=HasPriorityEvent(), weak=False, expiry=1)
+        #def reset_lki(): 
+        #    del self._last_known_info
+        #    self._last_known_info = None #self.in_play_role
+        #self.register(reset_lki, event=HasPriorityEvent(), weak=False, expiry=1)
     def current_role():
         doc = '''The current role for this card. Either a Spell (when in hand, library, graveyard or out of game), Spell, (stack) or Permanent (in play)'''
         def fget(self):
