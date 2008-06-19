@@ -133,7 +133,7 @@ class Target(MtGObject):
             else: return False
         self.match_types = match_types
         for ttype in self.target_types:
-            if any([isinstance(ttype, match) for match in [PlayerMatch, OpponentMatch, PlayerOrCreatureMatch]]):
+            if sum([isinstance(ttype, match) for match in [PlayerMatch, OpponentMatch, PlayerOrCreatureMatch]]):
                 self.targeting_player = True
                 break
         else: self.targeting_player = False
@@ -177,11 +177,13 @@ class Target(MtGObject):
                 for ttype in self.target_types:
                     for zone in zones:
                         perm.extend([p for p in zone.get(ttype) if self.untargeted or p.canBeTargetedBy(card)])
-                if len(perm) > 0:
+                numtargets = len(perm)
+                if numtargets == 0: return False
+                elif numtargets == 1: self.target = perm[0]
+                else:
                     while True:
                         self.target = selector.getTarget(self.target_types,zone=zones,required=self.required,prompt=prompt)
                         if self.untargeted or self.target.canBeTargetedBy(card): break
-                else: return False
             else:
                 self.target = selector.getTarget(self.target_types,zone=zones,required=self.required,prompt=prompt)
                 if self.target == False: return False
