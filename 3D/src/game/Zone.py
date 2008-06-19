@@ -157,7 +157,7 @@ class Library(OutPlayMixin, OrderedZone):
     def shuffle(self):
         if not self.pending: random.shuffle(self.cards)
         else: self.needs_shuffle = True
-    def post_commit(self):
+    def pre_commit(self):
         if self.needs_shuffle:
             self.needs_shuffle = False
             random.shuffle(self.cards)
