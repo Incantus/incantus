@@ -104,12 +104,14 @@ class Player(MtGObject):
             else: break
             if number == 0: break
         self.library.enable_ordering()
-    def moveCard(self, card, from_location=None, to_location=None):
+    def moveCard(self, card, from_location=None, to_location=None, position="top"):
         # Trigger card moved event
         # move the actual card
         # location can be library, hand, play, graveyard, outofgame
         # XXX what about moving cards to other players?
-        to_location.move_card(card, from_location)
+        if position=="bottom": position = 0
+        elif position == "top": position = -1
+        to_location.move_card(card, from_location, position)
 
     # Who should handle these? Player or GameKeeper?
     def untapCards(self):
