@@ -53,7 +53,6 @@ class PlayAbility(Action):
         card = self.card
         success = False
         # Replace the representation of a with the text from the card
-        # XXX Must use the index of the ability, since we can't pickle abilities for network games
         abilities = [ability for ability in card.current_role.abilities if not ability.is_limited()]
         numabilities = len(abilities)
         if numabilities == 0: return False
