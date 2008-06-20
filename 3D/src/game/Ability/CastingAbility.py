@@ -19,20 +19,20 @@ class CastSpell(object):
         player = self.setup_card_controller()
         player.discard(self.card)
 
-class PermanentSpell(CastSpell):
+class CastPermanentSpell(CastSpell, ActivatedAbility):
     def __init__(self, card, cost="0", target=None, effects=[], limit=None, copy_targets=True):
         if limit: limit += SorceryLimit(card)
         else: limit = SorceryLimit(card)
-        super(PermanentSpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit)
+        super(CastPermanentSpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit)
     def preresolve(self):
         # The card is put into play before any effects resolve
         controller = self.card.controller # XXX self.setup_card_controller()
         controller.moveCard(self.card, self.card.zone, controller.play)
-        return super(PermanentSpell, self).preresolve()
+        return super(CastPermanentSpell, self).preresolve()
     def __str__(self):
         return "%s: Put into play"%self.cost
 
-class NonPermanentSpell(CastSpell):
+class CastNonPermanentSpell(CastSpell, ActivatedAbility):
     def resolved(self):
         # The discard comes after the card does its thing
         # See oracle for Planar Void to get an idea
@@ -41,13 +41,12 @@ class NonPermanentSpell(CastSpell):
         # XXX Fix this when making the stack a zone
         if self.card.zone == controller.hand:
             controller.moveCard(self.card, controller.hand, controller.graveyard)
-        super(NonPermanentSpell, self).resolved()
+        super(CastNonPermanentSpell, self).resolved()
     def __str__(self):
         return "%s: %s"%(self.cost, ', '.join(map(str,self.effects)))
 
-class CastPermanentSpell(PermanentSpell, ActivatedAbility): pass
-class CastInstantSpell(NonPermanentSpell, ActivatedAbility): pass
-class CastSorcerySpell(NonPermanentSpell, ActivatedAbility):
+class CastInstantSpell(CastNonPermanentSpell): pass
+class CastSorcerySpell(CastNonPermanentSpell, ActivatedAbility):
     def __init__(self, card, cost="0", target=None, effects=[], limit=None, copy_targets=True):
         if limit: limit = MultipleLimits([SorceryLimit(card), limit])
         else: limit = SorceryLimit(card)
