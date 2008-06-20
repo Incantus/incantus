@@ -9,39 +9,9 @@ import game
 
 from replaydump import persistent_id, persistent_load
 
-def getipaddr(hostname='default'):
-    """Given a hostname, perform a standard (forward) lookup and return
-    a list of IP addresses for that host."""
-    if hostname == 'default': hostname = socket.gethostname()
-    try:
-        ips = socket.gethostbyname_ex(hostname)[2]
-        ips = [i for i in ips if i.split('.')[0] != '127']
-        if len(ips) != 0:
-            # check if we have succes in determining outside IP
-            ip = ips[0]
-    except socket.gaierror:
-    # when we want to determine local IP and did not have succes
-    # with gethostbyname_ex then we would like to connect to say
-    # google.com and determine the local ip address bound to the
-    # local socket.
-        try:
-            s = socket.socket()
-            s.connect(('google.com', 80))
-            ip = s.getsockname()[0]
-            del s
-        except:
-            print ('*** cannot connect to internet in order to \
-                    determine outside IP address')
-            raise Exception
-    if len(ip) != 0:
-        return ip
-    else:
-        print ('*** unable to determine outside IP address')
-        raise Exception
-
 def send(channel, args):
     src = StringIO()
-    p = pickle.Pickler(src)
+    p = pickle.Pickler(src, protocol=-1)
     p.persistent_id = persistent_id
     p.dump(args)
     buf = src.getvalue()
@@ -81,14 +51,14 @@ def receive(channel):
 
 def send_new(channel, args):
     src = StringIO()
-    p = pickle.Pickler(src)
+    p = pickle.Pickler(src, protocol=-1)
     p.persistent_id = persistent_id
     p.dump(args)
     data = src.getvalue()
     if len(data) == 0: print "Warning - sending data of size 0"
     res = channel.sendall(struct.pack('!i', len(data))+data)
 
-def recv_size(channel):
+def receive_new(channel):
     #data length is packed into 4 bytes
     total_len=0;total_data=[];size=sys.maxint
     size_data=sock_data='';recv_size=8192
@@ -106,8 +76,15 @@ def recv_size(channel):
         else:
             total_data.append(sock_data)
         total_len=sum([len(i) for i in total_data ])
-    return ''.join(total_data)
-#receive = recv_size
+    dst = StringIO()
+    dst.write(''.join(total_data))
+    dst.seek(0)
+    p = pickle.Unpickler(dst)
+    p.persistent_load = persistent_load
+    return p.load()
+
+#send = send_new
+#receive = receive_new
 
 class Comm(object):
     def __init__(self, ip, port):
@@ -143,6 +120,36 @@ class Server(Comm):
         client = self.channel.accept()[0]
         self.channel.close()
         self.channel = client
+
+def getipaddr(hostname='default'):
+    """Given a hostname, perform a standard (forward) lookup and return
+    a list of IP addresses for that host."""
+    if hostname == 'default': hostname = socket.gethostname()
+    try:
+        ips = socket.gethostbyname_ex(hostname)[2]
+        ips = [i for i in ips if i.split('.')[0] != '127']
+        if len(ips) != 0:
+            # check if we have succes in determining outside IP
+            ip = ips[0]
+    except socket.gaierror:
+    # when we want to determine local IP and did not have succes
+    # with gethostbyname_ex then we would like to connect to say
+    # google.com and determine the local ip address bound to the
+    # local socket.
+        try:
+            s = socket.socket()
+            s.connect(('google.com', 80))
+            ip = s.getsockname()[0]
+            del s
+        except:
+            print ('*** cannot connect to internet in order to \
+                    determine outside IP address')
+            raise Exception
+    if len(ip) != 0:
+        return ip
+    else:
+        print ('*** unable to determine outside IP address')
+        raise Exception
 
 def test():
     import Zeroconf
