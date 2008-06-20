@@ -61,19 +61,6 @@ class MultipleCosts(Cost):
     def __str__(self):
         return ','.join([str(c) for c in self.costs])
 
-class ChoiceCost(object):
-    def __init__(self, *costs):
-        super(ChoiceCost,self).__init__()
-        self.costs = costs
-        self.selected_cost = None
-    def precompute(self, card, player):
-        self.selected_cost = player.getSelection(self.costs, 1, prompt="Select additional cost")
-        return self.selected_cost.precompute(card, player)
-    def compute(self, card, player): return self.selected_cost.compute(card, player)
-    def pay(self, card, player): self.selected_cost.pay(card, player)
-    def __str__(self):
-        return "Choose between %s"%' or '.join([str(c) for c in self.costs])
-
 class ManaCost(Cost):
     def cost():
         def fget(self):
@@ -82,37 +69,37 @@ class ManaCost(Cost):
     cost = property(**cost())
     def __init__(self, cost):
         super(ManaCost,self).__init__()
-        #if type(cost) == int: cost=str(cost)
         self._mana_amt = cost
-        self.payment = "0"
         self._X = 0
         self.X = LazyInt(self._get_X, finalize=True)
     def _get_X(self): return self._X
     def precompute(self, card, player):
         mp = player.manapool
-        X = 0
-        if mp.checkX(self.cost): X = player.getX()
-        self._X = X
-        return X >= 0
+        cost = mp.convert_mana_string(self.cost)
+        self.payment = "0"
+        self._X = 0
+        if mp.checkX(self.cost):
+            self._X = player.getX()
+            cost[-1] += self._X
+        self.final_cost = cost
+        return self._X >= 0
     def compute(self, card, player):
         # XXX This is where I should check if the player has enough mana and the player should be
         # able to generate more mana
         mp = player.manapool
-        cost = mp.convert_mana_string(self.cost)
-        cost[-1] += self._X
+        cost = self.final_cost
         for i, val in enumerate(cost):
             if val < 0: cost[i] = 0
-        while not mp.checkMana(cost):
-            if not player.getMoreMana(): return False
-        self.final_cost = cost
-        return True
+        while True:
+            required = mp.checkRequired(cost)
+            if required == '0': return True
+            if not player.getMoreMana(required): return False
     def pay(self, card, player):
         mp = player.manapool
         # Now I have enough mana - how do I distribute it?
-        cost = self.final_cost
-        payment = mp.distributeMana(cost)
-        # Consolidate any X's in the mana string
-        if not payment: payment = player.getManaChoice(required=mp.convert_to_mana_string(cost))
+        payment = mp.distributeMana(self.final_cost)
+        # Consolidate any colorless in the final cost
+        if not payment: payment = player.getManaChoice(required=mp.convert_to_mana_string(self.final_cost))
         mp.spend(payment)
         self.payment = payment
     def hasX(self):
@@ -421,6 +408,18 @@ class SpecialCost(Cost):
         self.cost.pay(card, player)
     def __str__(self):
         return str(self.cost)
+
+class ChoiceCost(SpecialCost):
+    def __init__(self, *costs):
+        super(ChoiceCost,self).__init__()
+        self.choice_costs = costs
+        self.reset()
+    def reset(self): self.cost = None
+    def precompute(self, card, player):
+        self.cost = player.getSelection(self.choice_costs, 1, prompt="Select additional cost")
+        return super(ChoiceCost, self).precompute(card, player)
+    def __str__(self):
+        return "Choose between %s"%' or '.join([str(c) for c in self.choice_costs])
 
 class EvokeCost(SpecialCost):
     def __init__(self, orig_cost, evoke_cost):

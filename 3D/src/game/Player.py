@@ -378,7 +378,7 @@ class Player(MtGObject):
 
         if isinstance(target, CancelAction) or isinstance(target, PassPriority): return False
         return target
-    def getMoreMana(self): # if necessary when paying a cost
+    def getMoreMana(self, required): # if necessary when paying a cost
         def convert_gui_action(action):
             if isinstance(action, PassPriority): return False
             if isinstance(action, CancelAction): return action
@@ -392,7 +392,7 @@ class Player(MtGObject):
         cancel = False    # This is returned - it's a way to back out of playing an ability
         # This loop seems really ugly - is there a way to structure it better?
         while not manaplayed:
-            action = self.get(process = convert_gui_action, prompt="Not enough mana - play mana abilities (Esc to cancel spell)")
+            action = self.get(process = convert_gui_action, prompt="Need %s - play mana abilities (Esc to cancel spell)"%required)
             # XXX Should this be done here?
             if isinstance(action, CancelAction):
                 cancel = True

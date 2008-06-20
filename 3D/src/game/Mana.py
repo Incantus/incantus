@@ -106,6 +106,15 @@ class ManaPool(MtGObject):
             if not amount <= self._mana[i]: enoughMana = False
         if not sum(mana) <= sum(self._mana): enoughMana = False
         return enoughMana
+    def checkRequired(self, mana):
+        cost = [val for val in mana]
+        for i, amount in enumerate(self._mana):
+            for j in range(amount):
+                if cost[i] == 0: cost[-1] -= 1
+                else: cost[i] -= 1
+            cost[i] = max(cost[i], 0)
+        coststr = self.convert_to_mana_string(cost)
+        return coststr
     def distributeMana(self, mana):
         # At this point I know I have enough mana
         if type(mana) == str: mana = self.convert_mana_string(mana)
