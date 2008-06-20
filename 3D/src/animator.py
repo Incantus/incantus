@@ -187,7 +187,8 @@ class ZoneAnimator(object):
             self.red_zone.setup_attack_zone()
             self.red_zone.setup_block_zone()
         self.red_zone.add_attacker(attacker)
-    def reset_attackers(self): self.red_zone.reset_attackers()
+    def reset_attackers(self):
+        if self.red_zone: self.red_zone.reset_attackers()
     def declare_attackers(self):
         if self.red_zone: self.red_zone.declare_attackers()
     def select_blocker(self, sender, attacker, blocker):
