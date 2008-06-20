@@ -216,7 +216,7 @@ class ChangeZoneCost(Cost):
             self.targets.append(card)
         else:
             from_zone = getattr(player, self.from_zone)
-            prompt = "Select %d %s(s) to %s"%(self.number-len(self.targets), self.cardtype, self.action_txt)
+            prompt = "Select %d %s(s) to %s"%(self.number-len(self.targets), self.cardtype, self.action_txt%'')
             while True:
                 target = player.getTarget(self.cardtype, zone=from_zone, required=False, prompt=prompt)
                 if target == False: return False
@@ -225,7 +225,7 @@ class ChangeZoneCost(Cost):
                     player.send(InvalidTargetEvent(), target=target)
                 else:
                     self.targets.append(target)
-                    prompt = "Select %d %s(s) to %s"%(self.number-len(self.targets), self.cardtype, self.action_txt)
+                    prompt = "Select %d %s(s) to %s"%(self.number-len(self.targets), self.cardtype, self.action_txt%'')
                 if len(self.targets) == self.number: break
         return True
     def pay(self, card, player):
@@ -235,23 +235,23 @@ class ChangeZoneCost(Cost):
     def __str__(self):
         if self.cardtype: txt = str(self.cardtype)
         else: txt = ''
-        return "%s %s"%(self.action_txt, txt)
+        return self.action_txt.title()%txt
 
 
 class ReturnToHandCost(ChangeZoneCost):
     def __init__(self, number=1, cardtype=None):
         super(ReturnToHandCost,self).__init__(from_zone="play", to_zone="hand", number=number, cardtype=cardtype)
-        self.action_txt = "return to hand"
+        self.action_txt = "return %s to hand"
 
 class RemoveFromHandCost(ChangeZoneCost):
     def __init__(self, number=1, cardtype=None):
         super(RemoveFromHandCost,self).__init__(from_zone="hand", to_zone="removed", number=number, cardtype=cardtype)
-        self.action_txt = "remove from hand"
+        self.action_txt = "remove %s from hand"
 
 class RemoveFromGraveyardCost(ChangeZoneCost):
     def __init__(self, number=1, cardtype=None):
         super(RemoveFromHandCost,self).__init__(from_zone="graveyard", to_zone="removed", number=number, cardtype=cardtype)
-        self.action_txt = "remove from graveyard"
+        self.action_txt = "remove %s from graveyard"
 
 class CounterCost(Cost):
     def __init__(self, counter_type, number=1):
