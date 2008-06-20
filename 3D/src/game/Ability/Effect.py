@@ -379,7 +379,7 @@ class PayExtraCost(Effect):
         self.cost = cost
     def __call__(self, card, target):
         intent = card.controller.getIntention("", "Pay extra cost for %s?"%card)
-        if intent and self.cost.compute(card, target):
+        if intent and self.cost.precompute(card, target) and self.cost.compute(card, target):
             self.cost.pay(card, target)
             return True
         else: return False

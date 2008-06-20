@@ -393,7 +393,7 @@ class Creature(SubRole):
         player = self.card.controller
         from Cost import MultipleCosts
         cost = MultipleCosts(self.block_cost)
-        if cost.compute(self.card, player):
+        if cost.precompute(self.card, player) and cost.compute(self.card, player):
             cost.pay(self.card, player)
     def computeAttackCost(self):
         self.attack_cost = ["0"]
@@ -402,7 +402,7 @@ class Creature(SubRole):
         player = self.card.controller
         from Cost import MultipleCosts
         cost = MultipleCosts(self.attack_cost)
-        if cost.compute(self.card, player):
+        if cost.precompute(self.card, player) and cost.compute(self.card, player):
             cost.pay(self.card, player)
 
     # These two override the functions in the Permanent
