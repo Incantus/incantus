@@ -522,8 +522,8 @@ class ManaController(object):
                 self.deactivate()
             return True
         elif symbol == key.ESCAPE:
-            self.window.user_action = Action.CancelAction()
-            self.deactivate()
+        #    self.window.user_action = Action.CancelAction()
+        #    self.deactivate()
             return True
     def on_mouse_release(self, x, y, button, modifiers):
         return True
@@ -679,6 +679,7 @@ class HandController(object):
     def on_mouse_press(self, x, y, button, modifiers):
         if self.mouse_down: return True
         hand = self.player_hand
+        if hand.visible == 0: return False
         x -= hand.pos.x
         y -= hand.pos.y
         if (hand.box[0] < x < hand.box[2] and hand.box[1] < y < hand.box[3]):
@@ -694,6 +695,7 @@ class HandController(object):
         return self.mouse_down
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         hand = self.player_hand
+        if hand.visible == 0: return False
         x -= hand.pos.x
         y -= hand.pos.y
         if self.mouse_down and self.card_clicked:
@@ -724,6 +726,7 @@ class HandController(object):
                         self.card_clicked = card
         return self.mouse_down
     def on_mouse_release(self, x, y, button, modifiers):
+        if self.player_hand.visible == 0: return False
         if self.mouse_down:
             self.mouse_down = False
             if self.card_clicked:
