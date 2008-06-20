@@ -340,7 +340,7 @@ class GameKeeper(MtGObject):
     def mainPhase1(self):
         self.setState("Main1")
         self.playSpells()
-        #self.setState("EndMain")
+        self.setState("EndMain")
     def calculateDamage(self, blocking_list):
         new_combat_list = []
         # Remove all attackers and blockers that are no longer valid
@@ -457,7 +457,7 @@ class GameKeeper(MtGObject):
     def mainPhase2(self):
         self.setState("Main2")
         self.playSpells()
-        #self.setState("EndMain")
+        self.setState("EndMain")
     def endPhase(self):
         # End of turn
         self.setState("EndPhase")
