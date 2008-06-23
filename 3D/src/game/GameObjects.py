@@ -124,6 +124,8 @@ class GameObject(MtGObject):
             if subtypes: txt.append(" - %s"%subtypes)
             txt.append("\n\n")
             txt.append('\n'.join(self.text))
+            txt.append('\n\n')
+            txt.append(str(self.keywords))
             return ''.join(txt)
         return locals()
     info = property(**info())

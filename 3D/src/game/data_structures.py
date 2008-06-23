@@ -14,7 +14,7 @@ class keywords(object):
     def __iter__(self):
         return iter(self.keywords)
     def __str__(self):
-        return str(self.keywords.keys())
+        return ', '.join([k.title() for k in self.keywords.keys()])
     def __repr__(self):
         return repr(self.keywords.keys())
     def copy(self):
