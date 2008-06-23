@@ -4,7 +4,7 @@ from GameEvent import PlayLandEvent, PlayAbilityEvent, LogEvent
 class Action(object):
     def __eq__(self, other):
         return self.__class__ == other.__class__
-    def __str__(self):
+    def __repr__(self):
         return str(self.__class__.__name__)
 
 # should drawing a card be in here?
@@ -71,7 +71,7 @@ class PlayAbility(Action):
             player.send(PlayAbilityEvent(), ability=ability)
             player.send(LogEvent(), msg="%s plays (%s) of %s"%(player.name,ability,self.card))
         return success
-    def __str__(self):
+    def __repr__(self):
         return "%s %s"%(self.__class__.__name__, self.card)
 
 class PlayLand(Action):
@@ -90,7 +90,7 @@ class PlayLand(Action):
         player.send(PlayLandEvent(), card=self.card)
         player.send(LogEvent(), msg="%s plays %s"%(player.name,self.card))
         return True
-    def __str__(self):
+    def __repr__(self):
         return "%s %s"%(self.__class__.__name__, self.card)
 
 class ActivateForMana(Action):
