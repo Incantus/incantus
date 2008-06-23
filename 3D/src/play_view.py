@@ -298,6 +298,8 @@ class PlayView(Widget):
         max_row_height = 0
         positions = []
         cards = []
+        max_per_row = 25
+        num_per_row = 0
         for card in cardlist:
             if not combat and not card.can_layout: continue
             z = 0
@@ -322,12 +324,17 @@ class PlayView(Widget):
             y += y_incr
             max_row_height = compare(max_row_height, z+size*card.height)
             x += big_halfx
+            num_per_row += 1
+            if num_per_row%max_per_row==0:
+                row += max_row_height
+                x = 0
 
         if positions: avgx = sum([p.x for p in positions])/len(positions)
         for pos, card in zip(positions, cards):
             if not combat and not card.can_layout: continue
             card.pos = pos - euclid.Vector3(avgx, 0, 0)
-        return (y,max_row_height)
+        row += max_row_height
+        return (y,row)
     def layout(self):
         if self.is_opponent_view:
             orient = -1
@@ -339,10 +346,8 @@ class PlayView(Widget):
         y_incr = 0.005
         row = 0
 
-        y, max_row_height = self.layout_subset(self.creatures, size, 0.1, y_incr, row, compare)
-        row += max_row_height
-        y, max_row_height = self.layout_subset(self.other_perms+self.lands["Other"], size, y, y_incr, row, compare)
-        row += max_row_height
+        y, row = self.layout_subset(self.creatures, size, 0.1, y_incr, row, compare)
+        y, row = self.layout_subset(self.other_perms+self.lands["Other"], size, y, y_incr, row, compare)
 
         x = 0.
         max_row_height = 0
