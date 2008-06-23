@@ -257,10 +257,6 @@ class GameWindow(window.Window):
                 self.status_controller.set_solitaire()
                 self.otherplayer_hand.set_solitaire()
                 self.action_new_game()
-            #elif symbol == key.F6:
-            #    self.status_controller.set_solitaire()
-            #    self.otherplayer_hand.set_solitaire()
-            #    self.restart_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")))
             elif symbol == key.F7:
                 self.status_controller.set_solitaire()
                 self.otherplayer_hand.set_solitaire()
@@ -273,6 +269,8 @@ class GameWindow(window.Window):
                 self.start_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")), False)
             elif symbol == key.S and modifiers & key.MOD_SHIFT: #server
                 self.start_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")), True)
+            elif symbol == key.F6:
+                self.restart_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")))
         elif self.start_new_game:
             if symbol == key.F2:
                 #if self.hand_controller.activated: self.hand_controller.deactivate()
@@ -424,8 +422,8 @@ class GameWindow(window.Window):
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in [player1, player2]])
         replaydump.stack = game.Keeper.stack
-        player1.input = self.userinput
-        player2.input = self.userinput_network_other
+        player1.dirty_input = self.userinput
+        player2.dirty_input = self.userinput_network_other
 
         self.start_new_game = True
 
