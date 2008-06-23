@@ -1,5 +1,4 @@
 from pydispatch import dispatcher
-from characteristics import characteristic
 from GameEvent import HasPriorityEvent
 
 class MtGObject(object):
@@ -33,7 +32,7 @@ class MtGObject(object):
     #    for func in MtGObject._holding: func()
 
 class GameObject(MtGObject):
-    #__slots__ = ["name", "cost", "color", "type", "subtypes", "supertypes", "owner", "controller", "zone", "out_play_role", "in_play_role", "_current_role"]
+    #__slots__ = ["name", "cost", "text", "color", "type", "subtypes", "supertypes", "owner", "controller", "zone", "out_play_role", "in_play_role", "_current_role"]
     def __init__(self, owner):
         self.owner = owner
         self.controller = None
@@ -42,6 +41,7 @@ class GameObject(MtGObject):
         # characteristics
         self.name = None
         self.cost = None
+        self.text = None
         # The next four are characteristics that can be affected by other spells
         self.color = None
         self.type = None
@@ -111,6 +111,22 @@ class GameObject(MtGObject):
             #    self._current_role.enteringPlay()
         return locals()
     current_role = property(**current_role())
+    def info():
+        def fget(self):
+            txt = [str(self.name)]
+            color = str(self.color)
+            if color: txt.append("\n%s"%color)
+            txt.append("\n")
+            supertype = str(self.supertype)
+            if supertype: txt.append(supertype+" ")
+            txt.append(str(self.type))
+            subtypes = str(self.subtypes)
+            if subtypes: txt.append(" - %s"%subtypes)
+            txt.append("\n\n")
+            txt.append('\n'.join(self.text))
+            return ''.join(txt)
+        return locals()
+    info = property(**info())
     # I should probably get rid of the getattr call, and make everybody refer to current_role directly
     # But that makes the code so much uglier
     def __getattr__(self, attr):
@@ -127,7 +143,6 @@ class Card(GameObject):
         super(Card, self).__init__(owner)
         # characteristics
         self.expansion = None
-        self.text = None
         self.hidden = False
     def __str__(self):
         return self.name

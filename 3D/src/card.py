@@ -209,6 +209,8 @@ class PlayCard(Card):
         super(PlayCard, self).__init__(gamecard, front, back)
         self.is_creature = False
         self.draw = self.draw_permanent
+        self.info_box = Label("", size=12, background=True, shadow=False, valign="top")
+        self.info_box.visible = False
     def add_role(self, sender):
         if isCreature(self.gamecard):
             self.setup_creature_subrole()
@@ -229,7 +231,7 @@ class PlayCard(Card):
         self.text._scale = anim.animate(0, 0, dt=0.25, method="sine")
         self.text.scale = 2.0
         self.text._pos.set(euclid.Vector3(0,0,0)) #_transition(dt=0.25, method="sine")
-        self.text.orig_pos = euclid.Vector3(0,-self.height*0.25,0.001)
+        self.text.orig_pos = euclid.Vector3(0,-self.height*0.25,0.005)
         self.text.zoom_pos = euclid.Vector3(self.width*0.375,-self.height*0.454, 0.01)
         self.text.pos = self.text.orig_pos
         self.damage_text = Label("", size=34, background=True, shadow=False, halign="center", valign="center", color=(1., 0., 0., 1.))
@@ -357,6 +359,9 @@ class PlayCard(Card):
                 self.text.pos = self.text.zoom_pos
                 self.text.scale = 0.4
                 self.damage_text.visible = 1.0
+            self.info_box.visible = 1
+            self.info_box.pos = euclid.Vector3(self.width/2+self.info_box.border, self.height/2-self.info_box.border, 0.01)
+            self.info_box.set_text(self.gamecard.info, width=self.width)
     def restore_pos(self):
         self.zooming = 0.0 #anim.animate(self.zooming, 0.0, dt=0.2)
         self._pos.set_transition(dt=0.4, method=self.pos_transition)
@@ -373,6 +378,7 @@ class PlayCard(Card):
             self.damage_text.scale = 0.4
             self.damage_text.pos = self.damage_text.zoom_pos
             self.damage_text.visible = 0.0
+        self.info_box.visible = 0
     def draw_permanent(self):
         if self.visible > 0:
             size = self.size
@@ -393,6 +399,7 @@ class PlayCard(Card):
             glBindTexture(self._texture.target, self._texture.id)
             glColor4f(self.alpha, self.alpha, self.alpha, self.alpha)
             glCallList(self.cardlist)
+            self.info_box.render()
             glDisable(self._texture.target)
             for c in self.counters: c.draw()
             glPopMatrix()
@@ -417,6 +424,7 @@ class PlayCard(Card):
             glBindTexture(self._texture.target, self._texture.id)
             glColor4f(self.alpha, self.alpha, self.alpha, self.alpha)
             glCallList(self.cardlist)
+            self.info_box.render()
             self.text.render()
             self.damage_text.render()
             glDisable(self._texture.target)
