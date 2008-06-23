@@ -46,18 +46,16 @@ class CastNonPermanentSpell(CastSpell, ActivatedAbility):
         return "%s: %s"%(self.cost, ', '.join(map(str,self.effects)))
 
 class CastInstantSpell(CastNonPermanentSpell): pass
-class CastSorcerySpell(CastNonPermanentSpell, ActivatedAbility):
+class CastSorcerySpell(CastNonPermanentSpell):
     def __init__(self, card, cost="0", target=None, effects=[], limit=None, copy_targets=True):
         if limit: limit = MultipleLimits([SorceryLimit(card), limit])
         else: limit = SorceryLimit(card)
         super(CastSorcerySpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit)
 
-class BuybackSpell(CastSpell):
+class CastBuybackSpell(CastSpell, ActivatedAbility):
     def resolved(self):
         controller = self.setup_card_controller()
         super(BuybackSpell, self).resolved()
-
-class CastBuybackSpell(BuybackSpell, ActivatedAbility):
     def __str__(self):
         return "Buyback "+super(CastBuybackSpell, self).__str__()
 
