@@ -13,49 +13,44 @@ class SoundEffects(object):
         self.start_combat = media.load("./data/soundfx/combat.wav", streaming=False)
         self.gamestart = media.load("./data/soundfx/gamestart.wav", streaming=False)
         self.gameover = media.load("./data/soundfx/gameover.wav", streaming=False)
+        self.mana = media.load("./data/soundfx/mana.wav", streaming=False)
+        self.manaspent = media.load("./data/soundfx/manaspent.wav", streaming=False)
+        self.tap = media.load("./data/soundfx/tap.wav", streaming=False)
         #self.clink = media.load("./data/soundfx/ding.wav", streaming=False)
         #self.enter_sound = media.load("./data/soundfx/card_entering_play.wav", streaming=False)
         #self.leave_sound = media.load("./data/soundfx/card_leaving_play.wav", streaming=False)
         #self.play_ability = media.load("./data/soundfx/play_ability.wav", streaming=False)
-        self.mana = media.load("./data/soundfx/mana.wav", streaming=False)
-        self.manaspent = media.load("./data/soundfx/manaspent.wav", streaming=False)
-        self.tap = media.load("./data/soundfx/tap.wav", streaming=False)
         #self.untap = media.load("./data/soundfx/untap.wav", streaming=False)
         #self.lifeloss = media.load("./data/soundfx/lifeloss.wav", streaming=False)
 
         #self.player = media.Player()
         #self.player.queue(media.load("./data/soundfx/background.ogg", streaming=True))
         #self.player.eos_action = self.player.EOS_LOOP
-    def connect(self, game):
+        self.connections = [(self.gamestart, GameEvent.GameStartEvent()),
+                            (self.gameover, GameEvent.GameOverEvent()),
+                            (self.your_focus, GUIEvent.MyPriority()),
+                            (self.opponent_focus, GUIEvent.OpponentPriority()),
+                            (self.end_turn, GameEvent.NewTurnEvent()),
+                            (self.start_combat, GameEvent.DeclareAttackersEvent()),
+                            (self.tap, GameEvent.CardTapped()),
+                            #(self.tap, GameEvent.CardUntapped()),
+                            #(self.lifeloss, GameEvent.LifeChangedEvent()),
+                            #(self.mana, GameEvent.ManaAdded()),
+                            (self.manaspent,GameEvent.ManaSpent()),
+                            #(self.clink, GUIEvent.FocusCard(), sender=dispatcher.Anonymous, priority=dispatcher.UI_PRIORITY)),
+                            #(self_ability, GameEvent.AbilityAnnounced()),
+                            #(self.enter_sound, GameEvent.CardEnteredZone()),
+                            #(self.leave_sound, GameEvent.CardLeftZone()),
+                            ]
+    def disconnect(self):
+        for sound, event in self.connections:
+            dispatcher.connect(sound.play, signal=event)
+    def connect(self):
         #self.player.play()
-        dispatcher.connect(self.gamestart.play, signal=GameEvent.GameStartEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.gameover.play, signal=GameEvent.GameOverEvent(), priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.your_focus.play, signal=GameEvent.GameFocusEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.your_focus.play, signal=GUIEvent.MyPriority(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.opponent_focus.play, signal=GUIEvent.OpponentPriority(), priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.change_priority.play, signal=GUIEvent.HavePriority(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.end_turn.play, signal=GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.start_combat.play, signal=GameEvent.DeclareAttackersEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.tap.play, signal=GameEvent.CardTapped(), priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.tap.play, signal=GameEvent.CardUntapped(), priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.lifeloss.play, signal=GameEvent.LifeChangedEvent(), priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.clink.play, signal=GUIEvent.FocusCard(), sender=dispatcher.Anonymous, priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.play_ability.play, signal=GameEvent.AbilityAnnounced(), priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.enter_sound.play, signal=GameEvent.CardEnteredZone(), sender=game.player1.play, priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.enter_sound.play, signal=GameEvent.CardEnteredZone(), sender=game.player2.play, priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.leave_sound.play, signal=GameEvent.CardLeftZone(), sender=game.player1.play, priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.leave_sound.play, signal=GameEvent.CardLeftZone(), sender=game.player2.play, priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.mana.play, signal=GameEvent.ManaAdded(), priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.manaspent.play, signal=GameEvent.ManaSpent(), priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.mana.play, signal=GameEvent.ManaCleared(), priority=dispatcher.UI_PRIORITY) # need a mana burn sound
+        for sound, event in self.connections:
+            dispatcher.connect(sound.play, signal=event, priority=dispatcher.UI_PRIORITY)
     def dispatch_events(self):
         media.dispatch_events()
         #self.player.dispatch_events()
-
-class NoEffects(object):
-    def __init__(self): pass
-    def connect(self, game): pass
-    def dispatch_events(self): pass
-
 
 MediaEffects = SoundEffects

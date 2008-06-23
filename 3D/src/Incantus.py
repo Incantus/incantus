@@ -55,10 +55,11 @@ class Camera:
         self._orientation = AnimatedQuaternion()
         #self._pos.set_transition(dt=0.5, method="sine")
         self._orientation.set_transition(dt=0.5, method="sine")
-        #self._orientation.rotate_axis(-7*math.pi/16, euclid.Vector3(1,0,0))
-        #self._orientation.rotate_axis(-15*math.pi/32, euclid.Vector3(1,0,0))
-        self._orientation.rotate_axis(-127*math.pi/256, euclid.Vector3(1,0,0))
-        #self._orientation.rotate_axis(-math.pi/2, euclid.Vector3(1,0,0))
+        self.viewangle = -7*math.pi/16
+        #self.viewangle = -15*math.pi/32
+        #self.viewangle = -127*math.pi/256
+        self._orientation.rotate_axis(self.viewangle, euclid.Vector3(1,0,0))
+        self.view_switched = False
         self.vis_distance = 6.5
         self.x_limit = (-20, 20)
         self.y_limit = (8, 30)
@@ -76,7 +77,11 @@ class Camera:
         if self.pos.z < self.z_limit[0]: self._pos.z = self.z_limit[0]
         elif self.pos.z > self.z_limit[1]: self._pos.z = self.z_limit[1]
     def switch_viewpoint(self):
-        self._orientation.rotate_axis(math.pi, euclid.Vector3(0,0,1))
+        axis = math.pi/2.+self.viewangle
+        angle = math.pi
+        if self.view_switched: angle = -1*math.pi
+        self._orientation.rotate_axis(angle, euclid.Vector3(0,math.sin(axis),math.cos(axis)))
+        self.view_switched = not self.view_switched
 
 class GameWindow(window.Window):
     def __init__(self, *args, **kwargs):
@@ -251,8 +256,8 @@ class GameWindow(window.Window):
         #elif symbol == key.W:
         #    if game.Keeper.curr_player == self.player1: self.p1_stop_next = True
         #    else: self.p2_stop_next = True
-        #elif symbol == key.V:
-        #    self.camera.switch_viewpoint()
+        elif symbol == key.V and modifiers & key.MOD_SHIFT:
+            self.camera.switch_viewpoint()
         elif not self.start_new_game:
             if symbol == key.N:
                 self.status_controller.set_solitaire()
@@ -398,7 +403,7 @@ class GameWindow(window.Window):
             if coin == 0: first_player, second_player = player2, player1
             else: first_player, second_player = player1, player2
 
-        self.make_connections((0,0,255), (255,255,0))
+        self.make_connections((0,0,255), (255,255,0), soundfx=True)
         game.Keeper.init(first_player, second_player)
 
         # Save info for replay
@@ -471,7 +476,7 @@ class GameWindow(window.Window):
         if name == player1.name: first_player, second_player = player1, player2
         else: first_player, second_player = player2, player1
 
-        self.make_connections((0,0,255), (255,255,0))
+        self.make_connections((0,0,255), (255,255,0), soundfx=False)
         game.Keeper.init(first_player, second_player)
 
 
@@ -539,7 +544,7 @@ class GameWindow(window.Window):
             if name == player1.name: first_player, second_player = player1, player2
             else: first_player, second_player = player2, player1
 
-        self.make_connections((0,0,255), (255,255,0))
+        self.make_connections((0,0,255), (255,255,0), soundfx=not self.replay_fast)
         game.Keeper.init(first_player, second_player)
 
         if self.conf.get("solitaire", "manaburn") == "No":
@@ -552,7 +557,7 @@ class GameWindow(window.Window):
         player2.dirty_input = self.userinput
         self.start_new_game = True
 
-    def make_connections(self, self_color, other_color):
+    def make_connections(self, self_color, other_color, soundfx):
         dispatcher.reset()
         self.mainplayer_status.setup_player(self.player1, self_color)
         self.otherplayer_status.setup_player(self.player2, other_color)
@@ -613,7 +618,7 @@ class GameWindow(window.Window):
         dispatcher.connect(self.new_turn, signal=game.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
         self.set_stops()
 
-        self.soundfx.connect(self)
+        if soundfx: self.soundfx.connect()
         self.play_controller.activate()
         self.status_controller.activate()
         self.hand_controller.activate()
@@ -687,6 +692,7 @@ class GameWindow(window.Window):
         if self.replay and self.replay_fast:
             result = self.dump_to_replay.read()
             if not result == False: return result
+            else: self.soundfx.connect()
 
         while not (self.has_exit or networkevent):
             self.soundfx.dispatch_events()
@@ -709,6 +715,7 @@ class GameWindow(window.Window):
         if self.replay and self.replay_fast:
             result = self.dump_to_replay.read()
             if result is not False: return result
+            else: self.soundfx.connect()
 
         process = context['process']
         if self.replay: pass
