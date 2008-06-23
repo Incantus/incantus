@@ -21,6 +21,7 @@ from animator import ZoneAnimator
 from controllers import *
 from soundfx import MediaEffects
 import networkcomm, replaydump
+import GUIEvent
 
 fourfv = GLfloat*4
 sixteenfv = GLfloat*16
@@ -633,6 +634,10 @@ class GameWindow(window.Window):
                 self.user_action = game.Action.PassPriority()
             elif self.finish_turn: #player == game.Keeper.curr_player and self.finish_turn:
                 self.user_action = game.Action.PassPriority()
+            elif (player == self.player1): dispatcher.send(GUIEvent.MyPriority())
+        else:
+            if (player == self.player1): dispatcher.send(GUIEvent.MyPriority())
+            else: dispatcher.send(GUIEvent.OpponentPriority())
     def new_turn(self, player):
         self.finish_turn = False
     def phase_stop(self, state):
