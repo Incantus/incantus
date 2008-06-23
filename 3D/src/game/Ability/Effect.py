@@ -214,7 +214,7 @@ class CreateToken(Effect):
         self.token_name = token_info.get("name", '')
         self.token_color = token_info.get("color", '')
         self.token_type = token_info.get("type", '')
-        self.token_subtypes = token_info.get("subtypes", [''])
+        self.token_subtypes = token_info.get("subtypes", '')
         self.token_supertype = token_info.get("supertype", '')
         self.token_role = token_info.get("role")
         self.number = number
