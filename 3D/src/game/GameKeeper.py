@@ -166,6 +166,7 @@ class GameKeeper(MtGObject):
     def run(self):
         if not self.ready_to_start: raise Exception("Players not added - not ready to start")
         # XXX This is hacky - need a better way to signal end of game
+        self.send(GameStartEvent())
         for player in [self.game_phases.curr_player, self.game_phases.other_player]:
             self.curr_player = player
             player.mulligan()
@@ -174,6 +175,7 @@ class GameKeeper(MtGObject):
                 self.singleTurn()
         except GameOver, g:
             # Return all cards to library
+            self.send(GameOverEvent())
             for player in [self.game_phases.curr_player, self.game_phases.other_player]:
                 player.reset()
             return g.msg
@@ -430,7 +432,7 @@ class GameKeeper(MtGObject):
             # Attacking
             self.setState("Attack")
             attackers = self.curr_player.declareAttackers()
-            self.send(DeclareAttackersEvent(), attackers=attackers)
+            if attackers: self.send(DeclareAttackersEvent(), attackers=attackers)
             self.playInstantaneous()
             # After playing instants, the list of attackers could be modified (if a creature was put into play "attacking", so we regenerate the list
             attackers = self.curr_player.play.get(Match.isCreature.with_condition(lambda c: c.attacking))
