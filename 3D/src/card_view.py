@@ -203,7 +203,7 @@ class HandView(CardView):
             # First lay out, then overlap, and then scale
             spacing = self.unfocused_spacing
             numhand += .5
-            while (numhand*cardwidth*size*spacing) > avail_width:
+            while (numhand*cardwidth*size*spacing) - avail_width > 0.005:
                 # Figure out the spacing that will fit
                 spacing = avail_width / (numhand*cardwidth*size)
                 if spacing < 0.7:
