@@ -229,7 +229,7 @@ class PlayCard(Card):
         self.text._scale = anim.animate(0, 0, dt=0.25, method="sine")
         self.text.scale = 2.0
         self.text._pos.set(euclid.Vector3(0,0,0)) #_transition(dt=0.25, method="sine")
-        self.text.orig_pos = euclid.Vector3(0,-self.height*0.25,0.01)
+        self.text.orig_pos = euclid.Vector3(0,-self.height*0.25,0.001)
         self.text.zoom_pos = euclid.Vector3(self.width*0.375,-self.height*0.454, 0.01)
         self.text.pos = self.text.orig_pos
         self.damage_text = Label("", size=34, background=True, shadow=False, halign="center", valign="center", color=(1., 0., 0., 1.))

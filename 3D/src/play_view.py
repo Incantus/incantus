@@ -336,7 +336,7 @@ class PlayView(Widget):
             orient = 1
             compare = max
         size = 0.01*1.1 * orient
-        y_incr = 0.001
+        y_incr = 0.005
         row = 0
 
         y, max_row_height = self.layout_subset(self.creatures, size, 0.1, y_incr, row, compare)
