@@ -708,7 +708,7 @@ class GameWindow(window.Window):
         userevent = False
         if self.replay and self.replay_fast:
             result = self.dump_to_replay.read()
-            if not result == False: return result
+            if result is not False: return result
 
         process = context['process']
         if self.replay: pass

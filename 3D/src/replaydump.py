@@ -94,7 +94,7 @@ class ReplayDump(object):
                 self.dumpfile.seek(self.lastpos, 0)
                 self.load_picklers()
             else: self.dumpfile.close()
-            return None
+            return False
     def __del__(self):
         self.close()
 
