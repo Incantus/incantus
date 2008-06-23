@@ -81,6 +81,7 @@ class ReplayDump(object):
         try:
             self.lastpos = self.dumpfile.tell()
             obj = self.unpickler.load()
+            print obj, self.lastpos
             return obj
         except Exception: #(EOFError, TypeError, KeyError):
             self.app.replay = False
@@ -93,7 +94,7 @@ class ReplayDump(object):
                 self.dumpfile.seek(self.lastpos, 0)
                 self.load_picklers()
             else: self.dumpfile.close()
-            return False
+            return None
     def __del__(self):
         self.close()
 
@@ -105,10 +106,15 @@ def test(dumpfile):
     unpickler.persistent_load = persistent_load
     return unpickler
 
+import sys
 if __name__ == "__main__":
-    filename = "game.replay"
-    flags = 'rb'
+    if len(sys.argv) == 1: filename = "game.replay"
+    else: filename = sys.argv[1]
+    if len(sys.argv) == 3: stoppoint = int(sys.argv[2])
+    else: stoppoint = None
+    flags = 'r+b'
     dumpfile = open(filename, flags)
+    if stoppoint: dumpfile.truncate(stoppoint)
     p = test(dumpfile)
     try:
         while True:
