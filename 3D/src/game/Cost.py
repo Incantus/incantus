@@ -233,25 +233,25 @@ class ChangeZoneCost(Cost):
             to_zone = getattr(target.owner, self.to_zone)
             player.moveCard(target, target.zone, to_zone)
     def __str__(self):
-        if self.cardtype: txt = str(self.cardtype)
+        if self.cardtype: txt = ' '+str(self.cardtype)
         else: txt = ''
-        return self.action_txt.title()%txt
+        return (self.action_txt%txt).title()
 
 
 class ReturnToHandCost(ChangeZoneCost):
     def __init__(self, number=1, cardtype=None):
         super(ReturnToHandCost,self).__init__(from_zone="play", to_zone="hand", number=number, cardtype=cardtype)
-        self.action_txt = "return %s to hand"
+        self.action_txt = "return%s to hand"
 
 class RemoveFromHandCost(ChangeZoneCost):
     def __init__(self, number=1, cardtype=None):
         super(RemoveFromHandCost,self).__init__(from_zone="hand", to_zone="removed", number=number, cardtype=cardtype)
-        self.action_txt = "remove %s from hand"
+        self.action_txt = "remove%s from hand"
 
 class RemoveFromGraveyardCost(ChangeZoneCost):
     def __init__(self, number=1, cardtype=None):
         super(RemoveFromHandCost,self).__init__(from_zone="graveyard", to_zone="removed", number=number, cardtype=cardtype)
-        self.action_txt = "remove %s from graveyard"
+        self.action_txt = "remove%s from graveyard"
 
 class CounterCost(Cost):
     def __init__(self, counter_type, number=1):
