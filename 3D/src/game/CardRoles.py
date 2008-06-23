@@ -60,6 +60,7 @@ class SpellRole(MtGObject):  # Spells on the stack
     def __init__(self, card):
         self.card = card
         self.facedown = False
+        self.abilities = []
     # the damage stuff seems kind of hacky
     def canDealDamage(self):
         return True
