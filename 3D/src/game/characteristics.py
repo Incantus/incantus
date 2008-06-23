@@ -6,7 +6,8 @@ class characteristic(object):
         if not (type(init_val) == tuple or type(init_val) == list): init_val = [init_val]
         self.characteristics = set(init_val)
     def intersects(self, other):
-        if not hasattr(other, "characteristics"): return other.intersects(self)
+        #if hasattr(other, "stacked"): return other.intersects(self)
+        if hasattr(other, "stacked") or not hasattr(other, "characteristics"): return other.intersects(self)
         else: return len(self.characteristics.intersection(other.characteristics)) > 0
     def __eq__(self, other):
         if type(other) == str: return other in self
@@ -48,8 +49,10 @@ class add_characteristic(object):
     def __eq__(self, other):
         if other == self.characteristic: return True
         else: return None
+    def __contains__(self, val): return val == self
     def intersects(self, other):
-        if self.characteristic in other: return True
+        if hasattr(other, "stacked"): return other.intersects(self)
+        elif self.characteristic in other: return True
         else: return None
     def __str__(self):
         return "Add %s"%str(self.characteristic)
@@ -64,6 +67,7 @@ class remove_characteristic(object):
     def __eq__(self, other):
         if other == self.characteristic: return False
         else: return None
+    def __contains__(self, val): return val == self
     def intersects(self, other):
         raise NotImplementedError()
         #if self.characteristic in other: return False
