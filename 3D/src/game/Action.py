@@ -71,6 +71,8 @@ class PlayAbility(Action):
             player.send(PlayAbilityEvent(), ability=ability)
             player.send(LogEvent(), msg="%s plays (%s) of %s"%(player.name,ability,self.card))
         return success
+    def __str__(self):
+        return "%s %s"%(self.__class__.__name__, self.card)
 
 class PlayLand(Action):
     def __init__(self, card):
@@ -88,6 +90,8 @@ class PlayLand(Action):
         player.send(PlayLandEvent(), card=self.card)
         player.send(LogEvent(), msg="%s plays %s"%(player.name,self.card))
         return True
+    def __str__(self):
+        return "%s %s"%(self.__class__.__name__, self.card)
 
 class ActivateForMana(Action):
     def __init__(self, card):
