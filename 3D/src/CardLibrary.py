@@ -59,7 +59,7 @@ class _CardLibrary:
                 # Try local directory
                 local_path = "./data/cardimg/%s.jpg"%imagename
                 if os.path.exists(local_path):
-                    img_file = file(local_path)
+                    img_file = file(local_path, 'rb')
                     data = img_file.read()
                     img_file.close()
                 else: # Get it from wizards
