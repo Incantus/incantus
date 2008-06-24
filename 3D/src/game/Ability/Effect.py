@@ -629,7 +629,6 @@ class AddSubRole(Effect):
             for subrole in added_roles:
                 target.remove_subrole(subrole)
             for char_str, stacked_char, val in stacked:
-                print stacked_char
                 stacked_char.remove(val)
                 if not stacked_char.stacking():
                     setattr(target, char_str, stacked_char.pop())
