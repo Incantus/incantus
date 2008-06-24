@@ -258,7 +258,7 @@ class TriggeredTarget(MtGObject):
     def copy(self):
         return TriggeredTarget(self.trigger, self.attribute)
 
-class CounterTarget(MtGObject):
+class StackTarget(MtGObject):
     def __init__(self, target_types=None, msg=''):
         self.target = None
         if not (type(target_types) == tuple or type(target_types) == list):
@@ -266,7 +266,7 @@ class CounterTarget(MtGObject):
         else: self.target_types = target_types
         self.msg = msg
     def copy(self):
-        return CounterTarget(self.target_types, self.msg)
+        return StackTarget(self.target_types, self.msg)
     def check_target(self, card):
         # Make sure the target is still in the correct zone (only for cards, not players) and still matches original condition
         return card.controller.stack.on_stack(self.target)
