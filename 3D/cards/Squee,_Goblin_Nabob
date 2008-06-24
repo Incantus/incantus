@@ -18,11 +18,8 @@ in_play_role = Permanent(card, subrole)
 out_play_role.graveyard_abilities = [TriggeredAbility(card, 
                                       trigger = PlayerTrigger(event=UpkeepStepEvent()),
                                       match_condition = lambda player, self=card: player == self.owner,
-                                      ability = MayAbility(card,
-                                                        msg="move %s from graveyard to your hand?"%card.name,
-                                                        choice_target=Target(targeting="owner"),
-                                                        target=Target(targeting="self"),
-                                                        effects=ChangeZone(from_zone="graveyard", to_zone="hand")))
+                                      ability = Ability(card, target=Target(targeting="self"),
+                                                        effects=OwnerMay(ChangeZone(from_zone="graveyard", to_zone="hand"), msg="return ~ from graveyard to your hand")))
 ]
 
 #################################

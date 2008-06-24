@@ -25,9 +25,8 @@ subrole.triggered_abilities = [TriggeredAbility(card,
                                     TriggeredAbility(card,
                                       trigger = PlayerTrigger(event=DrawStepEvent()),
                                       match_condition = lambda player, self=card: player==self.controller,
-                                      ability = MayAbility(card, msg="deal 3 damage to target creature?",
-                                                        target=Target(target_types=isCreature),
-                                                        effects=DealDamage(3)))
+                                      ability = Ability(card, target=Target(target_types=isCreature),
+                                                        effects=YouMay(DealDamage(3), msg="have Razormane Masticore deal 3 damage to target creature")))
 ]
 subrole.static_abilities = []
 

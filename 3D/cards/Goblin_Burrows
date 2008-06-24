@@ -1,0 +1,27 @@
+name = 'Goblin Burrows'
+cardnum = 318
+expansion = 'Onslaught'
+type = characteristic('Land')
+supertype = no_characteristic()
+subtypes = no_characteristic()
+cost = NoCost()
+color = no_characteristic()
+text = ['T Add 1 to your mana pool.', '1R, T Target Goblin creature gets +2/+0 until end of turn.']
+
+subrole = Land(color)
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ManaAbility(
+	card,
+	TapCost(),
+	effects=AddMana('1')),
+ActivatedAbility
+	(card, 
+	cost=MultipleCosts([ManaCost("1R"), TapCost()]),
+	target = Target(target_types=isCreature.with_condition(
+			lambda c: c.subtypes == "Goblin")),
+	 effects=AugmentPowerToughness(power=2,toughness=0))]
+
+#################################

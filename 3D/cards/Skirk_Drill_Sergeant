@@ -1,0 +1,43 @@
+name = 'Skirk Drill Sergeant'
+cardnum = 112
+expansion = 'Legions'
+type = characteristic('Creature')
+supertype = no_characteristic()
+subtypes = characteristic(['Goblin'])
+cost = '1R'
+color = characteristic(['R'])
+text = ["Whenever Skirk Drill Sergeant or another Goblin is put into a graveyard from play, you may pay 2R. If you do, reveal the top card of your library. If it's a Goblin permanent card, put it into play. Otherwise, put it into your graveyard."]
+
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
+subrole = Creature(2, 1)
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+class RevealTopCard(Effect):
+  def __call__(self, card, target):
+    controller = card.controller
+    top_card = controller.library.top()
+    controller.revealCard(top_card)
+    controller.opponent.revealCard(top_card)
+    if isPermanentType(top_card) and top_card.subtypes == "Goblin":
+      controller.moveCard(top_card, top_card.zone, controller.play)
+    else:
+      controller.moveCard(top_card, top_card.zone, controller.graveyard)
+  def __str__(self):
+    return "Reveal top card. If it's a Goblin, put into play. Otherwise put into graveyard"
+
+subrole.triggered_abilities = [TriggeredAbility(
+	card,
+	trigger=EnterFromTrigger(
+		from_zone="play",		
+		to_zone="graveyard"),
+	match_condition = isPermanent.with_condition(lambda c, card=card:
+		c == card or c.subtypes == "Goblin"),
+	ability = Ability(
+		card,
+		effects=DependentEffects([
+			PayExtraCost(cost="2R"),
+			RevealTopCard()])))]
+
+#################################

@@ -19,9 +19,8 @@ flying(subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger = PlayerTrigger(event=UpkeepStepEvent()),
                                       match_condition = lambda player, self=card: player==self.controller,
-                                      ability = MayAbility(card, msg="return target creature card from your graveyard?",
-                                                         target=Target(target_types=isCreatureType, zone="graveyard", player_zone="controller"),
-                                effects=ChangeZoneToPlay(from_zone="graveyard")))
+                                      ability = Ability(card, target=Target(target_types=isCreatureType, zone="graveyard", player_zone="controller"),
+                                	effects=YouMay(ChangeZoneToPlay(from_zone="graveyard"), msg="return target creature card from your graveyard")))
 ]
 
 #################################

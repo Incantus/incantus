@@ -18,11 +18,9 @@ in_play_role = Permanent(card, subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger(zone="play"),
                                         match_condition=SelfMatch(card),
-                                        ability = MayAbility(card,
-                                                     msg="put a creature card from your hand into play?",
-                                                     choice_target = Target(targeting="opponent"),
+                                        ability = Ability(card,
                                                      target = Target(targeting="opponent"),
-                                                     effects=MoveCards(from_zone="hand",to_zone="play", number=1, card_types=isCreatureType)))
+                                                     effects=OpponentMay(MoveCards(from_zone="hand",to_zone="play", number=1, card_types=isCreatureType)), msg="put a creature card from your hand into play"))
 ]
 
 #################################

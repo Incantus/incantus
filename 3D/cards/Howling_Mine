@@ -15,14 +15,15 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-# XXX intervening if clause
+# XXX Doesn't do the intervening if
 
-subrole.triggered_abilities = [TriggeredAbility(card,
-                                        trigger=Trigger(event=DrawStepEvent()),
-                                        match_condition=lambda sender, card=card: not card.tapped,
-                                        ability=Ability(card,
-                                                target=Target("current_player"),
-                                                effects=DrawCard(1)))
-]
+subrole.triggered_abilities = [TriggeredAbility(
+	card,
+	trigger=Trigger(event=DrawStepEvent()),
+	match_condition=lambda sender, card=card: not card.tapped,
+	ability=Ability(
+		card,
+		target=Target("current_player"),
+		effects=DrawCard(1)))]
 
 #################################

@@ -23,7 +23,7 @@ subrole.abilities = [ActivatedAbility(card, cost=MultipleCosts([ManaCost("1"), C
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = CardTrigger(event=PlaySpellEvent()),
                                         match_condition = CardMatch(lambda c: c.subtypes == "Arcane" or c.subtypes == "Spirit"),
-                                                        ability = MayAbility(card, msg="Put ki counter on Blademane Baku?", target=Target(targeting="self"),
-                                                        effects = AddCounter(Counter("ki"))))]
+                                                        ability = Ability(card, target=Target(targeting="self"),
+                                                        effects = YouMay(AddCounter(Counter("ki")), msg="put ki counter on Blademane Baku")))]
 
 #################################

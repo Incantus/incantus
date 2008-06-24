@@ -19,25 +19,28 @@ in_play_role = Permanent(card, subrole)
 condition = lambda self, card=card: self == card.controller
 
 def draw(self):
-    '''Abundance - search for Land/Nonland'''
-    if len(self.library) == 0: return
-    choices = [("Land", 1), ("Nonland", 2)]
-    choice = self.getSelection(choices, 1, prompt="Abundance - Choose land or nonland")
-    if choice == 1: cmp = lambda card: card.type == "Land"
-    else: cmp = lambda card: not card.type == "Land"
-    cards = []
-    found = True
-    for card in self.library:
-        cards.append(card)        
-        if cmp(card): break
-    else: found = False
+    '''Abundance - you may search for Land/Nonland'''
+    choices = [("Land", 1), ("Nonland", 2), ("Draw normally", 3)]
+    choice = self.getSelection(choices, 1, idx=False, prompt="Abundance - You may choose land or nonland")
+    if choice == 3:
+        self.draw()
+    else:    
+        if choice == 1: cmp = lambda card: card.type == "Land"
+        else: cmp = lambda card: not card.type == "Land"
+        if len(self.library) == 0: return
+        cards = []
+        found = True
+        for card in self.library:
+            cards.append(card)        
+            if cmp(card): break
+        else: found = False
     
-    self.revealCard(cards, prompt="%s reveals cards"%self)
-    if found:
-        self.hand.move_card(cards[-1], from_zone=self.library)
-        cards = cards[:-1]
-    for card in cards:
-        self.library.move_card(card, from_zone=self.library, position="bottom")
+        self.revealCard(cards, prompt="%s reveals cards"%self)
+        if found:
+            self.hand.move_card(cards[-1], from_zone=self.library)
+            cards = cards[:-1]
+        for card in cards:
+            self.library.move_card(card, from_zone=self.library, position="bottom")
 
 subrole.static_abilities = [GlobalStaticAbility(card,
                                         effects=OverrideGlobalReplacement(draw, "draw", Player, expire=False, condition=condition))

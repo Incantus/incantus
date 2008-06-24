@@ -18,7 +18,7 @@ in_play_role = Permanent(card, subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = CardTrigger(event=PlaySpellEvent()),
                                         match_condition = CardMatch(lambda card: card.color == "R"),
-                                        ability = MayAbility(card, effects = ChangeLife(1)))
+                                        ability = Ability(card, effects = YouMay(ChangeLife(1))))
 ]
 
 #################################

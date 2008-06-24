@@ -19,7 +19,7 @@ flash(card)
 flying(subrole)
 protection_from_blue(subrole)
 
-subrole.abilities = [ActivatedAbility(card, cost=ReturnToHandCost(cardtypes=isLand.with_condition(lambda c: c.subtypes=="Forest")),
+subrole.abilities = [ActivatedAbility(card, cost=ReturnToHandCost(cardtype=isLand.with_condition(lambda c: c.subtypes=="Forest")),
 				target=Target(target_types=isCreature),
 				effects=UntapTargetPermanent(),
 				limit=CountLimit(card, 1))]

@@ -18,9 +18,8 @@ in_play_role = Permanent(card, subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger(zone="play"),
                                         match_condition=SelfMatch(card),
-                                        ability = MayAbility(card,
-                                                    msg="search library for basic land card?",
-                                                    effects=[MoveCards(from_zone="library", to_zone="hand", number=1, card_types=isLandType.with_condition(lambda c:c.supertype=="Basic"), reveal=True), ShuffleLibrary()]))
+                                        ability = Ability(card,
+                                                    effects=YouMay(MoveCards(from_zone="library", to_zone="hand", number=1, card_types=isLandType.with_condition(lambda c:c.supertype=="Basic"), reveal=True), msg="search library for basic land card")))
 ]
 
 #################################

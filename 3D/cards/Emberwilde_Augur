@@ -1,0 +1,24 @@
+name = 'Emberwilde Augur'
+cardnum = 97
+expansion = 'Future Sight'
+type = characteristic('Creature')
+supertype = no_characteristic()
+subtypes = characteristic(['Goblin', 'Shaman'])
+cost = '1R'
+color = characteristic(['R'])
+text = ['Sacrifice Emberwilde Augur: Emberwilde Augur deals 3 damage to target player. Play this ability only during your upkeep.']
+
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
+subrole = Creature(2, 1)
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility
+	(card,
+	SacrificeCost(),
+	target=Target(target_types=isPlayer),
+	effects=DealDamage(3),
+	limit=UpkeepLimit(card))]
+
+#################################

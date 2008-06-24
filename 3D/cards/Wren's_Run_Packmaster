@@ -21,7 +21,7 @@ champion(subrole, card, subtypes="Elf")
 subrole.static_abilities = [PermanentTrackingAbility(card,
                                         condition = isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.subtypes == "Wolf"),
 					events = SubtypeModifiedEvent(),
-                                        effects = GiveKeyword(lambda role: deathtouch(role, in_play=True), expire=False))
+                                        effects = GiveKeyword(lambda role: deathtouch(role), expire=False))
 ]
 
 #################################

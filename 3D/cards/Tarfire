@@ -1,0 +1,21 @@
+name = 'Tarfire'
+cardnum = 194
+expansion = 'Lorwyn'
+type = characteristic('Instant')
+supertype = no_characteristic()
+subtypes = characteristic(['Goblin'])
+cost = 'R'
+color = characteristic(['R'])
+text = ['Tarfire deals 2 damage to target creature or player.']
+
+#################################
+
+out_play_role.abilities = [CastInstantSpell(
+	card,
+	cost,
+	target=Target(target_types=[
+		isCreature,
+		isPlayer]),
+	effects=DealDamage(2))]
+
+#################################

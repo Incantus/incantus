@@ -21,7 +21,7 @@ subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger = EnteringTrigger("play"),
                                         match_condition = SelfMatch(card),
-                                        ability = MayAbility(card, msg="clone artifact in play?",
+                                        ability = Ability(card, msg="clone artifact in play?",
                                                 choice_target = Target(targeting="you"),
                                                 target = Target(target_types=isArtifact),
                                                 effects = Clone()))

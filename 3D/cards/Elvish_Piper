@@ -15,8 +15,8 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = [MayAbility(card, MultipleCosts([ManaCost("G"), TapCost()]),
-                                effects=MoveCards(from_zone="hand", to_zone="play", number=1, card_types=isCreatureType)) 
+subrole.abilities = [Ability(card, MultipleCosts([ManaCost("G"), TapCost()]),
+                                effects=YouMay(MoveCards(from_zone="hand", to_zone="play", number=1, card_types=isCreatureType)))
 ]
 
 #################################

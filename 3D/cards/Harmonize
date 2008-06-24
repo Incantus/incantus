@@ -5,8 +5,14 @@ type = characteristic('Sorcery')
 supertype = no_characteristic()
 subtypes = no_characteristic()
 cost = '2GG'
-color = characteristic(['U'])
+color = characteristic(['G'])
 text = ['Draw three cards.']
 
-out_play_role.abilities = [CastSorcerySpell(card, cost, effects=DrawCard(3))
-]
+#################################
+
+out_play_role.abilities = [CastSorcerySpell(
+	card,
+	cost,
+	effects=DrawCard(3))]
+
+#################################

@@ -10,19 +10,32 @@ text = ['When Siege-Gang Commander comes into play, put three 1/1 red Goblin cre
 
 out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(2, 2)
-
 in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = [ActivatedAbility(card, cost=MultipleCosts([ManaCost("1R"), SacrificeCost(cardtype=isCreature.with_condition(lambda c: c.subtypes == "Goblin"))]), 
-                          target=Target(target_types=[isCreature,isPlayer]), 
-                          effects=DealDamage(amount=2))]
-subrole.triggered_abilities = [TriggeredAbility(card,
-                                      EnterTrigger("play"),
-                                      SelfMatch(card),
-                                      ability=Ability(card,
-                                                 effects=CreateToken(number=3,token_info={"name": "Goblin", "type": "Creature", "subtypes": ["Goblin"], "color": "R", "role": TokenCreature(1,1)})))]
-subrole.static_abilities = []
+goblins = CreateToken(token_info={
+	"name": "Goblin",
+	"type": "Creature",
+	"subtypes": ["Goblin"],
+	"color": "R",
+	"role": TokenCreature(1,1)}, number=3)
+
+subrole.abilities = [ActivatedAbility(
+	card,
+	cost=MultipleCosts([
+		ManaCost("1R"),
+		SacrificeCost(cardtype=isPermanent.with_condition(
+			lambda c: c.subtypes == "Goblin"))]),
+	target=Target(target_types=[isCreature,isPlayer]),
+	effects=DealDamage(2))]
+
+subrole.triggered_abilities = [TriggeredAbility(
+	card,
+	EnterTrigger("play"),
+	SelfMatch(card),
+	ability=Ability(
+		card,
+		effects=goblins))]
 
 #################################

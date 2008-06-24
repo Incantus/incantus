@@ -10,10 +10,4 @@ text = ['[R]']
 
 subrole = Land(color)
 subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('R'))]
-
 in_play_role = Permanent(card, subrole)
-
-#################################
-
-
-#################################

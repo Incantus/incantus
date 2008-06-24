@@ -6,21 +6,29 @@ supertype = no_characteristic()
 subtypes = characteristic(['Elf', 'Warrior'])
 cost = '2GG'
 color = characteristic(['G'])
-text = ["Whenever you play an Elf spell, you may put a 1/1 green Elf Warrior creature token into play."]
+text = ['Whenever you play an Elf spell, you may put a 1/1 green Elf Warrior creature token into play.']
 
 out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(3, 3)
-
 in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.triggered_abilities = [TriggeredAbility(card,
-                                      trigger=CardTrigger(event=PlaySpellEvent()),
-                                      match_condition=CardMatch(lambda card, self=card: card.controller == self.controller and card.subtypes == "Elf"),
-                                      ability=MayAbility(card, msg="put 1/1 green Elf Warrior token into play?",
-                                                 effects=CreateToken(token_info={"name": "Elf Warrior", "type": "Creature", "subtypes": ["Elf", "Warrior"], "color": "G", "role": TokenCreature(1,1)})))
-]
-subrole.static_abilities = []
+elf_token = CreateToken({
+	"name": "Elf Warrior",
+	"type": "Creature",
+	"subtypes": ["Elf", "Warrior"],
+	"color": "G",
+	"role": TokenCreature(1,1)})
+
+subrole.triggered_abilities = [TriggeredAbility(
+	card,
+	trigger = CardTrigger(event=PlaySpellEvent()),
+	match_condition = CardMatch(
+		lambda card, self=card: card.subtypes == "Elf" 
+		and card.controller == self.controller),
+	ability = Ability(
+		card,
+		effects=YouMay(elf_token)))]
 
 #################################

@@ -19,8 +19,7 @@ flying(subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterFromTrigger(from_zone="play", to_zone="graveyard"),
                                         match_condition=SelfMatch(card),
-                                        ability = MayAbility(card, msg="like to draw a card?",
-                                                effects=DrawCard(1)))
+                                        ability = Ability(card, effects=YouMay(DrawCard(1))))
 ]
 
 #################################

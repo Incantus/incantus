@@ -1,0 +1,26 @@
+name = 'Akki Coalflinger'
+cardnum = 152
+expansion = 'Champions of Kamigawa'
+type = characteristic('Creature')
+supertype = no_characteristic()
+subtypes = characteristic(['Goblin', 'Shaman'])
+cost = '1RR'
+color = characteristic(['R'])
+text = ['First strike', 'R, T Attacking creatures gain first strike until end of turn.']
+
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
+subrole = Creature(2, 2)
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+first_strike(subrole)
+
+subrole.abilities = [ActivatedAbility
+	(card, 
+	cost=MultipleCosts([ManaCost("R"), TapCost()]),
+	target=AllPermanentTargets(target_types=isCreature.
+		with_condition(lambda c: c.attacking)),
+	effects = ForEach(GiveKeyword(first_strike, keyword="first_strike")))]
+
+#################################

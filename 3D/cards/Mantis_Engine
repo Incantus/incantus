@@ -18,7 +18,7 @@ in_play_role = Permanent(card, [subrole, Artifact()])
 subrole.abilities = [ActivatedAbility(card, "2", target=Target(targeting="self"),
                            effects=GiveKeyword(flying, keyword="flying")),
                      ActivatedAbility(card, "2", target=Target(targeting="self"),
-                           effects=GiveKeyword(flying, keyword="first_strike")),
+                           effects=GiveKeyword(first_strike, keyword="first_strike")),
 ]
 subrole.triggered_abilities = []
 subrole.static_abilities = []

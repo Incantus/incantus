@@ -10,16 +10,12 @@ text = ['7R: Flamewave Invoker deals 5 damage to target player.']
 
 out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(2, 2)
-
 in_play_role = Permanent(card, subrole)
 
 #################################
 
 subrole.abilities = [ActivatedAbility(card, "7R",
                                 target=Target(target_types=isPlayer),
-                                effects=DealDamage(5))
-]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
+                                effects=DealDamage(5))]
 
 #################################

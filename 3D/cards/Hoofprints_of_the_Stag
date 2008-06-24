@@ -23,9 +23,8 @@ subrole.abilities = [ActivatedAbility(card, cost=MultipleCosts([ManaCost("2W"), 
 subrole.triggered_abilities = [TriggeredAbility(card,
 			trigger=Trigger(event=DrawCardEvent()),
 			match_condition = lambda sender, self=card: sender == self.controller,
-			ability=MayAbility(card,
-			msg="put a counter on Hoofprints of the Stag?",
+			ability=Ability(card,
 			target=Target(targeting="self"),
-			effects=AddCounter(Counter("hoofprint"))))]
+			effects=YouMay(AddCounter(Counter("hoofprint")), msg="put a counter on Hoofprints of the Stag")))]
 
 #################################

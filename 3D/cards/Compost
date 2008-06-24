@@ -19,6 +19,6 @@ in_play_role = Permanent(card, subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger(zone="graveyard", player="opponent"),
                                         match_condition = isCard.with_condition(lambda c: c.color == "B"),
-                                        ability=MayAbility(card, effects=DrawCard(1)))]
+                                        ability=Ability(card, effects=YouMay(DrawCard(1))))]
 
 #################################

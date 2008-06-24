@@ -20,7 +20,7 @@ subrole.triggered_abilities = [TriggeredAbility(
   trigger = CardTrigger(event=PlaySpellEvent()),
   match_condition = CardMatch(
       lambda card, self=card: card.subtypes == "Druid" and card.controller == self.controller),
-  ability = MayAbility(card, effects=DrawCard(1)))]
+  ability = Ability(card, effects=YouMay(DrawCard(1))))]
 
 target = Target(target_types=isPlayer)
 subrole.abilities = [ActivatedAbility(

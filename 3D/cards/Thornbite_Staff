@@ -20,8 +20,8 @@ trigger = EnterTrigger("play", player="any")
 subrole.triggered_abilities = [TriggeredAbility(card,
                                       trigger=trigger, 
                                       match_condition=isCreature.with_condition(lambda c: c.subtypes == "Shaman"),
-                                      ability=MayAbility(card, target=TriggeredTarget(trigger, 'matched_card'),
-                                                 effects=AttachToPermanent()))]
+                                      ability=Ability(card, target=TriggeredTarget(trigger, 'matched_card'),
+                                                 effects=YouMay(AttachToPermanent())))]
 
 ability = ActivatedAbility(card, MultipleCosts([ManaCost("2"), TapCost()]), target=Target(target_types=isCreatureOrPlayer), effects=DealDamage(1))
 triggered_ability = TriggeredAbility(card,

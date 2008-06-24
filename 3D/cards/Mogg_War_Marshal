@@ -10,21 +10,33 @@ text = ['Echo 1R', 'When Mogg War Marshal comes into play or is put into a grave
 
 out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(1, 1)
-
 in_play_role = Permanent(card, subrole)
 
 #################################
 
-effect = CreateToken({"name":"Goblin", "type":"Creature", "color":"R", "subtypes":["Goblin"], "role": TokenCreature(1,1)}, number=1)
-subrole.triggered_abilities = [TriggeredAbility(card,
-                                        trigger=EnterTrigger("play"),
-                                        match_condition=SelfMatch(card),
-                                        ability=Ability(card, effects=effect)),
-			       TriggeredAbility(card,
-                                        trigger=EnterFromTrigger(from_zone="play", to_zone="graveyard"),
-                                        match_condition=SelfMatch(card),
-                                        ability = Ability(card, effects=effect))
-]
+goblin_token = CreateToken({
+	"name":"Goblin",
+	"type":"Creature",
+	"color":"R",
+	"subtypes":["Goblin"],
+	"role": TokenCreature(1,1)},
+	number=1)
+
+subrole.triggered_abilities = [TriggeredAbility(
+	card,
+	trigger=EnterTrigger("play"),
+	match_condition=SelfMatch(card),
+	ability=Ability(
+		card,
+		effects=goblin_token)),
+TriggeredAbility(
+	card,
+	trigger=EnterFromTrigger(from_zone="play", to_zone="graveyard"),
+	match_condition=SelfMatch(card),
+	ability = Ability(
+		card,
+		effects=goblin_token))]
+
 echo(in_play_role, subrole, cost="1R")
 
 #################################

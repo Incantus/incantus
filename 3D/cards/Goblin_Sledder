@@ -1,6 +1,6 @@
 name = 'Goblin Sledder'
 cardnum = 209
-expansion = 'Onslaught'
+expansion = 'Lorwyn'
 type = characteristic('Creature')
 supertype = no_characteristic()
 subtypes = characteristic(['Goblin'])
@@ -10,14 +10,16 @@ text = ['Sacrifice a Goblin: Target creature gets +1/+1 until end of turn.']
 
 out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(1, 1)
-
 in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = [ActivatedAbility(card, SacrificeCost(cardtype=isCreature.with_condition(lambda c: c.subtypes == "Goblin")), target=Target(target_types=isCreature), effects=AugmentPowerToughness(1, 1, expire=True))
-]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
+subrole.abilities = [ActivatedAbility
+	(card,
+	cost=SacrificeCost(cardtype=isPermanent.with_condition(
+		lambda c: c.subtypes == "Goblin")),
+	target=Target(target_types=isCreature),
+	effects=AugmentPowerToughness(power=1,toughness=1))]
+	
 
 #################################

@@ -10,14 +10,14 @@ text = ['Sacrifice a Goblin: Add R to your mana pool.']
 
 out_play_role.abilities = [CastPermanentSpell(card, cost)]
 subrole = Creature(1, 1)
-
 in_play_role = Permanent(card, subrole)
 
 #################################
 
-subrole.abilities = [ActivatedAbility(card, SacrificeCost(cardtype=isCreature.with_condition(lambda c: c.subtypes == "Goblin")), effects=AddMana("R"))
-]
-subrole.triggered_abilities = []
-subrole.static_abilities = []
+subrole.abilities = [ManaAbility(
+	card,
+	SacrificeCost(cardtype=isPermanent.with_condition(
+		lambda c: c.subtypes == "Goblin")),
+	effects=AddMana("R"))]
 
 #################################

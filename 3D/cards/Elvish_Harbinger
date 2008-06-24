@@ -1,0 +1,37 @@
+name = 'Elvish Harbinger'
+cardnum = 207
+expansion = 'Lorwyn'
+type = characteristic('Creature')
+supertype = no_characteristic()
+subtypes = characteristic(['Elf', 'Druid'])
+cost = '2G'
+color = characteristic(['G'])
+text = ['When Elvish Harbinger comes into play, you may search your library for an Elf card, reveal it, then shuffle your library and put that card on top of it.', 'T Add one mana of any color to your mana pool.']
+
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
+subrole = Creature(1, 2)
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ManaAbility(
+	card,
+	TapCost(),
+	effects=ManaChoice(["W","U","B","R","G"]))]
+
+subrole.triggered_abilities = [TriggeredAbility(
+	card,
+	trigger = EnterTrigger("play"),
+	match_condition=SelfMatch(card),
+	ability=Ability(
+		card,
+		effects=YouMay(MoveCards(
+			from_zone="library",
+			to_zone="library",
+			to_position="top",
+			number=1,
+			card_types=isCard.with_condition(lambda c: c.subtypes == "Elf"),
+			reveal=True))))
+]
+
+#################################

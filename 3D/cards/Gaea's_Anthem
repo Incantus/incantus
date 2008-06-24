@@ -1,0 +1,23 @@
+name = 'Gaea''s Anthem'
+cardnum = 147
+expansion = 'Planar Chaos'
+type = characteristic('Enchantment')
+supertype = no_characteristic()
+subtypes = no_characteristic()
+cost = '1GG'
+color = characteristic(['G'])
+text = ['Creatures you control get +1/+1.']
+
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.static_abilities = [PermanentTrackingAbility(card,
+                                        condition = isCreature.with_condition(lambda c, self=card: c.controller==self.controller),
+                                        effects = AugmentPowerToughness(power=1, toughness=1, expire=False))
+]
+
+#################################

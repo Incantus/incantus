@@ -1,0 +1,22 @@
+name = 'Ravenous Baloth'
+cardnum = 278
+expansion = 'Onslaught'
+type = characteristic('Creature')
+supertype = no_characteristic()
+subtypes = characteristic(['Beast'])
+cost = '2GG'
+color = characteristic(['G'])
+text = ['Sacrifice a Beast: You gain 4 life.']
+
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
+subrole = Creature(4, 4)
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, SacrificeCost(cardtype=isPermanent.with_condition(lambda c: c.subtypes == "Beast")),
+                           effects=ChangeLife(4))
+]
+
+
+#################################

@@ -15,7 +15,7 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-num_swamps = LazyInt(lambda self=card: len(self.controller.play.get(isLand.with(lambda l: l.subtypes == "Swamp"))))
+num_swamps = LazyInt(lambda self=card: len(self.controller.play.get(isLand.with_condition(lambda l: l.subtypes == "Swamp"))))
 subrole.base_power = num_swamps
 subrole.base_toughness = num_swamps
 flying(subrole)

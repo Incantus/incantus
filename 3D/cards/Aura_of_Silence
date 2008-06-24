@@ -25,7 +25,7 @@ def compute(self, card, player, s=card):
     return True
 
 subrole.static_abilities = [GlobalStaticAbility(card,
-                               effects=OverrideGlobal(compute, "compute", ManaCost, logical_and, reverse=False, expire=False))
+                               effects=OverrideGlobal(compute, "compute", ManaCost, logical_and, expire=False))
 ]
 
 #################################

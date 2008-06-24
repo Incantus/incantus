@@ -1,0 +1,27 @@
+name = 'Chameleon Colossus'
+cardnum = 116
+expansion = 'Morningtide'
+type = characteristic('Creature')
+supertype = no_characteristic()
+subtypes = characteristic(['Shapeshifter'])
+cost = '2GG'
+color = characteristic(['G'])
+text = ['Changeling', 'Protection from black', '2GG: Chameleon Colossus gets +X/+X until end of turn, where X is its power.']
+
+out_play_role.abilities = [CastPermanentSpell(card, cost)]
+subrole = Creature(4, 4)
+in_play_role = Permanent(card, subrole)
+
+#################################
+pow = LazyInt(lambda card=card: card.power)
+changeling(subrole,card)
+protection_from_black(subrole)
+subrole.abilities = [ActivatedAbility(
+  card, 
+  cost="2GG",
+  target=Target(targeting="self"),
+  effects=AugmentPowerToughness(power=pow,toughness=pow))
+]
+
+
+#################################

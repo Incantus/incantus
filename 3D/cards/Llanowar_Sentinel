@@ -20,9 +20,10 @@ in_play_role = Permanent(card, subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger("play"),
                                         match_condition = SelfMatch(card),
-                                        ability = MayAbility(card, cost="1G",
-                                                        msg="...pay 1G? If you do, search your library for a card named Llanowar Sentinel and put that card into play",
-                                                        effects=[MoveCards(from_zone="library", to_zone="play", card_types=isCreatureType.with_condition(lambda c: c.name == "Llanowar Sentinel"), number=1), ShuffleLibrary()]))
+                                        ability = Ability(card, cost="1G",
+                                                        effects=YouMay(DependentEffects(
+									[PayExtraCost("1G"), MoveCards(from_zone="library", to_zone="play", card_types=isCreatureType.with_condition(lambda c: c.name == "Llanowar Sentinel"), number=1)]),
+                                                        msg="pay 1G. If you do, search your library for a card named Llanowar Sentinel and put that card into play")))
 ]
 subrole.static_abilities = []
 
