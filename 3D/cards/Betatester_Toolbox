@@ -36,7 +36,7 @@ subrole.abilities = [
   ActivatedAbility(card, cost="0", effects=CreateToken(token_info, number=4)),
   ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=ModifySubtype(add_characteristic("Elf"))),
   ActivatedAbility(card, cost="0", target=Target(target_types=isCreature), effects=AddPowerToughnessCounter()),
-  ActivatedAbility(card, cost="0", target=CounterTarget(target_types=isAbility), effects=CounterAbility()),
+  ActivatedAbility(card, cost="0", target=StackTarget(target_types=isAbility), effects=CounterAbility()),
   ActivatedAbility(card, cost="0", target=Target(targeting="you"), effects=MoveCards("library", "hand")),
   ActivatedAbility(card, cost="0", target=Target(targeting="you"), effects=MoveCards("library", "play")),
   ActivatedAbility(card, cost="0", target=Target(target_types=isPermanentType, zone="graveyard"), effects=ChangeZone(from_zone="graveyard", to_zone="play")),

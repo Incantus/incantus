@@ -19,9 +19,9 @@ in_play_role = Permanent(card, subrole)
 condition = lambda self, card=card: self == card.controller
 
 def draw(self):
-    '''Abundance - you may search for Land/Nonland'''
+    '''~ - you may search for Land/Nonland'''
     choices = [("Land", 1), ("Nonland", 2), ("Draw normally", 3)]
-    choice = self.getSelection(choices, 1, idx=False, prompt="Abundance - You may choose land or nonland")
+    choice = self.getSelection(choices, 1, idx=False, prompt="~ - You may choose land or nonland")
     if choice == 3:
         self.draw()
     else:    

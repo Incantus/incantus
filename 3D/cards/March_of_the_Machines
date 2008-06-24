@@ -16,8 +16,6 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 # XXX Doesn't give the correct power/toughness
-subrole.abilities = []
-subrole.triggered_abilities = []
 subrole.static_abilities = [PermanentTrackingAbility(card,
                                         condition = isArtifact.with_condition(lambda a: not a.type == "Creature"),
                                         effects = AddSubRole(Creature(1,1), {"type": "Creature"})),

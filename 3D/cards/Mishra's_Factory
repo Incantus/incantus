@@ -14,13 +14,13 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-new_role = Creature(2,2)
-role_info = {"type": ["Creature","Artifact"], "subtypes": "Assembly-Worker", "color": ''}
-trample(new_role)
+new_roles = [Artifact(), Creature(2,2)]
+role_info = {"type": ["Artifact","Creature"], "subtypes": "Assembly-Worker"}
+
 subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
                      ActivatedAbility(card, cost="1",
                            target=Target(targeting="self"),
-                           effects=AddSubRole(new_role, role_info)),
+                           effects=AddSubRole(new_roles, role_info)),
                      ActivatedAbility(card, cost=TapCost(),
                            target=Target(target_types=isCreature.with_condition(lambda c: c.subtypes == "Assembly-Worker")),
                            effects=AugmentPowerToughness(power=1, toughness=1))

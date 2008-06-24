@@ -9,6 +9,6 @@ color = characteristic(['U'])
 text = ['Counter target red or green spell.']
 
 out_play_role.abilities = [CastInstantSpell(card, cost,
-                                target=CounterTarget(target_types=isSpellAbility.with_condition(lambda a: a.card.color == "R" or a.card.color == "G")),
+                                target=StackTarget(target_types=isSpellAbility.with_condition(lambda a: a.card.color == "R" or a.card.color == "G")),
                                 effects=CounterAbility())
 ]

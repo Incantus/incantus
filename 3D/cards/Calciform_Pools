@@ -14,7 +14,7 @@ in_play_role = Permanent(card, subrole)
 
 #################################
 
-
+# XXX Doesn't let you remove X counters
 
 subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('1')),
                      ActivatedAbility(card, cost=MultipleCosts([ManaCost("1"), TapCost()]), target=Target(targeting="self"), effects=AddCounter()),
