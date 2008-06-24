@@ -4,6 +4,7 @@ class Event(object):
         return hash(self.__class__)
     def __eq__(self, other):
         return self.__class__ == other.__class__
+    def __str__(self): return self.__class__.__name__
 
 class GameOver(Exception):
     def __init__(self, msg):
