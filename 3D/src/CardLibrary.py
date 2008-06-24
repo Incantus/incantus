@@ -26,7 +26,7 @@ class _CardLibrary:
     def __init__(self):
         self.cardfile = bsddb.hashopen("./data/card_images.db", "c")
         self.back = pyglet.image.load("./data/images/back.jpg").texture
-        self.notfound = file("./data/images/notfound.jpg").read()
+        self.notfound = pyglet.image.load("./data/images/notfound.jpg").texture
         self.combat = pyglet.image.load("./data/images/combat.png").texture
         self.triggered = pyglet.image.load("./data/images/fx/triggered.png").texture
         self.activated = pyglet.image.load("./data/images/fx/triggered.png").texture
@@ -56,11 +56,18 @@ class _CardLibrary:
                     img_file.close()
                 else: return self.back
             else:
-                img_file = urllib.urlopen("http://www.wizards.com/global/images/magic/general/%s.jpg"%imagename)
-                data = img_file.read()
-                img_file.close()
-                if "HTML" in data: data = self.notfound
-            self.cardfile[name] = data
+                # Try local directory
+                local_path = "./data/cardimg/%s.jpg"%imagename
+                if os.path.exists(local_path):
+                    img_file = file(local_path)
+                    data = img_file.read()
+                    img_file.close()
+                else: # Get it from wizards
+                    img_file = urllib.urlopen("http://www.wizards.com/global/images/magic/general/%s.jpg"%imagename)
+                    data = img_file.read()
+                    img_file.close()
+                    if "HTML" in data: return self.notfound
+                    else: self.cardfile[name] = data
         return pyglet.image.load(imagename, file=StringIO(data)).texture
 
     def getCard(self, gamecard, card_cls=Card, cache=None):
