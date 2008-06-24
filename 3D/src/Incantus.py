@@ -62,7 +62,7 @@ class Camera:
         self.view_switched = False
         self.vis_distance = 6.5
         self.x_limit = (-20, 20)
-        self.y_limit = (8, 30)
+        self.y_limit = (8, 40)
         self.z_limit = (-20, 20)
     def setup(self):
         glLoadIdentity()
