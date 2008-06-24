@@ -4,6 +4,7 @@ import Mana
 from Match import isCard
 
 class Cost(object):
+    def is_mana_cost(self): return False
     def precompute(self, card, player): return True
     def compute(self, card, player): return True
     def pay(self, card, player): pass
@@ -26,28 +27,30 @@ class NoCost(object):
 class MultipleCosts(Cost):
     def __init__(self, costs):
         super(MultipleCosts,self).__init__()
-        self.costs = self.consolidate(costs)
+        self.costs = costs
     def consolidate(self, costs):
         # This combines all mana costs
-        newcost = []
         manacost = []
+        othercost = []
         for c in costs:
-            if type(c) == str: manacost.append(ManaCost(c))
-            elif isinstance(c,ManaCost): manacost.append(c)
-            else: newcost.append(c)
+            if c.is_mana_cost(): manacost.append(c)
+            else: othercost.append(c)
         # If this first ManaCost has an X, the following reduce will ensure that we keep it as the final ManaCost object
-        if manacost: costs = [reduce(lambda x,y: x+y, manacost)]+newcost
-        return costs
+        if manacost:
+            cost = manacost[0]
+            for c in manacost[1:]: cost += c
+        return [cost]+othercost
     def precompute(self, card, player):
         for cost in self.costs:
             if not cost.precompute(card, player): return False
         return True
     def compute(self, card, player):
-        for cost in self.costs:
+        self.final_costs = self.consolidate(self.costs)
+        for cost in self.final_costs:
             if not cost.compute(card, player): return False
         return True
     def pay(self, card, player):
-        for cost in self.costs:
+        for cost in self.final_costs:
             cost.pay(card, player)
     def __iadd__(self, other):
         if isinstance(other, str): self.costs.append(ManaCost(other))
@@ -73,6 +76,7 @@ class ManaCost(Cost):
         self._X = 0
         self.X = LazyInt(self._get_X, finalize=True)
     def _get_X(self): return self._X
+    def is_mana_cost(self): return True
     def precompute(self, card, player):
         mp = player.manapool
         cost = mp.convert_mana_string(self.cost)
@@ -109,6 +113,12 @@ class ManaCost(Cost):
     def __eq__(self, other):
         if isinstance(other, str): return Mana.compareMana(self.cost, other)
         elif isinstance(other, ManaCost): return Mana.compareMana(self.cost, other.cost)
+    def __iadd__(self, other):
+        if not hasattr(self, "final_cost"): raise Error()
+        # XXX This is only called by consolidate
+        for i, val in enumerate(other.final_cost):
+            self.final_cost[i] += val
+        return self
     def __add__(self, other):
         if isinstance(other, str): return ManaCost(Mana.combine_mana_strings(self.cost, other))
         elif isinstance(other, ManaCost): return ManaCost(Mana.combine_mana_strings(self.cost, other.cost))
@@ -400,12 +410,15 @@ class LoyaltyCost(Cost):
         return "%d loyalty"%(self.number)
 
 class SpecialCost(Cost):
+    def is_mana_cost(self): return self.cost.is_mana_cost()
     def precompute(self, card, player):
         return self.cost.precompute(card, player)
     def compute(self, card, player):
         return self.cost.compute(card, player)
     def pay(self, card, player):
         self.cost.pay(card, player)
+    def __getattr__(self, attr):
+        return getattr(self.cost, attr)
     def __str__(self):
         return str(self.cost)
 
