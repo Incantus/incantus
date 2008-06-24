@@ -81,7 +81,6 @@ class ReplayDump(object):
         try:
             self.lastpos = self.dumpfile.tell()
             obj = self.unpickler.load()
-            print obj, self.lastpos
             return obj
         except Exception: #(EOFError, TypeError, KeyError):
             self.app.replay = False
