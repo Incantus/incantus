@@ -16,12 +16,14 @@ class CardDatabase(object):
             self._dbs.append(bsddb.hashopen(filename))
     def _convkey(self, key):
         return key.encode("rot13")
-    def __getitem__(self, key):
-        key = self._convkey(key)
+    def __getitem__(self, name):
+        key = self._convkey(name)
         for db in self._dbs:
             if key in db:
                 text, impl, tested, error = pickle.loads(db[key])
-                return (text.encode("rot13"), impl, tested, error)
+                # Find all ~ (tilde's) and replace with name
+                text = text.encode("rot13").replace("~", name)
+                return (text, impl, tested, error)
         else: raise KeyError
     def keys(self): return sum([[self._convkey(k) for k in db.keys()] for db in self._dbs])
     def __contains__(self, key): return self._convkey(key) in self.db
