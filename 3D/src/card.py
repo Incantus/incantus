@@ -12,7 +12,7 @@ from pyglet.gl import *
 import anim
 import euclid
 from anim_euclid import AnimatedVector3, AnimatedQuaternion
-from widget import Label
+from widget import Label, ColorDict
 from counter import Counter
 
 sixteenfv = GLfloat*16
@@ -131,13 +131,13 @@ class HandCard(Card):
 class StackCard(Card):
     highlighting = anim.Animatable()
     borderedlist = None
-    COLORS = dict(B=(0.2,0.2,0.2),W=(1.,1.,1.),R=(0.85,0.13,0.13),G=(0.35,0.85,0.35),U=(0.55, 0.80, 0.90),C=(0.6,0.6,0.6))
+    COLORS = ColorDict()
     def __init__(self, gamecard, front, back, bordered=False, border=None):
         super(StackCard,self).__init__(gamecard,front,back)
         self.highlighting = anim.animate(0, 0, dt=0.2)
         self.size = anim.animate(self.size, self.size, dt=0.2, method="sine")
         self.alpha = anim.animate(0, 0, dt=1.0, method="ease_out_circ")
-        self.color = self.COLORS.get(str(gamecard.color), (0.6,0.6,0.6))
+        self.color = self.COLORS.get(str(gamecard.color))
         self.bordered = bordered
         self.border = border
         if bordered and not self.__class__.borderedlist: self.build_borderedlist()

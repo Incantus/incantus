@@ -4,7 +4,7 @@ from pyglet import clock
 from pyglet.gl import *
 import euclid
 import anim
-from widget import Image, Label
+from widget import Image, Label, ColorDict
 import CardLibrary
 from game import GameEvent
 from game.pydispatch import dispatcher
@@ -13,7 +13,7 @@ from game.Match import isPlayer, isPermanent, isAbility
 from play_view import CombatZone
 
 class SparkFXManager(object):
-    COLORS = dict(B=(0.2,0.2,0.2),W=(1.,1.,1.),R=(0.85,0.13,0.13),G=(0.35,0.85,0.35),U=(0.55, 0.80, 0.90),C=(0.6,0.6,0.6))
+    COLORS = ColorDict()
     def __init__(self):
         self.active_sparks = []
         self.active_sparks_3d = []
@@ -39,7 +39,7 @@ class SparkFXManager(object):
         start_pos += random_offset
         end_pos += random_offset
         if color == None: color=(1.,1.,1.,1)
-        elif type(color) == str: color = self.COLORS.get(color, (0.6,0.6,0.6, 1))
+        elif type(color) == str: color = self.COLORS.get(color)
         else: color = color
         spark = Label(str(number), size=40, color=color, shadow=False, halign="center", valign="center", pos=start_pos)
         spark._pos.set_transition(dt=dt, method="ease_out_circ") #ease_out_back")
@@ -54,7 +54,7 @@ class SparkFXManager(object):
         spark.pos = end_pos
         if color == None: spark.color=(1.,1.,1.)
         elif type(color) == str:
-            spark.color = self.COLORS.get(color, (0.6,0.6,0.6))
+            spark.color = self.COLORS.get(color)
         else: spark.color = color
         spark.visible = anim.animate(1., 0., dt=dt)
         if grow: spark.scale = anim.animate(0.5, 2.0, dt=dt, method="sine")
@@ -65,7 +65,7 @@ class SparkFXManager(object):
         spark = Image('targeting', pos=start_pos)
         if color == None: spark.color = (1.0, 1.0, 1.0)
         elif type(color) == str:
-            spark.color = self.COLORS.get(color, (0.6,0.6,0.6))
+            spark.color = self.COLORS.get(color)
         else: spark.color = color
         spark.visible = anim.animate(1., 0., dt=dt)
         spark.rotatez = anim.animate(-15, 45, dt=dt, method="sine")
@@ -75,7 +75,7 @@ class SparkFXManager(object):
         else: self.active_sparks_3d.append(spark)
     def add_sparkle_star(self, start_pos, end_pos, dt=1.0, color=None, dim=2):
         if color == None: color = (1., 0.9, 0)
-        elif type(color) == str: color = self.COLORS.get(color, (0.6,0.6,0.6))
+        elif type(color) == str: color = self.COLORS.get(color)
         else: color = color
         spark = Image('targeting', pos=start_pos)
         spark.visible = anim.animate(1., 0., dt=dt)
@@ -250,7 +250,7 @@ class ZoneAnimator(object):
                     #clock.schedule_once(lambda t: pstatus.update_cards(), 2.80)
                     clock.schedule_once(lambda t: self.sparks.add_star_spark(end_pos, end_pos, dt=.5, color=str(card.color)) , 2.70)
                 else:
-                    self.sparks.add_spark(start_pos, end_pos, dt=1.25, color="colorless") #str(card.color))
+                    self.sparks.add_spark(start_pos, end_pos, dt=1.25, color="")
                     clock.schedule_once(lambda t: pstatus.update_zone(sender), 1.25)
                     #clock.schedule_once(lambda t: pstatus.update_cards(), 1.25)
                 del self.tracker[card]

@@ -45,6 +45,20 @@ class ImageCache(object):
         for key in ["ring", "glow", "star", "targeting"]:
             ImageCache._load(key+".png", path, key)
 
+class ColorDict(object):
+    def __init__(self, default=(1.0, 1.0, 1.0)):
+        self.colors = dict(B=(0.2,0.2,0.2),W=(1.,1.,1.),R=(0.85,0.13,0.13),G=(0.35,0.85,0.35),U=(0.55, 0.80, 0.90))
+        self.colors[''] = (0.6, 0.6, 0.6)
+        self.default = default
+    def get(self, color):
+        if color in self.colors: return self.colors[color]
+        else:
+            # multicolor - blend the colors
+            colors = color.split()
+            color = reduce(lambda x, y: (x[0]+y[0], x[1]+y[1], x[2]+y[2]) ,[self.colors[c] for c in colors])
+            return tuple([val/len(colors) for val in color])
+        #else: return self.default
+
 class Widget(anim.Animable):
     def pos():
         def fget(self): return euclid.Vector3(self._pos.x, self._pos.y, self._pos.z)
