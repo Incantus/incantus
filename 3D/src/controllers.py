@@ -274,6 +274,7 @@ class DamageSelector(object):
         for card in [self.attacker]+self.blockers:
             #card.damage_text.scale = 0.4
             #card.damage_text.pos = card.damage_text.zoom_pos
+            card.text.visible = 1.0
             card.damage_text.color = (1., 0., 0., 1.)
             card.damage_text.set_text("%d"%card.damage)
             card.restore_pos()
@@ -291,7 +292,8 @@ class DamageSelector(object):
                 currplay, otherplay = self.play2, self.play1
                 card = currplay.get_card(attacker)
             z = card.height*size*1.1*0.5
-            card.zoom_to_camera(camera, currplay.pos.z, size=size,offset=euclid.Vector3(x,0,z))
+            card.zoom_to_camera(camera, currplay.pos.z, size=size, show_info=False, offset=euclid.Vector3(x,0,z))
+            card.text.visible = 0.0
             card.damage_text.visible = 1.0
             card.damage_text.scale = 2.0
             card.damage_text.color = (1., 1., 1., 1.)
@@ -303,7 +305,7 @@ class DamageSelector(object):
             x = (-width+card.width*size)*0.5*1.1
             for blocker in blockers:
                 card = otherplay.get_card(blocker)
-                card.zoom_to_camera(camera, otherplay.pos.z, size=size,offset=euclid.Vector3(x,0,z))
+                card.zoom_to_camera(camera, otherplay.pos.z, size=size, show_info=False, offset=euclid.Vector3(x,0,z))
                 card.text.scale = 2.0
                 card.text.pos = card.text.orig_pos
                 card.damage_text.visible = 1.0

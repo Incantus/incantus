@@ -309,6 +309,7 @@ class HandView(CardView):
         for card in self.cards[self.focus_idx+1:]: card.draw()
 
 from game.Ability.CastingAbility import CastSpell
+from game.Ability.ActivatedAbility import ActivatedAbility
 class StackView(CardView):
     width = anim.Animatable()
     height = anim.Animatable()
@@ -325,11 +326,13 @@ class StackView(CardView):
         self.layout()
     def add_ability(self, ability, startt=0):
         if ability.card == "Assign Damage":
-            newcard = CardLibrary.CardLibrary.getFakeCard(ability)
-            newcard.triggered = True
+            newcard = CardLibrary.CardLibrary.getCombatCard(ability)
+            newcard.bordered = True
         else:
-            triggered = not isinstance(ability, CastSpell)
-            newcard = CardLibrary.CardLibrary.getStackCard(ability.card, triggered)
+            if isinstance(ability, CastSpell): func = CardLibrary.CardLibrary.getStackCard
+            elif isinstance(ability, ActivatedAbility): func = CardLibrary.CardLibrary.getActivatedCard
+            else: func = CardLibrary.CardLibrary.getTriggeredCard
+            newcard = func(ability.card)
         newcard.ability = ability
         self.cards.append(newcard)
         self.focus_idx = len(self)-1
@@ -414,7 +417,7 @@ class StackView(CardView):
             card.size = self.focus_size #anim.animate(card.size, self.focus_size, dt=0.2, method="sine")
             card.pos = euclid.Vector3(startx+w*0.45, y-h*0.4, z)
             self.text.visible = 1.0
-            if card.triggered: self.text.visible = 1.0
+            if card.bordered: self.text.visible = 1.0
             else: self.text.visible = 0.0
             self.text.pos = euclid.Vector3(startx, y-h*0.7, z)
             self.text.set_text(str(card.ability), width=0.9*w)

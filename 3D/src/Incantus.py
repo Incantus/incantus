@@ -658,7 +658,7 @@ class GameWindow(window.Window):
         deckfile = [l.strip().split() for l in file(filename, "rU").readlines() if not (l[0] == "#" or l[:2] == "//")]
         decklist = [(l[0], " ".join(l[1:])) for l in deckfile if l and l[0] != "SB:"]
         self.game_status.log("Retrieving card images from web")
-        CardLibrary.CardLibrary.retrieveCardImages([c[1] for c in decklist])
+        #CardLibrary.CardLibrary.retrieveCardImages([c[1] for c in decklist])
         return decklist
 
     def on_close(self):

@@ -22,37 +22,14 @@ class _CardLibrary:
     card_cache = {}
     play_card_cache = {}
     hand_card_cache = {}
-    #datapath = "./data/cards/"
-    #cardlists = {}
 
     def __init__(self):
         self.cardfile = bsddb.hashopen("./data/card_images.db", "c")
         self.back = pyglet.image.load("./data/images/back.jpg").texture
-        self.trigger = pyglet.image.load("./data/images/fx/triggered.png").texture
-        #tokens = [("white", "W"), ("red", "R"), ("blue", "U"), ("black","B"), ("green","G"), ("white", "C")]
-        #self.token_image = dict([(color,pygame.image.load("./data/images/tokens/%s_token.png"%t).convert_alpha()) for t, color in tokens])
-        #total = 0
-        #for cs in cardsets:
-        #    total += self.load_set(cs)
-
-        #self.numberCards = total
-        #self.load_card_properties()
-        #self.load_card_counters()
-        #cardsize = self.getCardSize()
-        #self.card_width, self.card_height = cardsize.w, cardsize.h
-        #self.overlay = pygame.Surface((cardsize.w, cardsize.h), pygame.SRCALPHA, 32)
-        #popup_rect = pygame.rect.Rect((2,52), (cardsize.w-4,39))
-        #self.popup = self.overlay.subsurface(popup_rect)
-
-    #def load_set(self, cardset):
-    #    import string, operator
-    #    cardlist = self.cardfile.read("cards/"+cardset+"/checklist.txt").splitlines()
-    #    cardlist = [map(string.strip, c.split("\t")) for c in cardlist if c[0] != "#"]
-    #    numCards = len(cardlist)
-    #    cardlist = [(int(c[0]), c[1]) for c in cardlist]
-    #    cardlist.sort(key=operator.itemgetter(0))
-    #    self.cardlists[cardset] = dict(cardlist)
-    #    return len(cardlist)
+        self.notfound = file("./data/images/notfound.jpg").read()
+        self.combat = pyglet.image.load("./data/images/combat.png").texture
+        self.triggered = pyglet.image.load("./data/images/fx/triggered.png").texture
+        self.activated = pyglet.image.load("./data/images/fx/triggered.png").texture
 
     def close(self):
         self.cardfile.close()
@@ -71,7 +48,7 @@ class _CardLibrary:
         if name in self.cardfile: data = self.cardfile[name]
         else:
             if name.endswith("Token"):
-                token_type = name[:-6] #.split(" ")[:-1]
+                token_type = name[:-6]
                 if token_type in token_cards:
                     ed, number = token_cards[token_type]
                     img_file = urllib.urlopen("http://magiccards.info/tokens/thumb/%s-%03d.jpg"%(ed,number))
@@ -79,11 +56,11 @@ class _CardLibrary:
                     img_file.close()
                 else: return self.back
             else:
-                #img_file = urllib.urlopen("http://magiccards.info/scans/en/%s/%d.jpg"%(cardset,number))
                 img_file = urllib.urlopen("http://www.wizards.com/global/images/magic/general/%s.jpg"%imagename)
                 data = img_file.read()
                 img_file.close()
-            self.cardfile[name] = data 
+                if "HTML" in data: data = self.notfound
+            self.cardfile[name] = data
         return pyglet.image.load(imagename, file=StringIO(data)).texture
 
     def getCard(self, gamecard, card_cls=Card, cache=None):
@@ -100,10 +77,13 @@ class _CardLibrary:
             cache[key] = card
         return card
 
-    def getStackCard(self, gamecard, triggered=False):
+    def getStackCard(self, gamecard, bordered=False, border=None):
         card = self.getCard(gamecard)
-        stack_card = StackCard(card.gamecard, card.front, card.back, self.trigger, triggered)
-        return stack_card
+        return StackCard(card.gamecard, card.front, card.back, bordered, border)
+    def getActivatedCard(self, gamecard):
+        return self.getStackCard(gamecard, bordered=True, border=self.activated)
+    def getTriggeredCard(self, gamecard):
+        return self.getStackCard(gamecard, bordered=True, border=self.triggered)
 
     def getHandCard(self, gamecard):
         return self.getCard(gamecard,HandCard,self.hand_card_cache)
@@ -111,6 +91,9 @@ class _CardLibrary:
     def getPlayCard(self, gamecard):
         card = self.getCard(gamecard,PlayCard,self.play_card_cache)
         return card
+
+    def getCombatCard(self, ability):
+        return Card(ability.card, self.combat, self.combat)
 
     def getFakeCard(self, ability):
         return Card(ability.card, self.back, self.back)
@@ -121,6 +104,7 @@ class _CardLibrary:
     def getCardBack(self, size="default"):
         return self.back
 
+    # XXX These are old - notice they still call pygame
     def load_card_counters(self):
         counter_path = "./data/images/counters/"
         counters = glob.glob(counter_path+"*.gif")

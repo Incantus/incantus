@@ -130,24 +130,24 @@ class HandCard(Card):
 
 class StackCard(Card):
     highlighting = anim.Animatable()
-    triggeredlist = None
+    borderedlist = None
     COLORS = dict(B=(0.2,0.2,0.2),W=(1.,1.,1.),R=(0.85,0.13,0.13),G=(0.35,0.85,0.35),U=(0.55, 0.80, 0.90),C=(0.6,0.6,0.6))
-    def __init__(self, gamecard, front, back, trigger, triggered=None):
+    def __init__(self, gamecard, front, back, bordered=False, border=None):
         super(StackCard,self).__init__(gamecard,front,back)
         self.highlighting = anim.animate(0, 0, dt=0.2)
         self.size = anim.animate(self.size, self.size, dt=0.2, method="sine")
         self.alpha = anim.animate(0, 0, dt=1.0, method="ease_out_circ")
         self.color = self.COLORS.get(str(gamecard.color), (0.6,0.6,0.6))
-        self.trigger = trigger
-        self.triggered = triggered
-        if not self.__class__.triggeredlist: self.build_triggeredlist()
-    def build_triggeredlist(self):
+        self.bordered = bordered
+        self.border = border
+        if bordered and not self.__class__.borderedlist: self.build_borderedlist()
+    def build_borderedlist(self):
         cls = self.__class__
-        width = self.trigger.width/2.0; height=self.trigger.height/2.0
+        width = self.border.width/2.0; height=self.border.height/2.0
         vertlist = [euclid.Point3(-width, -height, 0), euclid.Point3(width, -height, 0), euclid.Point3(width, height, 0), euclid.Point3(-width, height, 0)]
-        tc = self.trigger.tex_coords
+        tc = self.border.tex_coords
         cardlist = glGenLists(1)
-        cls.triggeredlist = cardlist
+        cls.borderedlist = cardlist
         glNewList(cardlist, GL_COMPILE)
         glBegin(GL_QUADS)
         glTexCoord2f(tc[0], tc[1])
@@ -179,10 +179,10 @@ class StackCard(Card):
             glBindTexture(self._texture.target, self._texture.id)
             glColor4f(1, 1, 1, self.alpha)
             glCallList(self.cardlist)
-            if self.triggered:
-                glBindTexture(self.trigger.target, self.trigger.id)
+            if self.bordered:
+                glBindTexture(self.border.target, self.border.id)
                 glColor4f(self.color[0], self.color[1], self.color[2], self.alpha)
-                glCallList(self.triggeredlist)
+                glCallList(self.borderedlist)
             glDisable(self._texture.target)
             glPopMatrix()
 
@@ -191,6 +191,7 @@ class StackCard(Card):
 # Since visual cards are recycled once they are created (by CardLibrary) the event triggers below will still
 # be active when the card leaves play. However, since the actual gamecard won't be generating any of the events
 # until the card is back in play this should be fine
+# XXX This is no longer the case - the card unregisters the events it listens to
 from game.Match import isCreature
 from game.GameEvent import HasPriorityEvent, PowerToughnessChangedEvent, CounterAddedEvent, CounterRemovedEvent, SubRoleAddedEvent, SubRoleRemovedEvent
 from game.pydispatch import dispatcher
@@ -210,6 +211,8 @@ class PlayCard(Card):
         self.is_creature = False
         self.draw = self.draw_permanent
         self.info_box = Label("", size=12, background=True, shadow=False, valign="top")
+        self.info_box._pos.set_transition(dt=0.4, method="sine")
+        self.info_box.pos = euclid.Vector3(self.width/2+self.info_box.border, self.height/2-self.info_box.border, 0.005)
         self.info_box.visible = False
     def add_role(self, sender):
         if isCreature(self.gamecard):
@@ -231,15 +234,15 @@ class PlayCard(Card):
         self.text._scale = anim.animate(0, 0, dt=0.25, method="sine")
         self.text.scale = 2.0
         self.text._pos.set(euclid.Vector3(0,0,0)) #_transition(dt=0.25, method="sine")
-        self.text.orig_pos = euclid.Vector3(0,-self.height*0.25,0.005)
-        self.text.zoom_pos = euclid.Vector3(self.width*0.375,-self.height*0.454, 0.01)
+        self.text.orig_pos = euclid.Vector3(0,-self.height*0.25,0.001)
+        self.text.zoom_pos = euclid.Vector3(self.width*1.375,-self.height*0.454, 0.01)
         self.text.pos = self.text.orig_pos
         self.damage_text = Label("", size=34, background=True, shadow=False, halign="center", valign="center", color=(1., 0., 0., 1.))
         #self.damage_text._scale = anim.animate(0.0, 0.0, dt=0.25, method="sine")
         self.damage_text.scale = 0.4
         self.damage_text.visible = 0
         self.damage_text._pos.set(euclid.Vector3(0,0,0)) #_transition(dt=0.25, method="sine")
-        self.damage_text.zoom_pos = euclid.Vector3(-self.width*0.375,-self.height*0.454, 0.01)
+        self.damage_text.zoom_pos = euclid.Vector3(self.width*(1-.375),-self.height*0.454, 0.01)
         self.damage_text.pos = self.damage_text.zoom_pos
         self.change_value()
         self.draw = self.draw_creature
@@ -342,13 +345,14 @@ class PlayCard(Card):
     def unshake(self):
         # XXX Need to reset position transition - this is a bit hacky - I need to be able to layer animations
         self._pos.set_transition(dt=0.4, method=self.pos_transition)
-    def zoom_to_camera(self, camera, z, size=0.02, offset = euclid.Vector3(0,0,0)):
+    def zoom_to_camera(self, camera, z, size=0.02, show_info = True, offset = euclid.Vector3(0,0,0)):
         if self.zooming == 0.0:
             self.zooming = 1.0
             self.old_pos = self.pos
             self._pos.set_transition(dt=0.4, method="ease_out_back") #self.pos_transition)
             #self._pos.y = anim.animate(self._pos.y, self._pos.y, dt=0.4, method="sine")
             #self._orientation.set_transition(dt=0.5, method="sine")
+            if show_info: offset = offset + euclid.Vector3(-self.width*size/2, 0, 0)
             self.pos = camera.pos - camera.orientation*euclid.Vector3(0,0,camera.vis_distance) - euclid.Vector3(0,0,z) + offset
             self.orig_orientation = self.orientation
             self.orientation = camera.orientation
@@ -359,9 +363,11 @@ class PlayCard(Card):
                 self.text.pos = self.text.zoom_pos
                 self.text.scale = 0.4
                 self.damage_text.visible = 1.0
-            self.info_box.visible = 1
-            self.info_box.pos = euclid.Vector3(self.width/2+self.info_box.border, self.height/2-self.info_box.border, 0.01)
-            self.info_box.set_text(self.gamecard.info, width=self.width)
+            if show_info:
+                self.info_box.visible = True
+                self.info_box.set_text(self.gamecard.info, width=self.width)
+                self.info_box._height = self.height-self.info_box.border
+            else: self.info_box.visible = False
     def restore_pos(self):
         self.zooming = 0.0 #anim.animate(self.zooming, 0.0, dt=0.2)
         self._pos.set_transition(dt=0.4, method=self.pos_transition)
@@ -378,7 +384,7 @@ class PlayCard(Card):
             self.damage_text.scale = 0.4
             self.damage_text.pos = self.damage_text.zoom_pos
             self.damage_text.visible = 0.0
-        self.info_box.visible = 0
+        self.info_box.visible = False
     def draw_permanent(self):
         if self.visible > 0:
             size = self.size
