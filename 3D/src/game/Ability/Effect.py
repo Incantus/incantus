@@ -884,7 +884,9 @@ class ShuffleIntoLibrary(Effect):
     # targeting of "self" will fail (because the zone is different)
     def __call__(self, card, target):
         player = card.owner
+        player.library.disable_ordering()
         player.moveCard(card, card.zone, player.library)
+        player.library.enable_ordering()
         player.library.shuffle()
         return True
     def __str__(self):
@@ -971,7 +973,9 @@ class MoveCards(Effect):
             else:
                 to_zone = card.controller.play
                 card.controller = card.controller
+            if hasattr(to_zone, "ordered") and self.peek: to_zone.disable_ordering()
             to_zone.move_card(card, from_zone, position=position)
+            if hasattr(to_zone, "ordered") and self.peek: to_zone.enable_ordering()
             self.func(card)
         if len(self.selection) and self.subset:
             if self.return_position == "top": position = -1
