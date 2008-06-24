@@ -67,7 +67,7 @@ class PermanentTrackingAbility(StaticAbility):
     def entering(self, trigger):
         # This is called everytime a permanent that matches condition enters play
         perm = trigger.matched_card
-        self.add_effects(perm)
+        if not perm in self.effect_tracking: self.add_effects(perm)
     def leaving(self, trigger):
         # This is called everytime a permanent leaves play
         perm = trigger.matched_card
