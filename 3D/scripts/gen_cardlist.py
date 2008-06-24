@@ -1,11 +1,16 @@
-import bsddb
+import bsddb, sys
 import cPickle as p
-f = bsddb.hashopen("data/cards.db")
+
+if not len(sys.argv) == 2:
+    filename = "data/cards.db"
+else: filename = sys.argv[1]
+
+f = bsddb.hashopen(filename)
 names = f.keys()
 cards = []
 for name in names:
     card = p.loads(f[name])
-    cards.append((name, card[2], card[3]))
+    cards.append((name.encode("rot13"), card[2], card[3]))
 
 cards.sort(key=lambda c: c[0])
 f = file("cardlist.txt", 'w')
