@@ -22,6 +22,7 @@ class characteristic(object):
         newchar = characteristic([])
         newchar.characteristics = self.characteristics.copy()
         return newchar
+    def make_text_line(self, fields): fields[:] = self.characteristics
 
 class all_characteristics(object):
     is_characteristic = True
@@ -33,13 +34,15 @@ class all_characteristics(object):
     def copy(self): return all_characteristics()
     def __str__(self): return "All"
     def __repr__(self): return repr("All")
+    def make_text_line(self, fields): fields[:] = ["All"]
 
 class no_characteristic(characteristic):
     is_characteristic = True
     # This characterisitic matches nothing
     def __init__(self): super(no_characteristic, self).__init__('')
-    def __str__(self): return "None"
+    def __str__(self): return ""
     def __repr__(self): return repr("None")
+    def make_text_line(self, fields): fields[:] = []
 
 # These are only used internally
 class add_characteristic(object):
@@ -55,10 +58,11 @@ class add_characteristic(object):
         elif self.characteristic in other: return True
         else: return None
     def __str__(self):
-        return "Add %s"%str(self.characteristic)
+        return str(self.characteristic)
     def __repr__(self):
-        return  "'%s'"%str(self)
+        return  "Add '%s'"%str(self)
     def copy(self): return add_characteristic(self.characteristic)
+    def make_text_line(self, fields): fields.append(self.characteristic)
 
 class remove_characteristic(object):
     is_characteristic = True
@@ -73,10 +77,12 @@ class remove_characteristic(object):
         #if self.characteristic in other: return False
         #else: return None
     def __str__(self):
-        return "Remove %s"%str(self.characteristic)
+        return str(self.characteristic)
     def __repr__(self):
-        return "'%s'"%str(self)
+        return "Remove '%s'"%str(self)
     def copy(self): return remove_characteristic(self.characteristic)
+    def make_text_line(self, fields):
+        if self.characteristic in fields: fields.remove(self.characteristic)
 
 class stacked_characteristic(object):
     stacked = True
@@ -107,6 +113,10 @@ class stacked_characteristic(object):
             elif check == False: result = False
             elif check == None: pass
         return result
+    def __str__(self):
+        fields = []
+        for char in self.characteristics: char.make_text_line(fields)
+        return ' '.join(fields)
     def __repr__(self):
         return "[stacked_characteristic: %s]"%repr(self.characteristics)
 

@@ -1,5 +1,5 @@
 from Ability import Ability, PostponeTargeting
-from ActivatedAbility import ActivatedAbility, DoOrAbility, StacklessActivatedAbility, MayAbility
+from ActivatedAbility import ActivatedAbility, DoOrAbility, StacklessActivatedAbility
 from CastingAbility import CastPermanentSpell
 from Effect import *
 from Target import Target, SpecialTarget, TriggeredTarget
@@ -113,9 +113,9 @@ def hideaway(subrole, card, cost="0", limit=None):
             match_condition=SelfMatch(card),
             ability=Ability(card, target=Target(targeting="you"), effects=hidden))
 
-    return_hidden = MayAbility(card, cost,
+    return_hidden = Ability(card, cost,
             target=SpecialTarget(targeting=lambda: hidden.cardlist[0]),
-            effects=PlayCard(cost="0"),
+            effects=YouMay(PlayCard(cost="0")),
             limit=limit)
 
     subrole.triggered_abilities.append(hideaway)

@@ -73,6 +73,27 @@ class RevealCard(Effect):
         target.send(LogEvent(), msg="%s reveals %s"%(target, showcard))
         return True
 
+class MayEffect(Effect):
+    def __init__(self, effect, msg=''):
+        self.effect = effect
+        if not msg: msg = str(self.effect)
+        self.msg = msg
+    def process_target(self, card, target): return self.effect.process_target(card, target)
+    def get_player(self, card): raise NotImplemented()
+    def __call__(self, card, target):
+        player = self.get_player(card)
+        if player.getIntention(prompt="You may %s"%self.msg,msg="Would you like to %s?"%self.msg): return self.effect(card, target)
+        else: return False
+    def __str__(self):
+        return "You may %s"%self.msg
+
+class YouMay(MayEffect):
+    def get_player(self, card): return card.controller
+class OpponentMay(MayEffect):
+    def get_player(self, card): return card.controller.opponent
+class OwnerMay(MayEffect):
+    def get_player(self, card): return card.owner
+
 class ForEach(Effect):
     def __init__(self, effect=None):
         self.effect = effect
@@ -494,7 +515,7 @@ class OverrideGlobalReplacement(OverrideGlobal):
         new_func_gen = lambda func, obj, cls: [False, new.instancemethod(func,obj,cls), txt, condition]
         super(OverrideGlobalReplacement,self).__init__(func, name, global_class, combiner=replacement, reverse=False, expire=expire, new_func_gen=new_func_gen)
     def __str__(self):
-        return "Override local %s with replacement effect"%self.name
+        return "Override global %s with replacement effect"%self.name
 
 class AttachToPermanent(Effect):
     def __call__(self, card, target):
@@ -636,6 +657,7 @@ class ConditionalEffect(Effect):
     def __init__(self, effect, condition):
         self.effect = effect
         self.condition = condition
+    def process_target(self, card, target): return self.effect.process_target(card, target)
     def __call__(self, card, target):
         if self.condition(card, target):
             restore = self.effect(card, target)
@@ -651,6 +673,7 @@ class DoUntil(Effect):
         self.match_condition = match_condition
         self.triggers = []
         self.expiry=expiry
+    def process_target(self, card, target): return self.effect.process_target(card, target)
     def __call__(self, card, target):
         import Trigger
         restore = self.effect(card, target)
