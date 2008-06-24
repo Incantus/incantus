@@ -27,6 +27,8 @@ class NoCost(object):
 class MultipleCosts(Cost):
     def __init__(self, costs):
         super(MultipleCosts,self).__init__()
+        for i, c in enumerate(costs):
+            if type(c) == str: costs[i] = ManaCost(c)
         self.costs = costs
     def consolidate(self, costs):
         # This combines all mana costs
@@ -252,6 +254,11 @@ class ReturnToHandCost(ChangeZoneCost):
     def __init__(self, number=1, cardtype=None):
         super(ReturnToHandCost,self).__init__(from_zone="play", to_zone="hand", number=number, cardtype=cardtype)
         self.action_txt = "return%s to hand"
+
+class RemoveFromPlayCost(ChangeZoneCost):
+    def __init__(self, number=1, cardtype=None):
+        super(RemoveFromHandCost,self).__init__(from_zone="play", to_zone="removed", number=number, cardtype=cardtype)
+        self.action_txt = "remove%s from play"
 
 class RemoveFromHandCost(ChangeZoneCost):
     def __init__(self, number=1, cardtype=None):
