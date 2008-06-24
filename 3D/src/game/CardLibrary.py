@@ -82,10 +82,10 @@ class _CardLibrary:
         card.name = name
         card.cost = "0"
         card.text = "No card object found"
-        card.base_color = card.color = characteristic('')
+        card.base_color = card.color = no_characteristic()
         card.base_type = card.type = characteristic("Artifact")
-        card.base_supertype = card.supertype = characteristic('')
-        card.base_subtypes = card.subtypes = characteristic('')
+        card.base_supertype = card.supertype = no_characteristic()
+        card.base_subtypes = card.subtypes = no_characteristic()
         card.key = (self.counter, name)
 
         card.stack_role = CardEnvironment.SpellRole(card)
@@ -126,7 +126,7 @@ class _CardLibrary:
 
         card.key = (self.counter, card.name)
 
-        if type(card.cost) == str: card.cost = CardEnvironment.ManaCost(card.cost)
+        #if type(card.cost) == str: card.cost = CardEnvironment.ManaCost(card.cost)
 
         if (card.type == "Instant" or card.type == "Sorcery"):
             card.in_play_role = CardEnvironment.NoRole(card)

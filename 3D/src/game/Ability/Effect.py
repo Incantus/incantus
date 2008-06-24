@@ -555,12 +555,12 @@ class ModifyCharacteristic(Effect):
             stacked_char = stacked_characteristic(characteristic)
             setattr(target, self.attribute, stacked_char)
         else: stacked_char = characteristic
-        stacked_char.add_characteristic(self.characteristic)
+        stacked_char.add(self.characteristic)
         card.send(self.change_event, card=target)
         def restore(stacked_char=stacked_char):
-            stacked_char.remove_characteristic(self.characteristic)
+            stacked_char.remove(self.characteristic)
             if not stacked_char.stacking():
-                setattr(target, self.attribute, stacked_char.characteristics[0])
+                setattr(target, self.attribute, stacked_char.pop())
                 del stacked_char
             card.send(self.change_event, card=target)
         if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
@@ -601,15 +601,18 @@ class RemoveSubRoles(Effect):
     def __str__(self):
         return "Remove roles"
 
-# I need to fix this to work better with stacked characteristics
 class AddSubRole(Effect):
     def __init__(self, subrole, subrole_info, expire=True):
-        self.subrole = subrole
+        if not (type(subrole) == list or type(subrole) == tuple): subrole = [subrole]
+        self.subroles = subrole
         self.subrole_info = subrole_info
         self.expire = expire
     def __call__(self, card, target):
-        subrole = self.subrole.copy(target.current_role)
-        target.add_subrole(subrole)
+        added_roles = []
+        for subrole in self.subroles:
+            subrole = subrole.copy(target.current_role)
+            target.add_subrole(subrole)
+            added_roles.append(subrole)
         stacked = []
         for char_str, val in self.subrole_info.items():
             val = add_characteristic(val)
@@ -618,22 +621,24 @@ class AddSubRole(Effect):
                 stacked_char = stacked_characteristic(chr)
                 setattr(target, char_str, stacked_char)
             else: stacked_char = chr
-            stacked_char.add_characteristic(val)
+            stacked_char.add(val)
             stacked.append((char_str, stacked_char, val))
         # XXX Should the card send these messages, or the target?
         card.send(SubroleModifiedEvent(), card=target)
         def restore(stacked=stacked):
-            target.remove_subrole(subrole)
+            for subrole in added_roles:
+                target.remove_subrole(subrole)
             for char_str, stacked_char, val in stacked:
-                stacked_char.remove_characteristic(val)
+                print stacked_char
+                stacked_char.remove(val)
                 if not stacked_char.stacking():
-                    setattr(target, char_str, stacked_char.characteristics[0])
+                    setattr(target, char_str, stacked_char.pop())
                     del stacked_char
             card.send(SubroleModifiedEvent(), card=target)
         if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
     def __str__(self):
-        return "Add %s"%self.subrole
+        return "Add %s"%' '.join(map(str,self.subroles))
 
 class GiveKeyword(Effect):
     def __init__(self, keyword_func, expire=True, keyword='', perm=False):
@@ -958,6 +963,7 @@ class MoveCards(Effect):
         else:
             position = -1*self.to_position # From the top
             cards = iter(self.cardlist[::-1])
+
         for card in cards:
             if not card.zone == from_zone: continue
             # Make sure we get the owner's zone
@@ -1042,13 +1048,3 @@ class DiscardCard(Effect):
             num = "all"
         else: a = ''
         return "Discard %s card%s"%(num, a)
-#class DrawCard(MoveCards):
-#    def __init__(self, number=1):
-#        super(DrawCard,self).__init__(from_zone="library", to_zone="hand", from_position="top", number=number)
-#    def __str__(self):
-#        return "Draw %d card(s)"%(self.number)
-#class DiscardCard(MoveCards):
-#    def __init__(self, number=1, card_types=isCard):
-#        super(DiscardCard,self).__init__(from_zone="hand", to_zone="graveyard", number=number, card_types=card_types)
-#    def __str__(self):
-#        return "Discard %d card(s)"%(self.number)
