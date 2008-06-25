@@ -11,18 +11,17 @@ from Effect import AddPowerToughnessCounter
 from MemoryVariable import MemoryVariable
 
 class Reinforce(ActivatedAbility):
-    def __init__(self, card, cost="0", number=1):
+    def __init__(self, card, cost, number=1):
         from Target import Target
         from Effect import AddPowerToughnessCounter
         self.reinforce_cost = cost
-        cost = ManaCost(cost) + DiscardCost()
         self.number = number
-        super(Reinforce, self).__init__(card, cost=cost, target=Target(target_types=isCreature), effects=AddPowerToughnessCounter(number=number), zone="hand")
+        if type(cost) == str: cost = ManaCost(cost)
+        super(Reinforce, self).__init__(card, cost=cost+DiscardCost(), target=Target(target_types=isCreature), effects=AddPowerToughnessCounter(number=number), zone="hand")
     def __str__(self):
         return "%s: Reinforce %d"%(self.reinforce_cost, self.number)
 
-# XXX Reinforce should be instant speed
-def reinforce(out_play_role, cost="0", number=1):
+def reinforce(out_play_role, cost, number=1):
     out_play_role.abilities.append(Reinforce(out_play_role.card, cost, number))
 
 class KinshipAbility(Stackless, ActivatedAbility):
@@ -53,8 +52,6 @@ def kinship(subrole, card, kinship_ability):
         kinship.leavingPlay()
         subrole.triggered_abilities.remove(kinship)
     return remove_kinship
-
-
 
 class ProwlVariable(MemoryVariable):
     def __init__(self, card):
