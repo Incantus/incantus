@@ -1,5 +1,5 @@
-from Ability import Ability, PostponeTargeting
-from ActivatedAbility import ActivatedAbility, DoOrAbility, StacklessActivatedAbility
+from Ability import Ability, Stackless, PostponeTargeting
+from ActivatedAbility import ActivatedAbility
 from CastingAbility import CastPermanentSpell
 from Effect import *
 from Target import Target, SpecialTarget, TriggeredTarget
@@ -11,9 +11,7 @@ from game.Cost import EvokeCost, ManaCost, TapCost, MultipleCosts
 from game.characteristics import all_characteristics
 from game.GameEvent import ClashEvent
 
-class DoOrAbilityPostponed(PostponeTargeting, DoOrAbility): pass
-
-class ClashAbility(StacklessActivatedAbility):
+class ClashAbility(Stackless, ActivatedAbility):
     def __init__(self, card, cost="0", target=Target(targeting="you"),effects=[]):
         super(ClashAbility, self).__init__(card, cost=cost, target=target, effects=effects)
     def resolve(self):
@@ -62,6 +60,11 @@ def clash(subrole, card, clash_ability):
         subrole.triggered_abilities.remove(clash)
     return remove_clash
 
+
+# XXX This should really set up a delayed trigger
+# Also, the postponed ability is needed because there is no way to save which card was selected
+# XXX Champion is broken
+class PostponedAbility(PostponeTargeting, Ability): pass
 def champion(subrole, card, role=isPermanent, subtypes=None):
     if subtypes == None:
         subtypes = card.subtypes
@@ -76,10 +79,9 @@ def champion(subrole, card, role=isPermanent, subtypes=None):
     championed = Target(target_types=role.with_condition(lambda p: not p == card and p.controller == card.controller and p.subtypes.intersects(subtypes)), msg=msg)
     champion = TriggeredAbility(card, trigger = EnterTrigger("play"),
             match_condition=SelfMatch(card),
-            ability=DoOrAbilityPostponed(card, target=championed,
-                failure_target=Target(targeting="self"),
-                effects=ChangeZone(from_zone="play", to_zone="removed"),
-                failed=SacrificeSelf(),
+            ability = PostponedAbility(card,
+                target=championed,
+                effects=DoOr(ChangeZone(from_zone="play", to_zone="removed"), failed=SacrificeSelf()),
                 copy_targets=False))
     champion_return = TriggeredAbility(card, trigger = LeavingTrigger("play"),
             match_condition=SelfMatch(card, lambda x: championed.target and championed.target.zone != None),

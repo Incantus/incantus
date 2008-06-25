@@ -76,7 +76,8 @@ class Ability(MtGObject):
         if self.txt: return self.txt
         else: return ', '.join(map(str,self.effects))
 
-# The following are mixin classes
+# The following are mixin classes - I don't like them and should find a way so they aren't necessary
+# XXX Try not to use them
 
 class Stackless(object):
     def needs_stack(self): return False
@@ -87,6 +88,3 @@ class PostponeTargeting(object):
     def resolve(self):
         if not super(PostponeTargeting, self).get_target(): return False
         return super(PostponeTargeting, self).resolve()
-
-class StacklessAbility(Stackless, Ability): pass
-class PostponedAbility(PostponeTargeting, Ability): pass

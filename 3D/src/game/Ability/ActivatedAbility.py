@@ -1,4 +1,4 @@
-from Ability import Ability, Stackless
+from Ability import Ability
 from Target import Target
 from Limit import Unlimited
 import game.Cost
@@ -58,43 +58,3 @@ class ManaAbility(ActivatedAbility):
         return True
     def needs_stack(self):
         return False
-
-class DoOrAbility(ActivatedAbility):
-    def __init__(self, card, cost="0", target=Target(targeting="you"), failure_target=Target(targeting="you"), effects=[], failed=[], copy_targets=False):
-        super(DoOrAbility, self).__init__(card, cost=cost, target=target,effects=effects,copy_targets=copy_targets)
-        if not (type(failed) == list or type(failed) == tuple): failed = [failed]
-        self.failed = failed
-        if not (type(failure_target) == list or type(failure_target) == tuple): failure_target=[failure_target]
-        self.failure_targets = failure_target
-        self.target_failure = False
-    def get_target(self):
-        self.target_failure = False
-        target_aquired = super(DoOrAbility,self).get_target()
-        if not target_aquired: self.target_failure = True
-        for target in self.failure_targets:
-            if not target.get(self.card): return False
-        target_aquired = True
-        for i, effect in enumerate(self.failed):
-            if len(self.failure_targets) == 1: i = 0
-            if not effect.process_target(self.card, self.failure_targets[i].target): target_aquired = False
-        return target_aquired
-    def resolve(self):
-        success = False
-        if not self.target_failure: success = super(DoOrAbility,self).resolve()
-        if not success:
-            # Make sure the target for failure is still valid
-            success = True
-            for target in self.failure_targets:
-                if not target.check_target(self.card): success = False
-            if success:
-                for i, effect in enumerate(self.failed):
-                    if len(self.failure_targets) == 1: i = 0
-                    if effect(self.card, self.failure_targets[i].target) == False: success=False
-        return success
-    def __str__(self):
-        if not self.target_failure: return ', '.join(map(str,self.effects))
-        else: return ', '.join(map(str,self.failed))
-        #return "%s or %s"%(', '.join(map(str,self.effects)), ', '.join(map(str,self.failed)))
-
-class StacklessActivatedAbility(Stackless, ActivatedAbility): pass
-class StacklessDoOrAbility(Stackless, DoOrAbility): pass
