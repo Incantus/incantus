@@ -37,11 +37,11 @@ class MultipleCosts(Cost):
         for c in costs:
             if c.is_mana_cost(): manacost.append(c)
             else: othercost.append(c)
-        # If this first ManaCost has an X, the following reduce will ensure that we keep it as the final ManaCost object
         if manacost:
             cost = manacost[0]
-            for c in manacost[1:]: cost += c
-        return [cost]+othercost
+            for mc in manacost[1:]: cost += mc
+            return [cost]+othercost
+        else: return othercost
     def precompute(self, card, player):
         for cost in self.costs:
             if not cost.precompute(card, player): return False
@@ -233,7 +233,7 @@ class ChangeZoneCost(Cost):
                 target = player.getTarget(self.cardtype, zone=from_zone, required=False, prompt=prompt)
                 if target == False: return False
                 if target in self.targets:
-                    prompt = "%s already selected - select again"%self.cardtype
+                    prompt = "%s already selected - select again"%target
                     player.send(InvalidTargetEvent(), target=target)
                 else:
                     self.targets.append(target)
