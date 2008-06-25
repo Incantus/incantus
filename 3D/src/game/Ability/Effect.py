@@ -698,7 +698,7 @@ class AddActivatedAbility(Effect):
         self.expire = expire
     def __call__(self, card, target):
         new_ability = self.ability.copy()
-        new_ability.card = target #.card
+        new_ability.card = target
         target.abilities.append(new_ability)
         restore = lambda a=target.abilities: a.remove(new_ability)
         if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
@@ -822,10 +822,6 @@ class ChangeZone(Effect):
         else: from_zone = getattr(target.owner, self.from_zone)
         if self.to_owner: to_zone = getattr(target.owner, self.to_zone)
         else: to_zone = getattr(card.controller, self.to_zone)
-        #if self.to_zone == "play":
-        #    to_zone = card.controller.play
-        #    target.controller = card.controller
-        #else: to_zone = getattr(target.owner, self.to_zone)
         if self.to_position == "top": position = -1
         else: position = 0
         to_zone.move_card(target, from_zone, position=position)
@@ -899,7 +895,6 @@ class ShuffleLibrary(Effect):
     def __str__(self):
         return "Shuffle library"
 
-# This deals with starting zones other than in play
 class MoveCards(Effect):
     def __init__(self, from_zone, to_zone, from_position="", to_position="top", number=1, card_types=None, subset=None, return_position = "top", func=lambda card: None, reveal=False, peek=False, required=False, prompt=''):
         self.from_zone = from_zone
@@ -922,14 +917,35 @@ class MoveCards(Effect):
         self.peek = peek
         self.required = required
         self.prompt = prompt
+    def select_cards_in_visible(self, card, player):
+        from_zone = getattr(player, self.from_zone)
+        if not self.prompt: base_prompt = str(self)
+        else: base_prompt = self.prompt
+        prompt = base_prompt
+        selection = set()
+        for ttype in self.card_types: selection.update(from_zone.get(ttype))
+        num_available = len(selection)
+        if num_available == 0 and self.required: return False
+        elif num_available < self.number: self.number = num_available
+        cardlist = []
+        while True:
+            target = player.getTarget(self.card_types, zone=from_zone, required=self.required, prompt=prompt)
+            if target == False: return False
+            if target in cardlist:
+                prompt = "%s already selected - select again"%selcard
+                player.send(InvalidTargetEvent(), target=target)
+            else:
+                cardlist.append(target)
+                prompt = base_prompt
+            if len(cardlist) == self.number: break
+        self.cardlist = cardlist
+        return True
     def select_cards(self, card, target):
         from_zone = getattr(target, self.from_zone)
         if len(from_zone) == 0: return False
         if self.from_position == '':
             # We can select anywhere so ask the player
             # Prefilter the list to only show valid card types
-            #selection = reduce(lambda x, y: x+y, [from_zone.get(ttype) for ttype in self.card_types])
-            #if len(selection) == 0: return False
             selection = from_zone.get()[:self.subset]
             if self.number == -1 or len(selection) < self.number: self.number = len(selection)
             # Now we get the selection - if the from location is library or hand the target player makes the choice
@@ -952,7 +968,8 @@ class MoveCards(Effect):
         #return sum([self.match_condition(c) and c.canBeTargetedBy(card) for c in cards]) != 0
         return True
     def __call__(self, card, target):
-        success = self.select_cards(card, target)
+        if self.from_zone in ["play", "hand"]: success = self.select_cards_in_visible(card, target)
+        else: success = self.select_cards(card, target)
         if not success: return False
         from_zone = getattr(target, self.from_zone)
         if self.to_position == "top":
