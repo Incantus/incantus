@@ -67,6 +67,7 @@ class PermanentTrackingAbility(StaticAbility):
     def entering(self, trigger):
         # This is called everytime a permanent that matches condition enters play
         perm = trigger.matched_card
+        #print "%s triggered %s in %s, currently tracked %s"%(perm, trigger.trigger_event, self.card, perm in self.effect_tracking)
         if not perm in self.effect_tracking: self.add_effects(perm)
     def leaving(self, trigger):
         # This is called everytime a permanent leaves play
@@ -84,8 +85,9 @@ class PermanentTrackingAbility(StaticAbility):
         del self.effect_tracking[perm]   # necessary to prevent recursion
     def event_triggered(self, trigger):
         perm = trigger.matched_card
-        tracking = perm in self.effect_tracking
+        tracking = perm in self.effect_tracking and not self.effect_tracking[perm] == True
         pass_condition = self.condition(perm)
+        #print "%s triggered %s in %s, currently tracked %s, valid %s"%(perm, trigger.trigger_event, self.card, tracking, pass_condition)
         # If perm is already tracked, but doesn't pass the condition, remove it
         # Note the condition can't rely on any trigger data
         if not tracking and pass_condition: self.add_effects(perm)
