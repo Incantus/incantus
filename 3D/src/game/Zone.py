@@ -28,6 +28,7 @@ class Zone(MtGObject):
         return [card for card in iter(self.cards[::-1]) if match(card)]
     def cease_to_exist(self, card):
         self.cards.remove(card)
+        card.zone = None
         self.send(CardCeasesToExist(), card=card)
     def remove_card(self, card, trigger=True):
         self.remove_card_pre(card, trigger)
