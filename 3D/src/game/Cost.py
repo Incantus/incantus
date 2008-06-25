@@ -257,7 +257,7 @@ class ReturnToHandCost(ChangeZoneCost):
 
 class RemoveFromPlayCost(ChangeZoneCost):
     def __init__(self, number=1, cardtype=None):
-        super(RemoveFromHandCost,self).__init__(from_zone="play", to_zone="removed", number=number, cardtype=cardtype)
+        super(RemoveFromPlayCost,self).__init__(from_zone="play", to_zone="removed", number=number, cardtype=cardtype)
         self.action_txt = "remove%s from play"
 
 class RemoveFromHandCost(ChangeZoneCost):
@@ -267,7 +267,7 @@ class RemoveFromHandCost(ChangeZoneCost):
 
 class RemoveFromGraveyardCost(ChangeZoneCost):
     def __init__(self, number=1, cardtype=None):
-        super(RemoveFromHandCost,self).__init__(from_zone="graveyard", to_zone="removed", number=number, cardtype=cardtype)
+        super(RemoveFromGraveyardCost,self).__init__(from_zone="graveyard", to_zone="removed", number=number, cardtype=cardtype)
         self.action_txt = "remove%s from graveyard"
 
 class CounterCost(Cost):
