@@ -36,12 +36,12 @@ class no_characteristic(object):
     def make_text_line(self, fields): fields[:] = []
 
 # These are only used internally
-class add_characteristic(characteristic):
+class additional_characteristic(characteristic):
     def __eq__(self, other):
-        if super(add_characteristic, self).__eq__(other): return True
+        if super(additional_characteristic, self).__eq__(other): return True
         else: return None
     def intersects(self, other):
-        if super(add_characteristic, self).intersects(other): return True
+        if super(additional_characteristic, self).intersects(other): return True
         else: return None
     def __repr__(self): return  "Add '%s'"%str(self)
     def make_text_line(self, fields): fields.extend(self.characteristics)
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     changeling = all_characteristics()
     clear = no_characteristic()
     #no_elf = remove_characteristic("Elf")
-    add_merfolk = add_characteristic("Merfolk")
+    add_merfolk = additional_characteristic("Merfolk")
 
     Elf = characteristic(["Elf", "Warrior"])
 
