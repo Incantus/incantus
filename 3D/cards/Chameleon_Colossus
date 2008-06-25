@@ -13,7 +13,7 @@ subrole = Creature(4, 4)
 in_play_role = Permanent(card, subrole)
 
 #################################
-pow = LazyInt(lambda card=card: card.power)
+pow = lambda card=card: card.power
 changeling(subrole,card)
 protection_from_black(subrole)
 subrole.abilities = [ActivatedAbility(

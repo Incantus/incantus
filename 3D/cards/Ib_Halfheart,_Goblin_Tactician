@@ -26,8 +26,6 @@ subrole.triggered_abilities = [TriggeredAbility(card,
   ability = Ability(card,
     target=[TriggeredTarget(trigger,"sender"),
             AllPermanentTargets(isCreature.with_condition(lambda c, trigger=trigger: c in trigger.blockers))],
-    effects=[Sacrifice(), ForEach(DealDamage(4))]))]
-
-# XXX Need to multiplex 2 targets onto the dependent effects
+    effects=DependentEffects(Sacrifice(), ForEach(DealDamage(4)))))]
 
 #################################

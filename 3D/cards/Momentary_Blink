@@ -14,6 +14,6 @@ text = ["Remove target creature you control from the game, then return it to pla
 
 out_play_role.abilities = [CastInstantSpell(card, cost,
 				target=Target(target_types=isCreature.with_condition(lambda c, self=card: self.controller == c.controller)),
-			effects=MultipleEffects([ChangeZoneFromPlay(to_zone="removed"), ChangeZoneToPlay(from_zone="removed", to_owner=True)]))]
+			effects=MultipleEffects(ChangeZoneFromPlay(to_zone="removed"), ChangeZoneToPlay(from_zone="removed", to_owner=True)))]
 
 #################################

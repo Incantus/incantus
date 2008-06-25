@@ -11,5 +11,5 @@ text = ['Target player shuffles his or her graveyard into his or her library.']
 target=Target(target_types=isPlayer)
 out_play_role.abilities = [CastSorcerySpell(card, cost,
                                 target=target,
-                                effects=[MoveCards(from_zone="graveyard", from_position="top", to_zone="library", number=LazyInt(lambda target=target: len(target.target.graveyard), finalize=True)), ShuffleLibrary()], copy_targets=False)
+                                effects=[MoveCards(from_zone="graveyard", from_position="top", to_zone="library", number=-1), ShuffleLibrary()], copy_targets=False)
 ]

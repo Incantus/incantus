@@ -36,8 +36,8 @@ subrole.triggered_abilities = [TriggeredAbility(
 		c == card or c.subtypes == "Goblin"),
 	ability = Ability(
 		card,
-		effects=DependentEffects([
+		effects=DependentEffects(
 			PayExtraCost(cost="2R"),
-			RevealTopCard()])))]
+			RevealTopCard())))]
 
 #################################

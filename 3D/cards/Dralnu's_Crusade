@@ -22,7 +22,7 @@ subrole.static_abilities = [PermanentTrackingAbility(card,
 					events = SubtypeModifiedEvent(),
                                         effects = [AugmentPowerToughness(power=1, toughness=1, expire=False),
                          		     ModifyColor(characteristic("B"), expire=False),
-					     ModifySubtype(add_characteristic("Zombie"), expire=False)])
+					     ModifySubtype(additional_characteristic("Zombie"), expire=False)])
 ]
 
 #################################

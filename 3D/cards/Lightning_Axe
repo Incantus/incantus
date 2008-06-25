@@ -10,6 +10,10 @@ text = ['As an additional cost to play Lightning Axe, discard a card or pay 5.',
 
 #################################
 
-out_play_role.abilities = [CastInstantSpell(card, cost=MultipleCosts([ManaCost(cost), ChoiceCost(DiscardCost(cardtype=isCard), ManaCost("5"))]),target=Target(target_types=isCreature),effects=DealDamage(5))]
+out_play_role.abilities = [CastInstantSpell(card, 
+  cost=MultipleCosts([ManaCost(cost), 
+    ChoiceCost(DiscardCost(cardtype=isCard),ManaCost("5"))]),
+  target=Target(target_types=isCreature),
+  effects=DealDamage(5))]
 
 #################################

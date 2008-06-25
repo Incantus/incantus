@@ -16,17 +16,11 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 trample(subrole)
-# XXX The triggered ability shouldn't be targeted (see http://ww2.wizards.com/gatherer/CardDetails.aspx?&id=135264)
-# Also PostponeTargeting has been redefined as a mixin
-subrole.abilities = []
 subrole.triggered_abilities = [TriggeredAbility(card,
-                                      trigger = PlayerTrigger(event=UpkeepStepEvent()),
-                                      match_condition = lambda player, card=card: player == card.controller,
-                                      ability = PostponedAbility(card,
-                                                        target=Target(target_types=isCreature.with_condition(lambda c, self=card: c.controller == self.controller and c.color == "G"), untargeted=True),
-                                                        effects=ChangeZoneFromPlay(to_zone="hand")))
+  trigger = PlayerTrigger(event=UpkeepStepEvent()),
+  match_condition = lambda player, card=card: player == card.controller,
+  ability = Ability(card,
+    effects=MoveCards(from_zone="play", to_zone="hand", card_types=isCreature.with_condition(lambda c: c.color == "G"), required=True, prompt="Select green creature to return to owner's hand")))
 ]
-
-subrole.static_abilities = []
 
 #################################

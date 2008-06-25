@@ -17,12 +17,9 @@ in_play_role = Permanent(card, subrole)
 
 haste(subrole)
 
-subrole.abilities = []
-
-subrole.triggered_abilities = [TriggeredAbility(card,
+out_play_role.graveyard_abilities = [TriggeredAbility(card,
                                         trigger=EnterTrigger(zone="graveyard"),
                                         match_condition=SelfMatch(card),
-                                        always_on=True,
                                         ability=Ability(card, target=Target(targeting="self"),
                                                 effects=ShuffleIntoLibrary()))
 ]

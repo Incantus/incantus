@@ -11,5 +11,5 @@ text = ["Sudden Impact deals damage equal to the number of cards in target playe
 target=Target(target_types=isPlayer)
 out_play_role.abilities = [CastInstantSpell(card, cost,
                                 target=target,
-                                effects=DealDamage(LazyInt(lambda t=target:len(t.target.hand), finalize=True)),copy_targets=False)
+                                effects=DealDamage(LazyInt(lambda t=target:len(t.target.hand))),copy_targets=False)
 ]

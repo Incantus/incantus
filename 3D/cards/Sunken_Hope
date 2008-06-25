@@ -17,11 +17,11 @@ in_play_role = Permanent(card, subrole)
 
 trigger = PlayerTrigger(event=UpkeepStepEvent())
 subrole.triggered_abilities = [TriggeredAbility(card,
-                                      trigger = trigger,
-                                      match_condition = lambda player: True,
-                                      ability = PostponedAbility(card,
-                                                        target=Target(target_types=isCreature.with_condition(lambda c, t=trigger: c.controller == t.player), selector="current_player"),
-                                                        effects=ChangeZoneFromPlay(to_zone="hand")))
+  trigger = trigger,
+  match_condition = lambda player: True,
+  ability = Ability(card,
+    target=Target("current_player"),
+    effects=MoveCards(from_zone="play", to_zone="hand", card_types=isCreature, required=True)))
 ]
 
 #################################

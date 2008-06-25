@@ -17,16 +17,17 @@ in_play_role = Permanent(card, [subrole, Artifact()])
 
 first_strike(subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
-                                      trigger = PlayerTrigger(event=UpkeepStepEvent()),
-                                      match_condition = lambda player, self=card: player==self.controller,
-                                      ability = DoOrAbility(card, target=Target(targeting="you"),
-                                                        effects=DiscardCard(number=1,required=False),
-                                                        failed=SacrificeSelf())),
-                                    TriggeredAbility(card,
-                                      trigger = PlayerTrigger(event=DrawStepEvent()),
-                                      match_condition = lambda player, self=card: player==self.controller,
-                                      ability = Ability(card, target=Target(target_types=isCreature),
-                                                        effects=YouMay(DealDamage(3), msg="have Razormane Masticore deal 3 damage to target creature")))
+  trigger = PlayerTrigger(event=UpkeepStepEvent()),
+  match_condition = lambda player, self=card: player==self.controller,
+  ability = Ability(card, 
+    target=Target(targeting="you"),
+    effects=DoOr(DiscardCard(number=1,required=False), failed=SacrificeSelf()))),
+                               TriggeredAbility(card,
+  trigger = PlayerTrigger(event=DrawStepEvent()),
+  match_condition = lambda player, self=card: player==self.controller,
+  ability = Ability(card, 
+    target=Target(target_types=isCreature),
+    effects=YouMay(DealDamage(3), msg="have Razormane Masticore deal 3 damage to target creature")))
 ]
 subrole.static_abilities = []
 

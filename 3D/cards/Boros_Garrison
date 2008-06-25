@@ -18,10 +18,10 @@ in_play_role.tapped = True
 
 subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('RW'))]
 subrole.triggered_abilities = [TriggeredAbility(card,
-                                      trigger = EnterTrigger("play"),
-                                      match_condition=SelfMatch(card),
-                                      ability=PostponedAbility(card, target=Target(target_types=isLand, player_zone="controller",), 
-                                                effects=ChangeZoneFromPlay(to_zone="hand")))
+  trigger = EnterTrigger("play"),
+  match_condition=SelfMatch(card),
+  ability=Ability(card, 
+    effects=MoveCards(from_zone="play", to_zone="hand", card_types=isLand, required=True)))
 ]
 
 #################################

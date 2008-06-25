@@ -16,11 +16,12 @@ in_play_role = Permanent(card, subrole)
 #################################
 
 subrole.triggered_abilities = [TriggeredAbility(card,
-                                        trigger=EnterTrigger("play"),
-                                        match_condition = SelfMatch(card),
-                                        ability = DoOrAbility(card, target=Target(targeting="you"),
-                                                        effects=DiscardCard(number=1,card_types=isCreatureType,required=False),
-                                                        failed=SacrificeSelf()))
+  trigger=EnterTrigger("play"),
+  match_condition = SelfMatch(card),
+  ability = Ability(card, 
+    target=Target(targeting="you"),
+    effects=DoOr(DiscardCard(number=1,card_types=isCreatureType,required=False),
+      failed=SacrificeSelf())))
 ]
 
 #################################

@@ -18,11 +18,11 @@ in_play_role = Permanent(card, subrole)
 flying(subrole)
 trample(subrole)
 subrole.triggered_abilities = [TriggeredAbility(card,
-                                      trigger = PlayerTrigger(event=UpkeepStepEvent()),
-                                      match_condition = lambda player, self=card: player==self.controller,
-                                      ability = DoOrAbility(card, 
-                                                     effects=ForceSacrifice(card_type=isCreature.with_condition(lambda c, self=card: not c == self), required=False),
-                                                        failed=DealDamage(7)))
+  trigger = PlayerTrigger(event=UpkeepStepEvent()),
+  match_condition = lambda player, self=card: player==self.controller,
+  ability = Ability(card,
+    target=Target(targeting="you"),
+    effects=DoOr(ForceSacrifice(card_type=isCreature.with_condition(lambda c, self=card: not c == self), required=False),failed=DealDamage(7))))
 ]
 
 #################################

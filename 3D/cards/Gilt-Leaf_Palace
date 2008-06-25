@@ -17,13 +17,13 @@ in_play_role = Permanent(card, subrole)
 # XXX Broken This should really use the Reveal effect instead of the MoveCard effect
 
 subrole.abilities = [ManaAbility(card, TapCost(), effects=ManaChoice(['B', 'G']))]
-subrole.triggered_abilities = [TriggeredAbility(card, trigger = EnteringTrigger(zone="play"),
-            				match_condition=SelfMatch(card),
-            				ability=StacklessDoOrAbility(card, "0",
-                			target=Target(target_types=isCard.with_condition(lambda c: c.subtypes == "Elf"), zone="hand", player_zone="controller"),
-						failure_target=Target(targeting="self"),
-                				effects=RevealCard(),
-                				failed=NullEffect(lambda c, t: t.tap(False))))
+subrole.triggered_abilities = [TriggeredAbility(card, 
+  trigger = EnteringTrigger(zone="play"),
+  match_condition=SelfMatch(card),
+  ability=StacklessAbility(card,
+    target=[Target(target_types=isCard.with_condition(lambda c: c.subtypes == "Elf"), zone="hand", player_zone="controller"),
+      Target(targeting="self")],
+    effects=DoOr(RevealCard(), failed=NullEffect(lambda c, t: t.tap(False)))))
 ]
 
 #################################
