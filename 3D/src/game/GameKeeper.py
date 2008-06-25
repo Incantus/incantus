@@ -396,7 +396,7 @@ class GameKeeper(MtGObject):
 
         return tramplers, first_strike_damage, regular_combat_damage
     def combatDamageStep(self):
-        from Ability import AssignDamage
+        from Ability.AssignDamage import AssignDamage
         self.setState("Damage")
 
         def handle_trample(tramplers, damage_assn):
