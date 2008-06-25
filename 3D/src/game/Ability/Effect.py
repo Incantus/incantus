@@ -811,8 +811,15 @@ class AugmentPowerToughness(Effect):
         self.power = power
         self.toughness = toughness
         self.expire = expire
+    def get_PT(self):
+        if callable(self.power): power = self.power()
+        else: power = self.power
+        if callable(self.toughness): toughness = self.toughness()
+        else: toughness = self.toughness
+        return power, toughness
     def __call__(self, card, target):
-        PT = self.PowerToughnessCounter(int(self.power), int(self.toughness))
+        power, toughness = self.get_PT()
+        PT = self.PowerToughnessCounter(power, toughness)
         if self.expire: modifiers_list = target.PT_other_modifiers
         else: modifiers_list = target.PT_static_modifiers
         modifiers_list.append(PT)
@@ -823,7 +830,8 @@ class AugmentPowerToughness(Effect):
         if self.expire: target.register(remove, CleanupEvent(), weak=False, expiry=1)
         return remove
     def __str__(self):
-        return "Add %+d/%+d"%(int(self.power), int(self.toughness))
+        power, toughness = self.get_PT()
+        return "Add %+d/%+d"%(power, toughness)
 
 # Change Zone is used when targeting specific cards to move between zones
 # unlike MoveCards, which selects the cards once the ability resolves
