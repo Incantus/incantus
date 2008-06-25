@@ -53,4 +53,8 @@ class SoundEffects(object):
         media.dispatch_events()
         #self.player.dispatch_events()
 
-MediaEffects = SoundEffects
+class NoEffects(object):
+    def __init__(self): pass
+    def disconnect(self): pass
+    def connect(self): pass
+    def dispatch_events(self): pass

@@ -14,12 +14,12 @@ import euclid
 from anim_euclid import AnimatedVector3, AnimatedQuaternion
 
 import widget
+import soundfx
 from card_view import HandView, StackView, ZoneView
 from play_view import PlayView, Table
 from status_widget import StatusView, GameStatus, SelectionList, MessageDialog, ManaView, PhaseStatus
 from animator import ZoneAnimator
 from controllers import *
-from soundfx import MediaEffects
 import networkcomm, replaydump
 import GUIEvent
 
@@ -125,7 +125,8 @@ class GameWindow(window.Window):
         self.connection = None
         self.replay = False
         self.dump_to_replay = lambda x: None
-        self.soundfx = MediaEffects()
+        if self.conf.get("general", "sound") == "Yes": self.soundfx = soundfx.SoundEffects()
+        else: self.soundfx = soundfx.NoEffects()
 
     def init(self):
         glEnable(GL_LIGHTING)
