@@ -6,7 +6,7 @@ from Target import Target, SpecialTarget, TriggeredTarget
 from TriggeredAbility import TriggeredAbility
 from Trigger import EnterTrigger, LeavingTrigger, DealDamageTrigger
 from Limit import Unlimited
-from game.Match import SelfMatch, isLandType, isPlayer
+from game.Match import SelfMatch, isLandType, isCreature
 from game.Cost import EvokeCost, ManaCost, TapCost, MultipleCosts
 from game.characteristics import all_characteristics
 from game.GameEvent import ClashEvent
@@ -137,7 +137,7 @@ def deathtouch(subrole, card=None):
     else: in_play=True
     trigger = DealDamageTrigger(sender=card)
     deathtouch = TriggeredAbility(card, trigger = trigger,
-            match_condition = lambda sender, to: not isPlayer(to),
+            match_condition = lambda sender, to: isCreature(to),
             ability = Ability(card, target=TriggeredTarget(trigger, 'to'),
                 effects=Destroy())) 
     subrole.triggered_abilities.append(deathtouch)
