@@ -313,7 +313,20 @@ class GameKeeper(MtGObject):
                 if equipment.attached_to and not equipment.isValidAttachment():
                     actions.append(Unattach(equipment))
         # 420.5m A permanent that's neither an Aura, an Equipment, nor a Fortification, but is attached to another permanent, becomes unattached from that permanent. It remains in play.
-        # 420.5n If a permanent has both a +1/+1 counter and a -1/-1 counter on it, N +1/+1 and N -1/-1 counters are removed from it, where N is the smaller of the number of +1/+1 and -1/-1 counters on it. 
+        # 420.5n If a permanent has both a +1/+1 counter and a -1/-1 counter on it, N +1/+1 and N -1/-1 counters are removed from it, where N is the smaller of the number of +1/+1 and -1/-1 counters on it.
+        def RemoveCounters(perm, counters):
+            def SBE():
+                for counter in counters:
+                    perm.counters.remove(counter)
+                    perm.send(CounterRemovedEvent(), counter=counter)
+            return SBE
+        for player in players:
+            for perm in player.play.get(Match.isPermanent):
+                if len(perm.counters) > 0:
+                    plus = [counter for counter in perm.counters if counter.ctype == "+1+1"]
+                    minus = [counter for counter in perm.counters if counter.ctype == "-1-1"]
+                    numremove = min(len(plus), len(minus))
+                    if numremove: actions.append(RemoveCounters(perm, plus[:numremove]+minus[:numremove]))
 
         self.send(TimestepEvent())
         if actions:
