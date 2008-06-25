@@ -49,15 +49,22 @@ class ColorDict(object):
     def __init__(self, default=(1.0, 1.0, 1.0)):
         self.colors = dict(B=(0.2,0.2,0.2),W=(1.,1.,1.),R=(0.85,0.13,0.13),G=(0.35,0.85,0.35),U=(0.55, 0.80, 0.90))
         self.colors[''] = (0.6, 0.6, 0.6)
+        self.gold = (0.85, 0.85, 0.) #(0.98, 0.85, 0.33)
         self.default = default
     def get(self, color):
         if color in self.colors: return self.colors[color]
-        else:
+        else: return self.gold
             # multicolor - blend the colors
-            colors = color.split()
-            color = reduce(lambda x, y: (x[0]+y[0], x[1]+y[1], x[2]+y[2]) ,[self.colors[c] for c in colors])
-            return tuple([val/len(colors) for val in color])
+            #colors = color.split()
+            #color = reduce(lambda x, y: (x[0]+y[0], x[1]+y[1], x[2]+y[2]) ,[self.colors[c] for c in colors])
+            #return tuple([val/len(colors) for val in color])
         #else: return self.default
+    def get_multi(self, color):
+        if color in self.colors: return [self.colors[color]]
+        else:
+            colors = color.split()
+            if len(colors) > 2: return [self.gold]
+            else: return [self.colors[c] for c in colors]
 
 class Widget(anim.Animable):
     def pos():

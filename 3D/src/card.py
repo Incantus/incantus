@@ -137,7 +137,12 @@ class StackCard(Card):
         self.highlighting = anim.animate(0, 0, dt=0.2)
         self.size = anim.animate(self.size, self.size, dt=0.2, method="sine")
         self.alpha = anim.animate(0, 0, dt=1.0, method="ease_out_circ")
-        self.color = self.COLORS.get(str(gamecard.color))
+        #self.color = self.COLORS.get(str(gamecard.color))
+        colors = self.COLORS.get_multi(str(gamecard.color))
+        if len(colors) == 1: self.color = colors[0]
+        else:
+            self.color = colors
+            self.draw = self.draw_multi
         self.bordered = bordered
         self.border = border
         if bordered and not self.__class__.borderedlist: self.build_borderedlist()
@@ -160,6 +165,25 @@ class StackCard(Card):
         glVertex3f(*tuple(vertlist[3]))
         glEnd()
         glEndList()
+    def multicolored_border(self):
+        width = self.border.width/2.0; height=self.border.height/2.0
+        vertlist = [euclid.Point3(-width, -height, 0), euclid.Point3(width, -height, 0), euclid.Point3(width, height, 0), euclid.Point3(-width, height, 0)]
+        tc = self.border.tex_coords
+        color1, color2 = self.color
+        glBegin(GL_QUADS)
+        glColor4f(color1[0], color1[1], color1[2], self.alpha)
+        glTexCoord2f(tc[0], tc[1])
+        glVertex3f(*tuple(vertlist[0]))
+        glColor4f(color2[0], color2[1], color2[2], self.alpha)
+        glTexCoord2f(tc[3], tc[4])
+        glVertex3f(*tuple(vertlist[1]))
+        glColor4f(color2[0], color2[1], color2[2], self.alpha)
+        glTexCoord2f(tc[6], tc[7])
+        glVertex3f(*tuple(vertlist[2]))
+        glColor4f(color1[0], color1[1], color1[2], self.alpha)
+        glTexCoord2f(tc[9], tc[10])
+        glVertex3f(*tuple(vertlist[3]))
+        glEnd()
     def highlight(self):
         if self.highlighting == 0:
             self.highlighting = anim.animate(0,1,dt=0.75)
@@ -180,9 +204,26 @@ class StackCard(Card):
             glColor4f(1, 1, 1, self.alpha)
             glCallList(self.cardlist)
             if self.bordered:
+                color = self.color
                 glBindTexture(self.border.target, self.border.id)
-                glColor4f(self.color[0], self.color[1], self.color[2], self.alpha)
+                glColor4f(color[0], color[1], color[2], self.alpha)
                 glCallList(self.borderedlist)
+            glDisable(self._texture.target)
+            glPopMatrix()
+    def draw_multi(self):
+        if self.visible > 0:
+            size = self.size
+            glPushMatrix()
+            glTranslatef(self.pos.x, self.pos.y, self.pos.z)
+            glMultMatrixf(sixteenfv(*tuple(self.orientation.get_matrix())))
+            glScalef(size, size, 1)
+            glEnable(self._texture.target)
+            glBindTexture(self._texture.target, self._texture.id)
+            glColor4f(1, 1, 1, self.alpha)
+            glCallList(self.cardlist)
+            if self.bordered:
+                glBindTexture(self.border.target, self.border.id)
+                self.multicolored_border()
             glDisable(self._texture.target)
             glPopMatrix()
 
