@@ -392,7 +392,7 @@ class Player(MtGObject):
         cancel = False    # This is returned - it's a way to back out of playing an ability
         # This loop seems really ugly - is there a way to structure it better?
         while not manaplayed:
-            action = self.get(process = convert_gui_action, prompt="Need %s - play mana abilities (Esc to cancel spell)"%required)
+            action = self.get(process = convert_gui_action, prompt="Need %s - play mana abilities (Esc to cancel)"%required)
             # XXX Should this be done here?
             if isinstance(action, CancelAction):
                 cancel = True
