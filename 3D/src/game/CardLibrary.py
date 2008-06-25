@@ -126,7 +126,8 @@ class _CardLibrary:
 
         card.key = (self.counter, card.name)
 
-        #if type(card.cost) == str: card.cost = CardEnvironment.ManaCost(card.cost)
+        # For converted manacost comparisons
+        if type(card.cost) == str: card.cost = CardEnvironment.ManaCost(card.cost)
 
         if (card.type == "Instant" or card.type == "Sorcery"):
             card.in_play_role = CardEnvironment.NoRole(card)
