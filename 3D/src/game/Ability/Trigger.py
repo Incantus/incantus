@@ -52,6 +52,9 @@ class Trigger(MtGObject):
             self.__dict__.update(keys)
             self.trigger_function(self)
             self.count += 1
+    def copy(self):
+        from copy import copy
+        return copy(self)
 
 class PlayerTrigger(Trigger):
     def filter(self):
