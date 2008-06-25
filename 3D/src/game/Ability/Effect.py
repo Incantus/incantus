@@ -73,6 +73,19 @@ class RevealCard(Effect):
         target.send(LogEvent(), msg="%s reveals %s"%(target, showcard))
         return True
 
+class DoOr(Effect):
+    def __init__(self, effect, failed):
+        self.effect = effect
+        self.failed = failed
+    def process_target(self, card, target):
+        return self.effect.process_target(card, target[0]) and self.failed.process_target(card, target[1])
+    def __call__(self, card, target):
+        if not self.effect(card, target[0]):
+            return self.failed(card, target[1])
+        else: return True
+    def __str__(self):
+        return "Do %s, or %s"%(self.effect, self.failed)
+
 class MayEffect(Effect):
     def __init__(self, effect, msg=''):
         self.effect = effect

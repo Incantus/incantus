@@ -6,9 +6,8 @@ class Ability(MtGObject):
     def __init__(self, card, target=None, effects=[], copy_targets=True, txt=''):
         self.card = card
         self.controller = None
-        if not (type(effects) == list or type(effects) == tuple):
-            self.effects = [effects]
-        else: self.effects = effects
+        if not (type(effects) == list or type(effects) == tuple): effects = [effects]
+        self.effects = effects
         if target == None: target = [Target(targeting="you")]
         elif not (type(target) == list or type(target) == tuple): target = [target]
         self.targets = target
@@ -22,6 +21,19 @@ class Ability(MtGObject):
         return True
     def needs_target(self):
         return not self.targets == None
+    def multiplex(self):
+        num_targets, num_effects = len(self.targets), len(self.effects)
+        if num_effects == 0: return #For cast spell effects
+        if num_targets == 1 and num_effects > 1:
+            target = self.targets[0]
+            for effect in self.effects:
+                yield target.target, effect
+        elif num_targets == num_effects:
+            for target, effect in zip(self.targets, self.effects):
+                yield target.target, effect
+        elif num_effects == 1:
+            yield [target.target for target in self.targets], self.effects[0]
+        else: raise Exception("Mismatched number of targets and effects in %s of %s"%(self, self.card))
     def check_target(self):
         success = True
         for target in self.targets:
@@ -32,10 +44,9 @@ class Ability(MtGObject):
             if not target.get(self.card): return False
         # Some effects need to process the target before it goes on the stack
         target_aquired = True
-        for i, effect in enumerate(self.effects):
-            if len(self.targets) == 1: i = 0
-            if not effect.process_target(self.card, self.targets[i].target): target_aquired = False
-        return not target_aquired == False
+        for target, effect in self.multiplex():
+            if not effect.process_target(self.card, target): target_aquired = False
+        return target_aquired
     def preresolve(self): return True
     def do_resolve(self):
         if self.resolve(): self.resolved()
@@ -45,10 +56,9 @@ class Ability(MtGObject):
         success = True
         if self.needs_target() and not self.check_target(): return False
         if not self.preresolve(): return False
-        self.send(TimestepEvent())    # This is for any cards that are moved into play
-        for i, effect in enumerate(self.effects):
-            if len(self.targets) == 1: i = 0
-            if effect(self.card, self.targets[i].target) == False: success=False
+        self.send(TimestepEvent())    # This is for any cards that are moved into play in preresolve
+        for target, effect in self.multiplex():
+            if effect(self.card, target) == False: success=False
             self.send(TimestepEvent())
         return success
     def resolved(self): self.card.send(AbilityResolved())

@@ -1,6 +1,6 @@
 from Ability import Ability
-from ActivatedAbility import ActivatedAbility, DoOrAbility
-from Effect import RemoveCounter, SacrificeSelf, TriggerEffect, PayExtraCost, AttachToPermanent
+from ActivatedAbility import ActivatedAbility
+from Effect import RemoveCounter, SacrificeSelf, TriggerEffect, PayExtraCost, AttachToPermanent, DoOr
 from Target import Target
 from TriggeredAbility import TriggeredAbility
 from Trigger import PlayerTrigger, Trigger
@@ -44,18 +44,17 @@ def vanishing(permanent, subrole, number):
 def suspend(subrole, card, number):
     pass
 
-# XXX This doesn't work when the controller is changed - need to reset the triggered ability somehow
 def echo(permanent, subrole, cost="0"):
     card = permanent.card
     #At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.
+    # XXX This doesn't work when the controller is changed
+    # need to reset the triggered ability somehow or implement the intervening if properly
     echo_ability = [TriggeredAbility(card,
                        trigger = PlayerTrigger(event=UpkeepStepEvent()),
                        match_condition = lambda player: player == card.controller,
-                       ability = DoOrAbility(card, cost="0",
-                                        target=Target(targeting="you"),
-                                        failure_target=Target(targeting="you"),
-                                        effects=PayExtraCost(cost),
-                                        failed=SacrificeSelf()),
+                       ability = Ability(card,
+                                        target=[Target(targeting="you"),Target(targeting="you")],
+                                        effects=DoOr(PayExtraCost(cost), failed=SacrificeSelf())),
                        expiry=1)]
     subrole.triggered_abilities.extend(echo_ability)
     return None
