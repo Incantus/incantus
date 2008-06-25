@@ -16,9 +16,9 @@ class MemoryVariable(MtGObject):
 
 class PlayerDamageVariable(MemoryVariable):
     def __init__(self):
-        super(PlayerDamageVariable, self).__init__()
         self.players = {}
         self.register(self.damaged, event=PlayerDamageEvent())
+        super(PlayerDamageVariable, self).__init__()
     def reset(self):
         for player in self.players.keys():
             self.players[player] = 0
@@ -30,8 +30,8 @@ class PlaySpellVariable(MemoryVariable):
     def __init__(self, condition):
         self.was_played = False
         self.condition = condition
-        super(PlaySpellVariable, self).__init__()
         self.register(self.played, event=PlaySpellEvent())
+        super(PlaySpellVariable, self).__init__()
     def played(self, sender, card):
         if self.condition(card):
             self.was_played = True

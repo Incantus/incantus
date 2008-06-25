@@ -455,20 +455,3 @@ class EvokeCost(SpecialCost):
         self.evoked = player.getIntention("Pay evoke cost?", "...pay evoke cost?")
         if self.evoked: self.cost = self.evoke_cost
         return super(EvokeCost, self).precompute(card, player)
-
-class ProwlCost(SpecialCost):
-    def __init__(self, orig_cost, prowl_cost):
-        if type(orig_cost) == str: orig_cost = ManaCost(orig_cost)
-        if type(prowl_cost) == str: prowl_cost = ManaCost(prowl_cost)
-        self.orig_cost = orig_cost
-        self.prowl_cost = prowl_cost
-        self.reset()
-    def reset(self):
-        self.prowled = False
-        self.can_prowl = False
-        self.cost = self.orig_cost
-    def precompute(self, card, player):
-        if self.can_prowl:
-            self.prowled = player.getIntention("Pay prowl cost?", "...pay prowl cost?")
-            if self.prowled: self.cost = self.prowl_cost
-        return super(ProwlCost, self).precompute(card, player)
