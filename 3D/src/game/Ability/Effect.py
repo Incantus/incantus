@@ -78,10 +78,14 @@ class DoOr(Effect):
         self.effect = effect
         self.failed = failed
     def process_target(self, card, target):
-        return self.effect.process_target(card, target[0]) and self.failed.process_target(card, target[1])
+        if not type(target) == list: target, failed_target = target, target
+        else: target, failed_target = target
+        return self.effect.process_target(card, target) and self.failed.process_target(card, failed_target)
     def __call__(self, card, target):
-        if not self.effect(card, target[0]):
-            return self.failed(card, target[1])
+        if not type(target) == list: target, failed_target = target, target
+        else: target, failed_target = target
+        if not self.effect(card, target):
+            return self.failed(card, failed_target)
         else: return True
     def __str__(self):
         return "Do %s, or %s"%(self.effect, self.failed)
@@ -412,9 +416,11 @@ class PayExtraCost(Effect):
         if type(cost) == str: cost = ManaCost(cost)
         self.cost = cost
     def __call__(self, card, target):
-        intent = card.controller.getIntention("", "Pay extra cost for %s?"%card)
-        if intent and self.cost.precompute(card, target) and self.cost.compute(card, target):
-            self.cost.pay(card, target)
+        if not isPlayer(target): player = target.controller
+        else: player = target
+        intent = player.getIntention("", "Pay %s for %s?"%(self.cost, card))
+        if intent and self.cost.precompute(card, player) and self.cost.compute(card, player):
+            self.cost.pay(card, player)
             return True
         else: return False
     def __str__(self):
@@ -1050,7 +1056,7 @@ class DiscardCard(Effect):
         if not isPlayer(target): raise Exception("Invalid target (not a player)")
         # Prefilter the list to only show valid card types
         selection = target.hand.get(self.card_types)
-        if len(selection) <= self.number: num_discard = -1 #len(selection)
+        if len(selection) <= self.number and self.required: num_discard = -1 #len(selection)
         else: num_discard = self.number
         if self.random:
             import random

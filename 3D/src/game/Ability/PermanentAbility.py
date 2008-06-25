@@ -53,7 +53,7 @@ def echo(permanent, subrole, cost="0"):
                        trigger = PlayerTrigger(event=UpkeepStepEvent()),
                        match_condition = lambda player: player == card.controller,
                        ability = Ability(card,
-                                        target=[Target(targeting="you"),Target(targeting="you")],
+                                        target=Target(targeting="you"),
                                         effects=DoOr(PayExtraCost(cost), failed=SacrificeSelf())),
                        expiry=1)]
     subrole.triggered_abilities.extend(echo_ability)
