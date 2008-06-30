@@ -15,3 +15,5 @@ from Ability.CreatureAbility import *
 from Ability.PermanentAbility import *
 from Ability.LorwynAbility import *
 from Ability.MorningtideAbility import *
+
+damage_tracker = DamageTrackingVariable()

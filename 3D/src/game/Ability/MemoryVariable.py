@@ -13,18 +13,24 @@ class MemoryVariable(MtGObject):
     def __str__(self):
         return str(self.value())
 
-
-class PlayerDamageVariable(MemoryVariable):
+class DamageTrackingVariable(MemoryVariable):
     def __init__(self):
-        self.players = {}
-        self.register(self.damaged, event=PlayerDamageEvent())
-        super(PlayerDamageVariable, self).__init__()
+        self.reset()
+        self.register(self.damage_received, event=DealsDamageEvent())
+        super(DamageTrackingVariable, self).__init__()
     def reset(self):
-        for player in self.players.keys():
-            self.players[player] = 0
-    def damaged(self, sender, source, amount):
-        if not sender in self.players: self.players[sender] = 0
-        self.players[sender] += amount
+        self.dealing = {}
+    def damage_dealt(self, sender, to, amount):
+        if not sender in self.dealing: self.dealing[sender] = {}
+        if not to in self.dealing[sender]: self.dealing[sender][to] = 0
+        self.dealing[sender][to] += amount
+    def dealt(self, source, to=None):
+        return source in self.dealing and (to == None or to in self.dealing[source])
+    def received(self, to, source=None):
+        if source:
+            return to in self.dealing[source]
+        else:
+            return any([True for dealing in self.dealing.values() if to in dealing])
 
 class PlaySpellVariable(MemoryVariable):
     def __init__(self, condition):
