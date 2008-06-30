@@ -16,11 +16,11 @@ class MemoryVariable(MtGObject):
 class DamageTrackingVariable(MemoryVariable):
     def __init__(self):
         self.reset()
-        self.register(self.damage_received, event=DealsDamageEvent())
+        self.register(self.damage, event=DealsDamageEvent())
         super(DamageTrackingVariable, self).__init__()
     def reset(self):
         self.dealing = {}
-    def damage_dealt(self, sender, to, amount):
+    def damage(self, sender, to, amount):
         if not sender in self.dealing: self.dealing[sender] = {}
         if not to in self.dealing[sender]: self.dealing[sender][to] = 0
         self.dealing[sender][to] += amount
