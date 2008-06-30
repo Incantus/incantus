@@ -141,7 +141,7 @@ class ForN(Effect):
         return "%s, %d time(s)"%(str(self.effect), self.number)
 
 class MultipleEffects(Effect):
-    def __init__(self, effects=[]):
+    def __init__(self, *effects):
         self.effects = effects
     def process_target(self, card, target):
         success = True
