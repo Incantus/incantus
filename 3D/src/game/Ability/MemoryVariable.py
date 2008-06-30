@@ -27,10 +27,8 @@ class DamageTrackingVariable(MemoryVariable):
     def dealt(self, source, to=None):
         return source in self.dealing and (to == None or to in self.dealing[source])
     def received(self, to, source=None):
-        if source:
-            return to in self.dealing[source]
-        else:
-            return any([True for dealing in self.dealing.values() if to in dealing])
+        if source: return self.dealt(source, to)
+        else: return any([True for dealing in self.dealing.values() if to in dealing])
 
 class PlaySpellVariable(MemoryVariable):
     def __init__(self, condition):
