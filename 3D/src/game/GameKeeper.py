@@ -257,32 +257,26 @@ class GameKeeper(MtGObject):
         legendaries = []
         for player in players: legendaries.extend(player.play.get(Match.isLegendaryPermanent))
         # XXX There's got to be a better way to find multiples
-        remove = []
+        remove_dup = []
         for i, l1 in enumerate(legendaries):
             for l2 in legendaries[i+1:]:
                 if l1.name == l2.name:
-                    remove.extend([l1,l2])
+                    remove_dup.extend([l1,l2])
                     break
-        if len(remove) > 0:
-            def SBE():
-                for legend in remove:
-                    player = legend.controller
-                    player.moveCard(legend, player.play, legend.owner.graveyard)
-            actions.append(SBE)
         # 2 or more Planeswalkers with the same name
         planeswalkers = []
         for player in players: planeswalkers.extend(player.play.get(Match.isPlaneswalker))
-        remove = []
         for i, l1 in enumerate(planeswalkers):
             for l2 in planeswalkers[i+1:]:
                 if l1.subtypes.intersects(l2.subtypes):
-                    remove.extend([l1,l2])
+                    remove_dup.extend([l1,l2])
                     break
-        if len(remove) > 0:
+        # Now remove all the cards in remove_dup
+        if len(remove_dup) > 0:
             def SBE():
-                for walker in remove:
-                    player = walker.controller
-                    player.moveCard(walker, player.play, walker.owner.graveyard)
+                for card in remove_dup:
+                    player = card.controller
+                    player.moveCard(card, player.play, card.owner.graveyard)
             actions.append(SBE)
 
         # 420.5f A token in a zone other than the in-play zone ceases to exist.
