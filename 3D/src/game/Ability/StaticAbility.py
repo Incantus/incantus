@@ -85,13 +85,13 @@ class PermanentTrackingAbility(StaticAbility):
         del self.effect_tracking[perm]   # necessary to prevent recursion
     def event_triggered(self, trigger):
         perm = trigger.matched_card
-        tracking = perm in self.effect_tracking and not self.effect_tracking[perm] == True
+        tracking = perm in self.effect_tracking
         pass_condition = self.condition(perm)
         #print "%s triggered %s in %s, currently tracked %s, valid %s"%(perm, trigger.trigger_event, self.card, tracking, pass_condition)
         # If perm is already tracked, but doesn't pass the condition, remove it
         # Note the condition can't rely on any trigger data
         if not tracking and pass_condition: self.add_effects(perm)
-        elif tracking and not pass_condition: self.remove_effects(perm)
+        elif tracking and not pass_condition and not self.effect_tracking[perm] == True: self.remove_effects(perm)
 
 class AttachedStaticAbility(StaticAbility):
     def __init__(self, card, effects=[]):
