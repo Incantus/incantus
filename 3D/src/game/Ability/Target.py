@@ -155,11 +155,11 @@ class Target(MtGObject):
                 if self.zone != "play":
                     if self.player_zone == None: zl = " in any %s"%self.zone
                     elif self.player_zone == "controller": zl = " in your %s"%self.zone
-                    else: zl == " in opponent %s"%self.zone
+                    else: zl = " in opponent %s"%self.zone
                 else:
                     if self.player_zone == None: zl = ""
                     elif self.player_zone == "controller": zl = " you control"
-                    else: zl == " opponent controls"
+                    else: zl = " opponent controls"
                 prompt="Target %s%s for %s"%(' or '.join([str(t) for t in self.target_types]), zl, card)
             if self.selector == "opponent": selector = card.controller.opponent
             elif self.selector == "current_player":
