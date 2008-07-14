@@ -12,7 +12,8 @@ from pyglet.gl import *
 import anim
 import euclid
 from anim_euclid import AnimatedVector3, AnimatedQuaternion
-from widget import Label, ColorDict
+from widget import Label
+from resources import ColorDict
 from counter import Counter
 
 sixteenfv = GLfloat*16

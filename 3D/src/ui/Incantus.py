@@ -781,8 +781,8 @@ class GameWindow(window.Window):
         return result
 
 def main():
-    width = 1024
-    height = 768
+    width = 600 #1024
+    height = 600 #768
     configs = [
         Config(double_buffer=True, depth_size=24,
                sample_buffers=1, samples=4),
@@ -791,14 +791,12 @@ def main():
         Config(double_buffer=True, depth_size=24),
         Config(double_buffer=True, depth_size=16),
     ]
-    widget.ImageCache.load_images()
     for config in configs:
         try:
             win = GameWindow(width=width, height=height, config=config, resizable=True, caption='Incantus')
             break
         except window.NoSuchConfigException:
             pass
-    #win.set_fullscreen()
     win.init()
     win.set_icon(pyglet.image.load("./data/Incantus.png"))
     try:

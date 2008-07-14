@@ -2,70 +2,12 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
 from pyglet.gl import *
-from pyglet import image
 from pyglet import font
 
-import math
 import anim
 import euclid
 from anim_euclid import AnimatedVector3, AnimatedQuaternion
-
-font.add_directory("./data/fonts")
-#fontlist = ["Vinque", "Moderna", "Legrand MF", "Grange MF", "Cry Uncial", "BoisterBlack", "Aniron", "Thaleia", "AlfredDrake"]
-fontname = "Dumbledor 1" #"Legrand MF" #"Dumbledor 1" #Grantham Roman" #Legrand MF"
-fontincr = 0 # 5
-
-class ImageCache(object):
-    cache = {}
-    @staticmethod
-    def get(key): return ImageCache.cache[key]
-    @staticmethod
-    def _load(filename, path, key):
-        cache = ImageCache.cache
-        value = image.load(path+filename)
-        cache[key] = value
-    @staticmethod
-    def _load_multi(filename, path, labels, rows, columns):
-        cache = ImageCache.cache
-        multiimage = image.ImageGrid(image.load(path+filename), rows, columns)#.texture_sequence
-        for label, texture in zip(labels, multiimage):
-            key = label
-            cache[key] = texture
-    @staticmethod
-    def load_images():
-        path = "./data/images/"
-        colors = ["red", "white", "black", "colorless", "green", "blue"]
-        ImageCache._load_multi("mana.png", path, colors, 2, 3)
-        status = ["removed", "graveyard", "library", "hand"]
-        ImageCache._load_multi("status.png", path, status, 2, 2)
-        ImageCache._load("life.png", path, "life")
-        status = ['Untap','Upkeep','Draw','Main1','PreCombat','Attack','Block','Damage','EndCombat','Main2','EndPhase','Cleanup']
-        ImageCache._load_multi("phases.png", path, status, 4, 3)
-        path = "./data/images/fx/"
-        for key in ["ring", "glow", "star", "targeting"]:
-            ImageCache._load(key+".png", path, key)
-
-class ColorDict(object):
-    def __init__(self, default=(1.0, 1.0, 1.0)):
-        self.colors = dict(B=(0.2,0.2,0.2),W=(1.,1.,1.),R=(0.85,0.13,0.13),G=(0.35,0.85,0.35),U=(0.55, 0.80, 0.90))
-        self.colors[''] = (0.6, 0.6, 0.6)
-        self.gold = (0.85, 0.85, 0.) #(0.98, 0.85, 0.33)
-        self.default = default
-    def get(self, color):
-        if color in self.colors: return self.colors[color]
-        else: return self.gold
-            # multicolor - blend the colors
-            #colors = color.split()
-            #color = reduce(lambda x, y: (x[0]+y[0], x[1]+y[1], x[2]+y[2]) ,[self.colors[c] for c in colors])
-            #return tuple([val/len(colors) for val in color])
-        #else: return self.default
-    def get_multi(self, color):
-        if color in self.colors: return [self.colors[color]]
-        else:
-            colors = color.split()
-            if len(colors) > 2: return [self.gold]
-            else: return [self.colors[c] for c in colors]
-
+from resources import ImageCache, fontname
 class Widget(anim.Animable):
     def pos():
         def fget(self): return euclid.Vector3(self._pos.x, self._pos.y, self._pos.z)
@@ -155,8 +97,8 @@ class Label(Widget):
         self.background = background
         self.color = color
         self.fontname = fontname
-        self.size = size+fontincr
-        self.font = font.load(fontname, self.size, dpi=96)
+        self.size = size
+        self.font = font.load(self.fontname, self.size, dpi=96)
         self._pos.set_transition(dt=0.5, method="ease_out_back")
         self.visible = anim.constant(1)
         self.render_border = border
@@ -165,7 +107,7 @@ class Label(Widget):
     def set_size(self, size):
         if not size == self.size:
             self.size = size
-            self.font = font.load(fontname, size, dpi=96)
+            self.font = font.load(self.fontname, size, dpi=96)
             self.value = self.value
     def set_text(self, v, width=None):
         if width:

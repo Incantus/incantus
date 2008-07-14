@@ -4,7 +4,8 @@ from pyglet import clock
 from pyglet.gl import *
 import euclid
 import anim
-from widget import Image, Label, ColorDict
+from widget import Image, Label
+from resources import ColorDict
 import CardLibrary
 from game import GameEvent
 from game.pydispatch import dispatcher
