@@ -20,7 +20,7 @@ from play_view import PlayView, Table
 from status_widget import StatusView, GameStatus, SelectionList, MessageDialog, ManaView, PhaseStatus
 from animator import ZoneAnimator
 from controllers import *
-import networkcomm, replaydump
+from network import networkcomm, replaydump
 import GUIEvent
 
 fourfv = GLfloat*4

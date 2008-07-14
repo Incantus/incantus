@@ -204,5 +204,6 @@ class Label(Widget):
             glTranslatef(0,0,0.001)
         if self.shadow:
             self.shadow.draw()
-            glTranslatef(-0.1*(self.width/(self.scale*len(self.value))), 0.1*(self.main_text.line_height/self.scale), 0.001)
+            glTranslatef(-0.1*(self.width/(self.scale*len(self.value))), 0.1*(self.main_text.height/self.scale), 0.001)
+            # XXX Deprecated in pyglet 1.1 glTranslatef(-0.1*(self.width/(self.scale*len(self.value))), 0.1*(self.main_text.line_height/self.scale), 0.001)
         self.main_text.draw()

@@ -1,7 +1,7 @@
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
-from Incantus import main
+from ui.Incantus import main
 #import cProfile
 
 if __name__ == '__main__':
