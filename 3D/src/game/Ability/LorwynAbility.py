@@ -1,4 +1,4 @@
-from Ability import Ability, Stackless, PostponeTargeting
+from Ability import Ability, Stackless
 from ActivatedAbility import ActivatedAbility
 from CastingAbility import CastPermanentSpell
 from Effect import *
@@ -60,11 +60,8 @@ def clash(subrole, card, clash_ability):
         subrole.triggered_abilities.remove(clash)
     return remove_clash
 
-
 # XXX This should really set up a delayed trigger
-# Also, the postponed ability is needed because there is no way to save which card was selected
-# XXX Champion is broken
-class PostponedAbility(PostponeTargeting, Ability): pass
+# XXX Champion is broken because it won't let you escape the selection
 def champion(subrole, card, role=isPermanent, subtypes=None):
     if subtypes == None:
         subtypes = card.subtypes
@@ -76,16 +73,16 @@ def champion(subrole, card, role=isPermanent, subtypes=None):
         subtypes = all_characteristics()
         msg = "Champion %s"%role
     msg += " or sacrifice (Esc)"
-    championed = Target(target_types=role.with_condition(lambda p: not p == card and p.controller == card.controller and p.subtypes.intersects(subtypes)), msg=msg)
+    card.championed = None
+    # XXX The function should set up the delayed trigger
     champion = TriggeredAbility(card, trigger = EnterTrigger("play"),
             match_condition=SelfMatch(card),
-            ability = PostponedAbility(card,
-                target=championed,
-                effects=DoOr(ChangeZone(from_zone="play", to_zone="removed"), failed=SacrificeSelf()),
-                copy_targets=False))
+            ability = Ability(card,
+                effects=DoOr(MoveCards(from_zone="play", to_zone="removed", card_types=role.with_condition(lambda p: not p == card and p.controller == card.controller and p.subtypes.intersects(subtypes)), func=lambda c: setattr(card, "championed", c), required=False, prompt=msg), failed=SacrificeSelf())))
+
     champion_return = TriggeredAbility(card, trigger = LeavingTrigger("play"),
-            match_condition=SelfMatch(card, lambda x: championed.target and championed.target.zone != None),
-            ability=Ability(card, target=SpecialTarget(targeting= lambda: championed.target),
+            match_condition=SelfMatch(card, lambda c: c.championed and c.championed.zone != None),
+            ability=Ability(card, target=SpecialTarget(targeting= lambda: card.championed and setattr(card, "championed", None)),
                 effects=ChangeZone(from_zone="removed", to_zone="play")))
     subrole.triggered_abilities.extend([champion,champion_return])
     def remove_champion():
