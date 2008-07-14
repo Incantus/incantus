@@ -144,22 +144,36 @@ class MultipleEffects(Effect):
     def __init__(self, *effects):
         self.effects = effects
     def process_target(self, card, target):
+        if not type(target) == list:
+            target = [target]
+            single = True
+        else: single = False
         success = True
-        for effect in self.effects:
-            if not effect.process_target(card, target): success = False
+        for i, effect in enumerate(self.effects):
+            if single: i = 0
+            if not effect.process_target(card, target[i]): success = False
         return success
     def __call__(self, card, target):
+        if not type(target) == list:
+            target = [target]
+            single = True
+        else: single = False
         success = True
-        for effect in self.effects:
-            if not effect(card, target): success = False
+        for i, effect in enumerate(self.effects):
+            if single: i = 0
+            if not effect.process_target(card, target[i]): success = False
         return success
     def __str__(self):
         return ", ".join(map(str,self.effects))
 
 class DependentEffects(MultipleEffects):
     def __call__(self, card, target):
-        for effect in self.effects:
-            if not effect(card, target):
+        if not type(target) == list:
+            target = [target]
+            single = True
+        else: single = False
+        for i, effect in enumerate(self.effects):
+            if not effect(card, target[i]):
                 success = False
                 break
         else: success = True
