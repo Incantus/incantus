@@ -4,7 +4,7 @@ from game.GameEvent import *
 class MemoryVariable(MtGObject):
     def __init__(self):
         self.register(self.reset, event=EndTurnEvent())
-    def value(self): pass
+    def value(self): raise NotImplementedError()
     def reset(self): pass
     def __int__(self):
         return int(self.value())
@@ -13,6 +13,33 @@ class MemoryVariable(MtGObject):
     def __str__(self):
         return str(self.value())
 
+class ZoneMoveVariable(MemoryVariable):
+    def __init__(self, from_zone, to_zone):
+        self.from_zone = from_zone
+        self.to_zone = to_zone
+        self.moved = set()
+        self.entering = set()
+        self.events_senders = [(CardEnteringZone(), self.filter_entering), (CardLeavingZone(), self.filter_leaving)]
+        for event, filter in self.events_senders: self.register(filter, event=event)
+        super(ZoneMoveVariable, self).__init__()
+    def reset(self):
+        self.moved.clear()
+        self.entering.clear()
+    def filter_entering(self, sender, card):
+        # If we are already tracking the card, reset
+        if card in self.moved: self.moved.remove(card)
+        if str(sender) == self.to_zone: self.entering.add(card)
+    def filter_leaving(self, sender, card):
+        if card in self.entering:
+            self.entering.remove(card)
+            if str(sender) == self.from_zone: self.moved.add(card)
+    def __len__(self): return len(self.moved)
+    def value(self): return len(self)
+    def __contains__(self, card): return card in self.moved
+    def get(self, match=lambda c:True):
+        return (card for card in self.moved if match(card))
+    def __iter__(self): return iter(self.get())
+
 class DamageTrackingVariable(MemoryVariable):
     def __init__(self):
         self.reset()
@@ -20,6 +47,7 @@ class DamageTrackingVariable(MemoryVariable):
         super(DamageTrackingVariable, self).__init__()
     def reset(self):
         self.dealing = {}
+    def value(self): return 0
     def damage(self, sender, to, amount):
         if not sender in self.dealing: self.dealing[sender] = {}
         if not to in self.dealing[sender]: self.dealing[sender][to] = 0
