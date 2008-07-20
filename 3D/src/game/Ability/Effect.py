@@ -161,7 +161,7 @@ class MultipleEffects(Effect):
         success = True
         for i, effect in enumerate(self.effects):
             if single: i = 0
-            if not effect.process_target(card, target[i]): success = False
+            if not effect(card, target[i]): success = False
         return success
     def __str__(self):
         return ", ".join(map(str,self.effects))
@@ -173,6 +173,7 @@ class DependentEffects(MultipleEffects):
             single = True
         else: single = False
         for i, effect in enumerate(self.effects):
+            if single: i = 0
             if not effect(card, target[i]):
                 success = False
                 break
@@ -1080,11 +1081,11 @@ class DiscardCard(Effect):
         selection = target.hand.get(self.card_types)
         if len(selection) <= self.number and self.required: num_discard = -1 #len(selection)
         else: num_discard = self.number
-        if self.random:
+        if num_discard == -1: #Discard all
+            result = selection
+        elif self.random:
             import random
             result = [selection[i] for i in random.sample(range(len(selection)), num_discard)]
-        elif num_discard == -1: #Discard all
-            result = selection
         else:
             if num_discard > 1: a='s'
             else: a = ''
