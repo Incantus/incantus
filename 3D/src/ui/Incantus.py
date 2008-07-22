@@ -92,7 +92,7 @@ class GameWindow(window.Window):
         self.mainplayer_status = StatusView(pos=euclid.Vector3(0, 0, 0))
         self.otherplayer_status = StatusView(pos=euclid.Vector3(self.width, self.height, 0), is_opponent=True)
         self.mana_controller = ManaController(self.mainplayer_status.manapool, self.otherplayer_status.manapool, self)
-        self.x_controller = XSelector(self.mainplayer_status.manapool, self)
+        self.x_controller = XSelector(self.mainplayer_status.manapool, self.otherplayer_status.manapool, self)
         self.zone_view = ZoneView()
         self.card_selector = CardSelector(self.mainplayer_status, self.otherplayer_status, self.zone_view, self)
         self.game_status = GameStatus()
@@ -747,11 +747,13 @@ class GameWindow(window.Window):
         elif context.get("get_mana_choice", False):
             required = context['required']
             manapool = context['manapool']
+            from_player = context['from_player']
             #if self.hand_controller.activated: self.hand_controller.deactivate()
-            self.mana_controller.request_mana(required, manapool)
+            self.mana_controller.request_mana(required, manapool, is_opponent=(from_player != self.player1))
         elif context.get("get_X", False):
             #if self.hand_controller.activated: self.hand_controller.deactivate()
-            self.x_controller.request_x()
+            from_player = context['from_player']
+            self.x_controller.request_x(is_opponent=(from_player != self.player1))
         elif context.get("get_damage_assign", False):
             blocking_list = context['blocking_list']
             trample = context['trample']

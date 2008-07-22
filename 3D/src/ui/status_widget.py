@@ -293,10 +293,9 @@ class ManaImage(Image):
         self.glow.render()
 
 class ManaView(Widget):
-    def __init__(self, pos=euclid.Vector3(0, 0, 0), reverse=False):
+    def __init__(self, pos=euclid.Vector3(0, 0, 0)):
         from game import Mana
         super(ManaView,self).__init__(pos)
-        self.reverse = reverse
         self._pos.set_transition(dt=0.4, method="ease_out_back")
         self.colors = ["white", "blue", "black", "red", "green", "colorless"]
         self.colormap = dict(zip(self.colors, "WUBRG"))
@@ -312,39 +311,34 @@ class ManaView(Widget):
         self.cost = Label("0", size=40, halign="center", background=True)
         self.select_mana = self.select_x = False
         self.layout()
-    def resize(self, width, height):
-        self.select_pos = euclid.Vector3((width-self.width)/2, height/2, 0)
+    def resize(self, width, height, flip=False):
+        if flip: flip=-1
+        else: flip=1
+        self.select_pos = euclid.Vector3(flip*width/2, flip*height/2, 0)
         if self.select_mana or self.select_x:
-            self.pos = self.select_pos
+            self.pos = self.select_pos+euclid.Vector3(-self.width/2, 0, 0)
     def clear_mana(self, sender):
         status = self.values
-        manapool = sender
         for idx, c in enumerate(self.colors):
-            if status[c].value == '': oldamt = 0
-            else: oldamt = int(status[c].value)
-            val = getattr(manapool, c)
-            if val > 0:
-                status[c].set_text(val)
-                self.symbols[idx].alpha = 0.8
-            else:
+            if not status[c].value == '':
                 status[c].set_text('')
+                self.symbols[idx].animate(pain=True)
                 self.symbols[idx].alpha = 0.4
-            if oldamt > 0: self.symbols[idx].animate(pain=True)
         self.layout()
     def update_mana(self, sender, amount):
         status = self.values
-        manapool = sender
         for idx, c in enumerate(self.colors):
-            val = getattr(manapool, c)
-            if val > 0:
-                status[c].set_text(val)
+            amt = amount[idx]
+            if amt > 0: self.symbols[idx].animate()
+            if status[c].value == '': new_value = amt
+            else: new_value = int(status[c].value)+amt
+            if new_value > 0:
+                status[c].set_text(new_value)
                 self.symbols[idx].alpha = 0.8
             else:
                 status[c].set_text('')
                 self.symbols[idx].alpha = 0.4
         self.layout()
-        for idx, amt in enumerate(amount):
-            if amt > 0: self.symbols[idx].animate()
     def handle_click(self, x, y):
         for color, symbol in zip(self.colors, self.symbols):
             if not symbol.visible: continue
@@ -372,7 +366,6 @@ class ManaView(Widget):
                 x += hw+spacer
             self.width = len(self.symbols)*(symbol.width*1.1)
         else:
-            self.pos = self.select_pos
             if not self.select_x:
                 for symbol, current, pay in zip(self.symbols, self.pool, self.spend):
                     symbol.visible = current.visible = pay.visible = 1
@@ -403,6 +396,7 @@ class ManaView(Widget):
                     current.visible = 0
                 self.cost.pos = euclid.Vector3((x-symbol.width)/2, symbol.height*0.7, 0)
             self.width = x - symbol.width - spacer
+            self.pos = self.select_pos-euclid.Vector3(self.width/2, 0, 0)
         self.height = symbol.height
     def render_after_transform(self):
         for symbol, text in zip(self.symbols, self.pool):
@@ -449,16 +443,20 @@ class StatusView(Widget):
         self.values = dict([(symbol, Label('', size, halign="center", valign="center")) for symbol, size in zip(self.symbols, sizes)])
         self.values["life"].halign = "center"
         self.values["life"].valign = "center"
-        self.manapool = ManaView(reverse=is_opponent)
+        self.manapool = ManaView()
         self.active = Image("ring")
         self.active.scale = anim.animate(0.1, 0.1, dt=0.2, method="ease_out_back")
         self.active.visible = 1.
         self.visible = 0
         self.layout()
     def resize(self, width, height):
-        if self.is_opponent: pos = euclid.Vector3(width, height, 0)
-        else: pos = euclid.Vector3(0, 0, 0)
-        self.manapool.resize(width, height)
+        if self.is_opponent:
+            pos = euclid.Vector3(width, height, 0)
+            flip = True
+        else:
+            pos = euclid.Vector3(0, 0, 0)
+            flip = False
+        self.manapool.resize(width, height, flip)
         self.pos = self.orig_pos = pos + euclid.Vector3(self._transx, self._transy, 0)
     def clear(self):
         self.symbols['life'].rotatey = anim.constant(0)

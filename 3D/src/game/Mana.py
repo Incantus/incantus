@@ -20,7 +20,7 @@ class Colors:
     ColorMap = dict([(c[0], c[1]) for c in __colors])
     ReverseMap = dict([(c[1], c[0]) for c in __colors])
 
-def compareMana(req_manastr, comp_manastr):
+def compare_mana(req_manastr, comp_manastr):
     if type(req_manastr) == str: req = convert_mana_string(req_manastr)
     if type(comp_manastr) == str: comp = convert_mana_string(comp_manastr)
     enoughMana = True
@@ -72,52 +72,40 @@ def convert_mana_string(manastr, X=0):
             mana[Colors.ReverseMap[c]] += 1
     return mana
 
-def converted_mana_cost(mana=None):
+def converted_mana_cost(mana):
     if type(mana) == str: mana = convert_mana_string(mana)
     return sum(mana)
 
 class ManaPool(MtGObject):
     def __init__(self):
-        # Should the manapool have a reference to the player so it can ask for more mana if needed?
         self._mana = [0]*Colors.numberOfColors
     def clear(self):
         self._mana = [0]*Colors.numberOfColors
         self.send(ManaCleared())
-    def addMana(self, mana):
-        if type(mana) == str: mana = self.convert_mana_string(mana)
-        for i, amount in enumerate(mana):
-            self._mana[i] += amount
+    def manaBurn(self): return sum(self._mana)
+    def add(self, mana):
+        if type(mana) == str: mana = convert_mana_string(mana)
+        for i, amount in enumerate(mana): self._mana[i] += amount
         if sum(mana) > 0: self.send(ManaAdded(), amount=mana)
     def spend(self, mana):
         # This function assumes that you have enough mana
-        if type(mana) == str: mana = self.convert_mana_string(mana)
+        if type(mana) == str: mana = convert_mana_string(mana)
         for i, amount in enumerate(mana):
             if not amount <= self._mana[i]: raise Exception("Not enough %s mana"%Colors.ColorMap[i])
             self._mana[i] -= amount
-        self.send(ManaSpent(), amount=mana)
-    def checkX(self, mana):
-        if type(mana) == str: return "X" in mana
-        else: return False
-    def checkMana(self, mana):
-        enoughMana = True
-        if type(mana) == str: mana = self.convert_mana_string(mana)
-        # Now check the required colors
-        for i, amount in enumerate(mana[:-1]):
-            if not amount <= self._mana[i]: enoughMana = False
-        if not sum(mana) <= sum(self._mana): enoughMana = False
-        return enoughMana
-    def checkRequired(self, mana):
+        self.send(ManaSpent(), amount=[-1*m for m in mana])
+    def enoughInPool(self, mana):
         cost = [val for val in mana]
         for i, amount in enumerate(self._mana):
             for j in range(amount):
                 if cost[i] == 0: cost[-1] -= 1
                 else: cost[i] -= 1
             cost[i] = max(cost[i], 0)
-        coststr = self.convert_to_mana_string(cost)
+        coststr = convert_to_mana_string(cost)
         return coststr
-    def distributeMana(self, mana):
+    def distribute(self, mana):
         # At this point I know I have enough mana
-        if type(mana) == str: mana = self.convert_mana_string(mana)
+        if type(mana) == str: mana = convert_mana_string(mana)
         # First, if no colorless mana, don't need to distribute
         if mana[-1] == 0: return mana
 
@@ -145,18 +133,5 @@ class ManaPool(MtGObject):
 
         # We can't distribute the mana
         return False
-
-    def convertedManaCost(self, mana=None):
-        if mana == None: return sum(self._mana)
-        if type(mana) == str: mana = self.convert_mana_string(mana)
-        return sum(mana)
-    def manaBurn(self):
-        return sum(self._mana)
-    def getMana(self, mana, attr):
-        return mana[Colors.ReverseMap[attr]]
-    def __getattr__(self, attr):
-        if Colors.ReverseMap.has_key(attr):
-            return self._mana[Colors.ReverseMap[attr]]
-        else: super(ManaPool, self).__getattr__(attr)
-    def convert_mana_string(self,manastr): return convert_mana_string(manastr)
-    def convert_to_mana_string(self, cost): return convert_to_mana_string(cost)
+    def __str__(self):
+        return convert_to_mana_string(self._mana)

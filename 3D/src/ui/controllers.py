@@ -412,20 +412,23 @@ class StatusController(object):
             return True
 
 class XSelector(object):
-    def __init__(self, mana_gui, window):
-        self.mana = mana_gui
-        self.colorless_symbol = mana_gui.symbols[-1]
-        self.colorless = mana_gui.values["colorless"]
+    def __init__(self, mainmana_gui, othermana_gui, window):
+        self.mainmana = mainmana_gui
+        self.othermana = othermana_gui
         self.window = window
-    def request_x(self):
-        self.activate(x=True)
+    def request_x(self, is_opponent=False):
+        self.is_opponent = is_opponent
+        if not is_opponent: self.mana = self.mainmana
+        else: self.mana = self.othermana
+        self.colorless_symbol = self.mana.symbols[-1]
+        self.colorless = self.mana.values["colorless"]
+        self.activate()
         self.mana.cost.set_text("Choose X")
         self.orig_alpha = self.colorless_symbol.alpha
         self.orig_colorless = self.colorless.value
         self.colorless.set_text(0)
-    def activate(self, x=False):
-        self.mana.select(x)
-        self.mana.pos = euclid.Vector3((self.window.width-self.mana.width)/2, self.window.height/2, 0)
+    def activate(self):
+        self.mana.select(True)
         self.window.push_handlers(self)
     def deactivate(self):
         self.colorless.set_text(self.orig_colorless)
@@ -445,8 +448,10 @@ class XSelector(object):
             return True
     def on_mouse_press(self, x, y, button, modifiers):
         # Find out which mana we selected
-        x -= self.window.mainplayer_status.pos.x + self.mana.pos.x
-        y -= self.window.mainplayer_status.pos.y + self.mana.pos.y
+        if not self.is_opponent: status = self.window.mainplayer_status
+        else: status = self.window.otherplayer_status
+        x -= status.pos.x + self.mana.pos.x
+        y -= status.pos.y + self.mana.pos.y
         values = self.mana.handle_click(x, y)
         if values:
             symbol, current, pay = values
@@ -470,15 +475,19 @@ class ManaController(object):
         self.mainmana = mainmana_gui
         self.othermana = othermana_gui
         self.window = window
-    def request_mana(self, required, manapool):
-        self.mana = self.mainmana
+        self.old_vals = {}
+    def request_mana(self, required, manapool, is_opponent):
+        self.is_opponent = is_opponent
+        if not is_opponent: self.mana = self.mainmana
+        else: self.mana = self.othermana
         self.activate()
-        self.manapool = manapool
         self.required_str = required
         required = Mana.convert_mana_string(required)
+        manapool = Mana.convert_mana_string(manapool)
         for i, color in enumerate(self.mana.colors):
-            nummana = getattr(manapool, color)
-            req_mana = manapool.getMana(required,color)
+            nummana = manapool[i]
+            self.old_vals[color] = nummana
+            req_mana = required[i]
             spend = min(nummana,req_mana)
             self.mana.spend_values[color].set_text(spend)
             self.mana.values[color].set_text(nummana-spend)
@@ -487,15 +496,14 @@ class ManaController(object):
                 self.mana.values[color].visible = 0
                 self.mana.symbols[i].alpha = 0.5
         self.set_cost()
-    def reset_mana(self):
+    def reset_pool(self):
         for color in self.mana.colors:
-            self.mana.values[color].set_text(getattr(self.manapool, color))
-    def activate(self, x=False):
-        self.mana.select(x)
-        self.mana.pos = euclid.Vector3((self.window.width-self.mana.width)/2, self.window.height/2, 0)
+            self.mana.values[color].set_text(self.old_vals[color])
+    def activate(self):
+        self.mana.select(False)
         self.window.push_handlers(self)
     def deactivate(self):
-        self.reset_mana()
+        self.reset_pool()
         self.mana.select()
         self.window.pop_handlers()
     def set_cost(self):
@@ -519,7 +527,7 @@ class ManaController(object):
             manastr = ''.join([color*int(mana[i]) for i, color in enumerate("WUBRG") if mana[i] != ''])
             if mana[-1] > 0: manastr += str(mana[-1])
             if manastr == '': manastr = '0'
-            if Mana.compareMana(self.required_str, manastr) and self.manapool.checkMana(manastr):
+            if Mana.compare_mana(self.required_str, manastr):
                 self.window.user_action = Action.ManaSelected(manastr)
                 self.deactivate()
             return True
@@ -533,13 +541,15 @@ class ManaController(object):
         return True
     def on_mouse_press(self, x, y, button, modifiers):
         # Find out which mana we selected
-        x -= self.window.mainplayer_status.pos.x + self.mana.pos.x
-        y -= self.window.mainplayer_status.pos.y + self.mana.pos.y
+        if not self.is_opponent: status = self.window.mainplayer_status
+        else: status = self.window.otherplayer_status
+        x -= status.pos.x + self.mana.pos.x
+        y -= status.pos.y + self.mana.pos.y
         values = self.mana.handle_click(x, y)
         if values:
             symbol, current, pay = values
             if (button == mouse.RIGHT or modifiers & key.MOD_OPTION): current, pay = pay, current
-            if not int(current.value) == 0: # or Mana.convert_to_mana_string(self.required) == "0"):
+            if not int(current.value) == 0:
                 current.set_text(int(current.value)-1)
                 pay.set_text(int(pay.value)+1)
                 symbol.animate(sparkle=False)

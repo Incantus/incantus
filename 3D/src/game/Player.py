@@ -400,11 +400,11 @@ class Player(MtGObject):
             else: manaplayed = action.perform(self)
         [self.allowable_actions.pop() for i in range(2)]
         return not cancel
-    def getManaChoice(self, required="0", prompt="Select mana to spend"):
+    def getManaChoice(self, manapool_str, total_required, prompt="Select mana to spend"):
         def filter(action):
             if isinstance(action, CancelAction): return action
             else: return action.mana
-        context = {'get_mana_choice': True, 'manapool': self.manapool, 'required': required, "process": filter}
+        context = {'get_mana_choice': True, 'manapool': manapool_str, 'required': total_required, "process": filter, "from_player": self}
         result = self.input(context, "%s: %s"%(self.name,prompt))
         if isinstance(result, CancelAction): return False
         else: return result
@@ -413,7 +413,7 @@ class Player(MtGObject):
             if isinstance(action, CancelAction): return action
             if isinstance(action, PassPriority): return False
             else: return action.amount
-        context = {'get_X': True, "process": filter}
+        context = {'get_X': True, "process": filter, "from_player": self}
         result = self.input(context, "%s: %s"%(self.name,prompt))
         if isinstance(result, CancelAction): return -1
         else: return result

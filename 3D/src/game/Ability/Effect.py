@@ -302,7 +302,7 @@ class AddMana(Effect):
         self._amt = amt
     def __call__(self, card, target):
         if not isPlayer(target): raise Exception("Invalid target for adding mana")
-        target.manapool.addMana(self.amt)
+        target.manapool.add(self.amt)
         card.send(ManaEvent())
         return True
     def __str__(self):
@@ -322,7 +322,7 @@ class ManaChoice(Effect):
         if not isPlayer(target): raise Exception("Invalid target for adding mana")
         choices = [("Add %s to your mana pool"%c,c) for c in self.choices]
         choice = target.getSelection(choices, 1, idx=False, prompt="Select mana to add")
-        target.manapool.addMana(choice)
+        target.manapool.add(choice)
         card.send(ManaEvent())
         return True
     def __str__(self):

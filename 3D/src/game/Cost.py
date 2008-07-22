@@ -81,12 +81,13 @@ class ManaCost(Cost):
     def is_mana_cost(self): return True
     def precompute(self, card, player):
         mp = player.manapool
-        cost = mp.convert_mana_string(self.cost)
-        self.payment = "0"
         self._X = 0
-        if mp.checkX(self.cost):
-            self._X = player.getX()
-            cost[-1] += self._X
+        if 'X' in self.cost: self._X = player.getX()
+        #if mp.checkHybrid(self.cost):
+        #    self.
+        cost = Mana.convert_mana_string(self.cost)
+        cost[-1] += self._X
+        self.payment = "0"
         self.final_cost = cost
         return self._X >= 0
     def compute(self, card, player):
@@ -97,15 +98,16 @@ class ManaCost(Cost):
         for i, val in enumerate(cost):
             if val < 0: cost[i] = 0
         while True:
-            required = mp.checkRequired(cost)
+            required = mp.enoughInPool(cost)
             if required == '0': return True
             if not player.getMoreMana(required): return False
     def pay(self, card, player):
         mp = player.manapool
         # Now I have enough mana - how do I distribute it?
-        payment = mp.distributeMana(self.final_cost)
-        # Consolidate any colorless in the final cost
-        if not payment: payment = player.getManaChoice(required=mp.convert_to_mana_string(self.final_cost))
+        payment = mp.distribute(self.final_cost)
+        if not payment:
+            # Ask the player to distribute
+            payment = player.getManaChoice(str(player.manapool), Mana.convert_to_mana_string(self.final_cost))
         mp.spend(payment)
         self.payment = payment
     def hasX(self):
@@ -113,8 +115,8 @@ class ManaCost(Cost):
     def converted_cost(self):
         return Mana.converted_mana_cost(self.cost)
     def __eq__(self, other):
-        if isinstance(other, str): return Mana.compareMana(self.cost, other)
-        elif isinstance(other, ManaCost): return Mana.compareMana(self.cost, other.cost)
+        if isinstance(other, str): return Mana.compare_mana(self.cost, other)
+        elif isinstance(other, ManaCost): return Mana.compare_mana(self.cost, other.cost)
     def __iadd__(self, other):
         if not hasattr(self, "final_cost"): raise Error()
         # XXX This is only called by consolidate
