@@ -998,8 +998,12 @@ class MoveCards(Effect):
             cardlist = self.selector.getCardSelection(selection, self.number, from_zone=self.from_zone, from_player = target, required=self.required, card_types = self.card_types, prompt=prompt)
             if not cardlist: cardlist = []
             self.selection = [card for card in selection if not card in cardlist]
-        elif self.from_position == "top": cardlist = from_zone.top(self.number)
-        elif self.from_position == "bottom": cardlist = from_zone.bottom(self.number)
+        elif self.from_position == "top": 
+            if self.number == -1: self.number = len(from_zone)
+            cardlist = from_zone.top(self.number)
+        elif self.from_position == "bottom": 
+            if self.number == -1: self.number = len(from_zone)
+            cardlist = from_zone.bottom(self.number)
         else: cardlist = from_zone.top(self.from_position)[0]
         if not type(cardlist) == list: self.cardlist = [cardlist]
         else: self.cardlist = cardlist
@@ -1048,13 +1052,15 @@ class MoveCards(Effect):
             self.selector.send(LogEvent(), msg="%s reveals %s"%(self.selector, ', '.join(map(str, self.cardlist))))
         return True
     def __str__(self):
+        if self.number == -1: num = "all"
+        else: num = int(self.number)
         if self.number > 1: a='s'
         else: a = ''
         if self.from_position and not self.from_zone in ["hand", "play"]: fpos = "%s of "%self.from_position
         else: fpos = ''
         if self.to_position and not self.to_zone in ["hand", "play"]: tpos = "%s of "%self.to_position
         else: tpos = ''
-        return "Move %d %s%s from %s%s to %s%s"%(self.number,' or '.join(map(str,self.card_types)),a,fpos,self.from_zone,tpos,self.to_zone)
+        return "Move %s %s%s from %s%s to %s%s"%(num,' or '.join(map(str,self.card_types)),a,fpos,self.from_zone,tpos,self.to_zone)
 
 # These could be implemented as MoveCards, but it's better to use the Player functions
 # (so that appropriate signals will be send)
