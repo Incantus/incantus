@@ -1,7 +1,7 @@
 from game.GameObjects import MtGObject
 from game.Match import isPermanent
-from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger
-from game.GameEvent import CardControllerChanged, SubroleModifiedEvent
+from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger, robustApply
+from game.GameEvent import CardControllerChanged, SubroleModifiedEvent, TimestepEvent
 
 # Static abilities always function while the permanent is in play
 class StaticAbility(MtGObject):
@@ -111,3 +111,26 @@ class AttachedStaticAbility(StaticAbility):
 # If the attachment target is destroyed, the aura will be destroyed, and the target is no longer valid
 class AuraStaticAbility(AttachedStaticAbility): pass
 class EquipmentStaticAbility(AttachedStaticAbility): pass
+
+class Conditional(MtGObject):
+    def init_condition(self, condition=lambda card: True):
+        self.condition = condition
+        self.activated = False
+    def enteringPlay(self):
+        self.register(self.check_condition, event=TimestepEvent())
+    def leavingPlay(self):
+        self.unregister(self.check_condition, event=TimestepEvent())
+    def check_condition(self):
+        pass_condition = self.condition(self.card)
+        if not self.activated and pass_condition:
+            super(Conditional, self).enteringPlay()
+            self.activated = True
+        elif self.activated and not pass_condition:
+            super(Conditional, self).leavingPlay()
+            self.activated = False
+
+class ConditionalAttachedStaticAbility(Conditional, AttachedStaticAbility):
+    def __init__(self, card, effects, condition):
+        super(ConditionalAttachedStaticAbility, self).__init__(card, effects)
+        self.init_condition(condition)
+
