@@ -231,6 +231,7 @@ class SubRole(object):
         self.triggered_abilities = []
         self.static_abilities = []
         self.keywords = keywords()
+    def subrole_info(self): return ''
     def send(self, *args, **named):
         self.perm.card.send(*args, **named)
     def register(self, *args, **named):
@@ -287,6 +288,8 @@ class PTModifiers(object):
         self._modifiers.pop(i)
     def calculate(self, power, toughness):
         return reduce(lambda PT, modifier: modifier.calculate(PT[0], PT[1]), self._modifiers, (power, toughness))
+    def __str__(self):
+        return ', '.join([str(modifier) for modifier in self._modifiers])
 
 class Creature(SubRole):
     def power():
@@ -328,6 +331,13 @@ class Creature(SubRole):
         self.attacking = False
         self.blocking = False
         self.blocked = False
+    def subrole_info(self):
+        txt = ["%d/%d"%(self.base_power, self.base_toughness)]
+        txt.append(str(self.PT_other_modifiers))
+        txt.append(', '.join([str(c) for c in self.perm.counters if hasattr(c,"power")]))
+        txt.append(str(self.PT_static_modifiers))
+        txt.append(str(self.PT_switch_modifiers))
+        return 'P/T:\n'+'\n'.join(["6%s: %s"%(layer, mod) for layer, mod in zip("ABCDE", txt) if mod])
     def _PT_changed(self, sender): self.cached_PT_dirty=True
     def enteringPlay(self, perm):
         super(Creature,self).enteringPlay(perm)

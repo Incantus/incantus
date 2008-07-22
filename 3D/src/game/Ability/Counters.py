@@ -26,6 +26,8 @@ class PowerToughnessModifier(object):
         self.toughness = toughness
     def calculate(self, curr_power, curr_toughness):
         return curr_power+self.power, curr_toughness+self.toughness
+    def __str__(self):
+        return "%+d/%+d"%(self.power, self.toughness)
 
 class PowerToughnessSetter(object):
     def __init__(self, power, toughness):
@@ -33,7 +35,11 @@ class PowerToughnessSetter(object):
         self.toughness = toughness
     def calculate(self, curr_power, curr_toughness):
         return self.power, self.toughness
+    def __str__(self):
+        return "%d/%d"%(self.power, self.toughness)
 
 class PowerToughnessSwitcher(object):
     def calculate(self, curr_power, curr_toughness):
         return curr_toughness, curr_power
+    def __str__(self):
+        return "Switch PT"
