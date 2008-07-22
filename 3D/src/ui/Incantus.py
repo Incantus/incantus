@@ -781,8 +781,8 @@ class GameWindow(window.Window):
         return result
 
 def main():
-    width = 600 #1024
-    height = 600 #768
+    width = 1024
+    height = 768
     configs = [
         Config(double_buffer=True, depth_size=24,
                sample_buffers=1, samples=4),
