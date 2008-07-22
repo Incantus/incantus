@@ -269,37 +269,41 @@ class Land(SubRole):
         super(Land,self).__init__()
         self.color = color
 
-class PTModifiers(list):
-    def __init__(self, role):
-        super(PTModifiers,self).__init__()
-        self.role = role
-    def append(self, object):
-        self.role.send(PowerToughnessChangedEvent())
-        return super(PTModifiers,self).append(object)
-    def remove(self, object):
-        self.role.send(PowerToughnessChangedEvent())
-        return super(PTModifiers,self).remove(object)
+class PTModifiers(object):
+    def __init__(self):
+        self._modifiers = []
+    def add(self, PT):
+        #self.role.send(PowerToughnessChangedEvent())
+        self._modifiers.append(PT)
+    def remove(self, PT):
+        for i, modifier in enumerate(self._modifiers):
+            if PT is modifier: break
+        else: raise ValueError
+        #self.role.send(PowerToughnessChangedEvent())
+        self._modifiers.pop(i)
+    def calc_power(self, power):
+        return reduce(lambda p, PT: PT.calc_power(p), self._modifiers, power)
+    def calc_toughness(self, toughness):
+        return reduce(lambda t, PT: PT.calc_toughness(t), self._modifiers, toughness)
 
 class Creature(SubRole):
     def power():
         def fget(self):
             # Calculate layering rules
-            base = self.base_power
-            if len(self.PT_setters): base = self.PT_setters[-1].power # layer 6a
-            layer6b = sum([t.power for t in self.PT_other_modifiers])
-            layer6c = sum([t.power for t in self.perm.counters if hasattr(t,"power")])
-            layer6d = sum([t.power for t in self.PT_static_modifiers])
-            return base+layer6b+layer6c+layer6d
+            value = self.base_power # layer 6a
+            value = self.PT_other_modifiers.calc_power(value) # layer 6b
+            value += sum([c.power for c in self.perm.counters if hasattr(c,"power")]) # layer 6c
+            value = self.PT_static_modifiers.calc_power(value) # layer 6d
+            return value
         return locals()
     power = property(**power())
     def toughness():
         def fget(self):
-            base = self.base_toughness
-            if len(self.PT_setters): base = self.PT_setters[-1].toughness # layer 6a
-            layer6b = sum([t.toughness for t in self.PT_other_modifiers])
-            layer6c = sum([t.toughness for t in self.perm.counters if hasattr(t,"toughness")])
-            layer6d = sum([t.toughness for t in self.PT_static_modifiers])
-            return base+layer6b+layer6c+layer6d
+            value = self.base_toughness # layer 6a
+            value = self.PT_other_modifiers.calc_toughness(value) # layer 6b
+            value += sum([c.toughness for c in self.perm.counters if hasattr(c,"toughness")]) # layer 6c
+            value = self.PT_static_modifiers.calc_toughness(value) # layer 6d
+            return value
         return locals()
     toughness = property(**toughness())
     def __init__(self, power, toughness):
@@ -311,9 +315,8 @@ class Creature(SubRole):
         # Only accessed internally
         self.__damage = 0
 
-        self.PT_setters = [] # layer 6a - characteristic defining
-        self.PT_other_modifiers = [] # layer 6b - other modifiers
-        self.PT_static_modifiers = [] # layer 6c - static modifiers
+        self.PT_other_modifiers = PTModifiers() # layer 6b - other modifiers
+        self.PT_static_modifiers = PTModifiers() # layer 6d - static modifiers
         self.in_combat = False
         self.attacking = False
         self.blocking = False

@@ -820,8 +820,8 @@ class AddPowerToughnessCounter(AddCounter):
         if self.expire: target.register(remove_counter, CleanupEvent(), weak=False, expiry=1)
         return remove_counter
 
-class AugmentPowerToughness(Effect):
-    from Counters import PowerToughnessCounter
+class ModifyPowerToughness(Effect):
+    from Counters import PowerToughnessModifier, PowerToughnessSetter
     def __init__(self, power, toughness, expire=True):
         self.power = power
         self.toughness = toughness
@@ -834,19 +834,37 @@ class AugmentPowerToughness(Effect):
         return power, toughness
     def __call__(self, card, target):
         power, toughness = self.get_PT()
-        PT = self.PowerToughnessCounter(power, toughness)
-        if self.expire: modifiers_list = target.PT_other_modifiers
-        else: modifiers_list = target.PT_static_modifiers
-        modifiers_list.append(PT)
+        PT = self.PT_class(power, toughness)
+        modifiers = self.get_modifier_list(target)
+        modifiers.add(PT)
         target.send(PowerToughnessChangedEvent())
         def remove():
-            modifiers_list.remove(PT)
+            modifiers.remove(PT)
             target.send(PowerToughnessChangedEvent())
         if self.expire: target.register(remove, CleanupEvent(), weak=False, expiry=1)
         return remove
+
+class AugmentPowerToughness(ModifyPowerToughness):
+    def __init__(self, power, toughness, expire=True):
+        super(AugmentPowerToughness, self).__init__(power, toughness, expire)
+        self.PT_class = self.PowerToughnessModifier
+    def get_modifier_list(self, target):
+        if self.expire: modifiers = target.PT_other_modifiers
+        else: modifiers = target.PT_static_modifiers
+        return modifiers
     def __str__(self):
         power, toughness = self.get_PT()
         return "Add %+d/%+d"%(power, toughness)
+
+class SetPowerToughness(ModifyPowerToughness):
+    def __init__(self, power, toughness, expire=True):
+        super(SetPowerToughness, self).__init__(power, toughness, expire)
+        self.PT_class = self.PowerToughnessSetter
+    def get_modifier_list(self, target):
+        return target.PT_other_modifiers
+    def __str__(self):
+        power, toughness = self.get_PT()
+        return "Set %d/%d"%(power, toughness)
 
 # Change Zone is used when targeting specific cards to move between zones
 # unlike MoveCards, which selects the cards once the ability resolves
