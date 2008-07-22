@@ -866,6 +866,23 @@ class SetPowerToughness(ModifyPowerToughness):
         power, toughness = self.get_PT()
         return "Set %d/%d"%(power, toughness)
 
+class SwitchPowerToughness(Effect):
+    from Counters import PowerToughnessSwitcher
+    def __init__(self, expire=True):
+        self.expire = expire
+    def __call__(self, card, target):
+        PT = self.PowerToughnessSwitcher()
+        modifiers = target.PT_switch_modifiers
+        modifiers.add(PT)
+        target.send(PowerToughnessChangedEvent())
+        def remove():
+            modifiers.remove(PT)
+            target.send(PowerToughnessChangedEvent())
+        if self.expire: target.register(remove, CleanupEvent(), weak=False, expiry=1)
+        return remove
+    def __str__(self):
+        return "Switch P/T"
+
 # Change Zone is used when targeting specific cards to move between zones
 # unlike MoveCards, which selects the cards once the ability resolves
 class ChangeZone(Effect):

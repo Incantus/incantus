@@ -24,16 +24,16 @@ class PowerToughnessModifier(object):
     def __init__(self, power, toughness):
         self.power = power
         self.toughness = toughness
-    def calc_power(self, curr_power):
-        return curr_power+self.power
-    def calc_toughness(self, curr_toughness):
-        return curr_toughness+self.toughness
+    def calculate(self, curr_power, curr_toughness):
+        return curr_power+self.power, curr_toughness+self.toughness
 
 class PowerToughnessSetter(object):
     def __init__(self, power, toughness):
         self.power = power
         self.toughness = toughness
-    def calc_power(self, curr_power):
-        return self.power
-    def calc_toughness(self, curr_toughness):
-        return self.toughness
+    def calculate(self, curr_power, curr_toughness):
+        return self.power, self.toughness
+
+class PowerToughnessSwitcher(object):
+    def calculate(self, curr_power, curr_toughness):
+        return curr_toughness, curr_power

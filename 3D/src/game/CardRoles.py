@@ -1,7 +1,7 @@
 
 from GameObjects import MtGObject
 from data_structures import keywords
-from GameEvent import DealsDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, ReceivesDamageEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent
+from GameEvent import DealsDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, ReceivesDamageEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent
 
 import new, inspect, copy
 def rebind_self(obj):
@@ -233,6 +233,10 @@ class SubRole(object):
         self.keywords = keywords()
     def send(self, *args, **named):
         self.perm.card.send(*args, **named)
+    def register(self, *args, **named):
+        self.perm.card.register(*args, **named)
+    def unregister(self, *args, **named):
+        self.perm.card.unregister(*args, **named)
     def enteringPlay(self, perm):
         self.perm = perm
         self.card = perm.card
@@ -281,46 +285,58 @@ class PTModifiers(object):
         else: raise ValueError
         #self.role.send(PowerToughnessChangedEvent())
         self._modifiers.pop(i)
-    def calc_power(self, power):
-        return reduce(lambda p, PT: PT.calc_power(p), self._modifiers, power)
-    def calc_toughness(self, toughness):
-        return reduce(lambda t, PT: PT.calc_toughness(t), self._modifiers, toughness)
+    def calculate(self, power, toughness):
+        return reduce(lambda PT, modifier: modifier.calculate(PT[0], PT[1]), self._modifiers, (power, toughness))
 
 class Creature(SubRole):
     def power():
         def fget(self):
-            # Calculate layering rules
-            value = self.base_power # layer 6a
-            value = self.PT_other_modifiers.calc_power(value) # layer 6b
-            value += sum([c.power for c in self.perm.counters if hasattr(c,"power")]) # layer 6c
-            value = self.PT_static_modifiers.calc_power(value) # layer 6d
-            return value
+            if self.cached_PT_dirty: self._calculate_power_toughness()
+            return self.curr_power
         return locals()
     power = property(**power())
     def toughness():
         def fget(self):
-            value = self.base_toughness # layer 6a
-            value = self.PT_other_modifiers.calc_toughness(value) # layer 6b
-            value += sum([c.toughness for c in self.perm.counters if hasattr(c,"toughness")]) # layer 6c
-            value = self.PT_static_modifiers.calc_toughness(value) # layer 6d
-            return value
+            if self.cached_PT_dirty: self._calculate_power_toughness()
+            return self.curr_toughness
         return locals()
     toughness = property(**toughness())
+    def _calculate_power_toughness(self):
+        # Calculate layering rules
+        power, toughness = self.base_power, self.base_toughness # layer 6a
+        power, toughness = self.PT_other_modifiers.calculate(power, toughness) # layer 6b
+        power += sum([c.power for c in self.perm.counters if hasattr(c,"power")]) # layer 6c
+        toughness += sum([c.toughness for c in self.perm.counters if hasattr(c,"toughness")]) # layer 6c
+        power, toughness = self.PT_static_modifiers.calculate(power, toughness) # layer 6d
+        power, toughness = self.PT_switch_modifiers.calculate(power, toughness) # layer 6e
+        self.cached_PT_dirty = False
+        self.curr_power, self.curr_toughness = power, toughness
     def __init__(self, power, toughness):
         super(Creature,self).__init__()
         # These are immutable and come from the card
         self.base_power = power
         self.base_toughness = toughness
+        self.cached_PT_dirty = True
 
         # Only accessed internally
         self.__damage = 0
 
         self.PT_other_modifiers = PTModifiers() # layer 6b - other modifiers
         self.PT_static_modifiers = PTModifiers() # layer 6d - static modifiers
+        self.PT_switch_modifiers = PTModifiers() # layer 6e - P/T switching modifiers
         self.in_combat = False
         self.attacking = False
         self.blocking = False
         self.blocked = False
+    def _PT_changed(self, sender): self.cached_PT_dirty=True
+    def enteringPlay(self, perm):
+        super(Creature,self).enteringPlay(perm)
+        self.register(self._PT_changed, TimestepEvent())
+        #self.register(self._PT_changed, PowerToughnessChangedEvent(), sender=self.card)
+    def leavingPlay(self):
+        super(Creature,self).leavingPlay()
+        self.unregister(TimestepEvent())
+        #self.unregister(PowerToughnessChangedEvent(), sender=self.card)
     def canBeDamagedBy(self, damager):
         return True
     def combatDamage(self):
