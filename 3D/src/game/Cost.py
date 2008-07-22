@@ -82,7 +82,7 @@ class ManaCost(Cost):
     def precompute(self, card, player):
         mp = player.manapool
         self._X = 0
-        if 'X' in self.cost: self._X = player.getX()
+        if self.hasX(): self._X = player.getX()
         #if mp.checkHybrid(self.cost):
         #    self.
         cost = Mana.convert_mana_string(self.cost)
