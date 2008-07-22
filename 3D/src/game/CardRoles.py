@@ -345,7 +345,7 @@ class Creature(SubRole):
         #self.register(self._PT_changed, PowerToughnessChangedEvent(), sender=self.card)
     def leavingPlay(self):
         super(Creature,self).leavingPlay()
-        self.unregister(TimestepEvent())
+        self.unregister(self._PT_changed, TimestepEvent())
         #self.unregister(PowerToughnessChangedEvent(), sender=self.card)
     def canBeDamagedBy(self, damager):
         return True
