@@ -1,7 +1,7 @@
 
 from GameObjects import MtGObject
 from data_structures import keywords
-from GameEvent import DealsDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, ReceivesDamageEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent
+from GameEvent import DealsDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, ReceivesDamageEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent
 
 import new, inspect, copy
 def rebind_self(obj):
@@ -356,8 +356,13 @@ class Creature(SubRole):
     def currentDamage(self):
         return self.__damage
     def assignDamage(self, amt, source, combat=False):
+        from Ability.Counters import PowerToughnessCounter
         if amt > 0:
-            self.__damage += amt
+            if not "wither" in source.keywords: self.__damage += amt
+            else:
+                for counter in [PowerToughnessCounter(-1, -1) for i in range(amt)]:
+                    self.card.counters.append(counter)
+                    self.send(CounterAddedEvent(), counter=counter) 
             source.send(DealsDamageEvent(), to=self.card, amount=amt)
             self.send(ReceivesDamageEvent(), source=source, amount=amt)
     def removeDamage(self, amt):
