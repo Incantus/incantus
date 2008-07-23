@@ -21,8 +21,8 @@ class Colors:
     ReverseMap = dict([(c[1], c[0]) for c in __colors])
 
 def compare_mana(req_manastr, comp_manastr):
-    if type(req_manastr) == str: req = convert_mana_string(req_manastr)
-    if type(comp_manastr) == str: comp = convert_mana_string(comp_manastr)
+    req = convert_mana_string(req_manastr)
+    comp = convert_mana_string(comp_manastr)
     enoughMana = True
     if not sum(req) == sum(comp): enoughMana = False
     # Now check the required colors
@@ -31,51 +31,38 @@ def compare_mana(req_manastr, comp_manastr):
     return enoughMana
 
 def convert_to_mana_string(mana):
-    colorless = str(mana[Colors.COLORLESS])
     manastr = ''.join([color*mana[Colors.ReverseMap[color]] for color in "WUBRG"])
+    colorless = str(mana[Colors.COLORLESS])
     if colorless == "0" and len(manastr) > 0: colorless = ''
     return colorless+manastr
 
 def combine_mana_strings(*manastr):
-    mana = [0]*Colors.numberOfColors
-    hasX = False
+    total_mana = [0]*Colors.numberOfColors
     for manastring in manastr:
-        tens = 0
-        for c in manastring:
-            # XXX This doesn't work for colorless mana over 10
-            if c not in Colors.realColors:
-                # colorless mana
-                if c == "X": hasX = True
-                elif type(c) == str:
-                    c = int(c)
-                    mana[Colors.COLORLESS] += c + 10*tens-tens
-                    tens = c
-            else:
-                mana[Colors.ReverseMap[c]] += 1
-    string = convert_to_mana_string(mana)
-    if hasX: string = "X"+string
-    return string
+        mana = convert_mana_string(manastring)
+        for i in range(len(mana)):
+            total_mana[i] += mana[i]
+    if any([True for ms in manastr if 'X' in ms]): X = "X"
+    else: X = ''
+    return X+convert_to_mana_string(total_mana)
 
-def convert_mana_string(manastr, X=0):
+def convert_mana_string(manastr):
+    # This ignores all X's (ie they are equal to 0)
     mana = [0]*Colors.numberOfColors
     tens = 0
     for c in manastr:
-        # XXX This doesn't work for colorless mana over 10
-        if c not in Colors.realColors:
-            # colorless mana
-            if c == "X": v = X
-            elif type(c) == str: 
-                v = int(c)
-            mana[Colors.COLORLESS] += v + 10*tens-tens
-            if type(c) != 'X': tens = v
-        else:
+        if c in Colors.realColors:
             mana[Colors.ReverseMap[c]] += 1
+        elif not c == "X":
+            # colorless mana
+            v = int(c)
+            mana[Colors.COLORLESS] += v + 10*tens-tens
+            tens = v
     return mana
 
 def converted_mana_cost(mana):
     if type(mana) == str: mana = convert_mana_string(mana)
     return sum(mana)
-
 
 def iterall(iterables):
     if iterables:
@@ -101,6 +88,7 @@ def parse_hybrid(manastr):
             parsing_hybrid = False
             choices.append(hybrid)
     return choices
+
 def convert_hybrid_string(manastr):
     mana = {}
     v = 0
@@ -109,13 +97,20 @@ def convert_hybrid_string(manastr):
         else:
             if not c in mana: mana[c] = 0
             mana[c] += 1
-    if v: v = str(v)
-    else: v = ''
-    return v+''.join([c*mana.get(c, 0) for c in "XWUBRG"])
+    symbols = tuple(''.join([c*mana[c] for c in "XWUBRG" if c in mana]))
+    if v: symbols = (str(v),)+symbols
+    return symbols
+
+def mana_key(symbol, color=dict([(c, val) for c, val in zip("XWUBRG", range(0, -6, -1))])):
+    def convert(val):
+        if val in color: return color.get(val)
+        else: return int(val)
+    return tuple([convert(val) for val in symbol])
 
 def generate_hybrid_choices(manastr):
     choices = parse_hybrid(manastr)
-    return sorted(set([convert_hybrid_string(choice) for choice in iterall(choices)]))
+    options = sorted(set([convert_hybrid_string(manastr) for manastr in iterall(choices)]), key=mana_key, reverse=True)
+    return [''.join(option) for option in options]
 
 class ManaPool(MtGObject):
     def __init__(self):

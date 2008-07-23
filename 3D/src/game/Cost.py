@@ -116,9 +116,10 @@ class ManaCost(Cost):
         return '(' in self.cost
     def converted_cost(self):
         return Mana.converted_mana_cost(self.cost)
-    def __eq__(self, other):
-        if isinstance(other, str): return Mana.compare_mana(self.cost, other)
-        elif isinstance(other, ManaCost): return Mana.compare_mana(self.cost, other.cost)
+    #def __eq__(self, other):
+    #     XXX compare_mana doesn't work with hybrid
+    #    if isinstance(other, str): return Mana.compare_mana(self.cost, other)
+    #    elif isinstance(other, ManaCost): return Mana.compare_mana(self.cost, other.cost)
     def __iadd__(self, other):
         if not hasattr(self, "final_cost"): raise Error()
         # XXX This is only called by consolidate
@@ -135,7 +136,7 @@ class ManaCost(Cost):
         if self.hasX(): coststr += ",(X=%d)"%self.X
         return coststr
     def __cmp__(self, value):
-        return cmp(Mana.converted_mana_cost(self.cost), value)
+        return cmp(self.converted_mana_cost(), value)
 
 class TapCost(Cost):
     def __init__(self, number=1, cardtype=None):
