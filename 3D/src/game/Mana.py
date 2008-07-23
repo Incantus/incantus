@@ -76,6 +76,47 @@ def converted_mana_cost(mana):
     if type(mana) == str: mana = convert_mana_string(mana)
     return sum(mana)
 
+
+def iterall(iterables):
+    if iterables:
+        for head in iterables[0]:
+            for remainder in iterall(iterables[1:]):
+                yield [head] + remainder
+    else:
+        yield []
+
+def parse_hybrid(manastr):
+    hybrid = []
+    choices = []
+    parsing_hybrid = False
+    for c in manastr:
+        if not c in "(/)":
+            if not parsing_hybrid: choices.append([c])
+            else: hybrid.append(c)
+        elif c == '(':
+            parsing_hybrid = True
+            hybrid = []
+        elif c == '/': pass
+        elif c == ')':
+            parsing_hybrid = False
+            choices.append(hybrid)
+    return choices
+def convert_hybrid_string(manastr):
+    mana = {}
+    v = 0
+    for c in manastr:
+        if not (c in Colors.realColors or c == 'X'): v += int(c)
+        else:
+            if not c in mana: mana[c] = 0
+            mana[c] += 1
+    if v: v = str(v)
+    else: v = ''
+    return v+''.join([c*mana.get(c, 0) for c in "XWUBRG"])
+
+def generate_hybrid_choices(manastr):
+    choices = parse_hybrid(manastr)
+    return sorted(set([convert_hybrid_string(choice) for choice in iterall(choices)]))
+
 class ManaPool(MtGObject):
     def __init__(self):
         self._mana = [0]*Colors.numberOfColors

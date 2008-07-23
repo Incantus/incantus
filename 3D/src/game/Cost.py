@@ -83,12 +83,11 @@ class ManaCost(Cost):
         mp = player.manapool
         self._X = 0
         if self.hasX(): self._X = player.getX()
-        #if mp.checkHybrid(self.cost):
-        #    self.
-        cost = Mana.convert_mana_string(self.cost)
-        cost[-1] += self._X
+        if self.isHybrid(): cost = player.getSelection(Mana.generate_hybrid_choices(self.cost), 1, prompt="Choose hybrid cost")
+        else: cost = self.cost
+        self.final_cost = Mana.convert_mana_string(cost)
+        self.final_cost[-1] += self._X
         self.payment = "0"
-        self.final_cost = cost
         return self._X >= 0
     def compute(self, card, player):
         # XXX This is where I should check if the player has enough mana and the player should be
@@ -112,6 +111,9 @@ class ManaCost(Cost):
         self.payment = payment
     def hasX(self):
         return 'X' in self.cost
+    def isHybrid(self):
+        # XXX this is hacky
+        return '(' in self.cost
     def converted_cost(self):
         return Mana.converted_mana_cost(self.cost)
     def __eq__(self, other):
