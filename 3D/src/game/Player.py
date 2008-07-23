@@ -162,8 +162,14 @@ class Player(MtGObject):
                 has_creature = True
         if not has_creature: return False
         else: return True #self.getIntention("Declare intention to attack", msg="...attack this turn?")
+    def checkAttack(self, attackers, not_attacking):
+        # Overridden by global combat restrictions
+        return True
+    def checkBlock(self, combat_assignment, not_blocking):
+        # Overridden by global combat restrictions
+        return True
     def declareAttackers(self):
-        all_creatures = self.play.get(isCreature)
+        all_on_attacking_side = self.play.get(isCreature)
         invalid_attack = True
         prompt = "Declare attackers (Enter to accept, Escape to reset)"
         while invalid_attack:
@@ -191,8 +197,10 @@ class Player(MtGObject):
                 creature = self.getCombatCreature(mine=True, prompt=prompt)
 
             if done_selecting:
-                invalid_attack = (sum((not creature.checkAttack(attackers) for creature in all_creatures)) or
-                    sum((not creature.computeAttackCost() for creature in attackers)))
+                not_attacking = set(all_on_attacking_side)-attackers
+                invalid_attack = (not self.checkAttack(attackers, not_attacking) or
+                                  any((not creature.checkAttack(attackers, not_attacking) for creature in all_on_attacking_side)) or
+                                  any((not creature.computeAttackCost() for creature in attackers)))
                 if not invalid_attack:
                     for creature in attackers:
                         creature.payAttackCost()
@@ -201,10 +209,10 @@ class Player(MtGObject):
             else: prompt = "Declare attackers (Enter to accept, Escape to reset)"
         return list(attackers)
     def declareBlockers(self, attackers):
-        blocking_list = dict([(attacker, []) for attacker in attackers])
+        combat_assignment = dict([(attacker, []) for attacker in attackers])
         # Make sure you have creatures to block
-        all_creatures = self.play.get(isCreature)
-        if len(all_creatures) == 0: return blocking_list.items()
+        all_on_blocking_side = self.play.get(isCreature)
+        if len(all_on_blocking_side) == 0: return combat_assignment.items()
 
         invalid_block = True
         blocker_prompt = "Declare blockers (Enter to accept, Escape to reset)"
@@ -219,7 +227,7 @@ class Player(MtGObject):
                 elif blocker == False:
                     # Reset the block
                     self.send(BlockersResetEvent())
-                    blocking_list = dict([(attacker, []) for attacker in attackers])
+                    combat_assignment = dict([(attacker, []) for attacker in attackers])
                     break
                 else:
                     if blocker in total_blockers or not blocker.canBlock():
@@ -238,7 +246,7 @@ class Player(MtGObject):
                             elif attacker.attacking and attacker.canBeBlocked() and blocker.canBlockAttacker(attacker) and attacker.canBeBlockedBy(blocker):
                                 valid_attacker = True
                                 total_blockers.add(blocker)
-                                blocking_list[attacker].append(blocker)
+                                combat_assignment[attacker].append(blocker)
                                 self.send(BlockerSelectedEvent(), attacker=attacker, blocker=blocker)
                                 attacker_prompt = "Select attacker to block"
                                 blocker_prompt = "Declare blockers (Enter to accept, Escape to reset)"
@@ -249,11 +257,12 @@ class Player(MtGObject):
                                 attacker_prompt = "%s %s - select a new attacker"%(blocker,reason)
 
             if done_selecting:
-                nonblockers = set(all_creatures)-total_blockers
-                invalid_block = (sum((not creature.checkBlock(blocking_list, nonblockers) for creature in attackers+all_creatures)) or
-                                  sum((not creature.computeBlockCost() for creature in total_blockers)))
+                nonblockers = set(all_on_blocking_side)-total_blockers
+                invalid_block = (not self.checkBlock(combat_assignment, nonblockers) or
+                                 any((not creature.checkBlock(combat_assignment, nonblockers) for creature in attackers+all_on_blocking_side)) or
+                                 any((not creature.computeBlockCost() for creature in total_blockers)))
                 if not invalid_block:
-                    for attacker, blockers in blocking_list.items():
+                    for attacker, blockers in combat_assignment.items():
                         attacker.setBlocked(blockers)
                         for blocker in blockers:
                             blocker.payBlockCost()
@@ -261,7 +270,7 @@ class Player(MtGObject):
                 else: blocker_prompt = "Invalid defense - choose another"
             else: blocker_prompt = "Declare blockers (Enter to accept, Escape to reset)"
 
-        return blocking_list.items()
+        return combat_assignment.items()
 
     # The following functions interface with the GUI of the game, and as a result they are kind
     # of convoluted. All interaction with the GUI is carried out through the input function (which

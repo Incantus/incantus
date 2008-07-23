@@ -77,8 +77,8 @@ def haste(subrole):
     return override(subrole,"continuouslyInPlay",continuouslyInPlay, keyword="haste", combiner=logical_or)
 
 def must_attack(subrole):
-    def checkAttack(self, attackers):
-        return not (self.canAttack() and not self.card in attackers)
+    def checkAttack(self, attackers, not_attacking):
+        return self.card in attackers or not self.canAttack()
     return override(subrole, "checkAttack", checkAttack, combiner=logical_and)
 
 def defender(subrole):

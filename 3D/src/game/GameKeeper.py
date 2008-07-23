@@ -350,10 +350,10 @@ class GameKeeper(MtGObject):
         self.setState("Main1")
         self.playSpells()
         self.setState("EndMain")
-    def calculateDamage(self, blocking_list, first_strike=False):
+    def calculateDamage(self, combat_assignment, first_strike=False):
         new_combat_list = []
         # Remove all attackers and blockers that are no longer valid
-        for attacker, blockers in blocking_list:
+        for attacker, blockers in combat_assignment:
             # Do the attacker first - make sure it is still valid
             if Match.isCreature(attacker) and attacker.zone == self.curr_player.play and attacker.in_combat:
                 newblockers = []
@@ -398,7 +398,7 @@ class GameKeeper(MtGObject):
                 else: damage_assignment[blocker] = damage
 
         return tramplers, damage_assignment
-    def combatDamageStep(self):
+    def combatDamageStep(self, combat_assignment):
         from Ability.AssignDamage import AssignDamage
         self.setState("Damage")
 
@@ -407,7 +407,7 @@ class GameKeeper(MtGObject):
                 if not damage_assn.get(t,None) == None:
                     damage_assn[t][self.other_player] = t.trample(damage_assn[t])
 
-        tramplers, first_strike_damage = self.calculateDamage(self.blocking_list, first_strike=True)
+        tramplers, first_strike_damage = self.calculateDamage(combat_assignment, first_strike=True)
         if first_strike_damage:
             # Handle trample
             if tramplers: handle_trample(tramplers, first_strike_damage)
@@ -415,7 +415,7 @@ class GameKeeper(MtGObject):
             # Send message about damage going on stack
             self.playInstantaneous()
 
-        tramplers, regular_combat_damage = self.calculateDamage(self.blocking_list)
+        tramplers, regular_combat_damage = self.calculateDamage(combat_assignment)
         # Handle trample
         if regular_combat_damage:
             if tramplers: handle_trample(tramplers, regular_combat_damage)
@@ -426,7 +426,7 @@ class GameKeeper(MtGObject):
         # Beginning of combat
         self.setState("PreCombat")
         self.playInstantaneous()
-        self.blocking_list = []
+        combat_assignment = []
         if self.curr_player.attackingIntention():
             # Attacking
             self.setState("Attack")
@@ -438,16 +438,16 @@ class GameKeeper(MtGObject):
             if attackers:
                 # Blocking
                 self.setState("Block")
-                self.blocking_list = self.other_player.declareBlockers(attackers)
-                self.send(DeclareBlockersEvent(), blocking_list=self.blocking_list)
+                combat_assignment = self.other_player.declareBlockers(attackers)
+                self.send(DeclareBlockersEvent(), combat_assignment=combat_assignment)
                 self.playInstantaneous()
                 # Damage
-                self.combatDamageStep()
+                self.combatDamageStep(combat_assignment)
         # End of Combat
         # trigger effects that happen at end of combat
         # Clear off attacking and blocking status?
         self.setState("EndCombat")
-        for attacker, blockers in self.blocking_list:
+        for attacker, blockers in combat_assignment:
             # Make sure attackers and blockers are still in play
             # XXX this is really ugle, but i don't know how else to do it
             # What property can I check to make sure they are still in play?
