@@ -54,6 +54,7 @@ class _CardLibrary:
                     img_file = urllib.urlopen("http://magiccards.info/tokens/thumb/%s-%03d.jpg"%(ed,number))
                     data = img_file.read()
                     img_file.close()
+                    if "HTML" in data: return self.back
                 else: return self.back
             else:
                 # Try local directory
