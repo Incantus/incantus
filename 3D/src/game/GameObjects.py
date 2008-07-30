@@ -1,3 +1,4 @@
+import copy
 from pydispatch import dispatcher
 from GameEvent import HasPriorityEvent
 
@@ -76,7 +77,7 @@ class GameObject(MtGObject):
     #owner = property(**owner())
     def save_lki(self):
         # How long should we keep LKI?
-        self._last_known_info = self._current_role.copy()
+        self._last_known_info = self._current_role
         #def reset_lki(): 
         #    del self._last_known_info
         #    self._last_known_info = None #self.in_play_role
@@ -96,15 +97,15 @@ class GameObject(MtGObject):
             #    # Do nothing - when we change controllers
             #    return
             # Make a copy of the role, so that there's no memory whenever we re-enter play
-            #if role == self.in_play_role: self._current_role = role.copy()
+            #if role == self.in_play_role: self._current_role = copy.deepcopy(role)
             #else: self._current_role = role   # XXX i need to fix this for blink effects out of play, but i can't just make a copy
-            self._current_role = role.copy()
+            self._current_role = copy.deepcopy(role)
 
             # Set up base characteristics
-            self.color = self.base_color.copy()
-            self.type = self.base_type.copy()
-            self.subtypes = self.base_subtypes.copy()
-            self.supertypes = self.base_supertype.copy()
+            self.color = self.base_color
+            self.type = self.base_type
+            self.subtypes = self.base_subtypes
+            self.supertypes = self.base_supertype
 
             # It is about to enter play - let it know
             #if role == self.in_play_role:

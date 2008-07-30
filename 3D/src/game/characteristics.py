@@ -1,4 +1,3 @@
-import copy
 
 class characteristic(object):
     # Internally stored as a set
@@ -12,7 +11,6 @@ class characteristic(object):
     def __contains__(self, val): return self == val
     def __str__(self): return str(' '.join(self.characteristics))
     def __repr__(self): return "%s"%str(self)
-    def copy(self): return copy.copy(self)
     def make_text_line(self, fields): fields[:] = self.characteristics
 
 class all_characteristics(object):
@@ -20,7 +18,6 @@ class all_characteristics(object):
     def __eq__(self, other): return True
     def __contains__(self, val): return self == val
     def intersects(self, other): return True
-    def copy(self): return all_characteristics()
     def __str__(self): return "All"
     def __repr__(self): return repr("All")
     def make_text_line(self, fields): fields[:] = ["All"]
@@ -30,7 +27,6 @@ class no_characteristic(object):
     def __eq__(self, other): return False
     def __contains__(self, val): return self == val
     def intersects(self, other): return False
-    def copy(self): return no_characteristic()
     def __str__(self): return ""
     def __repr__(self): return repr("None")
     def make_text_line(self, fields): fields[:] = []

@@ -1,3 +1,4 @@
+import copy
 from game.LazyInt import LazyInt
 from game.characteristics import characteristic, stacked_characteristic, additional_characteristic
 from game.GameObjects import MtGObject
@@ -11,9 +12,9 @@ class Effect(MtGObject):
         return True
     def __str__(self):
         return self.__class__.__name__
-    def copy(self):
-        import copy
-        return copy.copy(self)
+    #def copy(self):
+    #    import copy
+    #    return copy.copy(self)
 
 class TriggerEffect(Effect):
     def __init__(self):
@@ -269,7 +270,7 @@ class CreateToken(Effect):
         self.token_type = token_info.get("type", '')
         self.token_subtypes = token_info.get("subtypes", '')
         self.token_supertype = token_info.get("supertype", '')
-        self.token_role = token_info.get("role")
+        self.token_subrole = token_info.get("role")
         self.number = number
     def __call__(self, card, target):
         if not isPlayer(target): raise Exception("Invalid target for adding token")
@@ -279,8 +280,7 @@ class CreateToken(Effect):
             token = CardLibrary.createToken(self.token_name, target, self.token_color,  self.token_type, self.token_subtypes, self.token_supertype)
             # Create the role for it
             token.controller = target
-            token.in_play_role = Permanent(token, [])
-            token.in_play_role.subroles.append(self.token_role.copy(token.in_play_role))
+            token.in_play_role = Permanent(token, copy.deepcopy(self.token_subrole))
             token.current_role = token.out_play_role = NoRole(token)
             # Now put it into play
             token.controller.play.add_card(token)
@@ -441,10 +441,10 @@ class PayExtraCost(Effect):
     def __str__(self):
         return "Pay extra %s"%self.cost
 
+# XXX Clone is broken right now
 class Clone(Effect):
     def __call__(self, card, target):
-        from copy import copy
-        card.current_role = target.in_play_role.copy()
+        card.current_role = copy.deepcopy(target.in_play_role)
         for ability in card.current_role.abilities: ability.card = card
         for ability in card.current_role.triggered_abilities: ability.card = card
         for ability in card.current_role.static_abilities: ability.card = card
@@ -644,9 +644,9 @@ class AddSubRole(Effect):
     def __call__(self, card, target):
         added_roles = []
         for subrole in self.subroles:
-            subrole = subrole.copy(target.current_role)
-            target.add_subrole(subrole)
-            added_roles.append(subrole)
+            new_subrole = copy.deepcopy(subrole)
+            target.add_subrole(new_subrole)
+            added_roles.append(new_subrole)
         stacked = []
         for char_str, val in self.subrole_info.items():
             val = additional_characteristic(val)

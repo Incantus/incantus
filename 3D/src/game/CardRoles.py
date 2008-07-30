@@ -9,24 +9,30 @@ def rebind_self(obj):
     for name, func in inspect.getmembers(obj, inspect.ismethoddescriptor):
         if hasattr(func, "stacked"):
             func.rebind(obj)
-            #func.im_self != obj: setattr(obj, name, new.instancemethod(func.im_func, obj, func.im_class))
 
-class NoRole(MtGObject):
-    # For token objects out of play
+class GameRole(MtGObject):
     def __init__(self, card):
         self.card = card
+    def __deepcopy__(self,memo,mutable=set([list,set,dict])):
+        newcopy = copy.copy(self)
+        for attr, value in self.__dict__.iteritems():
+            if type(value) in mutable: setattr(newcopy,attr,copy.copy(value))
+            else: setattr(newcopy,attr,value)
+        rebind_self(newcopy)
+        return newcopy
+    def __str__(self):
+        return self.__class__.__name__
+
+class NoRole(GameRole):
+    # For token objects out of play
     def enteringGraveyard(self): pass
     def leavingGraveyard(self): pass
-    def copy(self):
-        return NoRole(self.card)
     def match_role(self, matchrole):
         return False
-    def __str__(self):
-        return "NoRole"
 
-class CardRole(MtGObject):  # Cards out of play
+class CardRole(GameRole):  # Cards out of play
     def __init__(self, card):
-        self.card = card
+        super(CardRole, self).__init__(card)
         self.abilities = []
         self.graveyard_abilities = []
         self.removed_abilities = []
@@ -44,21 +50,12 @@ class CardRole(MtGObject):  # Cards out of play
     def canBeAttachedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
         self.card.send(TargetedByEvent(), targeter=targeter)
-    def copy(self):
-        newcopy = copy.copy(self)
-        rebind_self(newcopy)
-        newcopy.abilities = copy.copy(self.abilities)
-        newcopy.graveyard_abilities = copy.copy(self.graveyard_abilities)
-        newcopy.removed_abilities = copy.copy(self.removed_abilities)
-        return newcopy
     def match_role(self, matchrole):
         return matchrole == self.__class__
-    def __str__(self):
-        return "CardRole"
 
-class SpellRole(MtGObject):  # Spells on the stack
+class SpellRole(GameRole):  # Spells on the stack
     def __init__(self, card):
-        self.card = card
+        super(SpellRole, self).__init__(card)
         self.facedown = False
         self.abilities = []
     # the damage stuff seems kind of hacky
@@ -75,20 +72,10 @@ class SpellRole(MtGObject):  # Spells on the stack
         self.facedown = True
     def faceUp(self):
         self.facedown = False
-    #def copy(self):
-    #    newcopy = copy.copy(self)
-    #    rebind_self(newcopy)
-    #    return newcopy
-    def copy(self):
-        newcopy = copy.copy(self)
-        rebind_self(newcopy)
-        return newcopy
     def match_role(self, matchrole):
         return matchrole == self.__class__
-    def __str__(self):
-        return "Spell"
 
-class Permanent(MtGObject):
+class Permanent(GameRole):
     def abilities():
         def fget(self):
             if not self._abilities:
@@ -98,7 +85,7 @@ class Permanent(MtGObject):
         return locals()
     abilities = property(**abilities())
     def __init__(self, card, subroles):
-        self.card = card
+        super(Permanent, self).__init__(card)
         self._abilities = []
         if not (type(subroles) == list or type(subroles) == tuple): subroles = [subroles]
         self.subroles = subroles
@@ -214,16 +201,10 @@ class Permanent(MtGObject):
         self.continuously_in_play = False
         for role in self.subroles: role.leavingPlay()
         for attached in self.attachments: attached.attachedLeavingPlay()
-    def copy(self):
-        newcopy = copy.copy(self)
-        rebind_self(newcopy)
-        newcopy.counters = copy.copy(self.counters)
-        newcopy.attachments = copy.copy(self.attachments)
-        newcopy._abilities = copy.copy(self._abilities)
-        newcopy.subroles = [role.copy(newcopy) for role in self.subroles]
+    def __deepcopy__(self, memo):
+        newcopy = super(Permanent, self).__deepcopy__(memo)
+        newcopy.subroles = [copy.deepcopy(role, memo) for role in self.subroles]
         return newcopy
-    def __str__(self):
-        return str(self.__class__.__name__)
 
 class SubRole(object):
     def __init__(self):
@@ -251,19 +232,15 @@ class SubRole(object):
     def canBeTargetedBy(self, targeter): return True
     def canBeAttachedBy(self, targeter): return True
     def canTap(self): return True
-    def __deepcopy__(self, memo,mutable=set([list,set,dict])):
+    def __deepcopy__(self,memo,mutable=set([list,set,dict])):
         # This only copies one level deep
         # So the subrole(s) are always the pristine one specified in the card definition
-        role = self.__class__.__new__(self.__class__)
+        newcopy = copy.copy(self)
         for attr, value in self.__dict__.iteritems():
             if type(value) in mutable:
-                setattr(role,attr,copy.copy(value))
-            else: setattr(role,attr,value)
-        return role
-    def copy(self, perm=None):
-        newcopy = copy.deepcopy(self)
-        newcopy.perm = perm
-        newcopy.keywords = self.keywords.copy()
+                setattr(newcopy,attr,copy.copy(value))
+            else:
+                setattr(newcopy,attr,copy.deepcopy(value, memo))
         rebind_self(newcopy)
         return newcopy
     def __str__(self):
@@ -317,9 +294,9 @@ class Creature(SubRole):
     def __init__(self, power, toughness):
         super(Creature,self).__init__()
         # These are immutable and come from the card
-        self.base_power = power
-        self.base_toughness = toughness
-        self.cached_PT_dirty = True
+        self.base_power = self.curr_power = power
+        self.base_toughness = self.curr_toughness = toughness
+        self.cached_PT_dirty = False
 
         # Only accessed internally
         self.__damage = 0

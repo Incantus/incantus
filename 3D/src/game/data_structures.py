@@ -17,13 +17,11 @@ class keywords(object):
         return ', '.join([k.title() for k in self.keywords.keys()])
     def __repr__(self):
         return repr(self.keywords.keys())
-    def copy(self):
-        import copy
-        return copy.deepcopy(self)
 
 if __name__ == "__main__":
+    import copy
     k = keywords()
     k.add("haste")
     k.add("forestwalk")
-    k2 = k.copy()
+    k2 = copy.deepcopy(k)
     k2.add("first-strike")
