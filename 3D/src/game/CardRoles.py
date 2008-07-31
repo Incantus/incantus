@@ -17,7 +17,9 @@ class GameRole(MtGObject):
         newcopy = copy.copy(self)
         for attr, value in self.__dict__.iteritems():
             if type(value) in mutable: setattr(newcopy,attr,copy.copy(value))
-            else: setattr(newcopy,attr,value)
+            #elif callable(value): setattr(newcopy,attr, value)
+            #else: setattr(newcopy,attr,copy.deepcopy(value,memo))
+            else: setattr(newcopy,attr, value)
         rebind_self(newcopy)
         return newcopy
     def __str__(self):
@@ -237,10 +239,9 @@ class SubRole(object):
         # So the subrole(s) are always the pristine one specified in the card definition
         newcopy = copy.copy(self)
         for attr, value in self.__dict__.iteritems():
-            if type(value) in mutable:
-                setattr(newcopy,attr,copy.copy(value))
-            else:
-                setattr(newcopy,attr,copy.deepcopy(value, memo))
+            if type(value) in mutable: setattr(newcopy,attr,copy.copy(value))
+            elif callable(value): setattr(newcopy,attr, value)
+            else: setattr(newcopy,attr,copy.deepcopy(value, memo))
         rebind_self(newcopy)
         return newcopy
     def __str__(self):
