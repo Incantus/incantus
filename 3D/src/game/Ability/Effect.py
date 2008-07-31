@@ -821,7 +821,7 @@ class AddPowerToughnessCounter(AddCounter):
         return remove_counter
 
 class ModifyPowerToughness(Effect):
-    from Counters import PowerToughnessModifier, PowerToughnessSetter
+    from Counters import PowerToughnessModifier, PowerToughnessSetter, PowerSetter, ToughnessSetter
     def __init__(self, power, toughness, expire=True):
         self.power = power
         self.toughness = toughness
@@ -865,6 +865,21 @@ class SetPowerToughness(ModifyPowerToughness):
     def __str__(self):
         power, toughness = self.get_PT()
         return "Set %d/%d"%(power, toughness)
+class SetPower(SetPowerToughness):
+    def __init__(self, power, expire=True):
+        super(SetPower, self).__init__(power, None, expire)
+        self.PT_class = self.PowerSetter
+    def __str__(self):
+        power, toughness = self.get_PT()
+        return "Set %d/-"%(power)
+class SetToughness(SetPowerToughness):
+    def __init__(self, toughness, expire=True):
+        super(SetToughness, self).__init__(None, toughness, expire)
+        self.PT_class = self.ToughnessSetter
+    def __str__(self):
+        power, toughness = self.get_PT()
+        return "Set -/%d"%(toughness)
+
 
 class SwitchPowerToughness(Effect):
     from Counters import PowerToughnessSwitcher
