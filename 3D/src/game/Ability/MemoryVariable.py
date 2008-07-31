@@ -40,6 +40,27 @@ class ZoneMoveVariable(MemoryVariable):
         return (card for card in self.moved if match(card))
     def __iter__(self): return iter(self.get())
 
+class ZoneMoveCountVariable(MemoryVariable):
+    def __init__(self, from_zone, to_zone, match):
+        self.from_zone = from_zone
+        self.to_zone = to_zone
+        self.match = match
+        self.move_count = 0
+        self.entering = set()
+        self.events_senders = [(CardEnteringZone(), self.filter_entering), (CardLeavingZone(), self.filter_leaving)]
+        for event, filter in self.events_senders: self.register(filter, event=event)
+        super(ZoneMoveCounterVariable, self).__init__()
+    def reset(self):
+        self.move_count = 0
+        self.entering.clear()
+    def filter_entering(self, sender, card):
+        if str(sender) == self.to_zone and self.match(card): self.entering.add(card)
+    def filter_leaving(self, sender, card):
+        if card in self.entering:
+            self.entering.remove(card)
+            if str(sender) == self.from_zone: self.move_count += 1
+    def value(self): return self.move_count
+
 class DamageTrackingVariable(MemoryVariable):
     def __init__(self):
         self.reset()
@@ -57,6 +78,13 @@ class DamageTrackingVariable(MemoryVariable):
     def received(self, to, source=None):
         if source: return self.dealt(source, to)
         else: return any([True for dealing in self.dealing.values() if to in dealing])
+    def amount_dealt(self, source, to=None):
+        if not source in self.dealing: return 0
+        elif to == None: return sum(self.dealing[source].values())
+        else: return self.dealing[source][to]
+    def amount_received(self, to, source=None):
+        if source: return self.dealt[source][to]
+        else: return sum([dealing[to] for dealing in self.dealing.values if to in dealing])
 
 class PlaySpellVariable(MemoryVariable):
     def __init__(self, condition):
