@@ -32,7 +32,7 @@ class ClashAbility(Stackless, ActivatedAbility):
             winners.append(opponent)
         else:
             success = False
-            msg = "Noone wins the clash!"
+            msg = "No one wins the clash!"
         card.send(ClashEvent(), winners=winners)
 
         controller.revealCard(clashing_cards, msgs=[controller.name, opponent.name], title=msg, prompt=msg)
