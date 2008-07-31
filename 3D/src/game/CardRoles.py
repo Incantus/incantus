@@ -1,7 +1,7 @@
 
 from GameObjects import MtGObject
 from data_structures import keywords
-from GameEvent import DealsDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, ReceivesDamageEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent
+from GameEvent import DealsDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, ReceivesDamageEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
 
 import new, inspect, copy
 def rebind_self(obj):
@@ -345,11 +345,6 @@ class Creature(SubRole):
             total_applied += damage_assn[b]
         if not_enough: return 0
         else: return total_damage - total_applied
-    def clearCombatState(self):
-        self.in_combat = False    # XXX Should be a property that sends a signal when set
-        self.attacking = False
-        self.blocking = False
-        self.blocked = False
     def continuouslyInPlay(self):
         return self.perm.continuously_in_play
     def checkAttack(self, attackers, not_attacking):
@@ -366,10 +361,16 @@ class Creature(SubRole):
         return not (self.perm.tapped or self.in_combat)
     def canBlockAttacker(self, attacker):
         return True
-    def setBlocking(self, attacker):
-        self.setCombat(True)
-        self.blocking = True
-        self.send(BlockerDeclaredEvent(), attacker=attacker)
+    def clearCombatState(self):
+        self.setCombat(False)    # XXX Should be a property that sends a signal when set
+        if self.attacking:
+            self.attacking = False
+            self.send(AttackerClearedEvent())
+            self.blocked = False
+        elif self.blocking:
+            self.blocking = False
+            self.send(BlockerClearedEvent())
+        else: raise Exception("Invalid combat state")
     def setAttacking(self):
         self.setCombat(True)
         self.perm.tap()
@@ -379,8 +380,14 @@ class Creature(SubRole):
         if blockers:
             self.blocked = True
             self.send(AttackerBlockedEvent(), blockers=blockers)
+    def setBlocking(self, attacker):
+        self.setCombat(True)
+        self.blocking = True
+        self.send(BlockerDeclaredEvent(), attacker=attacker)
     def setCombat(self, in_combat):
         self.in_combat = in_combat
+        if in_combat: self.send(CreatureInCombatEvent())
+        else: self.send(CreatureCombatClearedEvent())
     def computeBlockCost(self):
         self.block_cost = ["0"]
         return True

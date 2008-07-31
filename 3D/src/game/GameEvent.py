@@ -68,6 +68,10 @@ class BlockersResetEvent(Event): pass
 class AttackerDeclaredEvent(Event): pass
 class BlockerDeclaredEvent(Event): pass
 class AttackerBlockedEvent(Event): pass
+class AttackerClearedEvent(Event): pass
+class BlockerClearedEvent(Event): pass
+class CreatureInCombatEvent(Event): pass
+class CreatureCombatClearedEvent(Event): pass
 class RegenerateEvent(Event): pass
 class DamagePreventedEvent(Event): pass
 class PlayerDamageEvent(Event): pass
