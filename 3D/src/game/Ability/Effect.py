@@ -360,11 +360,14 @@ class UntapTargetPermanent(Effect):
         return "Untap permanent"
 
 class DealDamage(Effect):
-    def __init__(self, amount):
+    def __init__(self, amount, source=None):
         self.amount = amount
+        self.source = source
     def __call__(self, card, target):
-        if card.canDealDamage():
-            card.dealDamage(target, self.amount)
+        if self.source: source = self.source.target
+        else: source = card
+        if source.canDealDamage():
+            source.dealDamage(target, self.amount)
             return True
         else: return False
     def __str__(self):
