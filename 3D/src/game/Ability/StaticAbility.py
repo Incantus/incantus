@@ -134,3 +134,7 @@ class ConditionalAttachedStaticAbility(Conditional, AttachedStaticAbility):
         super(ConditionalAttachedStaticAbility, self).__init__(card, effects)
         self.init_condition(condition)
 
+class ConditionalStaticAbility(Conditional, CardStaticAbility):
+    def __init__(self, card, effects, condition):
+        super(ConditionalStaticAbility, self).__init__(card, effects)
+        self.init_condition(condition)
