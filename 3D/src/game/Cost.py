@@ -180,6 +180,48 @@ class TapCost(Cost):
         else: who = ""
         return 'T%s'%who
 
+class UntapCost(Cost):
+    def __init__(self, number=1, cardtype=None):
+        super(UntapCost,self).__init__()
+        self.cardtype = cardtype
+        self.number = number
+    def precompute(self, card, player):
+        location = player.play
+        if self.cardtype == None: return card.current_role.canUntap()
+        else: return len(location.get(self.cardtype)) >= self.number
+    def compute(self, card, player):
+        self.targets = []
+        # Untap myself
+        if self.cardtype == None:
+            self.targets.append(card)
+        # otherwise see if there are enough targets for untapping
+        else:
+            location = player.play
+            prompt = "Select %d %s(s) for untapping"%(self.number-len(self.targets), self.cardtype)
+            while True:
+                target = player.getTarget(self.cardtype, zone=location, required=False, prompt=prompt)
+                if target == False: return False
+                if target in self.targets:
+                    prompt = "Target already selected - select again"
+                    player.send(InvalidTargetEvent(), target=target)
+                elif not target.tapped:
+                    prompt = "Target already untapped - select again"
+                    player.send(InvalidTargetEvent(), target=target)
+                elif not target.canUntap():
+                    prompt = "Target cannot be untapped - select again"
+                    player.send(InvalidTargetEvent(), target=target)
+                else:
+                    self.targets.append(target)
+                    prompt = "Select %d %s(s) for untapping"%(self.number-len(self.targets), self.cardtype)
+                if len(self.targets) == self.number: break
+        return True
+    def pay(self, card, player):
+        for target in self.targets: target.untap()
+    def __str__(self):
+        if self.cardtype: who = " %s"%self.cardtype
+        else: who = ""
+        return 'Q%s'%who
+
 class SacrificeCost(Cost):
     def __init__(self, cardtype=None, number=1):
         super(SacrificeCost,self).__init__()
