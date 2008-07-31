@@ -13,6 +13,7 @@ from Ability import *
 from Ability.Counters import *
 from Ability.CreatureAbility import *
 from Ability.PermanentAbility import *
+from Ability.CyclingAbility import *
 from Ability.LorwynAbility import *
 from Ability.MorningtideAbility import *
 from Ability.ShadowmoorAbility import *

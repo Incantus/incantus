@@ -66,17 +66,3 @@ def buyback(out_play_role, buyback="0"):
     cost = main_spell.cost + buyback
 
     out_play_role.abilities.append(CastBuybackSpell(out_play_role.card, cost, main_spell.targets, main_spell.effects, main_spell.copy_targets, main_spell.limit))
-
-class Cycling(ActivatedAbility):
-    def __init__(self, card, cost="0", triggered=None):
-        from Effect import DrawCard
-        self.cycle_cost = cost
-        cost = game.Cost.ManaCost(cost) + game.Cost.DiscardCost()
-        super(Cycling, self).__init__(card, cost=cost, effects=DrawCard(1), zone="hand")
-        self.triggered = triggered
-    def played(self):
-        super(Cycling, self).played()
-        import TriggeredAbility
-        if self.triggered: TriggeredAbility.Play(self.card, self.triggered.copy())
-    def __str__(self):
-        return "%s: Cycling (Draw a card)"%self.cycle_cost
