@@ -915,8 +915,7 @@ class ChangeZone(Effect):
         if self.to_owner: to_zone = getattr(target.owner, self.to_zone)
         else:
             to_zone = getattr(card.controller, self.to_zone)
-            old_controller, target.controller = card.controller, target.controller
-            card.send(CardControllerChanged(), card=target, original=old_controller)
+            target.controller = card.controller
         if self.to_position == "top": position = -1
         else: position = 0
         to_zone.move_card(target, from_zone, position=position)
