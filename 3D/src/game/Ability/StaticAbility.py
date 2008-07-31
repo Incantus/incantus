@@ -46,7 +46,7 @@ class PermanentTrackingAbility(StaticAbility):
         self.enter_trigger = EnterTrigger("play", player="any")
         self.leave_trigger = LeaveTrigger("play", player="any")
         if not type(events) == list: events = [events]
-        self.other_triggers = [CardTrigger(event) for event in [SubroleModifiedEvent(), CardControllerChanged()] + events]
+        self.other_triggers = [Trigger(event) for event in [SubroleModifiedEvent(), CardControllerChanged()] + events]
         self.effect_tracking = {}
     def enteringPlay(self):
         # Get All Permanents
@@ -84,7 +84,8 @@ class PermanentTrackingAbility(StaticAbility):
         for remove in removal: remove()
         del self.effect_tracking[perm]   # necessary to prevent recursion
     def event_triggered(self, trigger):
-        perm = trigger.matched_card
+        if hasattr(trigger, "card"): perm = trigger.card
+        else: perm = trigger.sender
         tracking = perm in self.effect_tracking
         pass_condition = self.condition(perm)
         #print "%s triggered %s in %s, currently tracked %s, valid %s"%(perm, trigger.trigger_event, self.card, tracking, pass_condition)
