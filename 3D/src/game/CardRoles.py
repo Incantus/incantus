@@ -13,6 +13,19 @@ def rebind_self(obj):
 class GameRole(MtGObject):
     def __init__(self, card):
         self.card = card
+    def canDealDamage(self):
+        return True
+    # the damage stuff seems kind of hacky
+    def dealDamage(self, target, amount, combat=False):
+        if target.canBeDamagedBy(self.card) and amount > 0:
+            target.assignDamage(amount, source=self.card, combat=combat)
+        return amount
+    def canBeTargetedBy(self, targeter): return True
+    def canBeAttachedBy(self, targeter): return True
+    def isTargetedBy(self, targeter):
+        self.card.send(TargetedByEvent(), targeter=targeter)
+    def match_role(self, matchrole):
+        return matchrole == self.__class__
     def __deepcopy__(self,memo,mutable=set([list,set,dict])):
         newcopy = copy.copy(self)
         for attr, value in self.__dict__.iteritems():
@@ -43,39 +56,16 @@ class CardRole(GameRole):  # Cards out of play
         for ability in self.graveyard_abilities: ability.enteringPlay()
     def leavingGraveyard(self):
         for ability in self.graveyard_abilities: ability.leavingPlay()
-    def canDealDamage(self):
-        return True
-    def dealDamage(self, target, amount, combat=False):
-        if target.canBeDamagedBy(self.card) and amount > 0:
-            target.assignDamage(amount, source=self.card, combat=combat)
-    def canBeTargetedBy(self, targeter): return True
-    def canBeAttachedBy(self, targeter): return True
-    def isTargetedBy(self, targeter):
-        self.card.send(TargetedByEvent(), targeter=targeter)
-    def match_role(self, matchrole):
-        return matchrole == self.__class__
 
 class SpellRole(GameRole):  # Spells on the stack
     def __init__(self, card):
         super(SpellRole, self).__init__(card)
         self.facedown = False
         self.abilities = []
-    # the damage stuff seems kind of hacky
-    def canDealDamage(self):
-        return True
-    def dealDamage(self, target, amount, combat=False):
-        if target.canBeDamagedBy(self.card) and amount > 0:
-            target.assignDamage(amount, source=self.card, combat=combat)
-    def canBeTargetedBy(self, targeter): return True
-    def canBeAttachedBy(self, targeter): return True
-    def isTargetedBy(self, targeter):
-        self.card.send(TargetedByEvent(), targeter=targeter)
     def faceDown(self):
         self.facedown = True
     def faceUp(self):
         self.facedown = False
-    def match_role(self, matchrole):
-        return matchrole == self.__class__
 
 class Permanent(GameRole):
     def abilities():
@@ -125,12 +115,6 @@ class Permanent(GameRole):
         for role in self.subroles:
             if hasattr(role, attr): return getattr(role, attr)
         return getattr(super(Permanent, self), attr)
-    def canDealDamage(self):
-        return True
-    def dealDamage(self, target, amount, combat=False):
-        if target.canBeDamagedBy(self.card) and amount > 0:
-            target.assignDamage(amount, source=self.card, combat=combat)
-        return amount
     def canBeTargetedBy(self, targeter):
         result = True
         for role in self.subroles: 
@@ -145,8 +129,6 @@ class Permanent(GameRole):
                 result = False
                 break
         return result
-    def isTargetedBy(self, targeter):
-        self.card.send(TargetedByEvent(), targeter=targeter)
     def faceDown(self):
         self.facedown = True
     def faceUp(self):
