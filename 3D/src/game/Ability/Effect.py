@@ -426,13 +426,18 @@ class ForceSacrifice(Effect):
         return "Sacrifice %s"%self.card_type
 
 class PayExtraCost(Effect):
-    def __init__(self, cost="0"):
+    def __init__(self, cost="0", selector=None):
         from game.Cost import ManaCost
         if type(cost) == str: cost = ManaCost(cost)
         self.cost = cost
+        self.selector = selector
     def __call__(self, card, target):
-        if not isPlayer(target): player = target.controller
-        else: player = target
+        if self.selector == "you": player = card.controller
+        elif self.selector == "opponent": player = card.controller.opponent
+        elif self.selector == "owner": player = card.owner
+        else:
+            if not isPlayer(target): player = target.controller
+            else: player = target
         intent = player.getIntention("", "Pay %s for %s?"%(self.cost, card))
         if intent and self.cost.precompute(card, player) and self.cost.compute(card, player):
             self.cost.pay(card, player)
