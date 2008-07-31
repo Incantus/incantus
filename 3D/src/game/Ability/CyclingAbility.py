@@ -2,11 +2,12 @@ from ActivatedAbility import ActivatedAbility
 import TriggeredAbility
 from Effect import DrawCard, MoveCards
 from game.Match import isCard, isLandType
+from game.Cost import ManaCost, DiscardCost
 
 class Cycling(ActivatedAbility):
     def __init__(self, card, cost="0", effects=None, triggered=None):
         self.cycle_cost = cost
-        cost = game.Cost.ManaCost(cost) + game.Cost.DiscardCost()
+        cost = ManaCost(cost) + DiscardCost()
         if not effects: effects = DrawCard(1)
         super(Cycling, self).__init__(card, cost=cost, effects=effects, zone="hand")
         self.triggered = triggered
