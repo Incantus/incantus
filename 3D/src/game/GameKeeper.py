@@ -12,9 +12,6 @@ class Stack(MtGObject):
         self.stack = []
         self.triggered_abilities = []
         self.curr_player = None
-    def reset(self):
-        self.stack[:] = []
-        self.triggered_abilities[:] = []
         self.register(lambda player: setattr(self, "curr_player", player), NewTurnEvent(), weak=False)
     def add_triggered(self, ability):
         # XXX This is hacky, and is needed for triggered abilities where the target depends on the trigger
