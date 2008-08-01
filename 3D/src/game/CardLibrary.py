@@ -42,9 +42,9 @@ class _CardLibrary:
         self.counter = 0
         self.tokencounter = 0
 
-    def createToken(self, name, player, color, type, subtypes, supertype, cost="0"):
+    def createToken(self, name, owner, color, type, subtypes, supertype, cost="0"):
         import CardEnvironment
-        token = GameToken(player)
+        token = GameToken(owner)
         token.name = name
         token.cost = CardEnvironment.ManaCost(cost)
         characteristics = [("color", color), ("type", type), ("subtypes", subtypes), ("supertype", supertype)]
@@ -59,10 +59,10 @@ class _CardLibrary:
         self.tokencounter += 1
         return token
 
-    def createCard(self, name, player):
+    def createCard(self, name, owner):
         # Currently I recreate each card as it is created
         # XXX I should add them to a factory and return a deepcopy - this will never work with the lambda bindings
-        card = Card(owner=player)
+        card = Card(owner)
         # Now load the card's abilities
         try:
             self.loadCardObj(card, name)

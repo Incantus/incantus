@@ -140,27 +140,16 @@ class GamePhases(object):
 class GameKeeper(MtGObject):
     def __init__(self):
         self.ready_to_start = False
-        self.stack = Stack()
 
     def init(self, player1, player2):
         CardLibrary.clear()
         self.game_phases = GamePhases(self, (player1, player2))
-        self.stack.reset()
+        self.stack = Stack()
+        self.play = None #Play()
+        player1.init(self.play, self.stack)
+        player2.init(self.play, self.stack)
         self.tokens_out_play = []
         self.register(lambda sender: self.tokens_out_play.append(sender), TokenLeavingPlay(), weak=False)
-        self.players = (player1, player2)
-        player1.init()
-        player2.init()
-        player1.stack = self.stack
-        player2.stack = self.stack
-        player1.loadDeck()
-        player2.loadDeck()
-        player1.shuffleDeck()
-        player2.shuffleDeck()
-        starting_draw = 7
-        for i in range(starting_draw): player1.draw()
-        for i in range(starting_draw): player2.draw()
-        self.game_ended = False
         self.ready_to_start = True
 
     def run(self):
@@ -168,16 +157,19 @@ class GameKeeper(MtGObject):
         # XXX This is hacky - need a better way to signal end of game
         self.send(GameStartEvent())
         for player in [self.game_phases.curr_player, self.game_phases.other_player]:
+            for i in range(7): player.draw()
+        for player in [self.game_phases.curr_player, self.game_phases.other_player]:
             self.curr_player = player
             player.mulligan()
         try:
             while True:
                 self.singleTurn()
         except GameOver, g:
-            # Return all cards to library
             self.send(GameOverEvent())
+            # Return all cards to library
             for player in [self.game_phases.curr_player, self.game_phases.other_player]:
                 player.reset()
+            self.ready_to_start = False
             return g.msg
 
     def singleTurn(self):

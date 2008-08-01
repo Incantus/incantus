@@ -6,12 +6,13 @@ class Zone(MtGObject):
     def __init__(self, player):
         self.player = player
         self.cards = []
+    def __str__(self):
+        return self.zone_name
     def __len__(self):
         return len(self.cards)
     def __iter__(self):
         # Top of the cards is the end of the list
         return iter(self.get())
-    def __str__(self): return str(self.__class__.__name__)
     def top(self, number=1):
         if len(self) == 0: return None
         else:
@@ -68,7 +69,6 @@ class Zone(MtGObject):
     def after_card_added(self, card): pass
     def before_card_removed(self, card): pass
     def after_card_removed(self, card): pass
-    def __str__(self): return self.zone_name
 
 class OrderedZone(Zone):
     ordered = True
@@ -78,12 +78,11 @@ class OrderedZone(Zone):
         self.pending_top = []
         self.pending_bottom = []
         self.ordering = True
+        self.register(self.commit, TimestepEvent())
     def enable_ordering(self):
         self.ordering = True
     def disable_ordering(self):
         self.ordering = False
-    def init(self):
-        self.register(self.commit, TimestepEvent())
     def add_card_post(self, card, position=-1, trigger=True):
         if trigger and self.ordering:
             self.pending = True

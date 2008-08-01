@@ -973,7 +973,7 @@ class ShuffleIntoLibrary(Effect):
         player.library.disable_ordering()
         card.move_to(player.library)
         player.library.enable_ordering()
-        player.library.shuffle()
+        player.shuffleLibrary()
         return True
     def __str__(self):
         return "Shuffle into library"
@@ -981,7 +981,7 @@ class ShuffleIntoLibrary(Effect):
 class ShuffleLibrary(Effect):
     def __call__(self, card, target):
         if not isPlayer(target): raise Exception("Invalid target (not a player)")
-        target.library.shuffle()
+        target.shuffleLibrary()
         return True
     def __str__(self):
         return "Shuffle library"

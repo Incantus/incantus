@@ -41,12 +41,6 @@ class Player(MtGObject):
         self.name = name
         self._life = 20
         self.poison = 0
-        self.library = Library(self)
-        self.hand = Hand(self)
-        self.graveyard = Graveyard(self)
-        self.removed = Removed(self)
-        self.play = Play(self)
-        self.manapool = ManaPool()
         self.allowable_actions = [PassPriority]
         self.land_actions = -1
         self.hand_limit = 7
@@ -55,17 +49,18 @@ class Player(MtGObject):
         self.decklist = []
         self.keywords = keywords()
         self.current_role = self    # XXX This is an ugly hack to get targetting to work uniformly
-        #self.targeted = False
     def match_role(self, role): return False    # XXX This is an ugly hack to get targetting to work uniformly
-    def init(self):
-        self.play.init()
-        self.library.init()
-        self.graveyard.init()
-    def __str__(self):
-        return self.name
-        #return "Player: %s"%self.name
-    def __repr__(self):
-        return "%s at %s"%(self.name, id(self))
+    def init(self, play, stack):
+        self.library = Library(self)
+        self.hand = Hand(self)
+        self.graveyard = Graveyard(self)
+        self.removed = Removed(self)
+        self.play = Play(self) #play
+        self.stack = stack
+        self.manapool = ManaPool()
+
+        self.loadDeck()
+        self.shuffleLibrary()
     def setOpponent(self, opponent):
         self.opponent = opponent
     def setDeck(self, decklist):
@@ -79,12 +74,14 @@ class Player(MtGObject):
             for card in from_location:
                 card.move_to(card.owner.library)
     def loadDeck(self):
+        self.library.disable_ordering()
         for num, name in self.decklist:
             num = int(num)
             for n in range(num):
-                card = CardLibrary.createCard(name, self)
+                card = CardLibrary.createCard(name, owner=self)
                 self.library.add_card(card)
-    def shuffleDeck(self):
+        self.library.enable_ordering()
+    def shuffleLibrary(self):
         self.library.shuffle()
     def draw(self):
         card = self.library.top()
@@ -106,7 +103,7 @@ class Player(MtGObject):
                 self.send(LogEvent(), msg="%s mulligans"%self)
                 for card in self.hand:
                     card.move_to(to_zone=self.library)
-                self.shuffleDeck()
+                self.shuffleLibrary()
                 for i in range(number): self.draw()
             else: break
             if number == 0: break
@@ -267,6 +264,8 @@ class Player(MtGObject):
 
         return combat_assignment.items()
 
+    def __str__(self): return self.name
+    def __repr__(self): return "%s at %s"%(self.name, id(self))
     # The following functions interface with the GUI of the game, and as a result they are kind
     # of convoluted. All interaction with the GUI is carried out through the input function (which
     # is set to dirty_input from the Incantus app) with a context object which indicates the action to perform
