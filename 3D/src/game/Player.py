@@ -1,7 +1,7 @@
 
 from CardLibrary import CardLibrary
 from GameObjects import MtGObject, Card
-from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeChangedEvent, TargetedByEvent, InvalidTargetEvent, DealsDamageEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent
+from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, DealsDamageEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent
 from Mana import ManaPool
 from Zone import Library, Hand, Play, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
@@ -24,10 +24,18 @@ class Player(MtGObject):
             return self._life
         def fset(self, value):
             amount = value - self._life
-            self._life = value
-            if amount != 0: self.send(LifeChangedEvent(), amount=amount)
+            if amount > 0: self.gain_life(amount)
+            elif amount < 0: self.lose_life(amount)
         return locals()
     life = property(**life())
+
+    # For overriding by replacement effects
+    def gain_life(self, amount):
+        self._life += amount
+        self.send(LifeGainedEvent(), amount=amount)
+    def lose_life(self, amount):
+        self._life += amount  # This seems weird, but amount is negative
+        self.send(LifeLostEvent(), amount=amount)
 
     def __init__(self,name):
         self.name = name

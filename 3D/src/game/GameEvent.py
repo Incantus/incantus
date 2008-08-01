@@ -17,7 +17,8 @@ class TimestepEvent(Event): pass
 class GameFocusEvent(Event): pass
 class LogEvent(Event): pass
 
-class LifeChangedEvent(Event): pass
+class LifeGainedEvent(Event): pass
+class LifeLostEvent(Event): pass
 class DrawCardEvent(Event): pass
 class DiscardCardEvent(Event): pass
 class ShuffleEvent(Event): pass
