@@ -404,8 +404,9 @@ class GameWindow(window.Window):
             if coin == 0: first_player, second_player = player2, player1
             else: first_player, second_player = player1, player2
 
-        self.make_connections((0,0,255), (255,255,0), soundfx=True)
+        dispatcher.reset()
         game.Keeper.init(first_player, second_player)
+        self.make_connections((0,0,255), (255,255,0), soundfx=True)
 
         # Save info for replay
         self.replay = False
@@ -477,9 +478,9 @@ class GameWindow(window.Window):
         if name == player1.name: first_player, second_player = player1, player2
         else: first_player, second_player = player2, player1
 
-        self.make_connections((0,0,255), (255,255,0), soundfx=False)
+        dispatcher.reset()
         game.Keeper.init(first_player, second_player)
-
+        self.make_connections((0,0,255), (255,255,0), soundfx=False)
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in [player1, player2]])
@@ -545,8 +546,9 @@ class GameWindow(window.Window):
             if name == player1.name: first_player, second_player = player1, player2
             else: first_player, second_player = player2, player1
 
-        self.make_connections((0,0,255), (255,255,0), soundfx=not self.replay_fast)
+        dispatcher.reset()
         game.Keeper.init(first_player, second_player)
+        self.make_connections((0,0,255), (255,255,0), soundfx=not self.replay_fast)
 
         if self.conf.get("solitaire", "manaburn") == "No":
             game.Keeper.manaBurn = lambda: None
@@ -559,7 +561,6 @@ class GameWindow(window.Window):
         self.start_new_game = True
 
     def make_connections(self, self_color, other_color, soundfx):
-        dispatcher.reset()
         self.mainplayer_status.setup_player(self.player1, self_color)
         self.otherplayer_status.setup_player(self.player2, other_color)
         self.hand_controller.set_zone(self.player1.hand)
