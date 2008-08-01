@@ -5,7 +5,6 @@ from GameEvent import HasPriorityEvent
 class MtGObject(object):
     #Universal dispatcher
     # this class is for all objects that can send and receive signals
-    Any = dispatcher.Any
     #_lock = False
     #_holding = False
     def send(self, event, *args, **named):
