@@ -319,12 +319,9 @@ class GameKeeper(MtGObject):
         # XXX Do phasing - nothing that phases in will trigger any "when ~this~ comes 
         # into play..." effect, though they will trigger "When ~this~ leaves play" effects
         self.curr_player.untapCards()
-        # perform upkeep
     def upkeepStep(self):
         self.setState("Upkeep")
-        self.curr_player.upkeep()
         self.playInstantaneous()
-        # draw card
     def drawStep(self):
         self.curr_player.draw()
         # XXX If you have a card that let's you draw more than one card, you get priority

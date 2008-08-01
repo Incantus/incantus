@@ -105,10 +105,6 @@ class Player(MtGObject):
         for card in self.play:
             # XXX The player should be able to select with cards to Untap (possibly?)
             if card.tapped and card.canUntap(): card.untap()
-    def upkeep(self):
-        # Trigger upkeep events - shouldn't affect other player
-        # XXX I don't think I need this - the player doesn't handle upkeep
-        pass
     def canBeDamagedBy(self, damager):
         return True
     def assignDamage(self, amt, source, combat=False):
