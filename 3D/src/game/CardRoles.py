@@ -168,9 +168,9 @@ class Permanent(GameRole):
         return result
     def destroy(self, skip=False):
         if skip or self.canDestroy():
-            controller = self.card.controller
-            controller.moveCard(self.card, controller.play, self.card.owner.graveyard)
-            self.card.send(PermanentDestroyedEvent())
+            card = self.card
+            card.move_to(card.owner.graveyard)
+            card.send(PermanentDestroyedEvent())
     def summoningSickness(self):
         def remove_summoning_sickness(player):
             if self.card.controller == player:

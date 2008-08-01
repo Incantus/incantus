@@ -58,10 +58,10 @@ class Zone(MtGObject):
         if trigger == True:
             self.after_card_added(card)
             self.send(CardEnteredZone(), card=card)
-    def move_card(self, card, from_zone, position=-1):
+    def move_card(self, card, position=-1):
+        from_zone = card.zone
         # This function always triggers entering and leaving events
         self.add_card_pre(card)
-        # XXX See Golgari grave-troll
         # Remove card from previous zone
         from_zone.remove_card_pre(card)
         from_zone.remove_card_post(card)
@@ -119,10 +119,9 @@ class OrderedZone(Zone):
             self.post_commit()
             self.pending = False
 
-class Play(Zone): #OrderedZone):
+class Play(OrderedZone):
     zone_name = "play"
     ordered = False
-    def init(self): pass
     def after_card_added(self, card):
         card.current_role = card.in_play_role
         card.current_role.enteringPlay()

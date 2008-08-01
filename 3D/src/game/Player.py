@@ -77,8 +77,7 @@ class Player(MtGObject):
         library = self.library
         for from_location in [self.hand, self.play, self.graveyard, self.removed]:
             for card in from_location:
-                to_location = card.owner.library
-                card.owner.moveCard(card, from_location, to_location)
+                card.move_to(card.owner.library)
     def loadDeck(self):
         for num, name in self.decklist:
             num = int(num)
@@ -91,11 +90,11 @@ class Player(MtGObject):
         card = self.library.top()
         if card == None: self.draw_empty = True
         else:
-            self.moveCard(card, from_location=self.library, to_location=self.hand)
+            card.move_to(to_zone=self.hand)
             self.send(DrawCardEvent())
             #self.send(LogEvent(), msg="%s draws a card"%self)
     def discard(self, card):
-        self.moveCard(card, from_location=self.hand, to_location=self.graveyard)
+        card.move_to(to_zone=self.graveyard)
         self.send(DiscardCardEvent())
         self.send(LogEvent(), msg="%s discards %s"%(self, card))
     def mulligan(self):
@@ -106,20 +105,12 @@ class Player(MtGObject):
             if self.getIntention("", "Would you like to mulligan?"): #, "Would you like to mulligan?"):
                 self.send(LogEvent(), msg="%s mulligans"%self)
                 for card in self.hand:
-                    self.moveCard(card, from_location=self.hand, to_location=self.library)
+                    card.move_to(to_zone=self.library)
                 self.shuffleDeck()
                 for i in range(number): self.draw()
             else: break
             if number == 0: break
         self.library.enable_ordering()
-    def moveCard(self, card, from_location=None, to_location=None, position="top"):
-        # Trigger card moved event
-        # move the actual card
-        # location can be library, hand, play, graveyard, outofgame
-        # XXX what about moving cards to other players?
-        if position=="bottom": position = 0
-        elif position == "top": position = -1
-        to_location.move_card(card, from_location, position)
 
     # Who should handle these? Player or GameKeeper?
     def untapCards(self):

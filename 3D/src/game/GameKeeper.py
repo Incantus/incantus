@@ -231,7 +231,7 @@ class GameKeeper(MtGObject):
         # 420.5b A creature with toughness 0 or less is put into its owner's graveyard. Regeneration can't replace this event.
         # 420.5c A creature with lethal damage, but greater than 0 toughness, is destroyed. Lethal damage is an amount of damage greater than or equal to a creature's toughness. Regeneration can replace this event.
         def MoveToGraveyard(creature, player):
-            def SBE(): player.moveCard(creature, player.play, creature.owner.graveyard)
+            def SBE(): creature.move_to(creature.owner.graveyard)
             return SBE
         for player in players:
             for creature in player.play.get(Match.isCreature):
@@ -247,7 +247,7 @@ class GameKeeper(MtGObject):
         def DestroyAura(aura, player):
             def SBE():
                 aura.unattach()
-                player.moveCard(aura, player.play, aura.owner.graveyard)
+                aura.move_to(aura.owner.graveyard)
             return SBE
         for player in players:
             for aura in player.play.get(Match.isAura):
@@ -276,7 +276,7 @@ class GameKeeper(MtGObject):
             def SBE():
                 for card in remove_dup:
                     player = card.controller
-                    player.moveCard(card, player.play, card.owner.graveyard)
+                    card.move_to(card.owner.graveyard)
             actions.append(SBE)
 
         # 420.5f A token in a zone other than the in-play zone ceases to exist.

@@ -394,7 +394,7 @@ class Sacrifice(Effect):
     def __call__(self, card, target):
         if not isPermanent(target): return False
         player = target.controller
-        player.moveCard(target, player.play, target.owner.graveyard)
+        target.move_to(target.owner.graveyard)
         #card.send(SacrificeEvent())
         return True
     def __str__(self):
@@ -404,7 +404,7 @@ class SacrificeSelf(Effect):
         # If we are not in play do nothing
         if not isPermanent(card): return False
         player = card.controller
-        player.moveCard(card, player.play, card.owner.graveyard)
+        card.move_to(card.owner.graveyard)
         #card.send(SacrificeEvent())
         return True
     def __str__(self):
@@ -422,7 +422,7 @@ class ForceSacrifice(Effect):
             sacrifice = target.getTarget(self.card_type, zone=target.play, required=self.required, prompt="Select a %s for sacrifice"%self.card_type)
             if not sacrifice: return False
             else:
-                target.moveCard(sacrifice, target.play, sacrifice.owner.graveyard)
+                sacrifice.move_to(sacrifice.owner.graveyard)
                 num_available -= 1
         return True
     def __str__(self):
@@ -926,12 +926,12 @@ class ChangeZone(Effect):
             target.controller = card.controller
         if self.to_position == "top": position = -1
         else: position = 0
-        to_zone.move_card(target, from_zone, position=position)
+        target.move_to(to_zone, position=position)
         self.func(target)
         def restore():
             # XXX What do we do if the target is not in the zone we left him?
             if target.zone == to_zone: 
-                from_zone.move_card(target, to_zone)
+                target.move_to(from_zone)
         if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
     def __str__(self):
@@ -982,7 +982,7 @@ class ShuffleIntoLibrary(Effect):
     def __call__(self, card, target):
         player = card.owner
         player.library.disable_ordering()
-        player.moveCard(card, card.zone, player.library)
+        card.move_to(player.library)
         player.library.enable_ordering()
         player.library.shuffle()
         return True
@@ -1096,14 +1096,14 @@ class MoveCards(Effect):
                 to_zone = card.controller.play
                 card.controller = card.controller
             if hasattr(to_zone, "ordered") and self.peek: to_zone.disable_ordering()
-            to_zone.move_card(card, from_zone, position=position)
+            card.move_to(to_zone, position=position)
             if hasattr(to_zone, "ordered") and self.peek: to_zone.enable_ordering()
             self.func(card)
         if len(self.selection) and self.subset:
             if self.return_position == "top": position = -1
             else: position = 0
             for card in self.selection:
-                from_zone.move_card(card, from_zone, position=position)
+                card.move_to(from_zone, position=position)
 
         # XXX if there is a library access in here, then we might need to shuffle it
         if self.from_zone == "library" and not (self.from_position or self.subset): from_zone.shuffle()

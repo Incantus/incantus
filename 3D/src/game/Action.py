@@ -86,7 +86,7 @@ class PlayLand(Action):
         if player.land_actions == 0: return False
         elif player.land_actions > 0: player.land_actions -= 1
         # This signals to everyone the move
-        player.moveCard(self.card, self.card.zone, player.play)
+        self.card.move_to(player.play)
         player.send(PlayLandEvent(), card=self.card)
         player.send(LogEvent(), msg="%s plays %s"%(player.name,self.card))
         return True

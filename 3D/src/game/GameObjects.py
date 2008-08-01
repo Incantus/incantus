@@ -132,6 +132,8 @@ class GameObject(MtGObject):
             return ''.join(txt)
         return locals()
     info = property(**info())
+    def move_to(self, to_zone, position=-1):
+        to_zone.move_card(self, position)
     # I should probably get rid of the getattr call, and make everybody refer to current_role directly
     # But that makes the code so much uglier
     def __getattr__(self, attr):

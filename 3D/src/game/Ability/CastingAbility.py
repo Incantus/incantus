@@ -27,7 +27,7 @@ class CastPermanentSpell(CastSpell, ActivatedAbility):
     def preresolve(self):
         # The card is put into play before any effects resolve
         controller = self.card.controller # XXX self.setup_card_controller()
-        controller.moveCard(self.card, self.card.zone, controller.play)
+        self.card.move_to(controller.play)
         return super(CastPermanentSpell, self).preresolve()
     def __str__(self):
         return "%s: Put into play"%self.cost
@@ -39,8 +39,7 @@ class CastNonPermanentSpell(CastSpell, ActivatedAbility):
         controller = self.setup_card_controller()
         # Don't put in graveyard if it's no longer there
         # XXX Fix this when making the stack a zone
-        if self.card.zone == controller.hand:
-            controller.moveCard(self.card, controller.hand, controller.graveyard)
+        if self.card.zone == controller.hand: self.card.move_to(controller.graveyard)
         super(CastNonPermanentSpell, self).resolved()
     def __str__(self):
         return "%s: %s"%(self.cost, ', '.join(map(str,self.effects)))

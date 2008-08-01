@@ -251,9 +251,8 @@ class SacrificeCost(Cost):
                 if len(self.targets) == self.number: break
         return True
     def pay(self, card, player):
-        location = player.play
         for target in self.targets:
-            player.moveCard(target, location, target.owner.graveyard)
+            target.move_to(target.owner.graveyard)
             #player.send(Sacrifice())
     def __str__(self):
         return 'Sacrifice'
@@ -289,8 +288,7 @@ class ChangeZoneCost(Cost):
         return True
     def pay(self, card, player):
         for target in self.targets:
-            to_zone = getattr(target.owner, self.to_zone)
-            player.moveCard(target, target.zone, to_zone)
+            target.move_to(getattr(target.owner, self.to_zone))
     def __str__(self):
         if self.cardtype: txt = ' '+str(self.cardtype)
         else: txt = ''

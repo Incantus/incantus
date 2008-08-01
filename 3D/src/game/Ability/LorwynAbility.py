@@ -42,7 +42,7 @@ class ClashAbility(Stackless, ActivatedAbility):
             move_to_bottom = player.getIntention("Move %s to the bottom of your library?"%card, "move %s to the bottom of your library?"%card)
             if move_to_bottom:
                 #print "%s moved %s to bottom of library"%(player, card)
-                player.library.move_card(card, player.library, position=0)
+                card.move_to(player.library, position=0)
 
         if success: success = super(ClashAbility,self).resolve()
         return success
