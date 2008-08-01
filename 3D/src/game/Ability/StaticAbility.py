@@ -1,7 +1,7 @@
 from game.GameObjects import MtGObject
 from game.Match import isPermanent
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger, robustApply
-from game.GameEvent import CardControllerChanged, SubroleModifiedEvent, TimestepEvent
+from game.GameEvent import ControllerChanged, SubroleModifiedEvent, TimestepEvent
 
 # Static abilities always function while the permanent is in play
 class StaticAbility(MtGObject):
@@ -46,7 +46,7 @@ class PermanentTrackingAbility(StaticAbility):
         self.enter_trigger = EnterTrigger("play", player="any")
         self.leave_trigger = LeaveTrigger("play", player="any")
         if not type(events) == list: events = [events]
-        self.other_triggers = [Trigger(event) for event in [SubroleModifiedEvent(), CardControllerChanged()] + events]
+        self.other_triggers = [Trigger(event) for event in [SubroleModifiedEvent(), ControllerChanged()] + events]
         self.effect_tracking = {}
     def enteringPlay(self):
         # Get All Permanents
