@@ -9,15 +9,6 @@ from Match import isCreature, isPlayer, isGameObject, isCard, isLandType
 from data_structures import keywords
 
 class Player(MtGObject):
-    def in_play():
-        doc = "Old reference to play zone"
-        def fget(self):
-            import warnings
-            warnings.warn("Usage of 'in_play' is deprecated. Use 'play' instead.", category=DeprecationWarning, stacklevel=2)
-            return self.play
-        return locals()
-    in_play = property(**in_play())
-
     def life():
         doc = "Player life property"
         def fget(self):
