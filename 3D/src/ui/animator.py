@@ -132,7 +132,8 @@ class ZoneAnimator(object):
 
         dispatcher.connect(self.end_combat, signal=GameEvent.EndCombatEvent())
         dispatcher.connect(self.card_damage, signal=GameEvent.ReceivesDamageEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.player_life, signal=GameEvent.LifeChangedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.player_life, signal=GameEvent.LifeGainedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.player_life, signal=GameEvent.LifeLostEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.invalid_target, signal=GameEvent.InvalidTargetEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.targeted_by, signal=GameEvent.TargetedByEvent(), priority=dispatcher.UI_PRIORITY)
     def invalid_target(self, sender, target):

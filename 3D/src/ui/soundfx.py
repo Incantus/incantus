@@ -34,7 +34,7 @@ class SoundEffects(object):
                             (self.start_combat, GameEvent.DeclareAttackersEvent()),
                             (self.tap, GameEvent.CardTapped()),
                             #(self.tap, GameEvent.CardUntapped()),
-                            #(self.lifeloss, GameEvent.LifeChangedEvent()),
+                            #(self.lifeloss, GameEvent.LifeLostEvent()),
                             #(self.mana, GameEvent.ManaAdded()),
                             (self.manaspent,GameEvent.ManaSpent()),
                             #(self.clink, GUIEvent.FocusCard(), sender=dispatcher.Anonymous, priority=dispatcher.UI_PRIORITY)),

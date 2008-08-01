@@ -585,8 +585,10 @@ class GameWindow(window.Window):
         dispatcher.connect(self.otherplayer_hand.remove_card, signal=game.GameEvent.CardCeasesToExist(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.otherplayer_hand.card_on_stack, signal=game.GameEvent.AbilityAnnounced(), priority=dispatcher.UI_PRIORITY)
 
-        dispatcher.connect(self.mainplayer_status.animate_life, signal=game.GameEvent.LifeChangedEvent(),sender=self.player1, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplayer_status.animate_life, signal=game.GameEvent.LifeChangedEvent(),sender=self.player2, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplayer_status.animate_life, signal=game.GameEvent.LifeGainedEvent(),sender=self.player1, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_status.animate_life, signal=game.GameEvent.LifeGainedEvent(),sender=self.player2, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplayer_status.animate_life, signal=game.GameEvent.LifeLostEvent(),sender=self.player1, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_status.animate_life, signal=game.GameEvent.LifeLostEvent(),sender=self.player2, priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.mainplayer_status.manapool.update_mana, signal=game.GameEvent.ManaAdded(), sender=self.player1.manapool, priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.mainplayer_status.manapool.update_mana, signal=game.GameEvent.ManaSpent(), sender=self.player1.manapool, priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.mainplayer_status.manapool.clear_mana, signal=game.GameEvent.ManaCleared(), sender=self.player1.manapool, priority=dispatcher.UI_PRIORITY)
