@@ -563,11 +563,6 @@ class GameWindow(window.Window):
     def make_connections(self, self_color, other_color, soundfx):
         self.mainplayer_status.setup_player(self.player1, self_color)
         self.otherplayer_status.setup_player(self.player2, other_color)
-        self.hand_controller.set_zone(self.player1.hand)
-        self.otherhand_controller.set_zone(self.player2.hand)
-        self.stack_controller.set_zone(game.Keeper.stack)
-        self.play_controller.set_zones(self.player1.play, self.player2.play)
-        #self.game_status.setup_player_colors(self.player1, self_color, other_color)
         self.phase_status.setup_player_colors(self.player1, self_color, other_color)
         self.zone_animator.setup(self.mainplayer_status, self.otherplayer_status, self.stack, self.mainplay,self.otherplay,self.table)
 

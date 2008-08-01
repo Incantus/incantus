@@ -22,9 +22,8 @@ class DamageAssignment(Action):
         self.assignment = assnment
 
 class CardSelected(Action):
-    def __init__(self, card, zone):
+    def __init__(self, card):
         self.selection = card
-        self.zone = zone
 
 class PlayerSelected(Action):
     def __init__(self, player):

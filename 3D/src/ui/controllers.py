@@ -385,7 +385,7 @@ class StatusController(object):
         if self.clicked:
             zone_view = self.zone_view
             if len(zone_view.cards):
-                self.window.user_action = Action.CardSelected(zone_view.focused.gamecard, zone_view.focused.gamecard.zone)
+                self.window.user_action = Action.CardSelected(zone_view.focused.gamecard)
                 if modifiers & key.MOD_CTRL: self.window.keep_priority()
             zone_view.hide()
             self.tmp_dx = 0
@@ -637,9 +637,6 @@ class PlayController(object):
         self.camera = window.camera
         self.selected = None
         self.zooming = False
-    def set_zones(self, play, otherplay):
-        self.mainzone = play
-        self.otherzone = otherplay
     def activate(self):
         self.window.push_handlers(self)
     def deactivate(self):
@@ -669,7 +666,7 @@ class PlayController(object):
                 self.zooming = False
             elif button == mouse.LEFT:
                 #self.selected.flash()
-                self.window.user_action = Action.CardSelected(self.selected.gamecard, self.selected.gamecard.zone)
+                self.window.user_action = Action.CardSelected(self.selected.gamecard)
                 if modifiers & key.MOD_CTRL: self.window.keep_priority()
             self.selected = None
 
@@ -681,8 +678,6 @@ class HandController(object):
         self.mouse_down = False
         self.dragged = False
         self.zooming = False
-    def set_zone(self, zone):
-        self.zone = zone
     def activate(self):
         self.window.push_handlers(self)
         self.drag_x = 0
@@ -750,7 +745,7 @@ class HandController(object):
                     self.dragged = False
                     self.player_hand.layout()
                 else:
-                    self.window.user_action = Action.CardSelected(self.card_clicked.gamecard, self.zone)
+                    self.window.user_action = Action.CardSelected(self.card_clicked.gamecard)
                     if modifiers & key.MOD_CTRL: self.window.keep_priority()
                 self.card_clicked = None
             return True
@@ -765,8 +760,6 @@ class StackController(object):
         self.tmp_dy = 0
         self.focused = False
         self.highlighted = []
-    def set_zone(self, zone):
-        self.zone = zone
     def activate(self):
         #self.activated = True
         #self.stack_gui.focus()
@@ -822,7 +815,7 @@ class StackController(object):
             elif symbol == key.RIGHT:
                 stack.text.visible = 1-stack.text.visible
             elif symbol == key.ENTER:
-                if stack.focused.announced: self.window.user_action = Action.CardSelected(stack.focused.ability, self.zone)
+                if stack.focused.announced: self.window.user_action = Action.CardSelected(stack.focused.ability)
                 return True
             elif symbol == key.ESCAPE:
                 self.deactivate()
@@ -835,7 +828,7 @@ class StackController(object):
                 self.stack_gui.focus(idx)
                 self.highlight_targets()
             else:
-                if card.announced: self.window.user_action = Action.CardSelected(card.ability, self.zone)
+                if card.announced: self.window.user_action = Action.CardSelected(card.ability)
             return True
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         return self.focused
