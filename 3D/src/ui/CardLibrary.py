@@ -51,10 +51,11 @@ class _CardLibrary:
                 token_type = name[:-6]
                 if token_type in token_cards:
                     ed, number = token_cards[token_type]
+                    print "http://magiccards.info/tokens/thumb/%s-%03d.jpg"%(ed,number)
                     img_file = urllib.urlopen("http://magiccards.info/tokens/thumb/%s-%03d.jpg"%(ed,number))
                     data = img_file.read()
                     img_file.close()
-                    if "<HTML>" in data: return self.back
+                    if "HTML" in data: return self.back
                 else: return self.back
             else:
                 # Try local directory
