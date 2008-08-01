@@ -30,7 +30,7 @@ class CardDatabase(object):
     def close(self): return self.db.close()
 
 class _CardLibrary:
-    acceptable_keys = set(['name', 'zone', '_last_known_info', 'color', 'text', '_current_role', 'expansion', 'supertype', 'controller', 'cost', 'cardnum', 'key', 'owner', 'subtypes', 'type', 'in_play_role', 'out_play_role', 'stack_role'])
+    acceptable_keys = set(['name', 'zone', '_last_known_info', 'color', 'text', '_current_role', 'expansion', 'supertype', '_controller', 'cost', 'cardnum', 'key', '_owner', 'subtypes', 'type', 'in_play_role', 'out_play_role', 'stack_role'])
     def __init__(self):
         self.cardfile = CardDatabase()
         total = 0

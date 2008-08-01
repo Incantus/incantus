@@ -1,6 +1,6 @@
 import copy
 from pydispatch import dispatcher
-from GameEvent import HasPriorityEvent
+from GameEvent import HasPriorityEvent, ControllerChanged
 
 class MtGObject(object):
     #Universal dispatcher
@@ -34,10 +34,6 @@ class MtGObject(object):
 class GameObject(MtGObject):
     #__slots__ = ["name", "cost", "text", "color", "type", "subtypes", "supertypes", "owner", "controller", "zone", "out_play_role", "in_play_role", "_current_role"]
     def __init__(self, owner):
-        self.owner = owner
-        self.controller = None
-        self.zone = None
-
         # characteristics
         self.name = None
         self.cost = None
@@ -57,23 +53,25 @@ class GameObject(MtGObject):
         self.base_subtypes = None
         self.base_supertype = None
 
+        self._owner = owner
+        self.controller = None
+        self.zone = None
+
         self._current_role = None
         self._last_known_info = None
     def controller():
         doc = "The controller of this card - only valid when in play or on the stack"
-        def fget(self):
-            if not (str(self.zone) in ["play", "stack"]): return self.owner
-            else: return self._controller
-        def fset(self, controller): 
-            print controller
-            self._controller = controller
+        def fget(self, valid=set(["play", "stack"])):
+            if str(self.zone) in valid: return self._controller
+            else: return self.owner
+        def fset(self, controller):
+            if not controller == self._controller:
+                self._controller, old_controller = controller, self._controller
+                self.summoningSickness()
+                self.send(ControllerChanged(), original=old_controller)
         return locals()
-    #controller = property(**controller())   # properties don't work with __getattr__
-    def owner():
-        doc = "The owner of this card - only set once when the card is created"
-        def fget(self): return self._owner
-        return locals()
-    #owner = property(**owner())
+    controller = property(**controller())
+    owner = property(fget=lambda self: self._owner)
     def save_lki(self):
         # How long should we keep LKI?
         self._last_known_info = self._current_role

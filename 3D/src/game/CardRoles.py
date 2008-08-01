@@ -76,6 +76,7 @@ class Permanent(GameRole):
             return self._abilities
         return locals()
     abilities = property(**abilities())
+    continuously_in_play = property(fget=lambda self: self._continuously_in_play)
     def __init__(self, card, subroles):
         super(Permanent, self).__init__(card)
         self._abilities = []
@@ -86,7 +87,7 @@ class Permanent(GameRole):
         self.facedown = False
         self.attachments = []
         self.counters = []          # Any counters on permanent
-        self.continuously_in_play = False
+        self._continuously_in_play = False
     def get_subrole(self, matchrole):
         for role in self.subroles:
             if isinstance(role, matchrole): return role
@@ -174,15 +175,15 @@ class Permanent(GameRole):
     def summoningSickness(self):
         def remove_summoning_sickness(player):
             if self.card.controller == player:
-                self.continuously_in_play = True
+                self._continuously_in_play = True
                 self.unregister(remove_summoning_sickness, NewTurnEvent(), weak=False)
+        self._continuously_in_play = False
         self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
     def enteringPlay(self):
         # Setup any static and triggered abilities
         for role in self.subroles: role.enteringPlay(self)
         self.summoningSickness()
     def leavingPlay(self):
-        self.continuously_in_play = False
         for role in self.subroles: role.leavingPlay()
         for attached in self.attachments: attached.attachedLeavingPlay()
     def __deepcopy__(self, memo):

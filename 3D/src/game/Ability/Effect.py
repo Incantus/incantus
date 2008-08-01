@@ -3,7 +3,7 @@ from game.LazyInt import LazyInt
 from game.characteristics import characteristic, stacked_characteristic, additional_characteristic
 from game.GameObjects import MtGObject
 from game.Match import isPlayer, isCreature, isCard, isPermanent, isLandType
-from game.GameEvent import CardControllerChanged, TokenPlayed, ManaEvent, SacrificeEvent, CleanupEvent, CounterAddedEvent, CounterRemovedEvent,  PowerToughnessChangedEvent, InvalidTargetEvent, SubroleModifiedEvent, ColorModifiedEvent, SubtypeModifiedEvent, LogEvent
+from game.GameEvent import TokenPlayed, ManaEvent, SacrificeEvent, CleanupEvent, CounterAddedEvent, CounterRemovedEvent,  PowerToughnessChangedEvent, InvalidTargetEvent, SubroleModifiedEvent, ColorModifiedEvent, SubtypeModifiedEvent, LogEvent
 
 class Effect(MtGObject):
     def __call__(self, card, target):
@@ -227,10 +227,6 @@ class ChangeSelfController(Effect):
         player.play.remove_card(card, trigger=False)
         card.controller = target
         target.play.add_card(card, trigger=False)
-        # We didn't really leave play, but we are starting over with summoning sickness
-        card.current_role.continuously_in_play = False
-        card.summoningSickness()
-        card.send(CardControllerChanged(), card=card, original=player)
     def __str__(self):
         return "Change controller"
 
@@ -238,16 +234,13 @@ class ChangeController(Effect):
     def __init__(self, expire=True):
         self.expire = expire
     def __call__(self, card, target):
-        if card.controller == target.controller: return lambda: None
+        if card.controller == target.controller:
+            return lambda: None
         # Switch the play locations
         old_controller = target.controller
         old_controller.play.remove_card(target, trigger=False)
         target.controller = card.controller
         target.controller.play.add_card(target, trigger=False)
-        # We didn't really leave play, but we are starting over with summoning sickness
-        target.current_role.continuously_in_play = False
-        target.summoningSickness()
-        card.send(CardControllerChanged(), card=target, original=old_controller)
         restore = lambda: str(target.zone) == "play" and self.reverse(card, target, old_controller)
         if self.expire: card.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
@@ -255,10 +248,6 @@ class ChangeController(Effect):
         target.controller, old_controller = old_controller, target.controller
         old_controller.play.remove_card(target, trigger=False)
         target.controller.play.add_card(target, trigger=False)
-        # We didn't really leave play, but we are starting over with summoning sickness
-        target.current_role.continuously_in_play = False
-        target.summoningSickness()
-        card.send(CardControllerChanged(), card=target, original=old_controller)
     def __str__(self):
         return "Change controller"
 
