@@ -6,17 +6,12 @@ from Limit import SorceryLimit
 class CastSpell(object):
     def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None):
         super(CastSpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit, zone="hand")
-    def setup_card_controller(self):
-        # Subclasses decide what to do with the card
-        player = self.card.owner
-        self.card.controller = player
-        return player
     def played(self):
         super(CastSpell, self).played()
         self.controller.send(PlaySpellEvent(), card=self.card)
     def countered(self):
         super(CastSpell,self).countered()
-        player = self.setup_card_controller()
+        player = self.controller
         player.discard(self.card)
 
 class CastPermanentSpell(CastSpell, ActivatedAbility):
@@ -26,8 +21,8 @@ class CastPermanentSpell(CastSpell, ActivatedAbility):
         super(CastPermanentSpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit)
     def preresolve(self):
         # The card is put into play before any effects resolve
-        controller = self.card.controller # XXX self.setup_card_controller()
-        self.card.move_to(controller.play)
+        self.card.move_to(self.controller.play)
+        self.card.controller = self.controller
         return super(CastPermanentSpell, self).preresolve()
     def __str__(self):
         return "%s: Put into play"%self.cost
@@ -35,11 +30,8 @@ class CastPermanentSpell(CastSpell, ActivatedAbility):
 class CastNonPermanentSpell(CastSpell, ActivatedAbility):
     def resolved(self):
         # The discard comes after the card does its thing
-        # See oracle for Planar Void to get an idea
-        controller = self.setup_card_controller()
-        # Don't put in graveyard if it's no longer there
         # XXX Fix this when making the stack a zone
-        if self.card.zone == controller.hand: self.card.move_to(controller.graveyard)
+        self.card.move_to(self.card.owner.graveyard)
         super(CastNonPermanentSpell, self).resolved()
     def __str__(self):
         return "%s: %s"%(self.cost, ', '.join(map(str,self.effects)))
@@ -52,9 +44,6 @@ class CastSorcerySpell(CastNonPermanentSpell):
         super(CastSorcerySpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit)
 
 class CastBuybackSpell(CastSpell, ActivatedAbility):
-    def resolved(self):
-        controller = self.setup_card_controller()
-        super(BuybackSpell, self).resolved()
     def __str__(self):
         return "Buyback "+super(CastBuybackSpell, self).__str__()
 

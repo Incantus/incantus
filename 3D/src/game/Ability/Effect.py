@@ -225,8 +225,8 @@ class ChangeSelfController(Effect):
         # Switch the play locations
         player = card.controller
         player.play.remove_card(card, trigger=False)
-        card.controller = target
         target.play.add_card(card, trigger=False)
+        card.controller = target
     def __str__(self):
         return "Change controller"
 
@@ -239,15 +239,15 @@ class ChangeController(Effect):
         # Switch the play locations
         old_controller = target.controller
         old_controller.play.remove_card(target, trigger=False)
+        card.controller.play.add_card(target, trigger=False)
         target.controller = card.controller
-        target.controller.play.add_card(target, trigger=False)
-        restore = lambda: str(target.zone) == "play" and self.reverse(card, target, old_controller)
+        restore = lambda: str(target.zone) == "play" and self.reverse(target, old_controller)
         if self.expire: card.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
-    def reverse(self, card, target, old_controller):
-        target.controller, old_controller = old_controller, target.controller
-        old_controller.play.remove_card(target, trigger=False)
-        target.controller.play.add_card(target, trigger=False)
+    def reverse(self, target, old_controller):
+        target.controller.play.remove_card(target, trigger=False)
+        old_controller.play.add_card(target, trigger=False)
+        target.controller = old_controller
     def __str__(self):
         return "Change controller"
 

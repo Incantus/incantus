@@ -63,7 +63,6 @@ class _CardLibrary:
         # Currently I recreate each card as it is created
         # XXX I should add them to a factory and return a deepcopy - this will never work with the lambda bindings
         card = Card(owner=player)
-        card.controller = card.owner
         # Now load the card's abilities
         try:
             self.loadCardObj(card, name)

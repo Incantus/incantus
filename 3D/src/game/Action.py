@@ -79,16 +79,16 @@ class PlayLand(Action):
         self.card = card
     def check_zone(self):
         # Can only play a land from your hand
-        return self.card.zone == self.card.controller.hand
+        return str(self.card.zone) == "hand"
     def perform(self, player):
-        self.card.controller = player
         if not self.check_zone(): return False
         if player.land_actions == 0: return False
         elif player.land_actions > 0: player.land_actions -= 1
-        # This signals to everyone the move
-        self.card.move_to(player.play)
-        player.send(PlayLandEvent(), card=self.card)
-        player.send(LogEvent(), msg="%s plays %s"%(player.name,self.card))
+        card = self.card
+        card.move_to(player.play)
+        card.controller = player
+        player.send(PlayLandEvent(), card=card)
+        player.send(LogEvent(), msg="%s plays %s"%(player.name,card))
         return True
     def __repr__(self):
         return "%s %s"%(self.__class__.__name__, self.card)

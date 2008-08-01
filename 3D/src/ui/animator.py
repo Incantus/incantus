@@ -123,7 +123,7 @@ class ZoneAnimator(object):
         dispatcher.connect(self.leave_zone, signal=GameEvent.CardLeftZone(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.enter_stack, signal=GameEvent.AbilityAnnounced(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.leave_stack, signal=GameEvent.AbilityRemovedFromStack(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.controller_changed, signal=GameEvent.CardControllerChanged(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.controller_changed, signal=GameEvent.ControllerChanged(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.select_attacker, signal=GameEvent.AttackerSelectedEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.reset_attackers, signal=GameEvent.AttackersResetEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.declare_attackers, signal=GameEvent.DeclareAttackersEvent(), priority=dispatcher.UI_PRIORITY)
@@ -230,15 +230,15 @@ class ZoneAnimator(object):
         if isinstance(ability, CastSpell): self.tracker[ability.card] = pos, self.stack
         elif not ability.card == "Assign Damage": self.sparks.add_sparkle_star(pos, pos, dt=1.0, color=str(ability.card.color))
         self.stack.remove_ability(ability)
-    def controller_changed(self, card, original):
+    def controller_changed(self, sender, original):
         start_zone = self.play_zones[original.play]
-        end_zone = self.play_zones[card.controller.play]
-        guicard = start_zone.get_card(card)
+        end_zone = self.play_zones[sender.controller.play]
+        guicard = start_zone.get_card(sender)
         start_pos = self.window.project_to_window(*tuple(start_zone.pos+guicard.pos))
-        start_zone.remove_card(card, clock)
-        guicard = end_zone.add_card(card,startt=2.)
+        start_zone.remove_card(sender, clock)
+        guicard = end_zone.add_card(sender,startt=2.)
         end_pos = self.window.project_to_window(*tuple(end_zone.pos+guicard.pos))
-        clock.schedule_once(lambda t: self.sparks.add_spark(start_pos, end_pos, dt=1.25, color=str(card.color)), 0.75)
+        clock.schedule_once(lambda t: self.sparks.add_spark(start_pos, end_pos, dt=1.25, color=str(sender.color)), 0.75)
     def enter_zone(self, sender, card):
         if sender in self.status_zones:
             pstatus, symbol = self.status_zones[sender]

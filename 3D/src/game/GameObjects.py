@@ -54,22 +54,23 @@ class GameObject(MtGObject):
         self.base_supertype = None
 
         self._owner = owner
-        self.controller = None
+        self._controller = owner  # XXX I think this is incorrect
         self.zone = None
 
         self._current_role = None
         self._last_known_info = None
     def controller():
         doc = "The controller of this card - only valid when in play or on the stack"
-        def fget(self, valid=set(["play", "stack"])):
+        valid = set(["play", "stack"])
+        def fget(self):
             if str(self.zone) in valid: return self._controller
-            else: return self.owner
+            else: return self._owner #raise Exception("%s is not in a valid zone to have a controller"%str(self))
         def fset(self, controller):
             if not controller == self._controller:
                 self._controller, old_controller = controller, self._controller
                 self.summoningSickness()
                 self.send(ControllerChanged(), original=old_controller)
-        return locals()
+        return dict(doc=doc, fset=fset, fget=fget)
     controller = property(**controller())
     owner = property(fget=lambda self: self._owner)
     def save_lki(self):
