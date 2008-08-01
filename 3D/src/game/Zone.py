@@ -1,14 +1,11 @@
-
 import random
 from GameObjects import MtGObject
 from GameEvent import CardLeavingZone, CardEnteringZone, CardLeftZone, CardEnteredZone, CardCeasesToExist, TimestepEvent, ShuffleEvent
 
 class Zone(MtGObject):
-    def __init__(self, player, cards=None):
-        if not cards: cards = []
+    def __init__(self, player):
         self.player = player
-        self.cards = cards
-        for card in self.cards: card.zone = self
+        self.cards = []
     def __len__(self):
         return len(self.cards)
     def __iter__(self):
@@ -75,8 +72,8 @@ class Zone(MtGObject):
 
 class OrderedZone(Zone):
     ordered = True
-    def __init__(self, cards=[]):
-        super(OrderedZone, self).__init__(cards)
+    def __init__(self, player):
+        super(OrderedZone, self).__init__(player)
         self.pending = False
         self.pending_top = []
         self.pending_bottom = []
@@ -134,16 +131,9 @@ class OutPlayMixin(object):
         card.current_role = card.out_play_role
 
 class Library(OutPlayMixin, OrderedZone):
-    def __init__(self, cards=[]):
-        super(Library, self).__init__(cards)
+    def __init__(self, player):
+        super(Library, self).__init__(player)
         self.needs_shuffle = False
-    def setup_card(self, card):
-        self.before_card_added(card)
-        self.send(CardEnteringZone(), card=card)
-        self.cards.append(card)
-        card.zone = self
-        self.send(CardEnteredZone(), card=card)
-        self.after_card_added(card)
     def add_card_post(self, card, position=-1, trigger=True):
         if self.ordering:
             super(Library, self).add_card_post(card, position, trigger)

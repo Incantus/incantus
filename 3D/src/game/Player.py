@@ -83,7 +83,7 @@ class Player(MtGObject):
             num = int(num)
             for n in range(num):
                 card = CardLibrary.createCard(name, self)
-                self.library.setup_card(card)
+                self.library.add_card(card)
     def shuffleDeck(self):
         self.library.shuffle()
     def draw(self):
