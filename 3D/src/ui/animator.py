@@ -112,7 +112,7 @@ class ZoneAnimator(object):
         for playerstatus, playzone in zip([main_status, other_status], [main_play, other_play]):
             for status in ["library", "graveyard", "removed"]:
                 self.status_zones[getattr(playerstatus.player, status)] = (playerstatus, playerstatus.symbols[status])
-            self.play_zones[playerstatus.player.play] = playzone
+            self.play_zones[playerstatus.player] = playzone
             self.player_status[playerstatus.player] = (playerstatus, playerstatus.symbols["life"])
         self.player = main_status.player
         self.stack = stack
@@ -149,7 +149,7 @@ class ZoneAnimator(object):
                 life.pos += euclid.Vector3(10, 0, 0)
                 clock.schedule_once(lambda t: setattr(life, "shaking", 0), 0.5)
         elif isPermanent(target):
-            zone = self.play_zones[target.zone]
+            zone = self.play_zones[target.controller]
             guicard = zone.get_card(target)
             guicard.shake()
             clock.schedule_once(lambda t: guicard.unshake(), 0.25)
@@ -161,12 +161,12 @@ class ZoneAnimator(object):
             pos = pstatus.pos + life.pos
             self.sparks.add_star_spark(pos, pos, dt=dt, color=color, dim=2)
         if isPermanent(sender):
-            zone = self.play_zones[sender.zone]
+            zone = self.play_zones[sender.controller]
             guicard = zone.get_card(sender)
             start_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))
             self.sparks.add_star_spark(start_pos, start_pos, dt=dt, color=color, dim=2)
     def card_damage(self, sender, source, amount):
-        zone = self.play_zones[sender.controller.play]
+        zone = self.play_zones[sender.controller]
         guicard = zone.get_card(sender)
         start_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))+euclid.Vector3(0,10,0)
         end_pos = start_pos + euclid.Vector3(0,40,0)
@@ -181,7 +181,7 @@ class ZoneAnimator(object):
     def select_attacker(self, sender, attacker):
         if not self.red_zone:
             play_zones = self.play_zones.values()
-            attack_zone = self.play_zones[sender.play]
+            attack_zone = self.play_zones[sender]
             play_zones.remove(attack_zone)
             block_zone = play_zones[0]
             self.red_zone = CombatZone(attack_zone, block_zone)
@@ -214,8 +214,8 @@ class ZoneAnimator(object):
         if zone in self.status_zones and not ability.card.controller ==self.player:
             pstatus, symbol = self.status_zones[zone]
             start_pos = pstatus.pos + symbol.pos
-        elif zone in self.play_zones:
-            zone = self.play_zones[zone]
+        elif str(zone) == "play":
+            zone = self.play_zones[card.controller]
             guicard = zone.get_card(card)
             start_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))
         if start_pos:
@@ -231,8 +231,8 @@ class ZoneAnimator(object):
         elif not ability.card == "Assign Damage": self.sparks.add_sparkle_star(pos, pos, dt=1.0, color=str(ability.card.color))
         self.stack.remove_ability(ability)
     def controller_changed(self, sender, original):
-        start_zone = self.play_zones[original.play]
-        end_zone = self.play_zones[sender.controller.play]
+        start_zone = self.play_zones[original]
+        end_zone = self.play_zones[sender.controller]
         guicard = start_zone.get_card(sender)
         start_pos = self.window.project_to_window(*tuple(start_zone.pos+guicard.pos))
         start_zone.remove_card(sender, clock)
@@ -258,15 +258,15 @@ class ZoneAnimator(object):
                 del self.tracker[card]
             else: pstatus.update_zone(sender)
             #else: pstatus.update_cards()
-        elif sender in self.play_zones:
+        elif str(sender) == "play":
             if card in self.tracker:
-                guicard = self.play_zones[sender].add_card(card,startt=1.0)
-                zone = self.play_zones[sender]
+                guicard = self.play_zones[card.controller].add_card(card,startt=1.0)
+                zone = self.play_zones[card.controller]
                 start_pos, from_zone = self.tracker[card]
                 end_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))
                 self.sparks.add_spark(start_pos, end_pos, grow=True, dt=1.0, color=str(card.color))
                 del self.tracker[card]
-            else: self.play_zones[sender].add_card(card,startt=0)
+            else: self.play_zones[card.controller].add_card(card,startt=0)
     def leave_zone(self, sender, card):
         if sender in self.status_zones:
             pstatus, symbol = self.status_zones[sender]
@@ -274,8 +274,8 @@ class ZoneAnimator(object):
                 self.tracker[card] = (pstatus.pos + symbol.pos, pstatus)
             pstatus.update_zone(sender)
             #pstatus.update_cards()
-        elif sender in self.play_zones:
-            zone = self.play_zones[sender]
+        elif str(sender) == "play":
+            zone = self.play_zones[card.controller]
             guicard = zone.get_card(card)
             self.tracker[card] = (self.window.project_to_window(*tuple(zone.pos+guicard.pos)), zone)
             zone.remove_card(card, clock)
