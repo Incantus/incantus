@@ -162,12 +162,6 @@ class Player(MtGObject):
                 has_creature = True
         if not has_creature: return False
         else: return True #self.getIntention("Declare intention to attack", msg="...attack this turn?")
-    def checkAttack(self, attackers, not_attacking):
-        # Overridden by global combat restrictions
-        return True
-    def checkBlock(self, combat_assignment, not_blocking):
-        # Overridden by global combat restrictions
-        return True
     def declareAttackers(self):
         all_on_attacking_side = self.play.get(isCreature)
         invalid_attack = True
@@ -198,14 +192,15 @@ class Player(MtGObject):
 
             if done_selecting:
                 not_attacking = set(all_on_attacking_side)-attackers
-                invalid_attack = (not self.checkAttack(attackers, not_attacking) or
-                                  any((not creature.checkAttack(attackers, not_attacking) for creature in all_on_attacking_side)) or
-                                  any((not creature.computeAttackCost() for creature in attackers)))
+                invalid_attackers = [creature for creature in all_on_attacking_side if not creature.checkAttack(attackers, not_attacking)] + [creature for creature in attackers if not creature.computeAttackCost()]
+                invalid_attack = len(invalid_attackers) > 0
                 if not invalid_attack:
                     for creature in attackers:
                         creature.payAttackCost()
                         creature.setAttacking()
-                else: prompt = "Invalid attack - choose another"
+                else:
+                    prompt = "Invalid attack - choose another"
+                    for creature in invalid_attackers: self.send(InvalidTargetEvent(), target=creature)
             else: prompt = "Declare attackers (Enter to accept, Escape to reset)"
         return list(attackers)
     def declareBlockers(self, attackers):
@@ -258,16 +253,17 @@ class Player(MtGObject):
 
             if done_selecting:
                 nonblockers = set(all_on_blocking_side)-total_blockers
-                invalid_block = (not self.checkBlock(combat_assignment, nonblockers) or
-                                 any((not creature.checkBlock(combat_assignment, nonblockers) for creature in attackers+all_on_blocking_side)) or
-                                 any((not creature.computeBlockCost() for creature in total_blockers)))
+                invalid_blockers = [creature for creature in attackers+all_on_blocking_side if not creature.checkBlock(combat_assignment, nonblockers)] + [creature for creature in total_blockers if not creature.computeBlockCost()]
+                invalid_block = len(invalid_blockers) > 0
                 if not invalid_block:
                     for attacker, blockers in combat_assignment.items():
                         attacker.setBlocked(blockers)
                         for blocker in blockers:
                             blocker.payBlockCost()
                             blocker.setBlocking(attacker)
-                else: blocker_prompt = "Invalid defense - choose another"
+                else:
+                    blocker_prompt = "Invalid defense - choose another"
+                    for creature in invalid_blockers: self.send(InvalidTargetEvent(), target=creature)
             else: blocker_prompt = "Declare blockers (Enter to accept, Escape to reset)"
 
         return combat_assignment.items()
