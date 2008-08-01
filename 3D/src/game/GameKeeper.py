@@ -8,33 +8,32 @@ from CardLibrary import CardLibrary
 
 #class Stack(Zone):
 class Stack(MtGObject):
-    def __init__(self):
+    def __init__(self, game):
         self.stack = []
-        self.triggered_abilities = []
-        self.curr_player = None
-        self.register(lambda player: setattr(self, "curr_player", player), NewTurnEvent(), weak=False)
+        self.pending_triggered = []
+        self.game = game
     def add_triggered(self, ability):
         # XXX This is hacky, and is needed for triggered abilities where the target depends on the trigger
         # Since the trigger is a single object, it will have different arguments everytime it triggers
         # so the target will only reference the most recent one. I need to find a better way to bind things together
         for target in ability.targets:
             if hasattr(target, "triggered"): target.get(ability.card)
-        self.triggered_abilities.append(ability)
+        self.pending_triggered.append(ability)
     def process_triggered(self):
         # Check if there are any triggered abilities waiting
-        if len(self.triggered_abilities) > 0:
+        if len(self.pending_triggered) > 0:
             # group all triggered abilities by player
-            triggered_sets = [[],[]]
-            for ability in self.triggered_abilities:
-                if ability.card.controller == self.curr_player: triggered_sets[0].append(ability)
-                else: triggered_sets[1].append(ability)
+            triggered_sets = dict([(player, []) for player in self.game.players])
+            for ability in self.pending_triggered:
+                triggered_sets[ability.controller].append(ability)
             # Now ask the player to order them if there are more than one
-            for player, triggered in zip((self.curr_player, self.curr_player.opponent), triggered_sets):
+            for player in self.game.players:
+                triggered = triggered_sets[player]
                 if len(triggered) > 1:
                     triggered = player.getSelection(triggered, len(triggered), prompt="Drag to reorder triggered abilities(Top ability resolves first)")
                 # Now reorder
                 for ability in triggered: self.announce(ability)
-            self.triggered_abilities[:] = []
+            self.pending_triggered[:] = []
             return True
         else: return False
     def announce(self, ability):
@@ -96,9 +95,11 @@ class Stack(MtGObject):
         return str(self.stack)
 
 class GamePhases(object):
+    players = property(fget=lambda self: [self.curr_player, self.other_player])
     def __init__(self, gamekeeper, players):
         self.state_map = dict([(p,i) for i, p in enumerate(["BeginTurn", "Main1", "Combat", "Main2", "EndPhase"])])
         self.game_phases = [self.makeBeginningPhase(gamekeeper), gamekeeper.mainPhase1, gamekeeper.combatPhase, gamekeeper.mainPhase2, gamekeeper.endPhase]
+        self.num_players = len(players)
         self.curr_player, self.other_player = players[0], players[1]
         GamePhases.newTurn = GamePhases.firstTurn
     def makeBeginningPhase(self, gamekeeper):
@@ -137,7 +138,7 @@ class GameKeeper(MtGObject):
     def init(self, player1, player2):
         CardLibrary.clear()
         self.game_phases = GamePhases(self, (player1, player2))
-        self.stack = Stack()
+        self.stack = Stack(self.game_phases)
         self.play = None #Play()
         player1.init(self.play, self.stack)
         player2.init(self.play, self.stack)
@@ -149,10 +150,9 @@ class GameKeeper(MtGObject):
         if not self.ready_to_start: raise Exception("Players not added - not ready to start")
         # XXX This is hacky - need a better way to signal end of game
         self.send(GameStartEvent())
-        for player in [self.game_phases.curr_player, self.game_phases.other_player]:
+        for player in self.game_phases.players:
             for i in range(7): player.draw()
-        for player in [self.game_phases.curr_player, self.game_phases.other_player]:
-            self.curr_player = player
+        for player in self.game_phases.players:
             player.mulligan()
         try:
             while True:
@@ -160,7 +160,7 @@ class GameKeeper(MtGObject):
         except GameOver, g:
             self.send(GameOverEvent())
             # Return all cards to library
-            for player in [self.game_phases.curr_player, self.game_phases.other_player]:
+            for player in self.game_phases.players:
                 player.reset()
             self.ready_to_start = False
             return g.msg
@@ -194,15 +194,14 @@ class GameKeeper(MtGObject):
         self.send(GameStepEvent(), state=state)
         self.send(state_map[state]())
     def manaBurn(self):
-        while not self.curr_player.manaBurn():
-            self.playInstantaneous()
-        while not self.other_player.manaBurn():
-            self.playInstantaneous()
+        for player in self.game_phases.players:
+            while not player.manaBurn():
+                self.playInstantaneous()
     def checkSBE(self):
         #State-Based Effects - rule 420.5
         # check every time someone gets priority (rule 408.1b)
         # Also during cleanup step - if there is an effect, player gets priority
-        players = [self.curr_player, self.other_player]
+        players = self.game_phases.players
         actions = []
         # 420.5a A player with 0 or less life loses the game.
         def EndGame(player, msg):
@@ -465,7 +464,7 @@ class GameKeeper(MtGObject):
             # Clear all nonlethal damage
             self.send(CleanupEvent())
             self.send(TimestepEvent())
-            for player in [self.curr_player, self.other_player]:
+            for player in self.game_phases.players:
                 for creature in player.play.get(Match.isCreature):
                     creature.clearDamage()
             triggered_once = False
