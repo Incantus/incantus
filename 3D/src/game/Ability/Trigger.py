@@ -3,6 +3,7 @@ from game.GameEvent import DealsDamageEvent, ReceivesDamageEvent, DealsCombatDam
 from game.Match import SelfMatch
 from game.LazyInt import LazyInt
 from game.pydispatch.robustapply import function
+from game.pydispatch import dispatcher
 
 def robustApply(receiver, *arguments, **named):
     """Call receiver with arguments and an appropriate subset of named
@@ -26,7 +27,7 @@ def robustApply(receiver, *arguments, **named):
     return receiver(*arguments, **named)
 
 class Trigger(MtGObject):
-    def __init__(self, event=None, sender=MtGObject.Any):
+    def __init__(self, event=None, sender=dispatcher.Any):
         self.trigger_event = event
         self.trigger_sender = sender
         self.activated = False
@@ -66,16 +67,16 @@ class PlayerTrigger(Trigger):
             self.count += 1
 
 class DealDamageTrigger(Trigger):
-    def __init__(self, sender=MtGObject.Any):
+    def __init__(self, sender=dispatcher.Any):
         super(DealDamageTrigger, self).__init__(event=DealsDamageEvent(), sender=sender)
 class ReceiveDamageTrigger(Trigger):
-    def __init__(self, sender=MtGObject.Any):
+    def __init__(self, sender=dispatcher.Any):
         super(ReceiveDamageTrigger, self).__init__(event=ReceivesDamageEvent(), sender=sender)
 class DealCombatDamageTrigger(Trigger):
-    def __init__(self, sender=MtGObject.Any):
+    def __init__(self, sender=dispatcher.Any):
         super(DealCombatDamageTrigger, self).__init__(event=DealsCombatDamageEvent(), sender=sender)
 class ReceiveCombatDamageTrigger(Trigger):
-    def __init__(self, sender=MtGObject.Any):
+    def __init__(self, sender=dispatcher.Any):
         super(ReceiveCombatDamageTrigger, self).__init__(event=ReceivesCombatDamageEvent(), sender=sender)
 
 # The next triggers are for events that pertain to cards but aren't sent by the card itself (ie zone changes, spells of abilities of cards)
