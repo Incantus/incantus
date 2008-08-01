@@ -48,14 +48,13 @@ class AllPermanentTargets(MtGObject):
         return True
 
 class MultipleTargets(MtGObject):
-    def __init__(self, number, target_types=None, exact=True, msg='', selector="controller", untargeted=False):
+    def __init__(self, number, target_types=None, exact=True, msg='', selector="controller"):
         self.number = number
         self.zones = []
         self.target = []
         self.exact = exact
         self.msg = msg
         self.selector = selector
-        self.untargeted = untargeted
         if not (type(target_types) == tuple or type(target_types) == list):
             self.target_types = [target_types]
         else: self.target_types = target_types
@@ -65,7 +64,7 @@ class MultipleTargets(MtGObject):
             else: return False
         self.match_type = match_type
     def copy(self):
-        return MultipleTargets(self.number, self.target_types, self.exact, self.msg, self.selector, self.untargeted)
+        return MultipleTargets(self.number, self.target_types, self.exact, self.msg, self.selector)
     def check_target(self, card):
         # Remove any targets no longer in the correct zone, or no longer matching the original condition
         # XXX This is wrong - since it won't match up with the number requested
@@ -110,7 +109,7 @@ class MultipleTargets(MtGObject):
             # The zone
             if not isPlayer(target): self.zones.append(target.zone)
             else: self.zones.append(None)
-            if not self.untargeted: target.isTargetedBy(card)
+            target.isTargetedBy(card)
         self.target = targets
         return True
 
@@ -118,7 +117,7 @@ class MultipleTargets(MtGObject):
 # When I add a new argument to constructor, make sure to add it to the copy function
 # or use the copy module
 class Target(MtGObject):
-    def __init__(self, targeting=None, target_types=None, msg='', selector="controller", untargeted=False, zone="play", player_zone=None):
+    def __init__(self, targeting=None, target_types=None, msg='', selector="controller", zone="play", player_zone=None):
         self.target = None
         self.zone = zone
         self.player_zone = player_zone
@@ -140,9 +139,8 @@ class Target(MtGObject):
         self.required = True
         self.msg = msg
         self.selector = selector
-        self.untargeted = untargeted
     def copy(self):
-        return Target(self.targeting, self.target_types, self.msg, self.selector, self.untargeted, self.zone, player_zone=self.player_zone)
+        return Target(self.targeting, self.target_types, self.msg, self.selector, self.zone, player_zone=self.player_zone)
     def check_target(self, card):
         # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
         if not isPlayer(self.target):
@@ -176,14 +174,14 @@ class Target(MtGObject):
                 perm = []
                 for ttype in self.target_types:
                     for zone in zones:
-                        perm.extend([p for p in zone.get(ttype) if self.untargeted or p.canBeTargetedBy(card)])
+                        perm.extend([p for p in zone.get(ttype) if p.canBeTargetedBy(card)])
                 numtargets = len(perm)
                 if numtargets == 0: return False
                 elif numtargets == 1: self.target = perm[0]
                 else:
                     while True:
                         self.target = selector.getTarget(self.target_types,zone=zones,required=self.required,prompt=prompt)
-                        if self.untargeted or self.target.canBeTargetedBy(card): break
+                        if self.target.canBeTargetedBy(card): break
             else:
                 self.target = selector.getTarget(self.target_types,zone=zones,required=self.required,prompt=prompt)
                 if self.target == False: return False
@@ -191,8 +189,6 @@ class Target(MtGObject):
             if not isPlayer(self.target):
                 self.target_zone = str(self.target.zone)
                 self.match_role = self.target.current_role
-            if self.untargeted:
-                return True
             elif self.target.canBeTargetedBy(card):
                 self.target.isTargetedBy(card)
                 return True
