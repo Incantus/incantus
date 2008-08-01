@@ -189,7 +189,7 @@ class Target(MtGObject):
             if not isPlayer(self.target):
                 self.target_zone = str(self.target.zone)
                 self.match_role = self.target.current_role
-            elif self.target.canBeTargetedBy(card):
+            if self.target.canBeTargetedBy(card):
                 self.target.isTargetedBy(card)
                 return True
             else: 
