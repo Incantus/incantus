@@ -30,14 +30,10 @@ class Stack(MtGObject):
                 else: triggered_sets[1].append(ability)
             # Now ask the player to order them if there are more than one
             for player, triggered in zip((self.curr_player, self.curr_player.opponent), triggered_sets):
-                # XXX Must use the index of the ability, since we can't pickle abilities for network games
-                abilities = [(str(a), i) for i, a in enumerate(triggered)]
-                results = []
-                if len(abilities) > 1:
-                    results = player.getSelection(abilities, len(abilities), required=False, idx=False, prompt="Drag to reorder triggered abilities(Top ability resolves first)")
-                if not results: results = range(len(triggered))
+                if len(triggered) > 1:
+                    triggered = player.getSelection(triggered, len(triggered), prompt="Drag to reorder triggered abilities(Top ability resolves first)")
                 # Now reorder
-                for i in results: self.announce(triggered[i])
+                for ability in triggered: self.announce(ability)
             self.triggered_abilities[:] = []
             return True
         else: return False

@@ -308,7 +308,9 @@ class Player(MtGObject):
         context = {'get_selection': True, 'list':sellist, 'numselections': numselections, 'required': required, 'msg': msg, 'process': filter}
         sel = self.input(context,"%s: %s"%(self.name,prompt))
         if isinstance(sel, CancelAction): return False
-        elif idx == True: return sellist[sel][0]
+        elif idx == True:
+            if numselections == 1: return sellist[sel][0]
+            else: return [sellist[i][0] for i in sel][:numselections]
         else: return sel
     def getCardSelection(self, sellist, numselections, from_zone, from_player, card_types=isGameObject, required=True, prompt=''):
         def filter(action):
