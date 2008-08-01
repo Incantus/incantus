@@ -3,8 +3,7 @@ from GameObjects import MtGObject
 from GameEvent import CardLeavingZone, CardEnteringZone, CardLeftZone, CardEnteredZone, CardCeasesToExist, TimestepEvent, ShuffleEvent
 
 class Zone(MtGObject):
-    def __init__(self, player):
-        self.player = player
+    def __init__(self):
         self.cards = []
     def __str__(self):
         return self.zone_name
@@ -72,8 +71,8 @@ class Zone(MtGObject):
 
 class OrderedZone(Zone):
     ordered = True
-    def __init__(self, player):
-        super(OrderedZone, self).__init__(player)
+    def __init__(self):
+        super(OrderedZone, self).__init__()
         self.pending = False
         self.pending_top = []
         self.pending_bottom = []
@@ -94,7 +93,8 @@ class OrderedZone(Zone):
         if len(cardlist) > 1:
             if self.ordered: pos = "%s of "%pos
             else: pos = ''
-            reorder = self.player.getCardSelection(cardlist, len(cardlist), from_zone=str(self), from_player=self.player, required=False, prompt="Order cards entering %s%s"%(pos, self))
+            player = cardlist[0].owner
+            reorder = player.getCardSelection(cardlist, len(cardlist), from_zone=str(self), from_player=player, required=False, prompt="Order cards entering %s%s"%(pos, self))
             if reorder: cardlist = reorder[::-1]
         return cardlist
     def pre_commit(self): pass
@@ -130,8 +130,8 @@ class OutPlayMixin(object):
         card.current_role = card.out_play_role
 
 class Library(OutPlayMixin, OrderedZone):
-    def __init__(self, player):
-        super(Library, self).__init__(player)
+    def __init__(self):
+        super(Library, self).__init__()
         self.needs_shuffle = False
     def add_card_post(self, card, position=-1, trigger=True):
         if self.ordering:

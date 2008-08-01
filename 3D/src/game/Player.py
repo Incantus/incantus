@@ -42,11 +42,11 @@ class Player(MtGObject):
         self.current_role = self    # XXX This is an ugly hack to get targetting to work uniformly
     def match_role(self, role): return False    # XXX This is an ugly hack to get targetting to work uniformly
     def init(self, play, stack):
-        self.library = Library(self)
-        self.hand = Hand(self)
-        self.graveyard = Graveyard(self)
-        self.removed = Removed(self)
-        self.play = Play(self) #play
+        self.library = Library()
+        self.hand = Hand()
+        self.graveyard = Graveyard()
+        self.removed = Removed()
+        self.play = Play() #play
         self.stack = stack
         self.manapool = ManaPool()
 
