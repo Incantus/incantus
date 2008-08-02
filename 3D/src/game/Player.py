@@ -266,11 +266,8 @@ class Player(MtGObject):
             if isinstance(action, PassPriority) or isinstance(action, CancelAction): return action
             sel = action.selection
             if isGameObject(sel)  and sel.controller == self:
-                if isLandType(sel) and not action.zone == self.play: return PlayLand(sel)
+                if isLandType(sel) and not sel.zone == self.play: return PlayLand(sel)
                 else: return PlayAbility(sel)
-                #zone = action.zone
-                #if zone == self.play: return PlayAbility(sel)
-                #else: return sel.play_action(sel)
             else: return False
         if not process: process = convert_gui_action
         context = {"get_ability": True, "process": process}
@@ -375,9 +372,7 @@ class Player(MtGObject):
             if isinstance(action, PassPriority): return False
             if isinstance(action, CancelAction): return action
             sel = action.selection
-            if isGameObject(sel):
-                zone = action.zone
-                if zone == self.play: return ActivateForMana(sel)
+            if isGameObject(sel) and sel.zone == self.play: return ActivateForMana(sel)
             else: return False
         self.allowable_actions.extend([CancelAction, ActivateForMana])
         manaplayed = False
