@@ -1,6 +1,7 @@
 from Ability import Ability
 from ActivatedAbility import ActivatedAbility
-from Effect import RemoveCounter, SacrificeSelf, TriggerEffect, PayExtraCost, AttachToPermanent, DoOr
+from StaticAbility import GlobalStaticAbility
+from Effect import RemoveCounter, SacrificeSelf, TriggerEffect, PayExtraCost, AttachToPermanent, DoOr, ReplacementEffect
 from Target import Target
 from TriggeredAbility import TriggeredAbility
 from Trigger import PlayerTrigger, Trigger
@@ -40,6 +41,21 @@ def vanishing(permanent, subrole, number):
         subrole.triggered_abilities.remove(remove_counter)
         subrole.triggered_abilities.remove(sacrifice)
     return remove_vanishing
+
+def dredge(out_play_role, card, number):
+    def condition(self): 
+        return len(self.graveyard) >= number
+    def draw(self):
+        if self.getIntention("Would you like to dredge %s?"%card, "Dredge %s"%card):
+            top_N = self.library.top(number)
+            for c in top_N: c.move_to(self.graveyard)
+            card.move_to(self.hand)
+        else:
+            self.draw()
+
+    dredge_ability = GlobalStaticAbility(card,
+      effects=ReplacementEffect(draw, "draw", txt='%s - dredge?'%card, expire=False, condition=condition))
+    out_play_role.graveyard_abilities.append(dredge_ability)
 
 def suspend(subrole, card, number):
     pass
