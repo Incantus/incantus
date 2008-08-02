@@ -145,13 +145,14 @@ class TapCost(Cost):
         self.number = number
     def precompute(self, card, player):
         location = player.play
-        if self.cardtype == None: return card.current_role.canTap()
+        if self.cardtype == None: return card.canTap()
         else: return len(location.get(self.cardtype)) >= self.number
     def compute(self, card, player):
         self.targets = []
         # Tap myself
         if self.cardtype == None:
-            self.targets.append(card)
+            if card.canTap(): self.targets.append(card)
+            else: return False
         # otherwise see if there are enough targets for tapping
         else:
             location = player.play
@@ -187,13 +188,14 @@ class UntapCost(Cost):
         self.number = number
     def precompute(self, card, player):
         location = player.play
-        if self.cardtype == None: return card.current_role.canUntap()
+        if self.cardtype == None: return card.canUntap()
         else: return len(location.get(self.cardtype)) >= self.number
     def compute(self, card, player):
         self.targets = []
         # Untap myself
         if self.cardtype == None:
-            self.targets.append(card)
+            if card.canUntap(): self.targets.append(card)
+            else: return False
         # otherwise see if there are enough targets for untapping
         else:
             location = player.play
@@ -235,7 +237,8 @@ class SacrificeCost(Cost):
         self.targets = []
         if self.cardtype == None:
             # Sacrifice myself
-            self.targets.append(card)
+            if str(self.zone) == "play": self.targets.append(card)
+            else: return False
         else:
             location = player.play
             prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
@@ -271,7 +274,8 @@ class ChangeZoneCost(Cost):
     def compute(self, card, player):
         self.targets = []
         if self.cardtype == None:
-            self.targets.append(card)
+            if str(card.zone) == self.from_zone: self.targets.append(card)
+            else: return False
         else:
             from_zone = getattr(player, self.from_zone)
             prompt = "Select %d %s(s) to %s"%(self.number-len(self.targets), self.cardtype, self.action_txt%'')
@@ -364,7 +368,7 @@ class ConditionalCost(Cost):
 class LifeCost(Cost):
     def __init__(self, amt):
         self.amt = amt
-    def precompute(self, card, player):
+    def compute(self, card, player):
         return player.life - self.amt > 0
     def pay(self, card, player):
         player.life -= self.amt
@@ -414,7 +418,8 @@ class DiscardCost(Cost):
             self.discards.extend([c for c in player.hand])
         elif not self.cardtype:
             # Discard this card
-            self.discards = [card]
+            if str(card.zone) == "hand": self.discards = [card]
+            else: return False
         else:
             if self.number > 1: a='s'
             else: a = ''
