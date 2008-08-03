@@ -27,35 +27,24 @@ class Zone(MtGObject):
         self.cards.remove(card)
         card.zone = None
         self.send(CardCeasesToExist(), card=card)
-    def remove_card(self, card, trigger=True):
-        # All zones do this the same
-        if trigger == True:
-            self.send(CardLeavingZone(), card=card)
-            self.before_card_removed(card)
+    def _remove_card(self, card):
         self.cards.remove(card)
         card.zone = None
-        if trigger == True:
-            self.send(CardLeftZone(), card=card)
-    def add_card(self, card, position=-1, trigger=True):
-        self._add_card_pre(card, trigger)
-        self._add_card_post(card, position, trigger)
-    def _add_card_pre(self, card, trigger=True):
-        if trigger == True:
-            self.send(CardEnteringZone(), card=card)
-    def _add_card_post(self, card, position=-1, trigger=True):
-        if trigger == True:
-            self.before_card_added(card)
+        self.send(CardLeftZone(), card=card)
+    def _add_card(self, card, position=-1):
         if position == -1: self.cards.append(card)
         else: self.cards.insert(position, card)
         card.zone = self
-        if trigger == True:
-            self.send(CardEnteredZone(), card=card)
+        self.send(CardEnteredZone(), card=card)
     def move_card(self, card, position=-1):
-        from_zone = card.zone
-        self._add_card_pre(card)
+        self.send(CardEnteringZone(), card=card)
+        old_zone = card.zone
+        old_zone.send(CardLeavingZone(), card=card)
+        old_zone.before_card_removed(card)
+        self.before_card_added(card)
         # Remove card from previous zone
-        from_zone.remove_card(card)
-        self._add_card_post(card, position)
+        old_zone._remove_card(card)
+        self._add_card(card, position)
     # The next 2 are for zones to setup and takedown card roles
     def before_card_added(self, card): pass
     def before_card_removed(self, card): pass
@@ -67,25 +56,15 @@ class OrderedZone(Zone):
         self.pending = False
         self.pending_top = []
         self.pending_bottom = []
-        self.ordering = True
         self.register(self.commit, TimestepEvent())
-    def enable_ordering(self):
-        self.ordering = True
-    def disable_ordering(self):
-        self.ordering = False
-    def add_card_post(self, card, position=-1, trigger=True):
-        if trigger and self.ordering:
-            self.pending = True
-            if position == -1: self.pending_top.append((card, trigger))
-            else: self.pending_bottom.append((card, trigger))
-        else:
-            super(OrderedZone, self).add_card_post(card, position, trigger)
+    def _add_card(self, card, position=-1):
+        self.pending = True
+        if position == -1: self.pending_top.append(card)
+        else: self.pending_bottom.append(card)
     def get_card_order(self, cardlist, pos):
         if len(cardlist) > 1:
-            if self.ordered: pos = "%s of "%pos
-            else: pos = ''
             player = cardlist[0].owner
-            reorder = player.getCardSelection(cardlist, len(cardlist), from_zone=str(self), from_player=player, required=False, prompt="Order cards entering %s%s"%(pos, self))
+            reorder = player.getCardSelection(cardlist, len(cardlist), from_zone=str(self), from_player=player, required=False, prompt="Order cards entering %s of %s"%(pos, self))
             if reorder: cardlist = reorder[::-1]
         return cardlist
     def pre_commit(self): pass
@@ -93,17 +72,12 @@ class OrderedZone(Zone):
     def commit(self):
         if self.pending_top or self.pending_bottom:
             self.pre_commit()
-            toplist = self.get_card_order([c[0] for c in self.pending_top], "top")
-            bottomlist = self.get_card_order([c[0] for c in self.pending_bottom], "bottom")
-            for card, trigger in self.pending_top+self.pending_bottom:
-                if trigger == True:
-                    self.before_card_added(card)
-            self.before_card_added(card)
+            toplist = self.get_card_order([c for c in self.pending_top], "top")
+            bottomlist = self.get_card_order([c for c in self.pending_bottom], "bottom")
             self.cards = bottomlist + self.cards + toplist
-            for card, trigger in self.pending_top+self.pending_bottom:
+            for card in self.pending_top+self.pending_bottom:
                 card.zone = self
-                if trigger == True:
-                    self.send(CardEnteredZone(), card=card)
+                self.send(CardEnteredZone(), card=card)
             self.pending_top[:] = []
             self.pending_bottom[:] = []
             self.post_commit()
@@ -127,18 +101,26 @@ class Library(OutPlayMixin, OrderedZone):
     def __init__(self):
         super(Library, self).__init__()
         self.needs_shuffle = False
-    def _add_card_post(self, card, position=-1, trigger=True):
+        self.ordering = True
+    def enable_ordering(self):
+        self.ordering = True
+    def disable_ordering(self):
+        self.ordering = False
+    def add_card(self, card, position=-1):
+        self.send(CardEnteringZone(), card=card)
+        self.before_card_added(card)
+        self._add_card_unordered(card, position)
+    def _add_card_unordered(self, card, position):
+        # XXX Same as Zone._add_card
+        if position == -1: self.cards.append(card)
+        else: self.cards.insert(position, card)
+        card.zone = self
+        self.send(CardEnteredZone(), card=card)
+    def _add_card(self, card, position=-1):
         if self.ordering:
-            super(Library, self)._add_card_post(card, position, trigger)
+            super(Library, self)._add_card(card, position)
         else:
-            # XXX Same as Zone.add_card_post
-            if trigger == True:
-                self.before_card_added(card)
-            if position == -1: self.cards.append(card)
-            else: self.cards.insert(position, card)
-            card.zone = self
-            if trigger == True:
-                self.send(CardEnteredZone(), card=card)
+            self._add_card_unordered(card, position)
     def shuffle(self):
         if not self.pending: random.shuffle(self.cards)
         else: self.needs_shuffle = True
