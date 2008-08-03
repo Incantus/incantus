@@ -85,7 +85,6 @@ class PlayLand(Action):
         elif player.land_actions > 0: player.land_actions -= 1
         card = self.card
         card.move_to(player.play)
-        card.controller = player
         player.send(PlayLandEvent(), card=card)
         player.send(LogEvent(), msg="%s plays %s"%(player.name,card))
         return True
