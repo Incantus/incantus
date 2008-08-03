@@ -382,7 +382,6 @@ class DestroyNoRegenerate(Effect):
 class Sacrifice(Effect):
     def __call__(self, card, target):
         if not isPermanent(target): return False
-        player = target.controller
         target.move_to(target.owner.graveyard)
         #card.send(SacrificeEvent())
         return True
@@ -392,7 +391,6 @@ class SacrificeSelf(Effect):
     def __call__(self, card, target):
         # If we are not in play do nothing
         if not isPermanent(card): return False
-        player = card.controller
         card.move_to(card.owner.graveyard)
         #card.send(SacrificeEvent())
         return True
