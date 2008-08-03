@@ -182,7 +182,6 @@ class Permanent(GameRole):
     def enteringPlay(self):
         # Setup any static and triggered abilities
         for role in self.subroles: role.enteringPlay(self)
-        self.summoningSickness()
     def leavingPlay(self):
         for role in self.subroles: role.leavingPlay()
         for attached in self.attachments: attached.attachedLeavingPlay()
