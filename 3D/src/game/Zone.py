@@ -90,6 +90,7 @@ class Play(OrderedZone):
     def before_card_removed(self, card):
         card.save_lki()
         card.current_role.leavingPlay()
+        card.controller = None
 
 class OutPlayMixin(object):
     def before_card_added(self, card):

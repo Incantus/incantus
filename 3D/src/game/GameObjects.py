@@ -54,7 +54,7 @@ class GameObject(MtGObject):
         self.base_supertype = None
 
         self._owner = owner
-        self._controller = owner  # XXX I think this is incorrect
+        self._controller = None  # XXX I think this is incorrect
         self.zone = None
 
         self._current_role = None
@@ -64,12 +64,14 @@ class GameObject(MtGObject):
         valid = set(["play", "stack"])
         def fget(self):
             if str(self.zone) in valid: return self._controller
-            else: return self._owner #raise Exception("%s is not in a valid zone to have a controller"%str(self))
+            #else: raise Exception("%s is not in a valid zone to have a controller"%str(self))
+            else: return self._owner
         def fset(self, controller):
-            if not controller == self._controller:
+            if controller == None: self._controller = controller
+            elif not controller == self._controller:
                 self._controller, old_controller = controller, self._controller
                 self.summoningSickness()
-                self.send(ControllerChanged(), original=old_controller)
+                if old_controller: self.send(ControllerChanged(), original=old_controller)
         return dict(doc=doc, fset=fset, fget=fget)
     controller = property(**controller())
     owner = property(fget=lambda self: self._owner)
