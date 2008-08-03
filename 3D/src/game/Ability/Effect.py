@@ -222,31 +222,27 @@ class CounterAbility(Effect):
 class ChangeSelfController(Effect):
     def __call__(self, card, target):
         if not isPlayer(target): raise Exception("Invalid target for changing controller")
-        # Switch the play locations
-        player = card.controller
-        player.play.remove_card(card, trigger=False)
-        target.play.add_card(card, trigger=False)
+        old_controller = card.controller
         card.controller = target
+        restore = lambda: str(card.zone) == "play" and self.reverse(card, old_controller)
+        if self.expire: card.register(restore, CleanupEvent(), weak=False, expiry=1)
+        return restore
+    def reverse(self, card, old_controller):
+        card.controller = old_controller
     def __str__(self):
         return "Change controller"
-
 class ChangeController(Effect):
     def __init__(self, expire=True):
         self.expire = expire
     def __call__(self, card, target):
         if card.controller == target.controller:
             return lambda: None
-        # Switch the play locations
         old_controller = target.controller
-        old_controller.play.remove_card(target, trigger=False)
-        card.controller.play.add_card(target, trigger=False)
         target.controller = card.controller
         restore = lambda: str(target.zone) == "play" and self.reverse(target, old_controller)
         if self.expire: card.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
     def reverse(self, target, old_controller):
-        target.controller.play.remove_card(target, trigger=False)
-        old_controller.play.add_card(target, trigger=False)
         target.controller = old_controller
     def __str__(self):
         return "Change controller"
@@ -268,11 +264,10 @@ class CreateToken(Effect):
         for i in range(self.get_number()):
             token = CardLibrary.createToken(self.token_name, target, self.token_color,  self.token_type, self.token_subtypes, self.token_supertype)
             # Create the role for it
-            token.controller = target
             token.in_play_role = Permanent(token, copy.deepcopy(self.token_subrole))
             token.current_role = token.out_play_role = NoRole(token)
             # Now put it into play
-            token.controller.play.add_card(token)
+            target.play.add_card(token)
             card.send(TokenPlayed())
         return True
     def __str__(self):
@@ -406,7 +401,7 @@ class ForceSacrifice(Effect):
         num_available = len(target.play.get(self.card_type))
         for i in range(self.number):
             if num_available == 0: return False
-            sacrifice = target.getTarget(self.card_type, zone=target.play, required=self.required, prompt="Select a %s for sacrifice"%self.card_type)
+            sacrifice = target.getTarget(self.card_type, zone="play", controller=target, required=self.required, prompt="Select a %s for sacrifice"%self.card_type)
             if not sacrifice: return False
             else:
                 sacrifice.move_to(sacrifice.owner.graveyard)
@@ -559,7 +554,7 @@ class ChangeAttachment(Effect):
         self.attach_to = None
         player = card.controller
         target_types = target.target_types
-        new_target = player.getTarget(target_types, required=False, prompt="Select %s to attach %s to"%(target_types, card))
+        new_target = player.getTarget(target_types, zone="play", required=False, prompt="Select %s to attach %s to"%(target_types, card))
         if new_target and new_target.canBeTargetedBy(card) and not (self.must_be_different and new_target == target.attached_to):
             new_target.isTargetedBy(card)
             self.attach_to = new_target
@@ -908,16 +903,14 @@ class ChangeZone(Effect):
         if self.from_zone == "play": from_zone = target.controller.play
         else: from_zone = getattr(target.owner, self.from_zone)
         if self.to_owner: to_zone = getattr(target.owner, self.to_zone)
-        else:
-            to_zone = getattr(card.controller, self.to_zone)
-            target.controller = card.controller
+        else: to_zone = getattr(card.controller, self.to_zone)
         if self.to_position == "top": position = -1
         else: position = 0
         target.move_to(to_zone, position=position)
         self.func(target)
         def restore():
             # XXX What do we do if the target is not in the zone we left him?
-            if target.zone == to_zone: 
+            if str(target.zone) == self.to_zone:
                 target.move_to(from_zone)
         if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
@@ -1018,7 +1011,7 @@ class MoveCards(Effect):
         elif num_available < self.number: self.number = num_available
         cardlist = []
         while True:
-            target = player.getTarget(self.card_types, zone=from_zone, required=self.required, prompt=prompt)
+            target = player.getTarget(self.card_types, zone=self.from_zone, controller=player, required=self.required, prompt=prompt)
             if target == False: return False
             if target in cardlist:
                 prompt = "%s already selected - select again"%selcard
@@ -1143,7 +1136,7 @@ class DiscardCard(Effect):
             prompt = "Select %s card%s to discard: %d left of %d"%(self.card_types, a, num_discard-num_selected,num_discard)
             result = []
             while num_selected < num_discard:
-                card = target.getTarget(self.card_types, zone=target.hand,required=self.required,prompt=prompt)
+                card = target.getTarget(self.card_types, zone="hand", controller=target,required=self.required,prompt=prompt)
                 if not card and not self.required: return False
                 if not card in result:
                     result.append(card)

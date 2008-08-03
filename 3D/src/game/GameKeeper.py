@@ -3,7 +3,7 @@ from GameObjects import MtGObject
 from Action import PassPriority
 import Match
 from GameEvent import *
-from Zone import Zone
+from Zone import Zone, Play
 from CardLibrary import CardLibrary
 
 #class Stack(Zone):
@@ -139,7 +139,7 @@ class GameKeeper(MtGObject):
         CardLibrary.clear()
         self.game_phases = GamePhases(self, (player1, player2))
         self.stack = Stack(self.game_phases)
-        self.play = None #Play()
+        self.play = Play(self.game_phases)
         player1.init(self.play, self.stack)
         player2.init(self.play, self.stack)
         self.tokens_out_play = []
@@ -160,6 +160,8 @@ class GameKeeper(MtGObject):
         except GameOver, g:
             self.send(GameOverEvent())
             # Return all cards to library
+            for card in self.play:
+                card.move_to(card.owner.library)
             for player in self.game_phases.players:
                 player.reset()
             self.ready_to_start = False
@@ -214,32 +216,29 @@ class GameKeeper(MtGObject):
         # 420.5b and 420.5c are combined
         # 420.5b A creature with toughness 0 or less is put into its owner's graveyard. Regeneration can't replace this event.
         # 420.5c A creature with lethal damage, but greater than 0 toughness, is destroyed. Lethal damage is an amount of damage greater than or equal to a creature's toughness. Regeneration can replace this event.
-        def MoveToGraveyard(creature, player):
+        def MoveToGraveyard(creature):
             def SBE(): creature.move_to(creature.owner.graveyard)
             return SBE
-        for player in players:
-            for creature in player.play.get(Match.isCreature):
-                if creature.toughness <= 0:
-                    actions.append(MoveToGraveyard(creature, player))
-                elif creature.shouldDestroy():
-                    actions.append(creature.destroy)
-            for walker in player.play.get(Match.isPlaneswalker):
-                if walker.shouldDestroy():
-                    actions.append(walker.destroy)
+        for creature in self.play.get(Match.isCreature):
+            if creature.toughness <= 0:
+                actions.append(MoveToGraveyard(creature))
+            elif creature.shouldDestroy():
+                actions.append(creature.destroy)
+        for walker in self.play.get(Match.isPlaneswalker):
+            if walker.shouldDestroy():
+                actions.append(walker.destroy)
 
         # 420.5d An Aura attached to an illegal object or player, or not attached to an object or player, is put into its owner's graveyard.
-        def DestroyAura(aura, player):
+        def DestroyAura(aura):
             def SBE():
                 aura.unattach()
                 aura.move_to(aura.owner.graveyard)
             return SBE
-        for player in players:
-            for aura in player.play.get(Match.isAura):
-                if not aura.isValidAttachment():
-                    actions.append(DestroyAura(aura, player))
+        for aura in self.play.get(Match.isAura):
+            if not aura.isValidAttachment():
+                actions.append(DestroyAura(aura))
         # 420.5e If two or more legendary permanents with the same name are in play, all are put into their owners' graveyards. This is called the "legend rule." If only one of those permanents is legendary, this rule doesn't apply.
-        legendaries = []
-        for player in players: legendaries.extend(player.play.get(Match.isLegendaryPermanent))
+        legendaries = self.play.get(Match.isLegendaryPermanent)
         # XXX There's got to be a better way to find multiples
         remove_dup = []
         for i, l1 in enumerate(legendaries):
@@ -248,8 +247,7 @@ class GameKeeper(MtGObject):
                     remove_dup.extend([l1,l2])
                     break
         # 2 or more Planeswalkers with the same name
-        planeswalkers = []
-        for player in players: planeswalkers.extend(player.play.get(Match.isPlaneswalker))
+        planeswalkers = self.play.get(Match.isPlaneswalker)
         for i, l1 in enumerate(planeswalkers):
             for l2 in planeswalkers[i+1:]:
                 if l1.subtypes.intersects(l2.subtypes):
@@ -286,10 +284,9 @@ class GameKeeper(MtGObject):
             def SBE():
                 equipment.unattach()
             return SBE
-        for player in players:
-            for equipment in player.play.get(Match.isEquipment):
-                if equipment.attached_to and not equipment.isValidAttachment():
-                    actions.append(Unattach(equipment))
+        for equipment in self.play.get(Match.isEquipment):
+            if equipment.attached_to and not equipment.isValidAttachment():
+                actions.append(Unattach(equipment))
         # 420.5m A permanent that's neither an Aura, an Equipment, nor a Fortification, but is attached to another permanent, becomes unattached from that permanent. It remains in play.
         # 420.5n If a permanent has both a +1/+1 counter and a -1/-1 counter on it, N +1/+1 and N -1/-1 counters are removed from it, where N is the smaller of the number of +1/+1 and -1/-1 counters on it.
         def RemoveCounters(perm, counters):
@@ -298,13 +295,12 @@ class GameKeeper(MtGObject):
                     perm.counters.remove(counter)
                     perm.send(CounterRemovedEvent(), counter=counter)
             return SBE
-        for player in players:
-            for perm in player.play.get(Match.isPermanent):
-                if len(perm.counters) > 0:
-                    plus = [counter for counter in perm.counters if counter.ctype == "+1+1"]
-                    minus = [counter for counter in perm.counters if counter.ctype == "-1-1"]
-                    numremove = min(len(plus), len(minus))
-                    if numremove: actions.append(RemoveCounters(perm, plus[:numremove]+minus[:numremove]))
+        for perm in self.play.get(Match.isPermanent):
+            if len(perm.counters) > 0:
+                plus = [counter for counter in perm.counters if counter.ctype == "+1+1"]
+                minus = [counter for counter in perm.counters if counter.ctype == "-1-1"]
+                numremove = min(len(plus), len(minus))
+                if numremove: actions.append(RemoveCounters(perm, plus[:numremove]+minus[:numremove]))
 
         self.send(TimestepEvent())
         if actions:
@@ -415,7 +411,7 @@ class GameKeeper(MtGObject):
             if attackers: self.send(DeclareAttackersEvent(), attackers=attackers)
             self.playInstantaneous()
             # After playing instants, the list of attackers could be modified (if a creature was put into play "attacking", so we regenerate the list
-            attackers = self.curr_player.play.get(Match.isCreature.with_condition(lambda c: c.attacking))
+            attackers = self.play.get(Match.isCreature.with_condition(lambda c: c.attacking))
             if attackers:
                 # Blocking
                 self.setState("Block")
@@ -458,15 +454,14 @@ class GameKeeper(MtGObject):
             if diff > 1: a = 's'
             else: a = ''
             for i in range(diff):
-                card = self.curr_player.getTarget(Match.isCard, zone=self.curr_player.hand, required=True,prompt="Select card%s to discard: %d left of %d"%(a, diff-i,diff))
+                card = self.curr_player.getTarget(Match.isCard, zone="hand", controller=self.curr_player, required=True, prompt="Select card%s to discard: %d left of %d"%(a, diff-i,diff))
                 self.curr_player.discard(card)
 
             # Clear all nonlethal damage
             self.send(CleanupEvent())
             self.send(TimestepEvent())
-            for player in self.game_phases.players:
-                for creature in player.play.get(Match.isCreature):
-                    creature.clearDamage()
+            for creature in self.play.get(Match.isCreature):
+                creature.clearDamage()
             triggered_once = False
             while self.checkSBE(): triggered_once = True
             if self.stack.process_triggered(): triggered_once = True

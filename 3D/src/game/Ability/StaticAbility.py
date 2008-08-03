@@ -50,8 +50,7 @@ class PermanentTrackingAbility(StaticAbility):
         self.effect_tracking = {}
     def enteringPlay(self):
         # Get All Permanents
-        permanents = self.card.controller.play.get(self.condition)
-        permanents.extend(self.card.controller.opponent.play.get(self.condition))
+        permanents = self.card.controller.play.get(self.condition, all=True)
         for perm in permanents: self.add_effects(perm)
 
         self.enter_trigger.setup_trigger(self, self.entering, self.condition)

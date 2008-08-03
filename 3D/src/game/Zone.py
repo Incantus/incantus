@@ -82,8 +82,49 @@ class OrderedZone(Zone):
             self.post_commit()
             self.pending = False
 
+class PlayView(object):
+    name = "play"
+    def __init__(self, player, play):
+        self.player = player
+        self.play = play
+    def get(self, match=lambda c: True, all=False):
+        if all: return self.play.get(match)
+        else: return [card for card in self.play if match(card) and card.controller == self.player]
+    def move_card(self, card, position=-1):
+        self.send(CardEnteringZone(), card=card)
+        old_zone = card.zone
+        old_zone.send(CardLeavingZone(), card=card)
+        old_zone.before_card_removed(card)
+        self.before_card_added(card)
+        card.controller = self.player
+        card.summoningSickness()
+        # Remove card from previous zone
+        old_zone._remove_card(card)
+        self._add_card(card, position)
+    def __getattr__(self, attr):
+        return getattr(self.play, attr)
+
 class Play(OrderedZone):
     name = "play"
+    def __init__(self, game):
+        self.game = game
+        super(Play, self).__init__()
+    def get_view(self, player):
+        return PlayView(player, self)
+    def get_card_order(self, cardlist, pos):
+        if len(cardlist) > 1:
+            # Sort the cards
+            player_cards = dict([(player, []) for player in self.game.players])
+            for card in cardlist:
+                player_cards[card.controller].append(card)
+            cardlist = []
+            for player in self.game.players:
+                cards = player_cards[player]
+                if not cards: continue
+                reorder = player.getCardSelection(cards, len(cards), from_zone=str(self), from_player=player, prompt="Order cards entering %s"%(self))
+                reorder.reverse()
+                cardlist.extend(reorder)
+        return cardlist
     def before_card_added(self, card):
         card.current_role = card.in_play_role
         card.current_role.enteringPlay()

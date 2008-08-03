@@ -26,7 +26,6 @@ class AllPlayerTargets(MtGObject):
 
 class AllPermanentTargets(MtGObject):
     def __init__(self, target_types=isPermanent):
-        self.zones = []
         self.target = []
         if not (type(target_types) == tuple or type(target_types) == list):
             self.target_types = [target_types]
@@ -35,16 +34,10 @@ class AllPermanentTargets(MtGObject):
         return AllPermanentTargets(self.target_types)
     def check_target(self, card):
         perm = []
-        for ttype in self.target_types:
-            perm1 = card.controller.play.get(ttype)
-            perm2 = card.controller.opponent.play.get(ttype)
-            perm.extend(perm1+perm2)
-        self.zones = [p.zone for p in perm]
+        for ttype in self.target_types: perm = card.controller.play.get(ttype, all=True)
         self.target = perm
         return True
     def get(self, card):
-        # XXX AllTargets are not actually targeted, so they are only created upon resolution
-        #self.card = card
         return True
 
 class MultipleTargets(MtGObject):
@@ -71,7 +64,7 @@ class MultipleTargets(MtGObject):
         final_targets = []
         for target, zone in zip(self.target, self.zones):
             if not isPlayer(target):
-                if target.zone == zone and self.match_type(target) and target.canBeTargetedBy(card): final_targets.append(target)
+                if str(target.zone) == zone and self.match_type(target) and target.canBeTargetedBy(card): final_targets.append(target)
             else:
                 if target.canBeTargetedBy(card): final_targets.append(target)
         self.target = final_targets
@@ -96,7 +89,7 @@ class MultipleTargets(MtGObject):
         i = 0
         targets = []
         while i < self.number:
-            target = selector.getTarget(self.target_types,required=False,prompt=self.get_prompt(i, card.name))
+            target = selector.getTarget(self.target_types,zone="play",required=False,prompt=self.get_prompt(i, card.name))
             if target == False:
                 if self.exact or len(targets) == 0: return False
                 else: break
@@ -107,7 +100,7 @@ class MultipleTargets(MtGObject):
         # Got our targets, now save info:
         for target in targets:
             # The zone
-            if not isPlayer(target): self.zones.append(target.zone)
+            if not isPlayer(target): self.zones.append(str(target.zone))
             else: self.zones.append(None)
             target.isTargetedBy(card)
         self.target = targets
@@ -144,7 +137,7 @@ class Target(MtGObject):
     def check_target(self, card):
         # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
         if not isPlayer(self.target):
-            return (self.target_zone == str(self.target.zone)) and self.match_role == self.target.current_role and self.match_types(self.target) and self.target.canBeTargetedBy(card)
+            return (str(self.target.zone) == self.target_zone) and self.match_role == self.target.current_role and self.match_types(self.target) and self.target.canBeTargetedBy(card)
         else: return self.target.canBeTargetedBy(card)
     def get(self, card):
         if not self.targeting:
@@ -161,29 +154,41 @@ class Target(MtGObject):
                 prompt="Target %s%s for %s"%(' or '.join([str(t) for t in self.target_types]), zl, card)
             if self.selector == "opponent": selector = card.controller.opponent
             elif self.selector == "current_player":
-                import game.GameKeeper
-                selector = game.GameKeeper.Keeper.curr_player
+                from game.GameKeeper import Keeper
+                selector = Keeper.curr_player
             else: selector = card.controller
-            sel_zone = getattr(selector, self.zone)
-            opponent_zone = getattr(selector.opponent, self.zone)
-            if self.player_zone == None: zones = [sel_zone, opponent_zone]
-            elif self.player_zone == "controller": zones = [sel_zone]
-            else: zones = [opponent_zone]
+            if self.player_zone == None: controller=None
+            elif self.player_zone == "controller": controller=selector
+            else: controller=selector.opponent
             # If required, make sure there is actually a target available
             if self.required and not self.targeting_player:
                 perm = []
+                sel_zone = getattr(selector, self.zone)
+                opponent_zone = getattr(selector.opponent, self.zone)
                 for ttype in self.target_types:
-                    for zone in zones:
-                        perm.extend([p for p in zone.get(ttype) if p.canBeTargetedBy(card)])
+                    if self.zone != "play":
+                        if self.player_zone == None: zones = [sel_zone, opponent_zone]
+                        elif self.player_zone == "controller": zones = [sel_zone]
+                        else: zones = [opponent_zone]
+                        for zone in zones:
+                            perm.extend([p for p in zone.get(ttype) if p.canBeTargetedBy(card)])
+                    else:
+                        if self.player_zone == None:
+                            perm.extend([p for p in selector.play.get(ttype, all=True) if p.canBeTargetedBy(card)])
+                        elif self.player_zone == "controller":
+                            perm.extend([p for p in selector.play.get(ttype) if p.canBeTargetedBy(card)])
+                        else:
+                            perm.extend([p for p in selector.opponent.play.get(ttype) if p.canBeTargetedBy(card)])
+
                 numtargets = len(perm)
                 if numtargets == 0: return False
                 elif numtargets == 1: self.target = perm[0]
                 else:
                     while True:
-                        self.target = selector.getTarget(self.target_types,zone=zones,required=self.required,prompt=prompt)
+                        self.target = selector.getTarget(self.target_types,zone=self.zone,controller=controller,required=self.required,prompt=prompt)
                         if self.target.canBeTargetedBy(card): break
             else:
-                self.target = selector.getTarget(self.target_types,zone=zones,required=self.required,prompt=prompt)
+                self.target = selector.getTarget(self.target_types,zone=self.zone,controller=controller,required=self.required,prompt=prompt)
                 if self.target == False: return False
             # Save the zone if we are targetting a permanent (not a player)
             if not isPlayer(self.target):
@@ -192,7 +197,7 @@ class Target(MtGObject):
             if self.target.canBeTargetedBy(card):
                 self.target.isTargetedBy(card)
                 return True
-            else: 
+            else:
                 selector.send(InvalidTargetEvent(), target=self.target)
                 return False
         # XXX This is kind of hacky - I don't know if it can generalize
@@ -240,7 +245,7 @@ class TriggeredTarget(MtGObject):
     def check_target(self, card):
         # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
         if not isPlayer(self.target):
-            return (self.target_zone == str(self.target.zone)) and self.target.current_role == self.match_role
+            return (str(self.target.zone) == self.target_zone) and self.target.current_role == self.match_role
         else: return True
     def get(self, card):
         if not self.triggered:
@@ -264,7 +269,6 @@ class StackTarget(MtGObject):
     def copy(self):
         return StackTarget(self.target_types, self.msg)
     def check_target(self, card):
-        # Make sure the target is still in the correct zone (only for cards, not players) and still matches original condition
         return card.controller.stack.on_stack(self.target)
     def get(self, card):
         if self.msg: prompt=self.msg

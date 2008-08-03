@@ -3,7 +3,7 @@ from CardLibrary import CardLibrary
 from GameObjects import MtGObject, Card
 from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, DealsDamageEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent
 from Mana import ManaPool
-from Zone import Library, Hand, Play, Graveyard, Removed
+from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
 from Match import isCreature, isPlayer, isGameObject, isCard, isLandType
 from data_structures import keywords
@@ -46,7 +46,7 @@ class Player(MtGObject):
         self.hand = Hand()
         self.graveyard = Graveyard()
         self.removed = Removed()
-        self.play = Play() #play
+        self.play = play.get_view(self)
         self.stack = stack
         self.manapool = ManaPool()
 
@@ -61,7 +61,7 @@ class Player(MtGObject):
         self.land_actions = 1
     def reset(self):
         library = self.library
-        for from_location in [self.hand, self.play, self.graveyard, self.removed]:
+        for from_location in [self.hand, self.graveyard, self.removed]:
             for card in from_location:
                 card.move_to(card.owner.library)
     def loadDeck(self):
@@ -102,7 +102,7 @@ class Player(MtGObject):
 
     # Who should handle these? Player or GameKeeper?
     def untapCards(self):
-        for card in self.play:
+        for card in self.play.get():
             # XXX The player should be able to select with cards to Untap (possibly?)
             if card.tapped and card.canUntap(): card.untap()
     def canBeDamagedBy(self, damager):
@@ -265,8 +265,8 @@ class Player(MtGObject):
         def convert_gui_action(action):
             if isinstance(action, PassPriority) or isinstance(action, CancelAction): return action
             sel = action.selection
-            if isGameObject(sel)  and sel.controller == self:
-                if isLandType(sel) and not sel.zone == self.play: return PlayLand(sel)
+            if isGameObject(sel) and sel.controller == self:
+                if isLandType(sel) and not str(sel.zone) == "play": return PlayLand(sel)
                 else: return PlayAbility(sel)
             else: return False
         if not process: process = convert_gui_action
@@ -330,8 +330,8 @@ class Player(MtGObject):
                 return action
 
             target = action.selection
-            if isCreature(target) and ((mine and target.zone == self.play) or
-                (not mine and target.zone == self.opponent.play)): return target
+            if isCreature(target) and ((mine and target.controller == self) or
+                (not mine and target.controller == self.opponent)): return target
             else:
                 self.send(InvalidTargetEvent(), target=target)
                 return False
@@ -341,8 +341,9 @@ class Player(MtGObject):
         if isinstance(target, PassPriority): return True
         elif isinstance(target, CancelAction): return False
         else: return target
-    def getTarget(self, target_types, zone=[], required=True, prompt='Select target'):
+    def getTarget(self, target_types, zone=None, controller=None, required=True, prompt='Select target'):
         # If required is True (default) then you can't cancel the request for a target
+        if not (type(target_types) == list or type(target_types) == tuple): target_types = [target_types]
         def filter(action):
             # This function is really convoluted
             # If I return False here then the input function will keep cycling until valid input
@@ -352,12 +353,8 @@ class Player(MtGObject):
             elif isinstance(action, PassPriority): return False
 
             target = action.selection
-            if not (type(target_types) == list or type(target_types) == tuple): t_types = [target_types]
-            else: t_types = target_types
-            if not (type(zone) == list or type(zone) == tuple): t_zone = [zone]
-            else: t_zone = zone
-            if isPlayer(target) or t_zone==[] or (hasattr(target,"zone") and (target.zone in t_zone)):
-                for target_type in t_types:
+            if isPlayer(target) or ((not zone or str(target.zone) == zone) and (not controller or target.controller == controller)):
+                for target_type in target_types:
                     if target_type(target): return target
             # Invalid target
             self.send(InvalidTargetEvent(), target=target)
@@ -372,7 +369,8 @@ class Player(MtGObject):
             if isinstance(action, PassPriority): return False
             if isinstance(action, CancelAction): return action
             sel = action.selection
-            if isGameObject(sel) and sel.zone == self.play: return ActivateForMana(sel)
+            if isGameObject(sel) and sel.controller == self and str(sel.zone) == "play":
+                return ActivateForMana(sel)
             else: return False
         self.allowable_actions.extend([CancelAction, ActivateForMana])
         manaplayed = False
