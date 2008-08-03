@@ -14,8 +14,8 @@ def persist(subrole, card=None):
     subrole.keywords.add("persist")
     if not card:
         card = subrole.card
-        in_play = False
-    else: in_play = True
+        in_play = True
+    else: in_play = False
     persist = TriggeredAbility(card, trigger = EnterFromTrigger(from_zone="play", to_zone="graveyard"),
             match_condition=SelfMatch(card, condition=lambda card: not any([True for counter in card.counters if counter.ctype == "-1-1"])),
             ability=Ability(card, target=Target(targeting="self"),
