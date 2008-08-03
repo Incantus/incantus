@@ -181,5 +181,16 @@ class Graveyard(OutPlayMixin, OrderedZone):
 
 class Hand(OutPlayMixin, Zone):
     name = "hand"
+    def before_card_added(self, card):
+        super(Hand, self).before_card_added(card)
+        card.current_role.enteringHand()
+    def before_card_removed(self, card):
+        card.current_role.leavingHand()
+
 class Removed(OutPlayMixin, Zone):
     name = "removed"
+    def before_card_added(self, card):
+        super(Removed, self).before_card_added(card)
+        card.current_role.enteringRemoved()
+    def before_card_removed(self, card):
+        card.current_role.leavingRemoved()

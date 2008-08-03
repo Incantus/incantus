@@ -40,8 +40,12 @@ class GameRole(MtGObject):
 
 class NoRole(GameRole):
     # For token objects out of play
+    def enteringHand(self): pass
+    def leavingHand(self): pass
     def enteringGraveyard(self): pass
     def leavingGraveyard(self): pass
+    def enteringRemoved(self): pass
+    def leavingRemoved(self): pass
     def match_role(self, matchrole):
         return False
 
@@ -49,13 +53,24 @@ class CardRole(GameRole):  # Cards out of play
     def __init__(self, card):
         super(CardRole, self).__init__(card)
         self.abilities = []
+        self.hand_abilities = []
         self.graveyard_abilities = []
         self.removed_abilities = []
+    def enteringHand(self):
+        # I should change the name of these entering and leaving functions - maybe enteringZone
+        for ability in self.hand_abilities: ability.enteringPlay()
+    def leavingHand(self):
+        for ability in self.hand_abilities: ability.leavingPlay()
     def enteringGraveyard(self):
         # I should change the name of these entering and leaving functions - maybe enteringZone
         for ability in self.graveyard_abilities: ability.enteringPlay()
     def leavingGraveyard(self):
         for ability in self.graveyard_abilities: ability.leavingPlay()
+    def enteringRemoved(self):
+        # I should change the name of these entering and leaving functions - maybe enteringZone
+        for ability in self.removed_abilities: ability.enteringPlay()
+    def leavingRemoved(self):
+        for ability in self.removed_abilities: ability.leavingPlay()
 
 class SpellRole(GameRole):  # Spells on the stack
     def __init__(self, card):
