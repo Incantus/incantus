@@ -10,14 +10,21 @@ from Effect import MultipleEffects, ChangeZoneToPlay, AddPowerToughnessCounter, 
 from Counters import PowerToughnessCounter
 from game.stacked_function import logical_and
 
-def persist(subrole, card):
+def persist(subrole, card=None):
+    subrole.keywords.add("persist)
+    if not card:
+        card = subrole.card
+        in_play = False
+    else: in_play = True
     persist = TriggeredAbility(card, trigger = EnterFromTrigger(from_zone="play", to_zone="graveyard"),
             match_condition=SelfMatch(card, condition=lambda card: not any([True for counter in card.counters if counter.ctype == "-1-1"])),
             ability=Ability(card, target=Target(targeting="self"),
                 effects=MultipleEffects(ChangeZoneToPlay("graveyard"), AddPowerToughnessCounter(-1,-1))))
 
     subrole.triggered_abilities.append(persist)
+    if in_play: persist.enteringPlay()
     def remove_persist():
+        subrole.keywords.remove("persist")
         persist.leavingPlay()
         subrole.triggered_abilities.remove(persist)
     return remove_persist
