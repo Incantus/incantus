@@ -61,11 +61,9 @@ class GameObject(MtGObject):
         self._last_known_info = None
     def controller():
         doc = "The controller of this card - only valid when in play or on the stack"
-        valid = set(["play", "stack"])
         def fget(self):
-            if str(self.zone) in valid: return self._controller
-            #else: raise Exception("%s is not in a valid zone to have a controller"%str(self))
-            else: return self._owner
+            if not self._controller: return self._owner
+            else: return self._controller
         def fset(self, controller):
             if controller == None: self._controller = controller
             elif not controller == self._controller:
