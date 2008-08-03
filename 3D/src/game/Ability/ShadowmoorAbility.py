@@ -11,7 +11,7 @@ from Counters import PowerToughnessCounter
 from game.stacked_function import logical_and
 
 def persist(subrole, card=None):
-    subrole.keywords.add("persist)
+    subrole.keywords.add("persist")
     if not card:
         card = subrole.card
         in_play = False
