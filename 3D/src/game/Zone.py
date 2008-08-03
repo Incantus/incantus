@@ -97,7 +97,6 @@ class PlayView(object):
         old_zone.before_card_removed(card)
         self.before_card_added(card)
         card.controller = self.player
-        card.summoningSickness()
         # Remove card from previous zone
         old_zone._remove_card(card)
         self._add_card(card, position)
