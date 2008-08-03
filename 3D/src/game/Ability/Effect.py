@@ -1076,12 +1076,9 @@ class MoveCards(Effect):
             cards = iter(self.cardlist[::-1])
 
         for card in cards:
-            if not card.zone == from_zone: continue
             # Make sure we get the owner's zone
             if not self.to_zone == "play": to_zone = getattr(card.owner, self.to_zone)
-            else:
-                to_zone = card.controller.play
-                card.controller = card.controller
+            else: to_zone = card.controller.play
             if hasattr(to_zone, "ordering") and self.peek: to_zone.disable_ordering()
             card.move_to(to_zone, position=position)
             if hasattr(to_zone, "ordering") and self.peek: to_zone.enable_ordering()
