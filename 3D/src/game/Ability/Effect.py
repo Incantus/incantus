@@ -1082,9 +1082,9 @@ class MoveCards(Effect):
             else:
                 to_zone = card.controller.play
                 card.controller = card.controller
-            if hasattr(to_zone, "ordered") and self.peek: to_zone.disable_ordering()
+            if hasattr(to_zone, "ordering") and self.peek: to_zone.disable_ordering()
             card.move_to(to_zone, position=position)
-            if hasattr(to_zone, "ordered") and self.peek: to_zone.enable_ordering()
+            if hasattr(to_zone, "ordering") and self.peek: to_zone.enable_ordering()
             self.func(card)
         if len(self.selection) and self.subset:
             if self.return_position == "top": position = -1

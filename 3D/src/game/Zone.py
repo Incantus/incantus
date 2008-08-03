@@ -50,7 +50,6 @@ class Zone(MtGObject):
     def before_card_removed(self, card): pass
 
 class OrderedZone(Zone):
-    ordered = True
     def __init__(self):
         super(OrderedZone, self).__init__()
         self.pending = False
@@ -85,7 +84,6 @@ class OrderedZone(Zone):
 
 class Play(OrderedZone):
     name = "play"
-    ordered = False
     def before_card_added(self, card):
         card.current_role = card.in_play_role
         card.current_role.enteringPlay()
