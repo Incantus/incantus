@@ -17,7 +17,7 @@ class Cost(object):
     def __str__(self):
         return ''
 
-class NoCost(object):
+class NoCost(Cost):
     def precompute(self, card, player): return False
     def compute(self, card, player): return False
     def __eq__(self, other): return isinstance(other, NoCost)
