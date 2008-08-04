@@ -331,13 +331,8 @@ class Creature(SubRole):
     def currentDamage(self):
         return self.__damage
     def assignDamage(self, amt, source, combat=False):
-        from Ability.Counters import PowerToughnessCounter
         if amt > 0:
-            if not "wither" in source.keywords: self.__damage += amt
-            else:
-                for counter in [PowerToughnessCounter(-1, -1) for i in range(amt)]:
-                    self.card.counters.append(counter)
-                    self.send(CounterAddedEvent(), counter=counter) 
+            self.__damage += amt
             source.send(DealsDamageEvent(), to=self.card, amount=amt)
             self.send(ReceivesDamageEvent(), source=source, amount=amt)
     def removeDamage(self, amt):
