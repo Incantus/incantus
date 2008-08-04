@@ -79,6 +79,7 @@ class ManaCost(Cost):
         self.X = LazyInt(self._get_X, finalize=True)
     def _get_X(self): return self._X
     def is_mana_cost(self): return True
+    def __iter__(self): return iter(self.cost)
     def precompute(self, card, player):
         mp = player.manapool
         self._X = 0
