@@ -380,7 +380,6 @@ class Creature(SubRole):
         elif self.blocking:
             self.blocking = False
             self.send(BlockerClearedEvent())
-        else: raise Exception("Invalid combat state")
     def setAttacking(self):
         self.setCombat(True)
         self.perm.tap()
