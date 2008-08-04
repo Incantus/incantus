@@ -16,17 +16,6 @@ class Effect(MtGObject):
     #    import copy
     #    return copy.copy(self)
 
-class TriggerEffect(Effect):
-    def __init__(self):
-        self.trigger = False
-    def __call__(self, card, target):
-        self.trigger = True
-    def setData(self, k):
-        setattr(self, k[0], k[1])
-        return True
-    def reset(self):
-        self.trigger = False
-
 class WinGame(Effect):
     def __call__(self, card, target):
         if not isPlayer(target): raise Exception("Invalid target (not a player)")

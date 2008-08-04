@@ -1,7 +1,7 @@
 from Ability import Ability
 from ActivatedAbility import ActivatedAbility
 from StaticAbility import GlobalStaticAbility
-from Effect import RemoveCounter, SacrificeSelf, TriggerEffect, PayExtraCost, AttachToPermanent, DoOr, ReplacementEffect
+from Effect import RemoveCounter, SacrificeSelf, PayExtraCost, AttachToPermanent, DoOr, ReplacementEffect
 from Target import Target
 from TriggeredAbility import TriggeredAbility
 from Trigger import PlayerTrigger, Trigger
