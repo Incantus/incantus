@@ -332,11 +332,11 @@ class GameKeeper(MtGObject):
         # Remove all attackers and blockers that are no longer valid
         for attacker, blockers in combat_assignment:
             # Do the attacker first - make sure it is still valid
-            if Match.isCreature(attacker) and attacker.zone == self.curr_player.play and attacker.in_combat:
+            if Match.isCreature(attacker) and str(attacker.zone) == "play" and attacker.in_combat:
                 newblockers = []
                 # Remove any blockers that are no longer in combat
                 for blocker in blockers:
-                    if Match.isCreature(blocker) and blocker.zone == self.other_player.play and blocker.in_combat:
+                    if Match.isCreature(blocker) and str(blocker.zone) == "play" and blocker.in_combat:
                         newblockers.append(blocker)
                 new_combat_list.append((attacker, newblockers))
         # These guys are still valid
