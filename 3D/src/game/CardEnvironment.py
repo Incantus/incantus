@@ -1,4 +1,4 @@
-from stacked_function import logical_or, logical_and, modify_args, last_only, replacement
+from stacked_function import override, replace, logical_or, logical_and
 from characteristics import characteristic, all_characteristics, no_characteristic, additional_characteristic
 from Player import Player
 from GameKeeper import Keeper

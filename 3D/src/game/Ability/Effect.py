@@ -462,73 +462,72 @@ class CopySpell(Effect):
 
 
 # XXX Difference between ReplacementEffect and OverrideGlobal
-# combiner method
 # ReplacementEffect curently only targets objects while
 # OverrideGlobal only targets classes
-
-import new
-from game.stacked_function import stacked_function, replacement
+from game.stacked_function import replace
 class ReplacementEffect(Effect):
-    def __init__(self, func, name, txt='', expire=True, condition=None):
+    def __init__(self, func, name, expire=True, txt='', condition=None):
         self.func = func
         self.name = name
-        self.txt = txt
         self.expire = expire
+        if not txt: txt = func.__doc__
+        self.txt = txt
         self.condition = condition
     def __call__(self, card, target):
-        from CreatureAbility import override_replace
-        restore = override_replace(target, self.name, self.func, txt=self.txt, condition=self.condition)
+        restore = replace(target, self.name, self.func, msg=self.txt, condition=self.condition)
         if self.expire: card.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
     def __str__(self):
-        return "Override local %s with replacement effect"%self.name
-class OverrideGlobal(Effect):
-    def __init__(self, func, name, global_class, combiner, reverse=True, expire=True, new_func_gen = new.instancemethod):
+        if self.txt: msg = self.txt
+        else: msg = "Override local %s with replacement effect"%self.name
+        return msg
+class GlobalReplacementEffect(Effect):
+    def __init__(self, func, name, f_class, expire=True, txt='', condition=None):
         self.func = func
         self.name = name
-        self.global_class = global_class
-        self.combiner = combiner
-        self.reverse = reverse
+        self.f_class = f_class
         self.expire = expire
-        self.new_func_gen = new_func_gen
+        if not txt: txt = func.__doc__
+        self.txt = txt
+        self.condition = condition
     def __call__(self, card, target):
-        name = self.name
-        obj = None
-        cls = self.global_class
-        target = self.global_class
-
-        is_derived = False
-        # The function is defined in the superclass (which we don't override)
-        if not name in cls.__dict__:
-            is_derived = True
-            # Bind the call to the superclass function
-            orig_func = new.instancemethod(lambda self, *args, **named: getattr(super(cls, self), name).__call__(*args,**named), obj, cls)
-        else:
-            orig_func = getattr(target, name)
-        if not hasattr(orig_func, "stacked"):
-            stacked_func = stacked_function(orig_func, combiner=self.combiner, reverse=self.reverse)
-            setattr(target, name, stacked_func)
-        else: stacked_func = orig_func
-        # Build the new function
-        new_func = self.new_func_gen(self.func, obj, cls)
-        stacked_func.add_func(new_func)
-        def restore(stacked_func=stacked_func):
-            stacked_func.remove_func(new_func)
-            if not stacked_func.stacking():
-                setattr(target, name, stacked_func.funcs[0])
-                del stacked_func
+        restore = replace(self.f_class, self.name, self.func, msg=self.txt, condition=self.condition)
+        if self.expire: card.register(restore, CleanupEvent(), weak=False, expiry=1)
+        return restore
+    def __str__(self):
+        if self.txt: msg = self.txt
+        else: msg = "Override global %s with replacement effect"%self.name
+        return msg
+class OverrideGlobal(Effect):
+    def __init__(self, func, name, f_class, combiner, expire=True):
+        self.func = func
+        self.name = name
+        self.f_class = f_class
+        self.combiner = combiner
+        self.expire = expire
+    def __call__(self, card, target):
+        restore = override(self.f_class, self.name, self.func, combiner=self.combiner)
         if self.expire: card.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
     def __str__(self):
         return "Override %s"%self.name
-class OverrideGlobalReplacement(OverrideGlobal):
-    def __init__(self, func, name, global_class, condition=None, txt='', expire=True):
-        if not condition: condition = lambda *args, **kw: True
-        if not txt: txt = func.__doc__
-        new_func_gen = lambda func, obj, cls: [False, new.instancemethod(func,obj,cls), txt, condition]
-        super(OverrideGlobalReplacement,self).__init__(func, name, global_class, combiner=replacement, reverse=False, expire=expire, new_func_gen=new_func_gen)
+class GiveKeyword(Effect):
+    def __init__(self, keyword_func, expire=True, keyword='', perm=False):
+        self.keyword_func = keyword_func
+        self.expire = expire
+        self.keyword_name = keyword
+        self.perm = perm
+    def __call__(self, card, target):
+        from game.CardRoles import Creature
+        # XXX This looks ugly, but is necessary to bind the correct subrole
+        if isPlayer(target): restore = self.keyword_func(target)
+        else: 
+            if self.perm: restore = self.keyword_func(target.current_role)
+            else: restore = self.keyword_func(target.current_role.get_subrole(Creature))
+        if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
+        return restore
     def __str__(self):
-        return "Override global %s with replacement effect"%self.name
+        return "Give %s"%self.keyword_name
 
 class AttachToPermanent(Effect):
     def __call__(self, card, target):
@@ -651,24 +650,6 @@ class AddSubRole(Effect):
         return restore
     def __str__(self):
         return "Add %s"%' '.join(map(str,self.subroles))
-
-class GiveKeyword(Effect):
-    def __init__(self, keyword_func, expire=True, keyword='', perm=False):
-        self.keyword_func = keyword_func
-        self.expire = expire
-        self.keyword_name = keyword
-        self.perm = perm
-    def __call__(self, card, target):
-        from game.CardRoles import Creature
-        # XXX This looks ugly, but is necessary to bind the correct subrole
-        if isPlayer(target): restore = self.keyword_func(target)
-        else: 
-            if self.perm: restore = self.keyword_func(target.current_role)
-            else: restore = self.keyword_func(target.current_role.get_subrole(Creature))
-        if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
-        return restore
-    def __str__(self):
-        return "Give %s"%self.keyword_name
 
 class ConditionalEffect(Effect):
     def __init__(self, effect, condition):

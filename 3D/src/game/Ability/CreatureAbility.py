@@ -1,46 +1,15 @@
 from game.Match import isPermanent, isCreature, isLand, isArtifact
-from game.stacked_function import stacked_function, logical_or, logical_and, replacement_stacked_function, replacement
+from game.stacked_function import override, replace, logical_or
 from game.LazyInt import LazyInt
 from game.characteristics import all_characteristics
 import new
-
-def override(subrole, name, func, keyword=None, combiner=logical_and, reverse=True, new_func_gen=new.instancemethod):
-    if keyword: subrole.keywords.add(keyword)
-    obj = subrole
-    cls = subrole.__class__
-
-    is_derived = False
-    # Check if we've overriden this before
-    if not name in obj.__dict__:
-        # Bind the call to the class function (since we are an object)
-        orig_func = new.instancemethod(lambda self, *args, **named: getattr(cls, name).__call__(self, *args,**named), obj, cls)
-        if not combiner == replacement: stacked_func = stacked_function(orig_func, combiner=combiner, reverse=reverse)
-        else: stacked_func = replacement_stacked_function(obj, name, reverse)
-        setattr(obj, name, stacked_func)
-    else:
-        stacked_func = getattr(obj, name)
-
-    new_func = new_func_gen(func, obj, cls)
-    stacked_func.add_func(new_func)
-    def restore(stacked_func=stacked_func):
-        stacked_func.remove_func(new_func)
-        if not stacked_func.stacking():
-            if name in obj.__dict__: del obj.__dict__[name]
-        if keyword: obj.keywords.remove(keyword)
-    func.expire = restore
-    return restore
-
-def override_replace(subrole, name, func, condition=None, keyword=None, txt=''):
-    if condition == None: condition = lambda *args, **kw: True
-    new_func_gen = lambda func, obj, cls: [False, new.instancemethod(func,obj,cls), txt, condition]
-    return override(subrole, name, func, keyword, combiner=replacement, reverse=False, new_func_gen=new_func_gen)
 
 def landwalk(subrole, landtype):
     keyword = landtype.lower()+"walk"
     def canBeBlocked(self):
         other_play = self.card.controller.opponent.play
         return (len(other_play.get(isLand.with_condition(lambda land: landtype in land.subtypes))) == 0)
-    return override(subrole, "canBeBlocked", canBeBlocked, keyword=keyword)
+    return override(subrole, "canBeBlocked", canBeBlocked)
 
 def plainswalk(subrole): return landwalk(subrole, "Plains")
 def swampwalk(subrole): return landwalk(subrole, "Swamp")
@@ -53,55 +22,55 @@ def legendary_landwalk(subrole):
     def canBeBlocked(self):
         other_play = self.card.controller.opponent.play
         return (len(other_play.get(isLand.with_condition(lambda land: "Legendary" in land.supertype))) == 0)
-    return override(subrole, "canBeBlocked", canBeBlocked, keyword=keyword)
+    return override(subrole, "canBeBlocked", canBeBlocked)
 def nonbasic_landwalk(subrole):
     keyword = "Nonbasic landwalk"
     def canBeBlocked(self):
         other_play = self.card.controller.opponent.play
         return (len(other_play.get(isLand.with_condition(lambda land: not "Basic" in land.supertype))) == 0)
-    return override(subrole, "canBeBlocked", canBeBlocked, keyword=keyword)
+    return override(subrole, "canBeBlocked", canBeBlocked)
 
 def flying(subrole):
     attr = set(["flying", "reach"])
     def canBeBlockedBy(self, blocker):
-        return not (len(attr.intersection(blocker.current_role.keywords)) == 0)
-    return override(subrole,"canBeBlockedBy",canBeBlockedBy,keyword="flying")
+        return not (len(attr.intersection(blocker.keywords)) == 0)
+    return override(subrole, "canBeBlockedBy", canBeBlockedBy) #keyword="flying"
 
-def only_block(subrole, keyword):
+def only_block(subrole):
     def canBlockAttacker(self, attacker):
-        return keyword in attacker.current_role.keywords
-    return override(subrole,"canBlockAttacker",canBlockAttacker)
+        return keyword in attacker.keywords
+    return override(subrole, "canBlockAttacker", canBlockAttacker)
 
 def haste(subrole):
     def continuouslyInPlay(self): return True
-    return override(subrole,"continuouslyInPlay",continuouslyInPlay, keyword="haste", combiner=logical_or)
+    return override(subrole, "continuouslyInPlay", continuouslyInPlay, combiner=logical_or) #keyword="haste"
 
 def must_attack(subrole):
     def checkAttack(self, attackers, not_attacking):
         return self.card in attackers or not self.canAttack()
-    return override(subrole, "checkAttack", checkAttack, combiner=logical_and)
+    return override(subrole, "checkAttack", checkAttack)
 
 def defender(subrole):
     def canAttack(self): return False
-    return override(subrole, "canAttack", canAttack, keyword="defender")
+    return override(subrole, "canAttack", canAttack) #, keyword="defender")
 
 def shroud(subrole):
     def canBeTargetedBy(self, targetter): return False
-    return override(subrole, "canBeTargetedBy", canBeTargetedBy, keyword="shroud")
+    return override(subrole, "canBeTargetedBy", canBeTargetedBy) #, keyword="shroud")
 
-def reach(subrole):
-    subrole.keywords.add("reach")
-    return lambda: subrole.keywords.remove("reach")
+def reach(card):
+    card.keywords.add("reach")
+    return lambda: card.keywords.remove("reach")
 
-def double_strike(subrole):
-    subrole.keywords.add("double-strike")
-    return lambda: subrole.keywords.remove("double-strike")
-def first_strike(subrole):
-    subrole.keywords.add("first-strike")
-    return lambda: subrole.keywords.remove("first-strike")
-def trample(subrole):
-    subrole.keywords.add("trample")
-    return lambda: subrole.keywords.remove("trample")
+def double_strike(card):
+    card.keywords.add("double-strike")
+    return lambda: card.keywords.remove("double-strike")
+def first_strike(card):
+    card.keywords.add("first-strike")
+    return lambda: card.keywords.remove("first-strike")
+def trample(card):
+    card.keywords.add("trample")
+    return lambda: card.keywords.remove("trample")
 
 
 # XXX I don't like the way these are overriden - there must be a better way
@@ -111,24 +80,12 @@ def vigilance(subrole):
         self.setCombat(True)
         self.attacking = True
         self.send(AttackerDeclaredEvent())
-        return True
-    return override(subrole, "setAttacking", setAttacking, keyword="vigilance", combiner=logical_or)
-def berserker(subrole):
-    def setBlocked(self, blockers):
-        from Target import Target
-        from Ability import Ability
-        from Effect import AugmentPowerToughness
-        num = len(blockers)
-        target = Target(targeting="self")
-        card = self.card
-        target.get(card)
-        card.controller.stack.announce(Ability(card, target=target, effects=AugmentPowerToughness(power=num, toughness=num)))
-        return True
-    return override(subrole, "setBlocked", setBlocked, keyword="berserker", combiner=logical_or)
+        return False
+    return override(subrole, "setAttacking", setAttacking) # keyword="vigilance")
 
 # 502.68b If a permanent has multiple instances of lifelink, each triggers separately.
 # XXX Lifelink is broken when you have to split the damage
-def lifelink(subrole, card, in_play=False):
+def lifelink(subrole, card=None):
     from Ability import Ability
     from Effect import ChangeLife
     from TriggeredAbility import TriggeredAbility
@@ -136,7 +93,10 @@ def lifelink(subrole, card, in_play=False):
     subrole.keywords.add("lifelink")
     # XXX This won't work because for a card with lifelink, the subrole won't have been assigned to a card
     # XXX Fix this when i move abilities to the card
-    #card = subrole.card
+    if not card:
+        card = subrole.card
+        in_play = True
+    else: in_play = False
     trigger = DealDamageTrigger(sender=card)
     life_link = TriggeredAbility(card, trigger = trigger,
             match_condition = lambda sender: True,
@@ -152,13 +112,13 @@ def lifelink(subrole, card, in_play=False):
 def fear(subrole):
     def canBeBlockedBy(self, blocker):
         return (blocker.color == "B" or (blocker.type == "Artifact" and blocker.type=="Creature"))
-    return override(subrole,"canBeBlockedBy",canBeBlockedBy, keyword="fear")
+    return override(subrole ,"canBeBlockedBy", canBeBlockedBy) #, keyword="fear")
 
 def indestructible(permanent):
     def shouldDestroy(self): return False
-    def destroy(self, skip=False): pass
-    remove1 = override(permanent,"shouldDestroy", shouldDestroy)
-    remove2 = override(permanent,"destroy", destroy)
+    def destroy(self, skip=False): return False
+    remove1 = override(permanent, "shouldDestroy", shouldDestroy)
+    remove2 = override(permanent, "destroy", destroy)
     def remove_indestructible():
         for remove in [remove1, remove2]: remove()
     return remove_indestructible
@@ -174,10 +134,10 @@ def protection(subrole, attribute_match):
         return not attribute_match(blocker)
     def canBeTargetedBy(self, targeter):
         return not attribute_match(targeter)
-    remove1 = override(subrole,"canBeDamagedBy", canBeDamagedBy)
-    remove2 = override(subrole,"canBeAttachedBy", canBeAttachedBy)
-    remove3 = override(subrole,"canBeBlockedBy", canBeBlockedBy)
-    remove4 = override(subrole,"canBeTargetedBy", canBeTargetedBy)
+    remove1 = override(subrole, "canBeDamagedBy", canBeDamagedBy)
+    remove2 = override(subrole, "canBeAttachedBy", canBeAttachedBy)
+    remove3 = override(subrole, "canBeBlockedBy", canBeBlockedBy)
+    remove4 = override(subrole, "canBeTargetedBy", canBeTargetedBy)
     def remove_protection():
         for remove in [remove1, remove2, remove3, remove4]: remove()
     return remove_protection
@@ -194,10 +154,9 @@ protection_from_artifacts = lambda subrole: protection(subrole, attribute_match 
 # These are additional ones that aren't actually keywords, but the structure is the same
 def unblockable(subrole):
     def canBeBlocked(self): return False
-    return override(subrole,"canBeBlocked",canBeBlocked)
+    return override(subrole, "canBeBlocked", canBeBlocked)
 
-
-def prevent_damage(subrole, amt, txt=None, condition=None, next=True):
+def prevent_damage(subrole, amt, next=True, txt=None, condition=None):
     if txt == None:
         if amt == -1: amtstr = 'all'
         else: amtstr = str(amt)
@@ -210,32 +169,29 @@ def prevent_damage(subrole, amt, txt=None, condition=None, next=True):
                 shielded = min([amt,shieldDamage.curr_amt])
                 shieldDamage.curr_amt -= amt
                 if shieldDamage.curr_amt <= 0:
-                    self.assignDamage(-1*shieldDamage.curr_amt, source, combat)
-                    shieldDamage.curr_amt = 0
+                    if not shieldDamage.curr_amt == 0:
+                        self.assignDamage(-1*shieldDamage.curr_amt, source, combat)
                     shieldDamage.expire()
             else:
                 shielded = shieldDamage.curr_amt
                 amt -= shieldDamage.curr_amt
-                if amt > 0:
-                    self.assignDamage(amt, source, combat)
+                if amt > 0: self.assignDamage(amt, source, combat)
         else: shielded = amt
         #self.send(DamagePreventedEvent(),amt=shielded)
     shieldDamage.curr_amt = amt
-    restore = override_replace(subrole, "assignDamage", shieldDamage, txt=txt, condition=condition)
-    return restore
-def regenerate(subrole, txt="Regenerate", condition=None):
+    return replace(subrole, "assignDamage", shieldDamage, msg=txt, condition=condition)
+def regenerate(permanent, txt="Regenerate", condition=None):
     def canDestroy(self):
-        if self.perm.canBeTapped(): self.perm.tap()
+        if self.canBeTapped(): self.tap()
         if isCreature(self.card):
             self.clearDamage()
             self.clearCombatState()
         # expire it
         canDestroy.expire()
         #self.send(RegenerationEvent())
-        return False # This is to the caller of canDestroy() (usually GameKeeper)
-    restore = override_replace(subrole, "canDestroy", canDestroy, txt=txt, condition=condition)
-    return restore
-def redirect_damage(from_target, to_target, amt, txt=None, next=True, condition=None):
+        return False
+    return replace(subrole, "canDestroy", canDestroy, msg=txt, condition=condition)
+def redirect_damage(from_target, to_target, amt, next=True, txt=None, condition=None):
     if txt == None:
         if amt == -1: amtstr = 'all'
         else: amtstr = str(amt)
@@ -254,16 +210,29 @@ def redirect_damage(from_target, to_target, amt, txt=None, next=True, condition=
             else:
                 redirected = redirectDamage.curr_amt
                 amt -= redirectDamage.curr_amt
-                if amt > 0:
-                    self.assignDamage(amt, source, combat)
+                if amt > 0: self.assignDamage(amt, source, combat)
         else:
             redirected = amt
         # XXX Make sure the target is in play, otherwise the damage isn't redirected
         to_target.assignDamage(redirected, source, combat)
         #self.send(DamageRedirectedEvent(),amt=redirected)
     redirectDamage.curr_amt = amt
-    restore = override_replace(from_target, "assignDamage", redirectDamage, txt=txt, condition=condition)
-    return restore
+    return replace(from_target, "assignDamage", redirectDamage, msg=txt, condition=condition)
+
+def flash(card):
+    from Limit import Unlimited, SorceryLimit, MultipleLimits
+    casting_ability = card.out_play_role.abilities[0]
+    if isinstance(casting_ability.limit, SorceryLimit):
+        casting_ability.limit = Unlimited(card)
+    elif isinstance(casting_ability.limit, MultipleLimits):
+        for i, limit in enumerate(casting_ability.limit):
+            if isinstance(limit, SorceryLimit): break
+        casting_ability.limit.limits.pop(i)
+
+def morph(permanent, cost="0"):
+    # XXX Not implemented
+    # You may play this face down as a 2/2 creature for 3. Turn it face up any time for its morph cost.
+    pass
 
 # XXX This works with blockers blocking multiple attackers, but not with the current damage calculation
 # since we don't compute a total combat_damage array
@@ -295,18 +264,3 @@ def trample_old(subrole):
         del subrole.trample
         subrole.remove("trample")
     return remove_trample
-
-def flash(card):
-    from Limit import Unlimited, SorceryLimit, MultipleLimits
-    casting_ability = card.out_play_role.abilities[0]
-    if isinstance(casting_ability.limit, SorceryLimit):
-        casting_ability.limit = Unlimited(card)
-    elif isinstance(casting_ability.limit, MultipleLimits):
-        for i, limit in enumerate(casting_ability.limit):
-            if isinstance(limit, SorceryLimit): break
-        casting_ability.limit.limits.pop(i)
-
-def morph(permanent, cost="0"):
-    # XXX Not implemented
-    # You may play this face down as a 2/2 creature for 3. Turn it face up any time for its morph cost.
-    pass

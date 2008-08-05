@@ -1,110 +1,131 @@
-#import operator, itertools
 import types, new
 from Match import isPlayer
 
 # this is probably where the static layering rules come into play
 def logical_or(funcs, *args, **kw):
     return reduce(lambda x, y: x or y(*args, **kw), funcs, False)
-    #return reduce(operator.or_, (f(*args, **kw) for f in funcs))
 def logical_and(funcs, *args, **kw):
-    # This looks weird, but it is the shortcutting version
     return reduce(lambda x, y: x and y(*args, **kw), funcs, True)
-    #return reduce(operator.and_, (f(*args, **kw) for f in funcs))
-def modify_args(funcs, *args, **kw):
-    for f in funcs: args, kw = f(*args, **kw), {}
-    return args
-def last_only(funcs, *args, **kw):
-    return funcs[0](*args, **kw)
-def replacement(funcs, obj, *args, **kw):
-    # XXX This is UGLY! and very recursive
-    #obj = args[0]
-    #def check_condition(func, cond, *args, **kw):
-    #    if func.im_self: return cond(*args, **kw)
-    #    else: return cond(obj, *args, **kw)
-    replace = [(txt,i+1) for i,(marked,func,txt,cond) in enumerate(funcs[1:]) if not marked and cond(obj, *args, **kw)] #check_condition(func, cond, *args, **kw)]
-    if not len(replace) == 0:
-        if len(replace) > 1:
-            if isPlayer(obj): player = affected = obj
-            # In this case it is either a Permanent or a subrole
-            # XXX I've only seen the subrole case for Creatures, not sure if anything else can be replaced
-            else: player, affected = obj.perm.card.controller, obj.perm.card
-            i = player.getSelection(replace, numselections=1, required=True, idx=False, prompt="Choose replacement effect to affect %s"%(affected))
-        else: i = replace[0][1]
-        func = funcs[i][1]
-        # Mark the function as having processed this event
-        funcs[i][0] = True
-        # *** This where we could potentially recurse
-        if func.im_self: result = func(*args, **kw)
-        else: result = func(obj, *args, **kw)
-        # Unmark the function
-        funcs[i][0] = False
-        return result
-    # If everyone's touched this event then the original function is called
+
+def find_stacked(target, name):
+    if type(target) == types.TypeType:
+        obj = None
+        cls = target
     else:
-        func = funcs[0]
-        if func.im_self: return func(*args, **kw)
-        else: return func(obj, *args, **kw)
+        obj = target
+        cls = obj.__class__
+    original = None
+    if name in cls.__dict__: original = getattr(cls, name)
+    if original and hasattr(original, "stacked"):
+        stacked = original
+    else:
+        stacked = stacked_function(name, cls)
+    return stacked, obj
+
+def override(target, name, func, combiner=logical_and):
+    stacked, obj = find_stacked(target, name)
+    stacked.set_combiner(combiner)
+    return stacked.add_override(func, obj)
+def replace(target, name, func, msg='', condition=None):
+    stacked, obj = find_stacked(target, name)
+    return stacked.add_replacement(func, obj, msg, condition)
 
 class stacked_function(object):
     stacked = True
-    def __init__(self, orig_func, combiner, reverse = True):
-        self.funcs = [orig_func]
+    empty = set()
+    def __init__(self, f_name, f_class, combiner=logical_and):
+        self.__name__ = "stacked_"+f_name
+        self.f_name = f_name
+        self.f_class = f_class
         self.combiner = combiner
-        if reverse: self.reverse = -1
-        else: self.reverse = 1
-    def add_func(self, func):
-        self.funcs.append(func)
-    def remove_func(self, func):
-        if func in self.funcs: self.funcs.remove(func)
-    def stacking(self):
-        return len(self.funcs) > 1
-    def rebind(self, obj):
-        # XXX This is really ugly
-        # To truly emulate a method, i should save the obj in __get__ and keep unbound functions
-        for i, func in enumerate(self.funcs):
-            self.funcs[i] = new.instancemethod(func.im_func, obj, func.im_class)
+        self.overrides = []
+        self.replacements = []
+        self._first_call = True
+        self.setup_overrides(f_name, f_class)
+    def set_combiner(self, combiner):
+        self.combiner = combiner
+    def setup_overrides(self, f_name, f_class):
+        if not f_name in f_class.__dict__:
+            # If the function is defined in a parent, bind a call to function in the superclass
+            self.original = new.instancemethod(lambda self, *args, **named: getattr(super(f_class, self), name).__call__(*args,**named), None, f_class)
+            self.is_derived = True
+        else:
+            self.original = getattr(f_class, f_name)
+            self.is_derived = False
+        # Install the stacked function
+        setattr(f_class, f_name, self)
+    def revert(self):
+        if not (len(self.overrides) > 1 or len(self.replacements) > 0):
+            if self.is_derived: delattr(self.f_class, self.f_name)
+            else: setattr(self.f_class, self.f_name, self.overrides[0])
+    def _add(self, stacked_list, func, obj):
+        stacked_list.append(func)
+        if obj:  # If we are targeting a particular object
+            if not hasattr(obj, "_overrides"): obj._overrides = set([func])
+            else: obj._overrides.add(func)
+        else: func.all = True
+        def restore():
+            stacked_list.remove(func)
+            if obj:
+                obj._overrides.remove(func)
+                if len(obj._overrides) == 0: delattr(obj, '_overrides')
+            self.revert()
+        return restore
+    def add_replacement(self, func, obj=None, msg='', condition=None):
+        if not condition: condition = lambda *args, **kw: True
+        func.msg = msg
+        func.cond = condition
+        func.expire = self._add(self.replacements, func, obj)
+        return func.expire
+    def add_override(self, func, obj=None):
+        return self._add(self.overrides, func, obj)
+    def build_replacements(self, obj):
+        replacements = set()
+        # Walk up the inheritance hierarchy
+        for cls in self.f_class.__mro__:
+            if self.f_name in cls.__dict__:
+                func = getattr(cls, self.f_name)
+                if hasattr(func, "stacked"):
+                    rpls = [f for f in func.replacements if hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)]
+                    replacements.update(rpls)
+        return replacements
+
+    def do_replacement(self, *args, **kw):
+        obj = args[0]
+        # XXX Do i need to check the conditions everytime?
+        replacements = self.__current_replacements
+        funcs = [func for func in replacements if func.cond(*args, **kw)]
+        if funcs:
+            if len(funcs) > 1:
+                if isPlayer(obj): player = affected = obj
+                # In this case it is either a Permanent or a subrole
+                # XXX I've only seen the subrole case for Creatures, not sure if anything else can be replaced
+                else: player, affected = obj.card.controller, obj.perm.card
+                i = player.getSelection([f.msg for f in funcs], numselections=1, required=True, prompt="Choose replacement effect to affect %s"%(affected))
+            else: i = 0
+            func = funcs[i][1]
+            # Remove the selected replacement function
+            replacements.remove(func)
+            #print replacements, func, args, kw
+            # *** This where we could potentially recurse
+            return func(*args, **kw)
+        else:
+            # No more replacements
+            overrides = [f for f in self.overrides[::-1] if hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)]+[self.original]
+            #print "No more replacements", overrides, args, kw
+            return self.combiner(overrides, *args, **kw)
+
     def __call__(self, *args, **kw):
-        return self.combiner(self.funcs[::self.reverse], *args, **kw)
+        obj = args[0]
+        # First do replacement effects
+        if self._first_call:
+            self.__current_replacements = self.build_replacements(obj)
+            self._first_call = False
+            # This is the start of the recursive calls
+            result = self.do_replacement(*args, **kw)
+            self._first_call = True
+            del self.__current_replacements
+            return result
+        return self.do_replacement(*args, **kw)
     def __get__(self, obj, objtype=None):
         return types.MethodType(self, obj, objtype)
-
-class replacement_stacked_function(stacked_function):
-    def __init__(self, obj, funcname, reverse = True):
-        self.funcs = []
-        self.obj = obj
-        self.funcname = funcname
-        self.combiner = replacement
-        if reverse: self.reverse = -1
-        else: self.reverse = 1
-        self.first_call = True
-    def stacking(self):
-        return len(self.funcs) > 0
-    def add_func(self, func):
-        self.funcs.append(func)
-    def remove_func(self, func):
-        if func in self.funcs: self.funcs.remove(func)
-    def rebind(self, obj):
-        # XXX This is really ugly
-        # To truly emulate a method, i should save the obj in __get__ and keep unbound functions
-        self.obj = obj
-        for i, func in enumerate(self.funcs):
-            marked,old_func,txt,cond = func
-            self.funcs[i] = [marked, new.instancemethod(old_func.im_func, obj, old_func.im_class),txt,cond]
-    def __call__(self, *args, **kw):
-        if self.first_call:
-            # Build the replacement list
-            classfunc = getattr(self.obj.__class__, self.funcname)
-            bound_classfuncs = []
-            if hasattr(classfunc, "stacked"):
-                bound_classfuncs.append(new.instancemethod(classfunc.funcs[0], self.obj, self.obj.__class__))
-                for val, f, txt, cond in classfunc.funcs[1:]:
-                    bound_classfuncs.append([val, new.instancemethod(f, self.obj, self.obj.__class__), txt, cond])
-            else:
-                bound_classfuncs.append(new.instancemethod(classfunc, self.obj, self.obj.__class__))
-            self.replacement_funcs = bound_classfuncs+self.funcs
-            self.first_call = False
-            # This is the start of the recursive calls
-            result = self.combiner(self.replacement_funcs, self.obj, *args, **kw)
-            self.first_call = True
-            return result
-        return self.combiner(self.replacement_funcs, self.obj, *args, **kw)
