@@ -101,9 +101,9 @@ class stacked_function(object):
                 # In this case it is either a Permanent or a subrole
                 # XXX I've only seen the subrole case for Creatures, not sure if anything else can be replaced
                 else: player, affected = obj.card.controller, obj.perm.card
-                i = player.getSelection([f.msg for f in funcs], numselections=1, required=True, prompt="Choose replacement effect to affect %s"%(affected))
+                i = player.getSelection([(f.msg, i) for i, f in enumerate(funcs)], numselections=1, required=True, idx=False, prompt="Choose replacement effect to affect %s"%(affected))
             else: i = 0
-            func = funcs[i][1]
+            func = funcs[i]
             # Remove the selected replacement function
             replacements.remove(func)
             #print replacements, func, args, kw
