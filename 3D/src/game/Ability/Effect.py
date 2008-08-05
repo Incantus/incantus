@@ -721,14 +721,12 @@ class RemoveCounter(Effect):
     def __init__(self, counter, number=1):
         self.counter = counter
         self.number = number
-    def process_target(self, card, target):
-        self.counters = [counter for counter in target.counters if counter == self.counter]
-        return len(self.counters) >= self.number
     def __call__(self, card, target):
-        for counter in self.counters[:self.number]:
+        counters = [counter for counter in target.counters if counter == self.counter]
+        for counter in counters[:self.number]:
             target.counters.remove(counter)
             target.send(CounterRemovedEvent(), counter=counter)
-        return True
+        return len(counters) >= self.number
     def __str__(self):
         if self.number > 1: a='s'
         else: a = ''
@@ -738,9 +736,8 @@ class AddCounter(Effect):
     # Can't use properties, because the functions are bound when the property is created
     def get_number(self): return self.number
 
-    def __init__(self, counter, number=1, expire=False):
+    def __init__(self, counter, number=1):
         self.counter = counter
-        self.expire = expire
         self.number = number
     def __call__(self, card, target):
         counters = []
@@ -749,12 +746,7 @@ class AddCounter(Effect):
             counters.append(counter)
             target.counters.append(counter)
             target.send(CounterAddedEvent(), counter=counter)
-        def remove_counter():
-            for c in counters:
-                target.counters.remove(c)
-                target.send(CounterRemovedEvent(), counter=c)
-        if self.expire: target.register(remove_counter, CleanupEvent(), weak=False, expiry=1)
-        return remove_counter
+        return True
     def __str__(self):
         if self.number > 1: a='s'
         else: a = ''
@@ -762,8 +754,8 @@ class AddCounter(Effect):
 
 class AddPowerToughnessCounter(AddCounter):
     from Counters import PowerToughnessCounter
-    def __init__(self, power=1, toughness=1, number=1, expire=False):
-        super(AddPowerToughnessCounter,self).__init__(self.PowerToughnessCounter(power,toughness), number, expire)
+    def __init__(self, power=1, toughness=1, number=1):
+        super(AddPowerToughnessCounter,self).__init__(self.PowerToughnessCounter(power,toughness), number)
     def __call__(self, card, target):
         counters = []
         for i in range(self.get_number()):
@@ -772,13 +764,7 @@ class AddPowerToughnessCounter(AddCounter):
             target.counters.append(counter)
             target.send(CounterAddedEvent(), counter=counter)
             target.send(PowerToughnessChangedEvent())
-        def remove_counter():
-            for c in counters:
-                target.counters.remove(c)
-                target.send(CounterRemovedEvent(), counter=c)
-                target.send(PowerToughnessChangedEvent())
-        if self.expire: target.register(remove_counter, CleanupEvent(), weak=False, expiry=1)
-        return remove_counter
+        return True
 
 class ModifyPowerToughness(Effect):
     from Counters import PowerToughnessModifier, PowerToughnessSetter, PowerSetter, ToughnessSetter
