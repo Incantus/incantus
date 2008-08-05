@@ -356,7 +356,7 @@ class RemoveCounterCost(Cost):
 
 class AddCounterCost(Cost):
     def __init__(self, counter_type, number=1, cardtype=None):
-        self.counter = counter_type
+        self.counter_type = counter_type
         self.number = number
         self.cardtype = cardtype
     def precompute(self, card, player):
@@ -364,7 +364,7 @@ class AddCounterCost(Cost):
         else: return len(player.play.get(self.cardtype)) >= self.number
     def compute(self, card, player):
         self.targets = []
-        self.counters = [self.counter.copy() for i in range(self.number)]
+        self.counters = [self.counter_type.copy() for i in range(self.number)]
         if self.cardtype == None:
             # Target myself
             if str(card.zone) == "play": self.targets.append(card)
@@ -387,7 +387,7 @@ class AddCounterCost(Cost):
             for i in range(self.number):
                 target.send(CounterAddedEvent(), counter=self.counters[i])
     def __str__(self):
-        return "Add %d %s counter(s)"%(self.number, self.counter)
+        return "Add %d %s counter(s)"%(self.number, self.counter_type)
 
 class ConditionalCost(Cost):
     def __init__(self, orig_cost, new_cost, func):
