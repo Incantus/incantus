@@ -160,13 +160,13 @@ class TapCost(Cost):
                 target = player.getTarget(self.cardtype, zone="play", controller=player, required=False, prompt=prompt)
                 if target == False: return False
                 if target in self.targets:
-                    prompt = "Target already selected - select again"
+                    prompt = "Card already selected - select again"
                     player.send(InvalidTargetEvent(), target=target)
                 elif target.tapped:
-                    prompt = "Target already tapped - select again"
+                    prompt = "Card already tapped - select again"
                     player.send(InvalidTargetEvent(), target=target)
                 elif not target.canBeTapped():
-                    prompt = "Target cannot be tapped - select again"
+                    prompt = "Card cannot be tapped - select again"
                     player.send(InvalidTargetEvent(), target=target)
                 else:
                     self.targets.append(target)
@@ -201,13 +201,13 @@ class UntapCost(Cost):
                 target = player.getTarget(self.cardtype, zone="play", controller=player, required=False, prompt=prompt)
                 if target == False: return False
                 if target in self.targets:
-                    prompt = "Target already selected - select again"
+                    prompt = "Card already selected - select again"
                     player.send(InvalidTargetEvent(), target=target)
                 elif not target.tapped:
-                    prompt = "Target already untapped - select again"
+                    prompt = "Card already untapped - select again"
                     player.send(InvalidTargetEvent(), target=target)
                 elif not target.canUntap():
-                    prompt = "Target cannot be untapped - select again"
+                    prompt = "Card cannot be untapped - select again"
                     player.send(InvalidTargetEvent(), target=target)
                 else:
                     self.targets.append(target)
@@ -241,7 +241,7 @@ class SacrificeCost(Cost):
                 target = player.getTarget(self.cardtype, zone="play", controller=player, required=False, prompt=prompt)
                 if target == False: return False
                 if target in self.targets:
-                    prompt = "Target already selected - select again"
+                    prompt = "Card already selected - select again"
                     player.send(InvalidTargetEvent(), target=target)
                 else:
                     self.targets.append(target)
@@ -313,31 +313,79 @@ class RemoveFromGraveyardCost(ChangeZoneCost):
         super(RemoveFromGraveyardCost,self).__init__(from_zone="graveyard", to_zone="removed", number=number, cardtype=cardtype)
         self.action_txt = "remove%s from graveyard"
 
-class CounterCost(Cost):
-    def __init__(self, counter_type, number=1):
+class RemoveCounterCost(Cost):
+    def __init__(self, counter_type, number=1, cardtype=None):
         self.counter_type = counter_type
         self.number = number
+        self.cardtype = cardtype
+    def enough_counters(self, perm):
+        counters = [c for c in perm.counters if c == self.counter_type]
+        return len(counters) >= self.number
+    def precompute(self, card, player):
+        if self.cardtype == None: return True
+        else: return any((True for perm in player.play.get(self.cardtype) if self.enough_counters(perm)))
     def compute(self, card, player):
-        self.counters = [counter for counter in card.counters if counter == self.counter_type]
-        return len(self.counters) >= self.number
-    def pay(self, card, player):
-        for i in range(self.number):
-            card.counters.remove(self.counters[i])
-            card.send(CounterRemovedEvent(), counter=self.counters[i])
-    def __str__(self):
-        return "%d %s counter(s)"%(self.number, self.counter_type)
-
-class AddCounterCost(Cost):
-    def __init__(self, counter, number=1):
-        self.counter = counter
-        self.number = number
-    def compute(self, card, player):
-        self.counters = [self.counter.copy() for i in range(self.number)]
+        self.targets = []
+        if self.cardtype == None:
+            # Target myself
+            if self.enough_counters(card): self.targets.append(card)
+            else: return False
+        else:
+            prompt = "Select %s from which to remove %d %s counter(s)"%(self.cardtype, self.number, self.counter_type)
+            while True:
+                target = player.getTarget(self.cardtype, zone="play", controller=player, required=False, prompt=prompt)
+                if target == False: return False
+                if not self.enough_counters(target):
+                    prompt = "Card doesn't have enough %s counters - select again"%self.counter_type
+                    player.send(InvalidTargetEvent(), target=target)
+                elif target in self.targets:
+                    prompt = "Card already selected - select again"
+                    player.send(InvalidTargetEvent(), target=target)
+                else:
+                    self.targets.append(target)
+                    break
         return True
     def pay(self, card, player):
-        card.counters.extend(self.counters)
-        for i in range(self.number):
-            card.send(CounterAddedEvent(), counter=self.counters[i])
+        for target in self.targets:
+            counters = [c for c in target.counters if c == self.counter_type][:self.number]
+            for c in counters:
+                target.counters.remove(c)
+                target.send(CounterRemovedEvent(), counter=c)
+    def __str__(self):
+        return "Remove %d %s counter(s)"%(self.number, self.counter_type)
+
+class AddCounterCost(Cost):
+    def __init__(self, counter_type, number=1, cardtype=None):
+        self.counter = counter_type
+        self.number = number
+        self.cardtype = cardtype
+    def precompute(self, card, player):
+        if self.cardtype == None: return True
+        else: return len(player.play.get(self.cardtype)) >= self.number
+    def compute(self, card, player):
+        self.targets = []
+        self.counters = [self.counter.copy() for i in range(self.number)]
+        if self.cardtype == None:
+            # Target myself
+            if str(card.zone) == "play": self.targets.append(card)
+            else: return False
+        else:
+            prompt = "Select %s on which to place %d %s counter(s)"%(self.cardtype, self.number, self.counter_type)
+            while True:
+                target = player.getTarget(self.cardtype, zone="play", controller=player, required=False, prompt=prompt)
+                if target == False: return False
+                if target in self.targets:
+                    prompt = "Card already selected - select again"
+                    player.send(InvalidTargetEvent(), target=target)
+                else:
+                    self.targets.append(target)
+                    break
+        return True
+    def pay(self, card, player):
+        for target in self.targets:
+            target.counters.extend(self.counters)
+            for i in range(self.number):
+                target.send(CounterAddedEvent(), counter=self.counters[i])
     def __str__(self):
         return "Add %d %s counter(s)"%(self.number, self.counter)
 
