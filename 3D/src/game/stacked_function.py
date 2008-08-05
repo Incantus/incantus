@@ -65,11 +65,12 @@ class stacked_function(object):
             else: obj._overrides.add(func)
         else: func.all = True
         def restore():
-            stacked_list.remove(func)
-            if obj:
-                obj._overrides.remove(func)
-                if len(obj._overrides) == 0: delattr(obj, '_overrides')
-            self.revert()
+            if func in self.stacked_list: # avoid being called twice
+                stacked_list.remove(func)
+                if obj:
+                    obj._overrides.remove(func)
+                    if len(obj._overrides) == 0: delattr(obj, '_overrides')
+                self.revert()
         return restore
     def add_replacement(self, func, obj=None, msg='', condition=None):
         if not condition: condition = lambda *args, **kw: True
