@@ -118,8 +118,12 @@ class Conditional(MtGObject):
         self.activated = False
     def enteringPlay(self):
         self.register(self.check_condition, event=TimestepEvent())
+        self.check_condition()
     def leavingPlay(self):
         self.unregister(self.check_condition, event=TimestepEvent())
+        if self.activated:
+            self.activated = False
+            super(Conditional, self).leavingPlay()
     def check_condition(self):
         pass_condition = self.condition(self.card)
         if not self.activated and pass_condition:
