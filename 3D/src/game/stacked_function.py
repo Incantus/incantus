@@ -47,7 +47,7 @@ class stacked_function(object):
     def setup_overrides(self, f_name, f_class):
         if not f_name in f_class.__dict__:
             # If the function is defined in a parent, bind a call to function in the superclass
-            self.original = new.instancemethod(lambda self, *args, **named: getattr(super(f_class, self), name).__call__(*args,**named), None, f_class)
+            self.original = new.instancemethod(lambda self, *args, **named: getattr(super(f_class, self), f_name).__call__(*args,**named), None, f_class)
             self.is_derived = True
         else:
             self.original = getattr(f_class, f_name)
