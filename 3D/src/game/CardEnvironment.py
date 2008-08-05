@@ -17,6 +17,7 @@ from Ability.CyclingAbility import *
 from Ability.LorwynAbility import *
 from Ability.MorningtideAbility import *
 from Ability.ShadowmoorAbility import *
+from Ability.EventideAbility import *
 
 damage_tracker = DamageTrackingVariable()
 graveyard_tracker = ZoneMoveVariable(from_zone="play", to_zone="graveyard")
