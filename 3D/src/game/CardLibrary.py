@@ -79,7 +79,7 @@ class _CardLibrary:
         import CardEnvironment
         print "%s not implemented yet - object will be a '0' cost Artifact with no abilities"%name
         card.name = name
-        card.cost = "0"
+        card.cost = CardEnvironment.ManaCost("0")
         card.text = "No card object found"
         card.base_color = card.color = no_characteristic()
         card.base_type = card.type = characteristic("Artifact")
