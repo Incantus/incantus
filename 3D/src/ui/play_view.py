@@ -202,7 +202,7 @@ class PlayView(Widget):
         #self._pos.set_transition(dt=0.5, method="ease_out_circ")
         self.is_opponent_view = is_opponent_view
 
-        self.lands = dict([(land,[]) for land in ['Forest', 'Mountain', 'Swamp', 'Plains', 'Island', 'Other']])
+        self.lands = dict([(land,[]) for land in ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest', 'Other']])
         self.creatures = []
         self.attached = []
         self.other_perms = []
@@ -210,7 +210,7 @@ class PlayView(Widget):
         self.creatures = []
         self.other_perms = []
         self.attached = []
-        self.lands = dict([(land,[]) for land in ['Forest', 'Mountain', 'Swamp', 'Plains', 'Island', 'Other']])
+        self.lands = dict([(land,[]) for land in ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest', 'Other']])
     def add_card(self, card, startt):
         guicard = CardLibrary.CardLibrary.getPlayCard(card)
         guicard.entering_play()
