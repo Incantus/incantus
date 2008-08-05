@@ -34,7 +34,7 @@ class AllPermanentTargets(MtGObject):
         return AllPermanentTargets(self.target_types)
     def check_target(self, card):
         perm = []
-        for ttype in self.target_types: perm = card.controller.play.get(ttype, all=True)
+        for ttype in self.target_types: perm.extend(card.controller.play.get(ttype, all=True))
         self.target = perm
         return True
     def get(self, card):
