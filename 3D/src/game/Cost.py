@@ -347,8 +347,8 @@ class RemoveCounterCost(Cost):
         return True
     def pay(self, card, player):
         for target in self.targets:
-            counters = [c for c in target.counters if c == self.counter_type][:self.number]
-            for c in counters:
+            counters = [c for c in target.counters if c == self.counter_type]
+            for c in counters[:self.number]:
                 target.counters.remove(c)
                 target.send(CounterRemovedEvent(), counter=c)
     def __str__(self):
