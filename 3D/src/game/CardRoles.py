@@ -1,13 +1,6 @@
-
+import copy
 from GameObjects import MtGObject
 from GameEvent import DealsDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, ReceivesDamageEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
-
-import new, inspect, copy
-def rebind_self(obj):
-    # Bind all unbound functions
-    for name, func in inspect.getmembers(obj, inspect.ismethoddescriptor):
-        if hasattr(func, "stacked"):
-            func.rebind(obj)
 
 class GameRole(MtGObject):
     def __init__(self, card):
@@ -32,7 +25,6 @@ class GameRole(MtGObject):
             #elif callable(value): setattr(newcopy,attr, value)
             #else: setattr(newcopy,attr,copy.deepcopy(value,memo))
             else: setattr(newcopy,attr, value)
-        rebind_self(newcopy)
         return newcopy
     def __str__(self):
         return self.__class__.__name__
@@ -237,7 +229,6 @@ class SubRole(object):
             if type(value) in mutable: setattr(newcopy,attr,copy.copy(value))
             elif callable(value): setattr(newcopy,attr, value)
             else: setattr(newcopy,attr,copy.deepcopy(value, memo))
-        rebind_self(newcopy)
         return newcopy
     def __str__(self):
         return self.__class__.__name__
