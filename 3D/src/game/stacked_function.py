@@ -65,7 +65,7 @@ class stacked_function(object):
             else: obj._overrides.add(func)
         else: func.all = True
         def restore():
-            if func in self.stacked_list: # avoid being called twice
+            if func in stacked_list: # avoid being called twice
                 stacked_list.remove(func)
                 if obj:
                     obj._overrides.remove(func)
