@@ -55,9 +55,9 @@ class stacked_function(object):
         # Install the stacked function
         setattr(f_class, f_name, self)
     def revert(self):
-        if not (len(self.overrides) > 1 or len(self.replacements) > 0):
+        if not (len(self.overrides) > 0 or len(self.replacements) > 0):
             if self.is_derived: delattr(self.f_class, self.f_name)
-            else: setattr(self.f_class, self.f_name, self.overrides[0])
+            else: setattr(self.f_class, self.f_name, self.original)
     def _add(self, stacked_list, func, obj):
         stacked_list.append(func)
         if obj:  # If we are targeting a particular object
