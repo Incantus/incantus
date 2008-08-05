@@ -90,13 +90,13 @@ def lifelink(subrole, card=None):
     from Effect import ChangeLife
     from TriggeredAbility import TriggeredAbility
     from Trigger import DealDamageTrigger
-    subrole.keywords.add("lifelink")
     # XXX This won't work because for a card with lifelink, the subrole won't have been assigned to a card
     # XXX Fix this when i move abilities to the card
     if not card:
         card = subrole.card
         in_play = True
     else: in_play = False
+    card.keywords.add("lifelink")
     trigger = DealDamageTrigger(sender=card)
     life_link = TriggeredAbility(card, trigger = trigger,
             match_condition = lambda sender: True,
@@ -104,7 +104,7 @@ def lifelink(subrole, card=None):
     subrole.triggered_abilities.append(life_link)
     if in_play: life_link.enteringPlay()
     def remove_lifelink():
-        subrole.keywords.remove("lifelink")
+        card.keywords.remove("lifelink")
         life_link.leavingPlay()
         subrole.triggered_abilities.remove(life_link)
     return remove_lifelink
@@ -113,15 +113,6 @@ def fear(subrole):
     def canBeBlockedBy(self, blocker):
         return (blocker.color == "B" or (blocker.type == "Artifact" and blocker.type=="Creature"))
     return override(subrole ,"canBeBlockedBy", canBeBlockedBy) #, keyword="fear")
-
-def indestructible(permanent):
-    def shouldDestroy(self): return False
-    def destroy(self, skip=False): return False
-    remove1 = override(permanent, "shouldDestroy", shouldDestroy)
-    remove2 = override(permanent, "destroy", destroy)
-    def remove_indestructible():
-        for remove in [remove1, remove2]: remove()
-    return remove_indestructible
 
 def protection(subrole, attribute_match):
     #subrole.keywords.add("protection")
@@ -156,6 +147,17 @@ def unblockable(subrole):
     def canBeBlocked(self): return False
     return override(subrole, "canBeBlocked", canBeBlocked)
 
+def indestructible(permanent):
+    def shouldDestroy(self): return False
+    def destroy(self, skip=False): return False
+    remove1 = override(permanent, "shouldDestroy", shouldDestroy)
+    remove2 = override(permanent, "destroy", destroy)
+    def remove_indestructible():
+        for remove in [remove1, remove2]: remove()
+    return remove_indestructible
+
+
+# Replacement effects for damage
 def prevent_damage(subrole, amt, next=True, txt=None, condition=None):
     if txt == None:
         if amt == -1: amtstr = 'all'

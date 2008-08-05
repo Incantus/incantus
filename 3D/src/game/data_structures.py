@@ -1,22 +1,22 @@
 class keywords(object):
-    def __init__(self, keywords=[]):
-        self.keywords = dict([(k,1) for k in keywords])
+    def __init__(self, counts=[]):
+        self.counts = dict([(k,1) for k in counts])
     def add(self, keyword):
-        if self.keywords.has_key(keyword): self.keywords[keyword] += 1
-        else: self.keywords[keyword] = 1
+        if self.counts.has_key(keyword): self.counts[keyword] += 1
+        else: self.counts[keyword] = 1
     def remove(self, keyword):
-        self.keywords[keyword] -= 1
-        if self.keywords[keyword] == 0: del(self.keywords[keyword])
+        self.counts[keyword] -= 1
+        if self.counts[keyword] == 0: del(self.counts[keyword])
     def clear(self):
-        self.keywords.clear()
+        self.counts.clear()
     def __contains__(self, keyword):
-        return self.keywords.__contains__(keyword)
+        return self.counts.__contains__(keyword)
     def __iter__(self):
-        return iter(self.keywords)
+        return iter(self.counts)
     def __str__(self):
-        return ', '.join([k.title() for k in self.keywords.keys()])
+        return ', '.join([k.title() for k in self.counts.keys()])
     def __repr__(self):
-        return repr(self.keywords.keys())
+        return repr(self.counts.keys())
 
 if __name__ == "__main__":
     import copy

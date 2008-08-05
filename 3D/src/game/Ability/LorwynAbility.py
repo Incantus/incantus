@@ -129,11 +129,11 @@ def hideaway(subrole, card, cost="0", limit=None):
 
 # XXX Deathtouch is broken for multiple blockers - since the same trigger object is shared
 def deathtouch(subrole, card=None):
-    subrole.keywords.add("deathtouch")
     if not card:
         card = subrole.card
         in_play = False
     else: in_play=True
+    card.keywords.add("deathtouch")
     trigger = DealDamageTrigger(sender=card)
     deathtouch = TriggeredAbility(card, trigger = trigger,
             match_condition = lambda sender, to: isCreature(to),
@@ -142,7 +142,7 @@ def deathtouch(subrole, card=None):
     subrole.triggered_abilities.append(deathtouch)
     if in_play: deathtouch.enteringPlay()
     def remove_deathtouch():
-        subrole.keywords.remove("deathtouch")
+        card.keywords.remove("deathtouch")
         deathtouch.leavingPlay()
         subrole.triggered_abilities.remove(deathtouch)
     return remove_deathtouch
@@ -151,13 +151,11 @@ def deathtouch(subrole, card=None):
 
 # These keyword abilities change a characteristic of the card itself
 
-def changeling(subrole, card):
-    # This looks weird, but covers Instants and sorceries that have changeling
-    # XXX Maybe they should have keywords too?
-    if hasattr(subrole, "keywords"): subrole.keywords.add("changeling")
-    old_subtypes = card.subtypes
-    card.subtypes = all_characteristics()
+def changeling(subrole, card=None):
+    if not card: card = subrole.card
+    card.keywords.add("changeling")
+    remove = ModifySubtype(subtype=all_characteristics(), expire=False)(card, card)
     def remove_changeling():
-        card.subtypes = old_subtypes
-        subrole.keywords.remove("changeling")
+        card.keywords.remove("changeling")
+        remove()
     return remove_changeling

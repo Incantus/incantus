@@ -11,11 +11,11 @@ from Counters import PowerToughnessCounter
 from game.stacked_function import logical_and
 
 def persist(subrole, card=None):
-    subrole.keywords.add("persist")
     if not card:
         card = subrole.card
         in_play = True
     else: in_play = False
+    card.keywords.add("persist")
     persist = TriggeredAbility(card, trigger = EnterFromTrigger(from_zone="play", to_zone="graveyard"),
             match_condition=SelfMatch(card, condition=lambda card: not any([True for counter in card.counters if counter.ctype == "-1-1"])),
             ability=Ability(card, target=Target(targeting="self"),
@@ -24,16 +24,17 @@ def persist(subrole, card=None):
     subrole.triggered_abilities.append(persist)
     if in_play: persist.enteringPlay()
     def remove_persist():
-        subrole.keywords.remove("persist")
+        card.keywords.remove("persist")
         persist.leavingPlay()
         subrole.triggered_abilities.remove(persist)
     return remove_persist
 
-def wither(subrole, card):
-    subrole.keywords.add("wither")
-    return lambda: subrole.keywords.remove("wither")
-
-def wither_orig(subrole, card):
+def wither(subrole, card=None):
+    if not card:
+        card = subrole.card
+        in_play = True
+    else: in_play = False
+    card.keywords.add("wither")
     def assignWither(self, amt, source, combat=False):
         continue_chain = True
         if source == card:
@@ -48,6 +49,9 @@ def wither_orig(subrole, card):
             effects=OverrideGlobal(assignWither, "assignDamage", Creature, reverse=True, combiner=logical_and, expire=False))
     subrole.static_abilities.append(wither_damage)
 
+    if in_play: wither_damage.enteringPlay()
     def remove_wither():
+        card.keywords.remove("wither")
+        wither_damage.leavingPlay()
         subrole.static_abilities.remove(wither_damage)
     return remove_wither

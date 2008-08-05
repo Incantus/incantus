@@ -4,7 +4,7 @@ from game.Cost import DiscardCost
 
 def retrace(out_play_role):
     card = out_play_role.card
-    #card.keywords.add("retrace")
+    card.keywords.add("retrace")
 
     main_spell = out_play_role.abilities[0]
     cost = main_spell.cost + DiscardCost(cardtype=isLandType)
@@ -14,7 +14,7 @@ def retrace(out_play_role):
     out_play_role.abilities.append(retrace)
 
     def remove():
-    #    card.keywords.remove("persist")
+        card.keywords.remove("persist")
         out_play_role.abilities.remove(retrace)
     return remove
 

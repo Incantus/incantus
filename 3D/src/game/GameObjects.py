@@ -1,6 +1,7 @@
 import copy
 from pydispatch import dispatcher
 from GameEvent import HasPriorityEvent, ControllerChanged
+from data_structures import keywords
 
 class MtGObject(object):
     #Universal dispatcher
@@ -52,6 +53,7 @@ class GameObject(MtGObject):
         self.base_type = None
         self.base_subtypes = None
         self.base_supertype = None
+        self.base_keywords = self.keywords = keywords()
 
         self._owner = owner
         self._controller = None  # XXX I think this is incorrect
@@ -104,6 +106,7 @@ class GameObject(MtGObject):
             self.type = self.base_type
             self.subtypes = self.base_subtypes
             self.supertypes = self.base_supertype
+            self.keywords = copy.deepcopy(self.base_keywords)
 
             # It is about to enter play - let it know
             #if role == self.in_play_role:

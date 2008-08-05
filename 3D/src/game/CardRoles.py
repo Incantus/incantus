@@ -1,6 +1,5 @@
 
 from GameObjects import MtGObject
-from data_structures import keywords
 from GameEvent import DealsDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, ReceivesDamageEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
 
 import new, inspect, copy
@@ -210,7 +209,6 @@ class SubRole(object):
         self.abilities = []
         self.triggered_abilities = []
         self.static_abilities = []
-        self.keywords = keywords()
     def subrole_info(self): return ''
     def send(self, *args, **named):
         self.perm.card.send(*args, **named)
