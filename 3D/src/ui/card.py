@@ -407,7 +407,7 @@ class PlayCard(Card):
                 self.damage_text.visible = 1.0
             if show_info:
                 self.info_box.visible = True
-                self.info_box.set_text(self.gamecard.info, width=self.width)
+                self.info_box.set_text('\n'.join(self.gamecard.info.split("\n")[:17]), width=self.width)
                 self.info_box._height = self.height-self.info_box.border
             else: self.info_box.visible = False
     def restore_pos(self):
