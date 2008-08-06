@@ -4,8 +4,8 @@ from Limit import Unlimited
 import game.Cost
 
 class ActivatedAbility(Ability):
-    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="play"):
-        super(ActivatedAbility,self).__init__(card, target=target, effects=effects, copy_targets=copy_targets)
+    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="play", txt=''):
+        super(ActivatedAbility,self).__init__(card, target=target, effects=effects, copy_targets=copy_targets, txt=txt)
         if type(cost) == str or type(cost) == int: cost = game.Cost.ManaCost(cost)
         self.cost = cost
         if limit == None: limit = Unlimited(card)
@@ -52,8 +52,8 @@ class MultipleAbilities(ActivatedAbility):
         return ", ".join(map(str, self.abilities))
 
 class ManaAbility(ActivatedAbility):
-    def __init__(self, card, cost="0", target=Target(targeting="you"), effects=[]):
-        super(ManaAbility,self).__init__(card, cost=cost, target=target, effects=effects)
+    def __init__(self, card, cost="0", target=Target(targeting="you"), effects=[], txt=''):
+        super(ManaAbility,self).__init__(card, cost=cost, target=target, effects=effects, txt=txt)
     def is_mana_ability(self):
         return True
     def needs_stack(self):

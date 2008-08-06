@@ -6,12 +6,13 @@ from game.GameEvent import ControllerChanged, SubroleModifiedEvent, TimestepEven
 
 # Static abilities always function while the permanent is in the relevant zone
 class StaticAbility(MtGObject):
-    def __init__(self, card, effects=[], zone="play"):
+    def __init__(self, card, effects=[], zone="play", txt=''):
         self.card = card
         if not (type(effects) == list or type(effects) == tuple):
             self.effects = [effects]
         else: self.effects = effects
         self.zone = zone
+        self.txt = txt
         self.effect_tracking = None
     def enteringZone(self): pass
     def leavingZone(self): pass
@@ -20,10 +21,11 @@ class StaticAbility(MtGObject):
         if not card: card = self.card
         newcopy.card = card
         return newcopy
+    def __str__(self): return self.txt
 
 class CardTrackingAbility(StaticAbility):
-    def __init__(self, card, condition, events = [], effects=[], tracking_zone="play", zone="play"):
-        super(CardTrackingAbility, self).__init__(card, effects, zone)
+    def __init__(self, card, condition, events = [], effects=[], tracking_zone="play", zone="play", txt=''):
+        super(CardTrackingAbility, self).__init__(card, effects, zone, txt)
         self.condition = condition
         self.enter_trigger = EnterTrigger(tracking_zone, player="any")
         self.leave_trigger = LeaveTrigger(tracking_zone, player="any")
@@ -78,8 +80,8 @@ class CardTrackingAbility(StaticAbility):
         elif tracking and not pass_condition and not self.effect_tracking[card] == True: self.remove_effects(card)
 
 class PermanentTrackingAbility(CardTrackingAbility):
-    def __init__(self, card, condition, events = [], effects=[], zone="play"):
-        super(PermanentTrackingAbility, self).__init__(card, condition, events, effects, tracking_zone="play", zone=zone)
+    def __init__(self, card, condition, events = [], effects=[], zone="play", txt=''):
+        super(PermanentTrackingAbility, self).__init__(card, condition, events, effects, "play", zone, txt)
 
 class CardStaticAbility(StaticAbility):
     # Target is the card itself
@@ -137,11 +139,11 @@ class Conditional(MtGObject):
             self.activated = False
 
 class ConditionalAttachedStaticAbility(Conditional, AttachedStaticAbility):
-    def __init__(self, card, effects, condition, zone="play"):
-        super(ConditionalAttachedStaticAbility, self).__init__(card, effects, zone)
+    def __init__(self, card, effects, condition, zone="play", txt=''):
+        super(ConditionalAttachedStaticAbility, self).__init__(card, effects, zone, txt)
         self.init_condition(condition)
 
 class ConditionalStaticAbility(Conditional, CardStaticAbility):
-    def __init__(self, card, effects, condition, zone="play"):
-        super(ConditionalStaticAbility, self).__init__(card, effects, zone)
+    def __init__(self, card, effects, condition, zone="play", txt=''):
+        super(ConditionalStaticAbility, self).__init__(card, effects, zone, txt)
         self.init_condition(condition)
