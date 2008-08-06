@@ -20,7 +20,7 @@ class TriggeredAbility(MtGObject):
         Play(self.card, self.ability.copy())
     def copy(self, card=None):
         if not card: card = self.card
-        return TriggeredAbility(card, self.trigger.copy(), self.match_condition, self.ability.copy(card))
+        return TriggeredAbility(card, self.trigger.copy(), self.match_condition, self.ability.copy(card), self.expiry, self.zone, self.txt)
     def __str__(self):
         if not self.txt: txt = "When %s, do %s"%(self.trigger, self.ability)
         else: txt = self.txt
