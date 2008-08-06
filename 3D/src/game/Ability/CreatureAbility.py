@@ -85,28 +85,22 @@ def vigilance(subrole):
 
 # 502.68b If a permanent has multiple instances of lifelink, each triggers separately.
 # XXX Lifelink is broken when you have to split the damage
-def lifelink(subrole, card=None):
+def lifelink(card):
     from Ability import Ability
     from Effect import ChangeLife
     from TriggeredAbility import TriggeredAbility
     from Trigger import DealDamageTrigger
-    # XXX This won't work because for a card with lifelink, the subrole won't have been assigned to a card
-    # XXX Fix this when i move abilities to the card
-    if not card:
-        card = subrole.card
-        in_play = True
-    else: in_play = False
     card.keywords.add("lifelink")
     trigger = DealDamageTrigger(sender=card)
     life_link = TriggeredAbility(card, trigger = trigger,
             match_condition = lambda sender: True,
             ability = Ability(card, effects=ChangeLife(lambda life, t=trigger: life+t.amount)))
-    subrole.triggered_abilities.append(life_link)
+    card.abilities.add(life_link)
     if in_play: life_link.enteringPlay()
     def remove_lifelink():
         card.keywords.remove("lifelink")
         life_link.leavingPlay()
-        subrole.triggered_abilities.remove(life_link)
+        card.abilities.remove(life_link)
     return remove_lifelink
 
 def fear(subrole):
@@ -223,7 +217,7 @@ def redirect_damage(from_target, to_target, amt, next=True, txt=None, condition=
 
 def flash(card):
     from Limit import Unlimited, SorceryLimit, MultipleLimits
-    casting_ability = card.out_play_role.abilities[0]
+    casting_ability = card.play_spell
     if isinstance(casting_ability.limit, SorceryLimit):
         casting_ability.limit = Unlimited(card)
     elif isinstance(casting_ability.limit, MultipleLimits):

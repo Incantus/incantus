@@ -48,8 +48,8 @@ class CastBuybackSpell(CastSpell, ActivatedAbility):
 
 # XXX This should really be a replacement effect, replacing going to your graveyard
 # This only matters if you play a spell that you don't own
-def buyback(out_play_role, buyback="0"):
-    main_spell = out_play_role.abilities[0]
+def buyback(card, buyback="0"):
+    main_spell = card.play_spell
     cost = main_spell.cost + buyback
 
-    out_play_role.abilities.append(CastBuybackSpell(out_play_role.card, cost, main_spell.targets, main_spell.effects, main_spell.copy_targets, main_spell.limit))
+    card.abilities.add(CastBuybackSpell(out_play_role.card, cost, main_spell.targets, main_spell.effects, main_spell.copy_targets, main_spell.limit))

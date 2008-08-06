@@ -20,9 +20,8 @@ class ThresholdAbility(ActivatedAbility):
         else: limit = ThresholdLimit(card)
         super(ThresholdAbility,self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit, zone=zone)
 
-def vanishing(permanent, subrole, number):
-    card = permanent.card
-    for i in range(number): permanent.counters.append(Counter("time"))
+def vanishing(card, number):
+    for i in range(number): card.counters.append(Counter("time"))
     remove_counter = TriggeredAbility(card, trigger=PlayerTrigger(event=UpkeepStepEvent()),
                         match_condition = lambda player, card=card: player == card.controller,
                         ability=Ability(card, target=Target(targeting="self"), effects=RemoveCounter("time")))
@@ -30,21 +29,14 @@ def vanishing(permanent, subrole, number):
         counters = [c for c in sender.counters if c == "time"]
         print sender, counter, len(counters)
         return sender == card and counter == "time" and len(counters) == 0
-    
+
     sacrifice = TriggeredAbility(card, trigger=Trigger(event=CounterRemovedEvent()),
                         match_condition = check_time,
                         ability=Ability(card, effects=SacrificeSelf()))
-    subrole.triggered_abilities.extend([remove_counter, sacrifice])
-    def remove_vanishing():
-        remove_counter.leavingPlay()
-        sacrifice.leavingPlay()
-        subrole.triggered_abilities.remove(remove_counter)
-        subrole.triggered_abilities.remove(sacrifice)
-    return remove_vanishing
+    return card.abilities.add([remove_counter, sacrifice])
 
-def dredge(out_play_role, card, number):
-    def condition(self): 
-        return len(self.graveyard) >= number
+def dredge(card, number):
+    condition = lambda self: len(self.graveyard) >= number
     def draw(self):
         if self.getIntention("Would you like to dredge %s?"%card, "Dredge %s"%card):
             top_N = self.library.top(number)
@@ -54,14 +46,13 @@ def dredge(out_play_role, card, number):
             self.draw()
 
     dredge_ability = GlobalStaticAbility(card,
-      effects=ReplacementEffect(draw, "draw", txt='%s - dredge?'%card, expire=False, condition=condition))
-    out_play_role.graveyard_abilities.append(dredge_ability)
+      effects=ReplacementEffect(draw, "draw", txt='%s - dredge?'%card, expire=False, condition=condition), zone="graveyard")
+    card.abilities.add(dredge_ability)
 
-def suspend(subrole, card, number):
+def suspend(card, number):
     pass
 
-def echo(permanent, subrole, cost="0"):
-    card = permanent.card
+def echo(card, cost="0"):
     #At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.
     # XXX This doesn't work when the controller is changed
     # need to reset the triggered ability somehow or implement the intervening if properly
@@ -72,5 +63,4 @@ def echo(permanent, subrole, cost="0"):
                                         target=Target(targeting="you"),
                                         effects=DoOr(PayExtraCost(cost), failed=SacrificeSelf())),
                        expiry=1)]
-    subrole.triggered_abilities.extend(echo_ability)
-    return None
+    return card.abilities.add(echo_ability)

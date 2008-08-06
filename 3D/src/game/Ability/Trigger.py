@@ -1,3 +1,4 @@
+import copy
 from game.GameObjects import MtGObject
 from game.GameEvent import DealsDamageEvent, ReceivesDamageEvent, DealsCombatDamageEvent, ReceivesCombatDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZone, CardLeavingZone, TimestepEvent
 from game.Match import SelfMatch
@@ -53,9 +54,9 @@ class Trigger(MtGObject):
             self.__dict__.update(keys)
             self.trigger_function(self)
             self.count += 1
+    def __str__(self): return self.__class__.__name__
     def copy(self):
-        from copy import copy
-        return copy(self)
+        return copy.copy(self)
 
 class PlayerTrigger(Trigger):
     def filter(self):

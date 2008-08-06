@@ -1,6 +1,7 @@
 import copy
 from game.LazyInt import LazyInt
 from game.characteristics import characteristic, stacked_characteristic, additional_characteristic
+from game.abilities import stacked_abilities, no_abilities, additional_abilities
 from game.GameObjects import MtGObject
 from game.Match import isPlayer, isCreature, isCard, isPermanent, isLandType
 from game.GameEvent import TokenPlayed, ManaEvent, SacrificeEvent, CleanupEvent, CounterAddedEvent, CounterRemovedEvent,  PowerToughnessChangedEvent, InvalidTargetEvent, SubroleModifiedEvent, ColorModifiedEvent, SubtypeModifiedEvent, LogEvent
@@ -686,36 +687,32 @@ class DoUntil(Effect):
     def __str__(self):
         return "Do %s until %s"%(self.effect, self.event)
 
-class AddActivatedAbility(Effect):
+class AddAbility(Effect):
     def __init__(self, ability, expire=True):
         self.ability = ability
         self.expire = expire
+    def get_stacked(self, target):
+        abilities = target.abilities
+        if not hasattr(abilities, "stacked"): stacked_ability = stacked_abilities(target)
+        else: stacked_ability = abilities
+        return stacked_ability
     def __call__(self, card, target):
-        new_ability = self.ability.copy()
-        new_ability.card = target
-        target.abilities.append(new_ability)
-        restore = lambda a=target.abilities: a.remove(new_ability)
+        stacked_ability = self.get_stacked(target)
+        restore = stacked_ability.add_abilities(self.ability.copy(target))
         if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
     def __str__(self):
         return "Give %s"%self.ability
-class AddTriggeredAbility(Effect):
-    def __init__(self, ability, expire=True):
-        self.ability = ability
+class RemoveAbilities(AddAbility):
+    def __init__(self, expire=True):
         self.expire = expire
     def __call__(self, card, target):
-        triggered_ability = self.ability.copy()
-        triggered_ability.card = target.card
-        triggered_ability.ability.card = target.card
-        target.triggered_abilities.append(triggered_ability)
-        triggered_ability.enteringPlay()
-        def restore(ta=target.triggered_abilities):
-            triggered_ability.leavingPlay()
-            ta.remove(triggered_ability)
+        stacked_ability = self.get_stacked(target)
+        restore = stacked_ability.remove_all()
         if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
     def __str__(self):
-        return "Give %s"%self.ability
+        return "Remove all abilities"
 
 class RemoveCounter(Effect):
     def __init__(self, counter, number=1):
@@ -893,7 +890,7 @@ class PlayCard(Effect):
         if not isLandType(target):
             player = card.controller
             # XXX Generally the first ability of the spell is casting it - might not always be the case
-            ability = target.abilities[0].copy()
+            ability = target.play_spell.copy()
             ability.controller = player
 
             # Different cost to play

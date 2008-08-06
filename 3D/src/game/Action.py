@@ -52,7 +52,8 @@ class PlayAbility(Action):
         card = self.card
         success = False
         # Replace the representation of a with the text from the card
-        abilities = [ability for ability in card.current_role.abilities if not ability.is_limited()]
+        abilities = card.abilities.activated()
+        if str(card.zone) == "hand": abilities.append(card.play_spell)
         numabilities = len(abilities)
         if numabilities == 0: return False
         elif numabilities == 1: ability = abilities[0]
@@ -97,7 +98,7 @@ class ActivateForMana(Action):
     def perform(self, player):
         card = self.card
         # Check if the card can be provide mana
-        abilities = [ability for ability in card.current_role.abilities if ability.is_mana_ability() and not ability.is_limited()]
+        abilities = [ability for ability in card.abilities.activated() if ability.is_mana_ability()]
 
         numabilities = len(abilities)
         if numabilities == 0: return False

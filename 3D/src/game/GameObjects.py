@@ -2,6 +2,7 @@ import copy
 from pydispatch import dispatcher
 from GameEvent import HasPriorityEvent, ControllerChanged
 from data_structures import keywords
+from abilities import abilities
 
 class MtGObject(object):
     #Universal dispatcher
@@ -54,6 +55,8 @@ class GameObject(MtGObject):
         self.base_subtypes = None
         self.base_supertype = None
         self.base_keywords = self.keywords = keywords()
+        self.base_abilities = self.abilities = abilities([])
+        self.play_spell = None
 
         self._owner = owner
         self._controller = None  # XXX I think this is incorrect
@@ -87,18 +90,6 @@ class GameObject(MtGObject):
         def fget(self):
             return self._current_role
         def fset(self, role):
-            # Leaving play
-            #if role == self.out_play_role and self._current_role != self.out_play_role:
-            #    #  Keep a reference around in case any spells need it
-            #    self.save_lki()
-            #    self._current_role.leavingPlay()
-            # Staying in play
-            #if role == self.in_play_role and self._current_role.__class__ == self.in_play_role.__class__:
-            #    # Do nothing - when we change controllers
-            #    return
-            # Make a copy of the role, so that there's no memory whenever we re-enter play
-            #if role == self.in_play_role: self._current_role = copy.deepcopy(role)
-            #else: self._current_role = role   # XXX i need to fix this for blink effects out of play, but i can't just make a copy
             self._current_role = copy.deepcopy(role)
 
             # Set up base characteristics
@@ -107,10 +98,7 @@ class GameObject(MtGObject):
             self.subtypes = self.base_subtypes
             self.supertypes = self.base_supertype
             self.keywords = copy.deepcopy(self.base_keywords)
-
-            # It is about to enter play - let it know
-            #if role == self.in_play_role:
-            #    self._current_role.enteringPlay()
+            self.abilities = copy.deepcopy(self.base_abilities)
         return locals()
     current_role = property(**current_role())
     def info():
@@ -125,8 +113,10 @@ class GameObject(MtGObject):
             subtypes = str(self.subtypes)
             if subtypes: txt.append(" - %s"%subtypes)
             #txt.append("\n\n"+'\n'.join(self.text))
-            keywords = str(self.keywords)
-            if keywords: txt.append('\n\n%s'%keywords)
+            #keywords = str(self.keywords)
+            #if keywords: txt.append('\n\n%s'%keywords)
+            abilities = str(self.abilities)
+            if abilities: txt.append('\n\n%s'%abilities)
             counters = ', '.join([str(c) for c in self.counters])
             if counters: txt.append('\nCounters: %s'%counters)
             subrole_info = self.subrole_info()
@@ -136,6 +126,12 @@ class GameObject(MtGObject):
     info = property(**info())
     def move_to(self, to_zone, position=-1):
         to_zone.move_card(self, position)
+    def enteringZone(self, zone):
+        self.current_role.enteringZone(zone)
+        self.abilities.enteringZone(zone)
+    def leavingZone(self, zone):
+        self.current_role.leavingZone(zone)
+        self.abilities.leavingZone(zone)
     # I should probably get rid of the getattr call, and make everybody refer to current_role directly
     # But that makes the code so much uglier
     def __getattr__(self, attr):

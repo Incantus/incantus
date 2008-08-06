@@ -89,11 +89,10 @@ class _CardLibrary:
 
         card.stack_role = CardEnvironment.SpellRole(card)
         card.out_play_role = CardEnvironment.CardRole(card)
-        card.out_play_role.abilities = [CardEnvironment.CastPermanentSpell(card, card.cost)]
+        card.play_spell = CardEnvironment.CastPermanentSpell(card, card.cost)
 
         # XXX This is just hackery to get it working with arbitrary cards
-        subrole = CardEnvironment.Artifact()
-        card.in_play_role = CardEnvironment.Permanent(card, subrole)
+        card.in_play_role = CardEnvironment.Permanent(card, CardEnvironment.Artifact())
 
     def loadCardObj(self, card, name):
         import CardEnvironment
@@ -114,8 +113,8 @@ class _CardLibrary:
             print name, e
             raise KeyError()
         # Get rid of non-standard attributes
-        for k in card.__dict__.keys():
-            if k not in self.acceptable_keys: del card.__dict__[k]
+        #for k in card.__dict__.keys():
+        #    if k not in self.acceptable_keys: del card.__dict__[k]
 
         # Build default characteristics
         card.base_color = card.color

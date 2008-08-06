@@ -16,6 +16,8 @@ class GameRole(MtGObject):
     def canBeAttachedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
         self.card.send(TargetedByEvent(), targeter=targeter)
+    def enteringZone(self, zone): pass
+    def leavingZone(self, zone): pass
     def match_role(self, matchrole):
         return matchrole == self.__class__
     def __deepcopy__(self,memo,mutable=set([list,set,dict])):
@@ -31,61 +33,26 @@ class GameRole(MtGObject):
 
 class NoRole(GameRole):
     # For token objects out of play
-    def enteringHand(self): pass
-    def leavingHand(self): pass
-    def enteringGraveyard(self): pass
-    def leavingGraveyard(self): pass
-    def enteringRemoved(self): pass
-    def leavingRemoved(self): pass
     def match_role(self, matchrole):
         return False
 
 class CardRole(GameRole):  # Cards out of play
     def __init__(self, card):
         super(CardRole, self).__init__(card)
-        self.abilities = []
-        self.hand_abilities = []
-        self.graveyard_abilities = []
-        self.removed_abilities = []
-    def enteringHand(self):
-        # I should change the name of these entering and leaving functions - maybe enteringZone
-        for ability in self.hand_abilities: ability.enteringPlay()
-    def leavingHand(self):
-        for ability in self.hand_abilities: ability.leavingPlay()
-    def enteringGraveyard(self):
-        # I should change the name of these entering and leaving functions - maybe enteringZone
-        for ability in self.graveyard_abilities: ability.enteringPlay()
-    def leavingGraveyard(self):
-        for ability in self.graveyard_abilities: ability.leavingPlay()
-    def enteringRemoved(self):
-        # I should change the name of these entering and leaving functions - maybe enteringZone
-        for ability in self.removed_abilities: ability.enteringPlay()
-    def leavingRemoved(self):
-        for ability in self.removed_abilities: ability.leavingPlay()
 
 class SpellRole(GameRole):  # Spells on the stack
     def __init__(self, card):
         super(SpellRole, self).__init__(card)
         self.facedown = False
-        self.abilities = []
     def faceDown(self):
         self.facedown = True
     def faceUp(self):
         self.facedown = False
 
 class Permanent(GameRole):
-    def abilities():
-        def fget(self):
-            if not self._abilities:
-                import operator
-                self._abilities = reduce(operator.add, [role.abilities for role in self.subroles], [])
-            return self._abilities
-        return locals()
-    abilities = property(**abilities())
     continuously_in_play = property(fget=lambda self: self._continuously_in_play)
     def __init__(self, card, subroles):
         super(Permanent, self).__init__(card)
-        self._abilities = []
         if not (type(subroles) == list or type(subroles) == tuple): subroles = [subroles]
         self.subroles = subroles
         self.tapped = False
@@ -101,13 +68,13 @@ class Permanent(GameRole):
     def add_subrole(self, role):
         role.enteringPlay(self)
         self.subroles.append(role)
-        self._abilities.extend(role.abilities)
         self.card.send(SubRoleAddedEvent(), subrole=role)
     def remove_subrole(self, role):
-        if role in self.subroles: # XXX Is this correct - the role is only missing when card enters play, gains role for the turn, and then is blinked back
+        # XXX Is this correct - the role is only missing when card enters play, gains role for the turn,
+        # and then is blinked back
+        if role in self.subroles:
             role.leavingPlay()
             self.subroles.remove(role)
-            for ability in role.abilities: self._abilities.remove(ability)
             self.card.send(SubRoleRemovedEvent(), subrole=role)
     def match_role(self, matchrole):
         success = False
@@ -185,22 +152,19 @@ class Permanent(GameRole):
                 self.unregister(remove_summoning_sickness, NewTurnEvent(), weak=False)
         self._continuously_in_play = False
         self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
-    def enteringPlay(self):
-        # Setup any static and triggered abilities
-        for role in self.subroles: role.enteringPlay(self)
-    def leavingPlay(self):
-        for role in self.subroles: role.leavingPlay()
-        for attached in self.attachments: attached.attachedLeavingPlay()
+    def enteringZone(self, zone):
+        if zone == "play":
+            for role in self.subroles: role.enteringPlay(self)
+    def leavingZone(self, zone):
+        if zone == "play":
+            for role in self.subroles: role.leavingPlay()
+            for attached in self.attachments: attached.attachedLeavingPlay()
     def __deepcopy__(self, memo):
         newcopy = super(Permanent, self).__deepcopy__(memo)
         newcopy.subroles = [copy.deepcopy(role, memo) for role in self.subroles]
         return newcopy
 
 class SubRole(object):
-    def __init__(self):
-        self.abilities = []
-        self.triggered_abilities = []
-        self.static_abilities = []
     def subrole_info(self): return ''
     def send(self, *args, **named):
         self.perm.card.send(*args, **named)
@@ -211,11 +175,7 @@ class SubRole(object):
     def enteringPlay(self, perm):
         self.perm = perm
         self.card = perm.card
-        for ta in self.triggered_abilities: ta.enteringPlay()
-        for sa in self.static_abilities: sa.enteringPlay()
-    def leavingPlay(self):
-        for ta in self.triggered_abilities: ta.leavingPlay()
-        for sa in self.static_abilities: sa.leavingPlay()
+    def leavingPlay(self): pass
     def canDestroy(self): return True
     def shouldDestroy(self): return False
     def canBeTargetedBy(self, targeter): return True
@@ -419,27 +379,28 @@ class Artifact(SubRole): pass
 class Enchantment(SubRole): pass
 
 class Attachment(object):
+    def __init__(self):
+        self.attached_abilities = []
     def attach(self, target):
         if self.attached_to != None: self.unattach()
         self.attached_to = target
         self.attached_to.attachments.append(self.perm.card)
-        for a in self.perm.attached_abilities: a.enteringPlay()
+        for ability in self.attached_abilities: ability.enteringZone()
         self.send(AttachedEvent(), attached=self.attached_to)
         return True
     def unattach(self):
         if self.attached_to:
-            for a in self.perm.attached_abilities: a.leavingPlay()
+            for ability in self.attached_abilities: ability.leavingZone()
             self.attached_to.attachments.remove(self.perm.card)
             self.send(UnAttachedEvent(), unattached=self.attached_to)
         self.attached_to = None
     def attachedLeavingPlay(self):
-        for a in self.perm.attached_abilities: a.leavingPlay()
+        for ability in self.attached_abilities: ability.leavingZone()
         self.send(UnAttachedEvent(), unattached=self.attached_to)
         self.attached_to = None
     def leavingPlay(self):
         self.unattach()
         super(Attachment,self).leavingPlay()
-        return True
     def isValidAttachment(self): return False
 
 class Equipment(Attachment, Artifact):

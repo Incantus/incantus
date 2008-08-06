@@ -49,20 +49,16 @@ class ClashAbility(Stackless, ActivatedAbility):
     def __str__(self):
         return "Clash with opponent"
 
-def clash(subrole, card, clash_ability):
+def clash(card, clash_ability):
     clash = TriggeredAbility(card, trigger = EnterTrigger("play"),
             match_condition=SelfMatch(card),
             ability=clash_ability)
 
-    subrole.triggered_abilities.append(clash)
-    def remove_clash():
-        clash.leavingPlay()
-        subrole.triggered_abilities.remove(clash)
-    return remove_clash
+    return card.abilities.add(clash)
 
 # XXX This should really set up a delayed trigger
 # XXX Champion is broken because it won't let you escape the selection
-def champion(subrole, card, role=isPermanent, subtypes=None):
+def champion(card, role=isPermanent, subtypes=None):
     if subtypes == None:
         subtypes = card.subtypes
         msg = "Champion %s"%str(subtypes)
@@ -84,27 +80,18 @@ def champion(subrole, card, role=isPermanent, subtypes=None):
             match_condition=SelfMatch(card, lambda c: c.championed and c.championed.zone != None),
             ability=Ability(card, target=SpecialTarget(targeting= lambda: card.championed and setattr(card, "championed", None)),
                 effects=ChangeZone(from_zone="removed", to_zone="play")))
-    subrole.triggered_abilities.extend([champion,champion_return])
-    def remove_champion():
-        champion.leavingPlay()
-        champion_return.leavingPlay()
-        subrole.triggered_abilities.remove(champion)
-        subrole.triggered_abilities.remove(champion_return)
-    return remove_champion
+    return card.abilities.add([champion,champion_return])
 
-def evoke(subrole, card, cost):
+def evoke(card, cost):
     evoke_cost = EvokeCost(orig_cost=card.cost, evoke_cost=cost)
-    if len(card.out_play_role.abilities) == 0:
-        card.out_play_role.abilities = [CastPermanentSpell(card, evoke_cost)]
-    else:
-        card.out_play_role.abilities[0].cost = evoke_cost
+    card.play_spell.cost = evoke_cost
     evoke = TriggeredAbility(card, trigger = EnterTrigger("play"),
             match_condition=SelfMatch(card, lambda x: evoke_cost.evoked),
             ability=Ability(card, target=Target(targeting="self"),
                 effects=[SacrificeSelf(), NullEffect(lambda c, t: evoke_cost.reset())]))
-    subrole.triggered_abilities.append(evoke)
+    card.abilities.add(evoke)
 
-def hideaway(subrole, card, cost="0", limit=None):
+def hideaway(card, cost="0", limit=None):
     if limit==None: limit=Unlimited(card)
     card.in_play_role.tapped = True
     hidden = MoveCards(from_zone="library", to_zone="removed", return_position="bottom", number=1, subset=4, required=True, func = lambda c: None) #XXX c.faceDown())
@@ -117,42 +104,28 @@ def hideaway(subrole, card, cost="0", limit=None):
             effects=YouMay(PlayCard(cost="0")),
             limit=limit)
 
-    subrole.triggered_abilities.append(hideaway)
-    subrole.abilities.append(return_hidden)
-
-    def remove_hideaway():
-        hideaway.leavingPlay()
-        subrole.triggered_abilities.remove(hideaway)
-        subrole.abilities.remove(return_hidden)
-    return remove_hideaway
+    return card.abilities.add([hideaway, return_hidden])
 
 
 # XXX Deathtouch is broken for multiple blockers - since the same trigger object is shared
-def deathtouch(subrole, card=None):
-    if not card:
-        card = subrole.card
-        in_play = False
-    else: in_play=True
+def deathtouch(card):
     card.keywords.add("deathtouch")
     trigger = DealDamageTrigger(sender=card)
     deathtouch = TriggeredAbility(card, trigger = trigger,
             match_condition = lambda sender, to: isCreature(to),
             ability = Ability(card, target=TriggeredTarget(trigger, 'to'),
                 effects=Destroy())) 
-    subrole.triggered_abilities.append(deathtouch)
-    if in_play: deathtouch.enteringPlay()
+    remove = card.abilities.add(deathtouch)
     def remove_deathtouch():
         card.keywords.remove("deathtouch")
-        deathtouch.leavingPlay()
-        subrole.triggered_abilities.remove(deathtouch)
+        remove()
     return remove_deathtouch
 
 #####################################################################
 
 # These keyword abilities change a characteristic of the card itself
 
-def changeling(subrole, card=None):
-    if not card: card = subrole.card
+def changeling(card):
     card.keywords.add("changeling")
     remove = ModifySubtype(subtype=all_characteristics(), expire=False)(card, card)
     def remove_changeling():

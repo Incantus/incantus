@@ -12,8 +12,6 @@ from MemoryVariable import MemoryVariable
 
 class Reinforce(ActivatedAbility):
     def __init__(self, card, cost, number=1):
-        from Target import Target
-        from Effect import AddPowerToughnessCounter
         self.reinforce_cost = cost
         self.number = number
         if type(cost) == str: cost = ManaCost(cost)
@@ -21,8 +19,8 @@ class Reinforce(ActivatedAbility):
     def __str__(self):
         return "%s: Reinforce %d"%(self.reinforce_cost, self.number)
 
-def reinforce(out_play_role, cost, number=1):
-    out_play_role.abilities.append(Reinforce(out_play_role.card, cost, number))
+def reinforce(card, cost, number=1):
+    card.abilities.add(Reinforce(out_play_role.card, cost, number))
 
 class KinshipAbility(Stackless, ActivatedAbility):
     def __init__(self, card, cost="0", target=Target(targeting="you"), effects=[]):
@@ -42,16 +40,12 @@ class KinshipAbility(Stackless, ActivatedAbility):
     def __str__(self):
         return "Kinship: %s"%super(KinshipAbility,self).__str__()
 
-def kinship(subrole, card, kinship_ability):
+def kinship(card, kinship_ability):
     kinship = TriggeredAbility(card, trigger = PlayerTrigger(event=UpkeepStepEvent()),
             match_condition = lambda player, card=card: player == card.controller,
             ability=kinship_ability)
 
-    subrole.triggered_abilities.append(kinship)
-    def remove_kinship():
-        kinship.leavingPlay()
-        subrole.triggered_abilities.remove(kinship)
-    return remove_kinship
+    return card.abilities.add(kinship)
 
 class ProwlVariable(MemoryVariable):
     def __init__(self, card):
@@ -82,12 +76,12 @@ class ProwlCost(SpecialCost):
             if self.prowled: self.cost = self.prowl_cost
         return super(ProwlCost, self).precompute(card, player)
 
-def prowl(subrole, card, cost, ability=None):
+def prowl(card, cost, ability=None):
     # You may play this for its prowl cost if you dealt combat damage to a player this turn with a [card subtypes]
     prowl_cost = ProwlCost(orig_cost=card.cost, prowl_cost=cost, can_prowl=ProwlVariable(card))
-    card.out_play_role.abilities[0].cost = prowl_cost
+    card.play_spell.cost = prowl_cost
     if ability:
         prowl = TriggeredAbility(card, trigger = EnterTrigger("play"),
                 match_condition=SelfMatch(card, lambda card: prowl_cost.prowled),
                 ability=ability)
-        subrole.triggered_abilities.append(prowl)
+        card.abilities.add(prowl)

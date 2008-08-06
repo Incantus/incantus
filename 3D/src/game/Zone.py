@@ -46,8 +46,10 @@ class Zone(MtGObject):
         old_zone._remove_card(card)
         self._add_card(card, position)
     # The next 2 are for zones to setup and takedown card roles
-    def before_card_added(self, card): pass
-    def before_card_removed(self, card): pass
+    def before_card_added(self, card):
+        card.enteringZone(self.name)
+    def before_card_removed(self, card):
+        card.leavingZone(self.name)
 
 class OrderedZone(Zone):
     def __init__(self):
@@ -85,6 +87,7 @@ class OrderedZone(Zone):
 class OutPlayMixin(object):
     def before_card_added(self, card):
         card.current_role = card.out_play_role
+        super(OutPlayMixin, self).before_card_added(card)
 
 class AddingCardsMixin(object):
     def add_card(self, card, position=-1):
@@ -124,27 +127,12 @@ class Library(OutPlayMixin, AddingCardsMixin, OrderedZone):
 
 class Graveyard(OutPlayMixin, OrderedZone):
     name = "graveyard"
-    def before_card_added(self, card):
-        super(Graveyard, self).before_card_added(card)
-        card.current_role.enteringGraveyard()
-    def before_card_removed(self, card):
-        card.current_role.leavingGraveyard()
 
 class Hand(OutPlayMixin, Zone):
     name = "hand"
-    def before_card_added(self, card):
-        super(Hand, self).before_card_added(card)
-        card.current_role.enteringHand()
-    def before_card_removed(self, card):
-        card.current_role.leavingHand()
 
 class Removed(OutPlayMixin, Zone):
     name = "removed"
-    def before_card_added(self, card):
-        super(Removed, self).before_card_added(card)
-        card.current_role.enteringRemoved()
-    def before_card_removed(self, card):
-        card.current_role.leavingRemoved()
 
 class PlayView(object):
     name = "play"
@@ -190,8 +178,8 @@ class Play(AddingCardsMixin, OrderedZone):
         return cardlist
     def before_card_added(self, card):
         card.current_role = card.in_play_role
-        card.current_role.enteringPlay()
+        super(Play, self).before_card_added(card)
     def before_card_removed(self, card):
         card.save_lki()
-        card.current_role.leavingPlay()
+        super(Play, self).before_card_removed(card)
         card.controller = None
