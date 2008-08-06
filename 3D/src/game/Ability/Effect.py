@@ -442,9 +442,13 @@ class CreateTokenCopy(Effect):
         return "Create token copy of target creature"
 
 class Clone(Effect):
-    def __init__(self, expire=True):
+    def __init__(self, expire=True, target=None):
         self.expire = expire
+        self.target = target
     def __call__(self, card, target):
+        if self.target:
+            card = target
+            target = self.target.target
         from game import CardEnvironment, GameObjects
         zone = str(card.zone)
         # Turn off the current card
