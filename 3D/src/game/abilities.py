@@ -21,12 +21,9 @@ class abilities(object):
             self.enabled = False
             for ability in self._abilities:
                 if ability.zone == zone and not hasattr(ability, "cost"): ability.leavingZone()
-    def __deepcopy__(self,memo,mutable=set([list,set,dict])):
-        newcopy = copy.copy(self)
-        for attr, value in self.__dict__.iteritems():
-            if type(value) in mutable: setattr(newcopy,attr,copy.copy(value))
-            else: setattr(newcopy,attr, value)
-        return newcopy
+    #def copy(self, card):
+    #    new_abilities = [a.copy(card) for a in self._abilities]
+    #    return self.__class__(new_abilities)
     def __str__(self): return '\n'.join(map(str, self._abilities))
 
 class no_abilities(object): pass

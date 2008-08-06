@@ -248,9 +248,9 @@ class CreateToken(Effect):
         self.token_subrole = token_info.get("role")
         self.number = number
     def __call__(self, card, target):
-        if not isPlayer(target): raise Exception("Invalid target for adding token")
         from game.CardLibrary import CardLibrary
         from game.CardRoles import NoRole, Permanent
+        if not isPlayer(target): raise Exception("Invalid target for adding token")
         for i in range(self.get_number()):
             token = CardLibrary.createToken(self.token_name, target, self.token_color,  self.token_type, self.token_subtypes, self.token_supertype)
             # Create the role for it
@@ -421,19 +421,55 @@ class PayExtraCost(Effect):
     def __str__(self):
         return "Pay extra %s"%self.cost
 
-# XXX Clone is broken right now
-class Clone(Effect):
+class CreateTokenCopy(Effect):
+    def __init__(self, number=1):
+        self.number = number
     def __call__(self, card, target):
-        card.current_role = copy.deepcopy(target.in_play_role)
-        for ability in card.current_role.abilities: ability.card = card
-        for ability in card.current_role.triggered_abilities: ability.card = card
-        for ability in card.current_role.static_abilities: ability.card = card
-        # XXXcopy all abilities
-        # not done
-        characteristics = ["name", "cost", "color", "type", "subtypes", "supertype"]
-        for c in characteristics: setattr(card, c, copy(getattr(target, c)))
-        # XXX Need to restore original when leaving play
+        from game import CardEnvironment, GameObjects
+        from game.CardLibrary import CardLibrary
+        from game.CardRoles import NoRole
+        token = CardLibrary.createToken(target.name, card.controller, '', '', '', '', '')
+        token.card = token
+        exec target.text in vars(CardEnvironment), vars(token)
+        token.text = target.text
+        for attr in ["name", "cost", "text", "color", "type", "subtypes", "supertype", "abilities"]:
+            base_attr = "base_"+attr
+            setattr(token, base_attr, getattr(token, attr))
+        card.controller.play.add_card(token)
+        card.send(TokenPlayed())
         return True
+    def __str__(self):
+        return "Create token copy of target creature"
+
+class Clone(Effect):
+    def __init__(self, expire=True):
+        self.expire = expire
+    def __call__(self, card, target):
+        from game import CardEnvironment, GameObjects
+        zone = str(card.zone)
+        # Turn off the current card
+        card.leavingZone(zone)
+        newcard = GameObjects.Card(card.controller)
+        newcard.card = card
+        exec target.text in vars(CardEnvironment), vars(newcard)
+        card.current_role = newcard.in_play_role
+        for attr in ["name", "cost", "text", "color", "type", "subtypes", "supertype", "abilities"]:
+            setattr(card, attr, getattr(newcard, attr))
+        card.text = target.text
+        card.enteringZone(zone)
+        card.send(SubroleModifiedEvent(), card=card)
+        card.send(SubtypeModifiedEvent(), card=card)
+        card.send(ColorModifiedEvent(), card=card)
+        def restore():
+            if str(card.zone) == zone:
+                card.leavingZone(zone)
+                card.current_role = card.in_play_role
+                card.enteringZone(zone)
+                card.send(SubroleModifiedEvent(), card=card)
+                card.send(SubtypeModifiedEvent(), card=card)
+                card.send(ColorModifiedEvent(), card=card)
+        if self.expire: card.register(restore, CleanupEvent(), weak=False, expiry=1)
+        return restore
     def __str__(self):
         return "Clone"
 

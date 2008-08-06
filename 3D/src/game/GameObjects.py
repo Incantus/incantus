@@ -50,6 +50,9 @@ class GameObject(MtGObject):
         self.in_play_role = None
         self.stack_role = None
 
+        self.base_name = None
+        self.base_cost = None
+        self.base_text = None
         self.base_color = None
         self.base_type = None
         self.base_subtypes = None
@@ -93,12 +96,15 @@ class GameObject(MtGObject):
             self._current_role = copy.deepcopy(role)
 
             # Set up base characteristics
+            self.name = self.base_name
+            self.cost = self.base_cost
+            self.text = self.base_text
             self.color = self.base_color
             self.type = self.base_type
             self.subtypes = self.base_subtypes
             self.supertypes = self.base_supertype
+            self.abilities = self.base_abilities
             self.keywords = copy.deepcopy(self.base_keywords)
-            self.abilities = copy.deepcopy(self.base_abilities)
         return locals()
     current_role = property(**current_role())
     def info():

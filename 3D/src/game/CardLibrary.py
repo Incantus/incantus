@@ -42,11 +42,13 @@ class _CardLibrary:
         self.counter = 0
         self.tokencounter = 0
 
-    def createToken(self, name, owner, color, type, subtypes, supertype, cost="0"):
+    def createToken(self, name, owner, color, type, subtypes, supertype, text='', cost="0"):
         import CardEnvironment
+        if not text: text = ["Token"]
         token = GameToken(owner)
-        token.name = name
-        token.cost = CardEnvironment.ManaCost(cost)
+        token.base_name = token.name = name
+        token.base_text = token.text = text
+        token.base_cost = token.cost = CardEnvironment.ManaCost(cost)
         characteristics = [("color", color), ("type", type), ("subtypes", subtypes), ("supertype", supertype)]
         for base, char in characteristics:
             if char: char = characteristic(char)
@@ -54,7 +56,6 @@ class _CardLibrary:
             setattr(token, "base_"+base, char)
             setattr(token, base, char)
         token.key = (self.tokencounter, token.name+" Token")
-        token.text = ["Token"]
         self.cardsInGame[token.key] = token
         self.tokencounter += 1
         return token
@@ -78,9 +79,9 @@ class _CardLibrary:
     def loadDefaultCard(self, card, name):
         import CardEnvironment
         print "%s not implemented yet - object will be a '0' cost Artifact with no abilities"%name
-        card.name = name
-        card.cost = CardEnvironment.ManaCost("0")
-        card.text = "No card object found"
+        card.base_name = card.name = name
+        card.base_text = card.txt = "Card is not defined in database"
+        card.base_cost = card.cost = CardEnvironment.ManaCost("0")
         card.base_color = card.color = no_characteristic()
         card.base_type = card.type = characteristic("Artifact")
         card.base_supertype = card.supertype = no_characteristic()
@@ -97,7 +98,7 @@ class _CardLibrary:
     def loadCardObj(self, card, name):
         import CardEnvironment
         card_desc = self.cardfile[name]
-        card_text = card_desc[0]
+        card_code = card_desc[0]
         if card_desc[3] == True: print "%s is marked with an error"%name
 
         card.stack_role = CardEnvironment.SpellRole(card)
@@ -108,7 +109,7 @@ class _CardLibrary:
         # This is a bit of a hack to get everything to load properly
         card.card = card
         try:
-            exec card_text in vars(CardEnvironment), vars(card)
+            exec card_code in vars(CardEnvironment), vars(card)
         except Exception, e:
             print name, e
             raise KeyError()
@@ -116,16 +117,19 @@ class _CardLibrary:
         #for k in card.__dict__.keys():
         #    if k not in self.acceptable_keys: del card.__dict__[k]
 
+        # For converted manacost comparisons
+        if type(card.cost) == str: card.base_cost = card.cost = CardEnvironment.ManaCost(card.cost)
+        else: card.base_cost = card.cost
+
         # Build default characteristics
+        card.base_name = card.name
+        card.base_text = card_code #card.text
         card.base_color = card.color
         card.base_type = card.type
         card.base_subtypes = card.subtypes
         card.base_supertype = card.supertype
 
         card.key = (self.counter, card.name)
-
-        # For converted manacost comparisons
-        if type(card.cost) == str: card.cost = CardEnvironment.ManaCost(card.cost)
 
         if (card.type == "Instant" or card.type == "Sorcery"):
             card.in_play_role = CardEnvironment.NoRole(card)
@@ -134,6 +138,5 @@ class _CardLibrary:
         # This is for unpickling during network transfer - we don't want to send the card across
         # but we need to identify the corresponding Card object based on key id.
         return self.cardsInGame[key]
-
 
 CardLibrary = _CardLibrary()

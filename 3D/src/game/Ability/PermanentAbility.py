@@ -13,6 +13,7 @@ from game.Match import SelfMatch, isCreature
 class EquipAbility(ActivatedAbility):
     def __init__(self, card, cost="0"):
         super(EquipAbility,self).__init__(card, cost=cost, target=Target(target_types=isCreature), effects=AttachToPermanent(), limit=SorceryLimit(card))
+    def __str__(self): return "%s: Equip"%self.cost
 
 class ThresholdAbility(ActivatedAbility):
     def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="play"):
