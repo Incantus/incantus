@@ -21,19 +21,23 @@ class StaticAbility(MtGObject):
         newcopy.card = card
         return newcopy
 
-class PermanentTrackingAbility(StaticAbility):
-    def __init__(self, card, condition, events = [], effects=[], zone="play"):
-        super(PermanentTrackingAbility, self).__init__(card, effects, zone)
+class CardTrackingAbility(StaticAbility):
+    def __init__(self, card, condition, events = [], effects=[], tracking_zone="play", zone="play"):
+        super(CardTrackingAbility, self).__init__(card, effects, zone)
         self.condition = condition
-        self.enter_trigger = EnterTrigger("play", player="any")
-        self.leave_trigger = LeaveTrigger("play", player="any")
+        self.enter_trigger = EnterTrigger(tracking_zone, player="any")
+        self.leave_trigger = LeaveTrigger(tracking_zone, player="any")
         if not type(events) == list: events = [events]
+        self.tracking_zone = tracking_zone
         self.other_triggers = [Trigger(event) for event in [SubroleModifiedEvent(), ControllerChanged()] + events]
     def enteringZone(self):
         self.effect_tracking = {}
-        # Get All Permanents
-        permanents = self.card.controller.play.get(self.condition, all=True)
-        for perm in permanents: self.add_effects(perm)
+        # Get all cards in the tracked zone
+        zone = getattr(self.card.controller, self.tracking_zone)
+        opp_zone = getattr(self.card.controller.opponent, self.tracking_zone)
+        cards = zone.get(self.condition) + opp_zone.get(self.condition)
+
+        for card in cards: self.add_effects(card)
 
         self.enter_trigger.setup_trigger(self, self.entering, self.condition)
         self.leave_trigger.setup_trigger(self, self.leaving)
@@ -43,37 +47,39 @@ class PermanentTrackingAbility(StaticAbility):
         self.leave_trigger.clear_trigger(wait=False)
         for trigger in self.other_triggers: trigger.clear_trigger(wait=False)
 
-        for perm in self.effect_tracking.keys(): self.remove_effects(perm)
+        for card in self.effect_tracking.keys(): self.remove_effects(card)
         self.effect_tracking.clear()
     def entering(self, trigger):
-        # This is called everytime a permanent that matches condition enters play
-        perm = trigger.matched_card
-        #print "%s triggered %s in %s, currently tracked %s"%(perm, trigger.trigger_event, self.card, perm in self.effect_tracking)
-        if not perm in self.effect_tracking: self.add_effects(perm)
+        # This is called everytime a card that matches condition enters the tracking zone
+        card = trigger.matched_card
+        if not card in self.effect_tracking: self.add_effects(card)
     def leaving(self, trigger):
-        # This is called everytime a permanent leaves play
-        perm = trigger.matched_card
-        # The perm might already be removed if both this card and the perm left play at the same time
-        if perm in self.effect_tracking: self.remove_effects(perm)
-    def add_effects(self, perm):
-        self.effect_tracking[perm] = True  # this is to prevent recursion when the effect is called
+        # This is called everytime a card that matches condition leaves the tracking zone
+        card = trigger.matched_card
+        # The card might already be removed if the tracked card is removed and this card leaves play
+        if card in self.effect_tracking: self.remove_effects(card)
+    def add_effects(self, card):
+        self.effect_tracking[card] = True  # this is to prevent recursion when the effect is called
         effect_removal = []
-        for effect in self.effects: effect_removal.append(effect(self.card, perm))
-        self.effect_tracking[perm] = effect_removal
-    def remove_effects(self, perm):
-        removal = self.effect_tracking[perm]
+        for effect in self.effects: effect_removal.append(effect(self.card, card))
+        self.effect_tracking[card] = effect_removal
+    def remove_effects(self, card):
+        removal = self.effect_tracking[card]
         for remove in removal: remove()
-        del self.effect_tracking[perm]   # necessary to prevent recursion
+        del self.effect_tracking[card]   # necessary to prevent recursion
     def event_triggered(self, trigger):
-        if hasattr(trigger, "card"): perm = trigger.card
-        else: perm = trigger.sender
-        tracking = perm in self.effect_tracking
-        pass_condition = self.condition(perm)
-        #print "%s triggered %s in %s, currently tracked %s, valid %s"%(perm, trigger.trigger_event, self.card, tracking, pass_condition)
-        # If perm is already tracked, but doesn't pass the condition, remove it
+        if hasattr(trigger, "card"): card = trigger.card
+        else: card = trigger.sender
+        tracking = card in self.effect_tracking
+        pass_condition = self.condition(card)
+        # If card is already tracked, but doesn't pass the condition, remove it
         # Note the condition can't rely on any trigger data
-        if not tracking and pass_condition: self.add_effects(perm)
-        elif tracking and not pass_condition and not self.effect_tracking[perm] == True: self.remove_effects(perm)
+        if not tracking and pass_condition: self.add_effects(card)
+        elif tracking and not pass_condition and not self.effect_tracking[card] == True: self.remove_effects(card)
+
+class PermanentTrackingAbility(CardTrackingAbility):
+    def __init__(self, card, condition, events = [], effects=[], zone="play"):
+        super(PermanentTrackingAbility, self).__init__(card, condition, events, effects, tracking_zone="play", zone=zone)
 
 class CardStaticAbility(StaticAbility):
     # Target is the card itself
