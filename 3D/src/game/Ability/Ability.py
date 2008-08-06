@@ -65,11 +65,11 @@ class Ability(MtGObject):
     def can_be_countered(self): return True
     def countered(self): self.card.send(AbilityCountered())
     def cleanup(self): pass
-    def copy(self):
+    def copy(self, card=None):
         import copy
         newcopy = copy.copy(self)
-        # XXX If copy the effects then things like TriggerEffect won't work
-        #newcopy.effects = [e.copy() for e in self.effects]
+        if not card: newcopy.card = self.card
+        else: newcopy.card = card
         if self.copy_targets: newcopy.targets = [t.copy() for t in self.targets]
         return newcopy
     def __str__(self):

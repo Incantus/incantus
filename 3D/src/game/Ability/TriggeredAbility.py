@@ -17,10 +17,9 @@ class TriggeredAbility(MtGObject):
         self.trigger.clear_trigger(wait=False)
     def playAbility(self, trigger=None): # We don't care about the trigger
         Play(self.card, self.ability.copy())
-    def copy(self):
-        ability = self.ability.copy()
-        trigger = self.trigger.copy()
-        return TriggeredAbility(self.card, trigger, self.match_condition, ability)
+    def copy(self, card=None):
+        if not card: card = self.card
+        return TriggeredAbility(card, self.trigger.copy(), self.match_condition, self.ability.copy(card))
 
 def Play(card, ability):
     # This is identical to Action.PlaySpell - there's probably a way to combine them
