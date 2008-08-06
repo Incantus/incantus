@@ -81,10 +81,3 @@ class Ability(MtGObject):
 
 class Stackless(object):
     def needs_stack(self): return False
-
-class PostponeTargeting(object):
-    def get_target(self):
-        return True
-    def resolve(self):
-        if not super(PostponeTargeting, self).get_target(): return False
-        return super(PostponeTargeting, self).resolve()
