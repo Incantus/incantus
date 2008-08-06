@@ -1,3 +1,4 @@
+import copy
 from game.GameObjects import MtGObject
 from game.Match import isPermanent
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger, robustApply
@@ -11,34 +12,14 @@ class StaticAbility(MtGObject):
             self.effects = [effects]
         else: self.effects = effects
         self.zone = zone
+        self.effect_tracking = None
     def enteringZone(self): pass
     def leavingZone(self): pass
-
-class CardStaticAbility(StaticAbility):
-    # Target is by default the card itself
-    def __init__(self, card, effects=[], zone="play"):
-        super(CardStaticAbility, self).__init__(card, effects, zone)
-        self.effect_tracking = None
-    def enteringZone(self):
-        effect_removal = []
-        for effect in self.effects: effect_removal.append(effect(self.card, self.card))
-        self.effect_tracking = effect_removal
-    def leavingZone(self):
-        for remove in self.effect_tracking: remove()
-        self.effect_tracking = None
-
-class GlobalStaticAbility(StaticAbility):
-    # Target is by default the cards controller
-    def __init__(self, card, effects=[], zone="play"):
-        super(GlobalStaticAbility, self).__init__(card, effects, zone)
-        self.effect_tracking = None
-    def enteringZone(self):
-        effect_removal = []
-        for effect in self.effects: effect_removal.append(effect(self.card, self.card.controller))
-        self.effect_tracking = effect_removal
-    def leavingZone(self):
-        for remove in self.effect_tracking: remove()
-        self.effect_tracking = None
+    def copy(self, card=None):
+        newcopy = copy.copy(self)
+        if not card: card = self.card
+        newcopy.card = card
+        return newcopy
 
 class PermanentTrackingAbility(StaticAbility):
     def __init__(self, card, condition, events = [], effects=[], zone="play"):
@@ -48,8 +29,8 @@ class PermanentTrackingAbility(StaticAbility):
         self.leave_trigger = LeaveTrigger("play", player="any")
         if not type(events) == list: events = [events]
         self.other_triggers = [Trigger(event) for event in [SubroleModifiedEvent(), ControllerChanged()] + events]
-        self.effect_tracking = {}
     def enteringZone(self):
+        self.effect_tracking = {}
         # Get All Permanents
         permanents = self.card.controller.play.get(self.condition, all=True)
         for perm in permanents: self.add_effects(perm)
@@ -94,18 +75,33 @@ class PermanentTrackingAbility(StaticAbility):
         if not tracking and pass_condition: self.add_effects(perm)
         elif tracking and not pass_condition and not self.effect_tracking[perm] == True: self.remove_effects(perm)
 
-class AttachedStaticAbility(StaticAbility):
-    def __init__(self, card, effects=[], zone="play"):
-        super(AttachedStaticAbility, self).__init__(card, effects, zone=zone)
-        self.effect_tracking = None
+class CardStaticAbility(StaticAbility):
+    # Target is the card itself
     def enteringZone(self):
-        perm = self.card.attached_to
         effect_removal = []
-        for effect in self.effects: effect_removal.append(effect(self.card, perm))
+        for effect in self.effects: effect_removal.append(effect(self.card, self.card))
         self.effect_tracking = effect_removal
     def leavingZone(self):
-        #if isPermanent(self.card.attached_to):
-        #    for remove in self.effect_tracking: remove()
+        for remove in self.effect_tracking: remove()
+        self.effect_tracking = None
+
+class GlobalStaticAbility(StaticAbility):
+    # Target is the cards controller
+    def enteringZone(self):
+        effect_removal = []
+        for effect in self.effects: effect_removal.append(effect(self.card, self.card.controller))
+        self.effect_tracking = effect_removal
+    def leavingZone(self):
+        for remove in self.effect_tracking: remove()
+        self.effect_tracking = None
+
+class AttachedStaticAbility(StaticAbility):
+    # Target is the card which is attached
+    def enteringZone(self):
+        effect_removal = []
+        for effect in self.effects: effect_removal.append(effect(self.card, self.card.attached_to))
+        self.effect_tracking = effect_removal
+    def leavingZone(self):
         for remove in self.effect_tracking: remove()
         self.effect_tracking = None
 
