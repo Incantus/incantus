@@ -1,6 +1,6 @@
 import copy
 from pydispatch import dispatcher
-from GameEvent import HasPriorityEvent, ControllerChanged
+from GameEvent import HasPriorityEvent, ControllerChanged, TokenLeavingPlay
 from data_structures import keywords
 from abilities import abilities
 
@@ -158,6 +158,9 @@ class Card(GameObject):
     def __str__(self):
         return self.name
 
-class GameToken(GameObject):
+class Token(GameObject):
+    def move_to(self, to_zone, position=-1):
+        super(Token, self).move_to(to_zone, position)
+        if not str(to_zone) == "play": self.send(TokenLeavingPlay())
     def __str__(self):
         return "Token: %s"%self.name

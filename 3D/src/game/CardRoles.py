@@ -370,11 +370,6 @@ class Creature(SubRole):
     def shouldDestroy(self):
         return self.__damage >= self.toughness
 
-class TokenCreature(Creature):
-    def leavingPlay(self):
-        self.send(TokenLeavingPlay())
-        super(TokenCreature,self).leavingPlay()
-
 class Artifact(SubRole): pass
 class Enchantment(SubRole): pass
 

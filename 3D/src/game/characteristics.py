@@ -10,7 +10,7 @@ class characteristic(object):
     def __eq__(self, other): return other in self.characteristics
     def __contains__(self, val): return self == val
     def __str__(self): return str(' '.join(self.characteristics))
-    def __repr__(self): return "%s"%str(self)
+    def __repr__(self): return "characteristic([%s])"%', '.join(map(repr, self.characteristics))
     def make_text_line(self, fields): fields[:] = self.characteristics
 
 class all_characteristics(object):
@@ -28,7 +28,7 @@ class no_characteristic(object):
     def __contains__(self, val): return self == val
     def intersects(self, other): return False
     def __str__(self): return ""
-    def __repr__(self): return repr("None")
+    def __repr__(self): return "no_characteristic()"
     def make_text_line(self, fields): fields[:] = []
 
 # These are only used internally

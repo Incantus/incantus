@@ -1,6 +1,6 @@
 
 from characteristics import characteristic, no_characteristic
-from GameObjects import Card, GameToken
+from GameObjects import Card, Token
 import bsddb, os, glob, cPickle as pickle
 
 class CardDatabase(object):
@@ -42,12 +42,10 @@ class _CardLibrary:
         self.counter = 0
         self.tokencounter = 0
 
-    def createToken(self, name, owner, color, type, subtypes, supertype, text='', cost="0"):
+    def createToken(self, name, owner, color, type, subtypes, supertype, cost="0"):
         import CardEnvironment
-        if not text: text = ["Token"]
-        token = GameToken(owner)
+        token = Token(owner)
         token.base_name = token.name = name
-        token.base_text = token.text = text
         token.base_cost = token.cost = CardEnvironment.ManaCost(cost)
         characteristics = [("color", color), ("type", type), ("subtypes", subtypes), ("supertype", supertype)]
         for base, char in characteristics:
@@ -55,6 +53,18 @@ class _CardLibrary:
             else: char = no_characteristic()
             setattr(token, "base_"+base, char)
             setattr(token, base, char)
+        token.base_text = token.text = '''\
+name = %s
+type = %s
+supertype = %s
+subtypes = %s
+cost = %s
+text = []
+
+play_spell = CastPermanentSpell(card, cost)
+
+in_play_role = Permanent(card, %s())
+'''%(repr(token.name), repr(token.base_type), repr(token.base_supertype), repr(token.base_subtypes), repr(cost), type)
         token.key = (self.tokencounter, token.name+" Token")
         self.cardsInGame[token.key] = token
         self.tokencounter += 1

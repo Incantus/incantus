@@ -79,6 +79,13 @@ class GameObjectMatch(ObjMatch):
     def __str__(self):
         return "GameObject"
 
+class TokenMatch(ObjMatch):
+    def match(self, obj=None):
+        import GameObjects
+        return isinstance(obj, GameObjects.Token) and self.condition(obj)
+    def __str__(self):
+        return "GameObject"
+
 class CardMatch(ObjMatch):
     def match(self, card=None):
         import GameObjects
@@ -107,7 +114,6 @@ isBasicLand = isLand.with_condition(lambda l: l.supertype == "Basic")
 isNonBasicLand = isLand.with_condition(lambda l: not l.supertype == "Basic")
 isNonLand = isPermanent.with_condition(lambda p: not p.type == "Land")
 isArtifact = RoleMatch(CardRoles.Artifact)
-isToken = RoleMatch(CardRoles.TokenCreature)
 isEnchantment = RoleMatch(CardRoles.Enchantment)
 isEquipment = RoleMatch(CardRoles.Equipment)
 isAura = RoleMatch(CardRoles.Aura)
@@ -149,6 +155,7 @@ isNonLandType = nonLandType()
 
 isCard = CardMatch()
 isGameObject = GameObjectMatch()
+isToken = TokenMatch()
 
 from Ability import Ability
 from Ability.CastingAbility import CastSpell, CastSorcerySpell, CastInstantSpell
