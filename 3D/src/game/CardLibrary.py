@@ -52,6 +52,7 @@ class _CardLibrary:
             else: char = no_characteristic()
             setattr(token, "base_"+base, char)
             setattr(token, base, char)
+        token.current_role = token.out_play_role = CardEnvironment.NoRole(token)
         token.base_text = token.text = '''\
 name = %s
 type = %s
