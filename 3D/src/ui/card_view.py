@@ -145,7 +145,7 @@ class HandView(CardView):
     def card_on_stack(self, ability):
         # XXX This is a big ugly hack
         from game.Ability import CastSpell
-        if not isinstance(ability, CastSpell): return
+        if not isinstance(ability, CastSpell) or str(ability.card.zone) == "hand": return
         card = CardLibrary.CardLibrary.getHandCard(ability.card)
         if card in self.cards:
             self.cards.remove(card)
