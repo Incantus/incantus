@@ -3,7 +3,7 @@ from StaticAbility import GlobalStaticAbility
 from TriggeredAbility import TriggeredAbility
 from Target import Target
 from game.Match import SelfMatch
-from game.GameEvent import CounterAddedEvent
+from game.GameEvent import CounterAddedEvent, DealsDamageEvent, ReceivesDamageEvent
 from game.CardRoles import Creature
 from Trigger import EnterFromTrigger
 from Effect import MultipleEffects, ChangeZoneToPlay, AddPowerToughnessCounter, OverrideGlobal
@@ -15,7 +15,8 @@ def persist(card):
     persist = TriggeredAbility(card, trigger = EnterFromTrigger(from_zone="play", to_zone="graveyard"),
             match_condition=SelfMatch(card, condition=lambda card: not any([True for counter in card.counters if counter.ctype == "-1-1"])),
             ability=Ability(card, target=Target(targeting="self"),
-                effects=MultipleEffects(ChangeZoneToPlay("graveyard"), AddPowerToughnessCounter(-1,-1))))
+                effects=MultipleEffects(ChangeZoneToPlay("graveyard"), AddPowerToughnessCounter(-1,-1))),
+            txt="persist")
 
     remove = card.abilities.add(persist)
     def remove_persist():
@@ -31,12 +32,12 @@ def wither(card):
             for counter in [PowerToughnessCounter(-1, -1) for i in range(amt)]:
                 self.card.counters.append(counter)
                 self.send(CounterAddedEvent(), counter=counter)
-                source.send(DealsDamageEvent(), to=self.card, amount=amt)
-                self.send(ReceivesDamageEvent(), source=source, amount=amt)
+            source.send(DealsDamageEvent(), to=self.card, amount=amt)
+            self.send(ReceivesDamageEvent(), source=source, amount=amt)
             continue_chain = False
         return continue_chain
     wither_damage = GlobalStaticAbility(card,
-            effects=OverrideGlobal(assignWither, "assignDamage", Creature, reverse=True, combiner=logical_and, expire=False))
+            effects=OverrideGlobal(assignWither, "assignDamage", Creature, combiner=logical_and, expire=False), txt="wither")
     remove = card.abilities.add(wither_damage)
     def remove_wither():
         card.keywords.remove("wither")

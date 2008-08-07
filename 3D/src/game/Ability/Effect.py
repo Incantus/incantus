@@ -255,9 +255,8 @@ class CreateToken(Effect):
             token = CardLibrary.createToken(self.token_name, target, self.token_color,  self.token_type, self.token_subtypes, self.token_supertype)
             # Create the role for it
             token.in_play_role = Permanent(token, copy.deepcopy(self.token_subrole))
-            token.current_role = token.out_play_role = NoRole(token)
             # Now put it into play
-            target.play.add_card(token)
+            target.play.add_new_card(token)
             card.send(TokenPlayed())
         return True
     def __str__(self):
@@ -429,13 +428,16 @@ class CreateTokenCopy(Effect):
         from game.CardLibrary import CardLibrary
         from game.CardRoles import NoRole
         token = CardLibrary.createToken(target.name, card.controller, '', '', '', '', '')
+        acceptable_keys = set(token.__dict__.keys())
         token.card = token
         exec target.text in vars(CardEnvironment), vars(token)
+        for k in token.__dict__.keys():
+            if k not in acceptable_keys: del token.__dict__[k]
         token.text = target.text
         for attr in ["name", "cost", "text", "color", "type", "subtypes", "supertype", "abilities"]:
             base_attr = "base_"+attr
             setattr(token, base_attr, getattr(token, attr))
-        card.controller.play.add_card(token)
+        card.controller.play.add_new_card(token)
         card.send(TokenPlayed())
         return True
     def __str__(self):
@@ -454,8 +456,11 @@ class Clone(Effect):
         # Turn off the current card
         card.leavingZone(zone)
         newcard = GameObjects.Card(card.controller)
+        acceptable_keys = set(newcard.__dict__.keys())
         newcard.card = card
         exec target.text in vars(CardEnvironment), vars(newcard)
+        for k in newcard.__dict__.keys():
+            if k not in acceptable_keys: del newcard.__dict__[k]
         card.current_role = newcard.in_play_role
         for attr in ["name", "cost", "text", "color", "type", "subtypes", "supertype", "abilities"]:
             setattr(card, attr, getattr(newcard, attr))
@@ -505,7 +510,7 @@ class CopySpell(Effect):
 # XXX Difference between ReplacementEffect and OverrideGlobal
 # ReplacementEffect curently only targets objects while
 # OverrideGlobal only targets classes
-from game.stacked_function import replace
+from game.stacked_function import override, replace
 class ReplacementEffect(Effect):
     def __init__(self, func, name, expire=True, txt='', condition=None):
         self.func = func
@@ -553,22 +558,44 @@ class OverrideGlobal(Effect):
     def __str__(self):
         return "Override %s"%self.name
 class GiveKeyword(Effect):
-    def __init__(self, keyword_func, expire=True, keyword='', perm=False):
-        self.keyword_func = keyword_func
-        self.expire = expire
-        self.keyword_name = keyword
-        self.perm = perm
+    def __init__(self, keyword, func=None, attr="subrole"):
+        self.keyword = keyword
+        self.func = func
+        self.attr = attr
     def __call__(self, card, target):
         from game.CardRoles import Creature
         # XXX This looks ugly, but is necessary to bind the correct subrole
-        if isPlayer(target): restore = self.keyword_func(target)
-        else: 
-            if self.perm: restore = self.keyword_func(target.current_role)
-            else: restore = self.keyword_func(target.current_role.get_subrole(Creature))
-        if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
+        #if self.keyword: target.keywords.add(self.keyword)
+        target.keywords.add(self.keyword)
+        if self.func:
+            if isPlayer(target): obj = target
+            elif self.attr == "card": obj = target
+            elif self.attr == "permanent": obj = target.current_role
+            elif self.attr == "subrole": obj = target.current_role.get_subrole(Creature)
+            remove = self.func(obj)
+        else: remove = lambda: None
+        def restore():
+            target.keywords.remove(self.keyword)
+            remove()
         return restore
     def __str__(self):
-        return "Give %s"%self.keyword_name
+        return "Give %s"%self.keyword
+class Override(Effect):
+    def __init__(self, func, attr="subrole"):
+        self.func = func
+        self.attr = attr
+    def __call__(self, card, target):
+        from game.CardRoles import Creature
+        # XXX This looks ugly, but is necessary to bind the correct subrole
+        #if self.keyword: target.keywords.add(self.keyword)
+        if isPlayer(target): obj = target
+        elif self.attr == "card": obj = target
+        elif self.attr == "permanent": obj = target.current_role
+        elif self.attr == "subrole": obj = target.current_role.get_subrole(Creature)
+        restore = self.func(obj)
+        return restore
+    def __str__(self):
+        return "Give %s"%self.keyword
 
 class AttachToPermanent(Effect):
     def __call__(self, card, target):
@@ -738,7 +765,9 @@ class AddAbility(Effect):
         return stacked_ability
     def __call__(self, card, target):
         stacked_ability = self.get_stacked(target)
-        restore = stacked_ability.add_abilities(self.ability.copy(target))
+        if callable(self.ability): ability = self.ability(target)
+        else: ability = self.ability.copy(target)
+        restore = stacked_ability.add_abilities(ability)
         if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
         return restore
     def __str__(self):

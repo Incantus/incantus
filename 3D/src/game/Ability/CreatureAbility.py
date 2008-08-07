@@ -2,114 +2,112 @@ from game.Match import isPermanent, isCreature, isLand, isArtifact
 from game.stacked_function import override, replace, logical_or
 from game.LazyInt import LazyInt
 from game.characteristics import all_characteristics
-import new
+from Ability import Ability
+from StaticAbility import CardStaticAbility
+from Effect import GiveKeyword, Override, ChangeLife
+from TriggeredAbility import TriggeredAbility
+from Trigger import DealDamageTrigger
 
-def landwalk(subrole, landtype):
+def flash(card):
+    from Limit import Unlimited, SorceryLimit, MultipleLimits
+    casting_ability = card.play_spell
+    if isinstance(casting_ability.limit, SorceryLimit):
+        casting_ability.limit = Unlimited(card)
+    elif isinstance(casting_ability.limit, MultipleLimits):
+        for i, limit in enumerate(casting_ability.limit):
+            if isinstance(limit, SorceryLimit): break
+        casting_ability.limit.limits.pop(i)
+
+def landwalk(card, landtype):
     keyword = landtype.lower()+"walk"
     def canBeBlocked(self):
         other_play = self.card.controller.opponent.play
         return (len(other_play.get(isLand.with_condition(lambda land: landtype in land.subtypes))) == 0)
-    return override(subrole, "canBeBlocked", canBeBlocked)
+    func = lambda subrole: override(subrole, "canBeBlocked", canBeBlocked)
+    return CardStaticAbility(card, effects=GiveKeyword(keyword, func), txt=keyword)
 
-def plainswalk(subrole): return landwalk(subrole, "Plains")
-def swampwalk(subrole): return landwalk(subrole, "Swamp")
-def forestwalk(subrole): return landwalk(subrole, "Forest")
-def islandwalk(subrole): return landwalk(subrole, "Island")
-def mountainwalk(subrole): return landwalk(subrole, "Mountain")
+plainswalk = lambda card: landwalk(card, "Plains")
+swampwalk = lambda card: landwalk(card, "Swamp")
+forestwalk = lambda card: landwalk(card, "Forest")
+islandwalk = lambda card: landwalk(card, "Island")
+mountainwalk = lambda card: landwalk(card, "Mountain")
 
-def legendary_landwalk(subrole):
+def legendary_landwalk(card):
     keyword = "legendary landwalk"
     def canBeBlocked(self):
         other_play = self.card.controller.opponent.play
         return (len(other_play.get(isLand.with_condition(lambda land: "Legendary" in land.supertype))) == 0)
-    return override(subrole, "canBeBlocked", canBeBlocked)
-def nonbasic_landwalk(subrole):
+    func = lambda subrole: override(subrole, "canBeBlocked", canBeBlocked)
+    return CardStaticAbility(card, effects=GiveKeyword(keyword, func), txt=keyword)
+
+def nonbasic_landwalk(card):
     keyword = "Nonbasic landwalk"
     def canBeBlocked(self):
         other_play = self.card.controller.opponent.play
         return (len(other_play.get(isLand.with_condition(lambda land: not "Basic" in land.supertype))) == 0)
-    return override(subrole, "canBeBlocked", canBeBlocked)
+    func = lambda subrole: override(subrole, "canBeBlocked", canBeBlocked)
+    return CardStaticAbility(card, effects=GiveKeyword(keyword, func), txt=keyword)
 
-def flying(subrole):
+def flying(card):
+    keyword = "flying"
     attr = set(["flying", "reach"])
     def canBeBlockedBy(self, blocker):
         return not (len(attr.intersection(blocker.keywords)) == 0)
-    return override(subrole, "canBeBlockedBy", canBeBlockedBy) #keyword="flying"
+    func = lambda subrole: override(subrole, "canBeBlockedBy", canBeBlockedBy)
+    return CardStaticAbility(card, effects=GiveKeyword(keyword, func), txt=keyword)
 
-def only_block(subrole):
-    def canBlockAttacker(self, attacker):
-        return keyword in attacker.keywords
-    return override(subrole, "canBlockAttacker", canBlockAttacker)
-
-def haste(subrole):
+def haste(card):
+    keyword = "haste"
     def continuouslyInPlay(self): return True
-    return override(subrole, "continuouslyInPlay", continuouslyInPlay, combiner=logical_or) #keyword="haste"
+    func = lambda subrole: override(subrole, "continuouslyInPlay", continuouslyInPlay, combiner=logical_or)
+    return CardStaticAbility(card, effects=GiveKeyword(keyword, func), txt=keyword)
 
-def must_attack(subrole):
-    def checkAttack(self, attackers, not_attacking):
-        return self.card in attackers or not self.canAttack()
-    return override(subrole, "checkAttack", checkAttack)
-
-def defender(subrole):
+def defender(card):
+    keyword = "defender"
     def canAttack(self): return False
-    return override(subrole, "canAttack", canAttack) #, keyword="defender")
+    func = lambda subrole: override(subrole, "canAttack", canAttack)
+    return CardStaticAbility(card, effects=GiveKeyword(keyword, func), txt=keyword)
 
-def shroud(subrole):
+def shroud(card):
+    keyword = "shroud"
     def canBeTargetedBy(self, targetter): return False
-    return override(subrole, "canBeTargetedBy", canBeTargetedBy) #, keyword="shroud")
+    func = lambda subrole: override(subrole, "canBeTargetedBy", canBeTargetedBy)
+    return CardStaticAbility(card, effects=GiveKeyword(keyword, func), txt=keyword)
 
 def reach(card):
-    card.keywords.add("reach")
-    return lambda: card.keywords.remove("reach")
-
+    keyword = "reach"
+    return CardStaticAbility(card, effects=GiveKeyword(keyword), txt=keyword)
 def double_strike(card):
-    card.keywords.add("double-strike")
-    return lambda: card.keywords.remove("double-strike")
+    keyword = "double-strike"
+    return CardStaticAbility(card, effects=GiveKeyword(keyword), txt=keyword)
 def first_strike(card):
-    card.keywords.add("first-strike")
-    return lambda: card.keywords.remove("first-strike")
+    keyword = "first-strike"
+    return CardStaticAbility(card, effects=GiveKeyword(keyword), txt=keyword)
 def trample(card):
-    card.keywords.add("trample")
-    return lambda: card.keywords.remove("trample")
+    keyword = "trample"
+    return CardStaticAbility(card, effects=GiveKeyword(keyword), txt=keyword)
 
-
-# XXX I don't like the way these are overriden - there must be a better way
-def vigilance(subrole):
+def vigilance(card):
+    keyword = "vigilance"
     def setAttacking(self):
         from game.GameEvent import AttackerDeclaredEvent
         self.setCombat(True)
         self.attacking = True
         self.send(AttackerDeclaredEvent())
         return False
-    return override(subrole, "setAttacking", setAttacking) # keyword="vigilance")
+    func = lambda subrole: override(subrole, "setAttacking", setAttacking)
+    return CardStaticAbility(card, effects=GiveKeyword(keyword, func), txt=keyword)
 
-# 502.68b If a permanent has multiple instances of lifelink, each triggers separately.
-# XXX Lifelink is broken when you have to split the damage
-def lifelink(card):
-    from Ability import Ability
-    from Effect import ChangeLife
-    from TriggeredAbility import TriggeredAbility
-    from Trigger import DealDamageTrigger
-    card.keywords.add("lifelink")
-    trigger = DealDamageTrigger(sender=card)
-    life_link = TriggeredAbility(card, trigger = trigger,
-            match_condition = lambda sender: True,
-            ability = Ability(card, effects=ChangeLife(lambda life, t=trigger: life+t.amount)))
-    card.abilities.add(life_link)
-    if in_play: life_link.enteringPlay()
-    def remove_lifelink():
-        card.keywords.remove("lifelink")
-        life_link.leavingPlay()
-        card.abilities.remove(life_link)
-    return remove_lifelink
-
-def fear(subrole):
+def fear(card):
+    keyword = "fear"
     def canBeBlockedBy(self, blocker):
         return (blocker.color == "B" or (blocker.type == "Artifact" and blocker.type=="Creature"))
-    return override(subrole ,"canBeBlockedBy", canBeBlockedBy) #, keyword="fear")
+    func = lambda subrole: override(subrole ,"canBeBlockedBy", canBeBlockedBy)
+    return CardStaticAbility(card, effects=GiveKeyword(keyword, func), txt=keyword)
 
-def protection(subrole, attribute_match):
-    #subrole.keywords.add("protection")
+# Not sure how to do this one yet
+def protection(card, attribute_match):
+    keyword = "protection"
     # DEBT is an acronym. It stands for Damage, Enchantments/Equipment, Blocking, and Targeting
     def canBeDamagedBy(self, damager):
         return not attribute_match(damager)
@@ -119,39 +117,61 @@ def protection(subrole, attribute_match):
         return not attribute_match(blocker)
     def canBeTargetedBy(self, targeter):
         return not attribute_match(targeter)
-    remove1 = override(subrole, "canBeDamagedBy", canBeDamagedBy)
-    remove2 = override(subrole, "canBeAttachedBy", canBeAttachedBy)
-    remove3 = override(subrole, "canBeBlockedBy", canBeBlockedBy)
-    remove4 = override(subrole, "canBeTargetedBy", canBeTargetedBy)
-    def remove_protection():
-        for remove in [remove1, remove2, remove3, remove4]: remove()
-    return remove_protection
+    func1 = lambda subrole: override(subrole, "canBeDamagedBy", canBeDamagedBy)
+    func2 = lambda subrole: override(subrole, "canBeAttachedBy", canBeAttachedBy)
+    func3 = lambda subrole: override(subrole, "canBeBlockedBy", canBeBlockedBy)
+    func4 = lambda subrole: override(subrole, "canBeTargetedBy", canBeTargetedBy)
+    return CardStaticAbility(card, effects=[GiveKeyword(keyword), Override(func1), Override(func2), Override(func3), Override(func4)], txt=keyword)
 
-protection_from_black = lambda subrole: protection(subrole, attribute_match = lambda other: other.color == "B")
-protection_from_blue = lambda subrole: protection(subrole, attribute_match = lambda other: other.color == "U")
-protection_from_white = lambda subrole: protection(subrole, attribute_match = lambda other: other.color == "W")
-protection_from_red = lambda subrole: protection(subrole, attribute_match = lambda other: other.color == "R")
-protection_from_green = lambda subrole: protection(subrole, attribute_match = lambda other: other.color == "G")
-protection_from_ge_cmc = lambda subrole, n: protection(subrole, attribute_match = lambda other: other.cost.converted_cost() >= n)
-protection_from_le_cmc = lambda subrole, n: protection(subrole, attribute_match = lambda other: other.cost.converted_cost() <= n)
-protection_from_artifacts = lambda subrole: protection(subrole, attribute_match = lambda other: isArtifact(other))
+protection_from_black = lambda card: protection(card, attribute_match = lambda other: other.color == "B")
+protection_from_blue = lambda card: protection(card, attribute_match = lambda other: other.color == "U")
+protection_from_white = lambda card: protection(card, attribute_match = lambda other: other.color == "W")
+protection_from_red = lambda card: protection(card, attribute_match = lambda other: other.color == "R")
+protection_from_green = lambda card: protection(card, attribute_match = lambda other: other.color == "G")
+protection_from_ge_cmc = lambda card, n: protection(card, attribute_match = lambda other: other.cost.converted_cost() >= n)
+protection_from_le_cmc = lambda card, n: protection(card, attribute_match = lambda other: other.cost.converted_cost() <= n)
+protection_from_artifacts = lambda card: protection(card, attribute_match = lambda other: isArtifact(other))
+
+# 502.68b If a permanent has multiple instances of lifelink, each triggers separately.
+# XXX Lifelink is broken when you have to split the damage
+def lifelink(card):
+    # This ability doesn't actually add lifelink to the keywords
+    #card.keywords.add(keyword)
+    trigger = DealDamageTrigger(sender=card)
+    life_link = TriggeredAbility(card, trigger = trigger,
+            match_condition = lambda sender: True,
+            ability = Ability(card, effects=ChangeLife(lambda life, t=trigger: life+t.amount)),
+            txt="lifelink")
+    return life_link
 
 # These are additional ones that aren't actually keywords, but the structure is the same
-def unblockable(subrole):
-    def canBeBlocked(self): return False
-    return override(subrole, "canBeBlocked", canBeBlocked)
+def must_attack(card):
+    def checkAttack(self, attackers, not_attacking):
+        return self.card in attackers or not self.canAttack()
+    func = lambda subrole: override(subrole, "checkAttack", checkAttack)
+    return CardStaticAbility(card, effects=Override(func), txt="must attack")
 
-def indestructible(permanent):
+def only_block(card, keyword):
+    def canBlockAttacker(self, attacker):
+        return keyword in attacker.keywords
+    func = lambda subrole: override(subrole, "canBlockAttacker", canBlockAttacker)
+    return CardStaticAbility(card, effects=Override(func), txt="only block %s"%keyword)
+
+def unblockable(card):
+    def canBeBlocked(self): return False
+    func = lambda subrole: override(subrole, "canBeBlocked", canBeBlocked)
+    return CardStaticAbility(card, effects=Override(func), txt="unblockable")
+
+def indestructible(card): #permanent):
     def shouldDestroy(self): return False
     def destroy(self, skip=False): return False
-    remove1 = override(permanent, "shouldDestroy", shouldDestroy)
-    remove2 = override(permanent, "destroy", destroy)
-    def remove_indestructible():
-        for remove in [remove1, remove2]: remove()
-    return remove_indestructible
+    func1 = lambda permanent: override(permanent, "shouldDestroy", shouldDestroy)
+    func2 = lambda permanent: override(permanent, "destroy", destroy)
+    return CardStaticAbility(card, effects=[Override(func1, attr="permanent"), Override(func2, attr="permanent")], txt="indestructible")
 
 
 # Replacement effects for damage
+# XXX I think these are broken right now
 def prevent_damage(subrole, amt, next=True, txt=None, condition=None):
     if txt == None:
         if amt == -1: amtstr = 'all'
@@ -176,7 +196,7 @@ def prevent_damage(subrole, amt, next=True, txt=None, condition=None):
         #self.send(DamagePreventedEvent(),amt=shielded)
     shieldDamage.curr_amt = amt
     return replace(subrole, "assignDamage", shieldDamage, msg=txt, condition=condition)
-def regenerate(permanent, txt="Regenerate", condition=None):
+def regenerate(subrole, txt="Regenerate", condition=None):
     def canDestroy(self):
         if self.canBeTapped(): self.tap()
         if isCreature(self.card):
@@ -215,17 +235,7 @@ def redirect_damage(from_target, to_target, amt, next=True, txt=None, condition=
     redirectDamage.curr_amt = amt
     return replace(from_target, "assignDamage", redirectDamage, msg=txt, condition=condition)
 
-def flash(card):
-    from Limit import Unlimited, SorceryLimit, MultipleLimits
-    casting_ability = card.play_spell
-    if isinstance(casting_ability.limit, SorceryLimit):
-        casting_ability.limit = Unlimited(card)
-    elif isinstance(casting_ability.limit, MultipleLimits):
-        for i, limit in enumerate(casting_ability.limit):
-            if isinstance(limit, SorceryLimit): break
-        casting_ability.limit.limits.pop(i)
-
-def morph(permanent, cost="0"):
+def morph(card, cost="0"):
     # XXX Not implemented
     # You may play this face down as a 2/2 creature for 3. Turn it face up any time for its morph cost.
     pass
