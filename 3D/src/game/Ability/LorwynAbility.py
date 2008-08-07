@@ -4,7 +4,7 @@ from CastingAbility import CastPermanentSpell
 from Effect import *
 from Target import Target, SpecialTarget, TriggeredTarget
 from TriggeredAbility import TriggeredAbility
-from Trigger import EnterTrigger, LeavingTrigger, DealDamageTrigger
+from Trigger import EnterTrigger, LeavingTrigger, DealDamageToTrigger
 from Limit import Unlimited
 from game.Match import SelfMatch, isLandType, isCreature
 from game.Cost import EvokeCost, ManaCost, TapCost, MultipleCosts
@@ -110,7 +110,7 @@ def hideaway(card, cost="0", limit=None):
 # XXX Deathtouch is broken for multiple blockers - since the same trigger object is shared
 def deathtouch(card):
     card.keywords.add("deathtouch")
-    trigger = DealDamageTrigger(sender=card)
+    trigger = DealDamageToTrigger(sender=card)
     deathtouch = TriggeredAbility(card, trigger = trigger,
             match_condition = lambda sender, to: isCreature(to),
             ability = Ability(card, target=TriggeredTarget(trigger, 'to'),

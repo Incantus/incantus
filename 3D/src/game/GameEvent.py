@@ -77,9 +77,8 @@ class RegenerateEvent(Event): pass
 class DamagePreventedEvent(Event): pass
 class PlayerDamageEvent(Event): pass
 class CombatDamageAssigned(Event): pass
-class DealsCombatDamageEvent(Event): pass
-class ReceivesCombatDamageEvent(Event): pass
 class DealsDamageEvent(Event): pass
+class DealsDamageToEvent(Event): pass
 class ReceivesDamageEvent(Event): pass
 class PermanentDestroyedEvent(Event): pass
 class AttachedEvent(Event): pass

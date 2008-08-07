@@ -1,4 +1,4 @@
-from game.GameEvent import UpkeepStepEvent, ReceivesCombatDamageEvent
+from game.GameEvent import UpkeepStepEvent, ReceivesDamageEvent
 from game.Cost import ManaCost, DiscardCost, SpecialCost
 from game.Match import isCreature, SelfMatch, isPlayer
 from Ability import Stackless
@@ -51,10 +51,10 @@ class ProwlVariable(MemoryVariable):
     def __init__(self, card):
         self.card = card
         self.can_prowl = False
-        self.register(self.dealt_damage, event=ReceivesCombatDamageEvent())
+        self.register(self.dealt_damage, event=ReceivesDamageEvent())
         super(ProwlVariable, self).__init__()
-    def dealt_damage(self, sender, source, amount):
-        if isPlayer(sender) and not sender == self.card.controller and source.subtypes.intersects(self.card.subtypes):
+    def dealt_damage(self, sender, source, amount, combat):
+        if combat and isPlayer(sender) and not sender == self.card.controller and source.subtypes.intersects(self.card.subtypes):
             self.can_prowl = True
     def value(self): return self.can_prowl
     def reset(self): self.can_prowl = False

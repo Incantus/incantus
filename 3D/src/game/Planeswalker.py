@@ -1,6 +1,6 @@
 
 from CardRoles import SubRole
-from GameEvent import DealsDamageEvent, ReceivesDamageEvent, CounterRemovedEvent
+from GameEvent import ReceivesDamageEvent, CounterRemovedEvent
 
 class Planeswalker(SubRole):
     def loyalty():
@@ -42,8 +42,7 @@ class Planeswalker(SubRole):
             for counter in loyalty[:amt]:
                 self.send(CounterRemovedEvent(), counter=counter)
                 self.perm.counters.remove(counter)
-            source.send(DealsDamageEvent(), to=self.card, amount=amt)
-            self.send(ReceivesDamageEvent(), source=source, amount=amt)
+            self.send(ReceivesDamageEvent(), source=source, amount=amt, combat=combat)
         return amt
     def shouldDestroy(self):
         return len([counter for counter in self.perm.counters if counter == "loyalty"]) <= 0

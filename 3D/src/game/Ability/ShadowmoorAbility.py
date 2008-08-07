@@ -3,7 +3,7 @@ from StaticAbility import GlobalStaticAbility, CardStaticAbility
 from TriggeredAbility import TriggeredAbility
 from Target import Target
 from game.Match import SelfMatch
-from game.GameEvent import CounterAddedEvent, DealsDamageEvent, ReceivesDamageEvent
+from game.GameEvent import CounterAddedEvent, ReceivesDamageEvent
 from game.CardRoles import Creature
 from Trigger import EnterFromTrigger
 from Effect import MultipleEffects, ChangeZoneToPlay, AddPowerToughnessCounter, OverrideGlobal, GiveKeyword
@@ -30,7 +30,6 @@ def wither_as_override(card):
             for counter in [PowerToughnessCounter(-1, -1) for i in range(amt)]:
                 self.card.counters.append(counter)
                 self.send(CounterAddedEvent(), counter=counter)
-            source.send(DealsDamageEvent(), to=self.card, amount=amt)
             self.send(ReceivesDamageEvent(), source=source, amount=amt)
             continue_chain = False
         return continue_chain

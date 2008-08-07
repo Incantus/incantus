@@ -1,5 +1,4 @@
-from game.GameEvent import DealsCombatDamageEvent, ReceivesCombatDamageEvent, CombatDamageAssigned
-from game.Match import isPlayer, isCreature
+from game.GameEvent import CombatDamageAssigned, DealsDamageEvent
 from Ability import Ability
 
 class AssignDamage(Ability):
@@ -34,16 +33,12 @@ class AssignDamage(Ability):
         # 310.4b The source of the combat damage is the creature as it currently exists, if it's still in play. If it's no longer in play, its last known information is used to determine its characteristics.
         # 310.4c If a creature that was supposed to receive combat damage is no longer in play or is no longer a creature, the damage assigned to it isn't dealt.
         for damager, damage_assn in self.damages:
-            if damager.canDealDamage():
-                for damagee, amt in damage_assn.iteritems():
-                    if amt > 0:
-                        if isPlayer(damagee): damager.dealDamage(damagee, amt, combat=True)
-                        elif isCreature(damagee) and damagee.in_combat: damager.dealDamage(damagee, amt, combat=True)
-                        damager.send(DealsCombatDamageEvent(),to=damagee,amount=amt)
-                        damagee.send(ReceivesCombatDamageEvent(),source=damager,amount=amt)
+            total = 0
+            for damagee, amt in damage_assn.iteritems():
+                if amt > 0: total += damager.dealDamage(damagee, amt, combat=True)
 
-            # Each target should trigger if it receives combat damage - handled by the target
-            # XXX is this different than other damage?
+            if total > 0: damager.send(DealsDamageEvent(), amount=total, combat=True)
+
         return True
     def resolved(self): self.send(CombatDamageAssigned())
     def cleanup(self): pass

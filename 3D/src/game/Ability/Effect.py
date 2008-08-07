@@ -4,7 +4,7 @@ from game.characteristics import characteristic, stacked_characteristic, additio
 from game.abilities import stacked_abilities, no_abilities, additional_abilities
 from game.GameObjects import MtGObject
 from game.Match import isPlayer, isCreature, isCard, isPermanent, isLandType
-from game.GameEvent import TokenPlayed, ManaEvent, SacrificeEvent, CleanupEvent, CounterAddedEvent, CounterRemovedEvent,  PowerToughnessChangedEvent, InvalidTargetEvent, SubroleModifiedEvent, ColorModifiedEvent, SubtypeModifiedEvent, LogEvent
+from game.GameEvent import TokenPlayed, ManaEvent, SacrificeEvent, CleanupEvent, CounterAddedEvent, CounterRemovedEvent,  PowerToughnessChangedEvent, InvalidTargetEvent, SubroleModifiedEvent, ColorModifiedEvent, SubtypeModifiedEvent, LogEvent, DealsDamageEvent
 
 class Effect(MtGObject):
     def __call__(self, card, target):
@@ -190,9 +190,11 @@ class DistributeDamage(Effect):
         self.damage = player.getDamageAssignment([(attacker, target)])
         return True
     def __call__(self, card, target):
-        if card.canDealDamage():
-            for t, amt in self.damage.items():
-                if amt > 0: card.dealDamage(t, amt)
+        total = 0
+        for t, amt in self.damage.items():
+            total += card.dealDamage(t, amt)
+        if total > 0:
+            card.send(DealsDamageEvent(), amount=total, combat=False)
             return True
         else: return False
     def __str__(self):
@@ -339,8 +341,9 @@ class DealDamage(Effect):
     def __call__(self, card, target):
         if self.source: source = self.source.target
         else: source = card
-        if source.canDealDamage():
-            source.dealDamage(target, self.amount)
+        dmg = source.dealDamage(target, self.amount)
+        if dmg > 0:
+            source.send(DealsDamageEvent(), amount=dmg, combat=False)
             return True
         else: return False
     def __str__(self):

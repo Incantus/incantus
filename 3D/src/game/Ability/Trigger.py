@@ -1,6 +1,6 @@
 import copy
 from game.GameObjects import MtGObject
-from game.GameEvent import DealsDamageEvent, ReceivesDamageEvent, DealsCombatDamageEvent, ReceivesCombatDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZone, CardLeavingZone, TimestepEvent
+from game.GameEvent import DealsDamageEvent, ReceivesDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZone, CardLeavingZone, TimestepEvent
 from game.Match import SelfMatch
 from game.LazyInt import LazyInt
 from game.pydispatch.robustapply import function
@@ -70,15 +70,12 @@ class PlayerTrigger(Trigger):
 class DealDamageTrigger(Trigger):
     def __init__(self, sender=dispatcher.Any):
         super(DealDamageTrigger, self).__init__(event=DealsDamageEvent(), sender=sender)
+class DealDamageToTrigger(Trigger):
+    def __init__(self, sender=dispatcher.Any):
+        super(DealDamageTrigger, self).__init__(event=DealsDamageToEvent(), sender=sender)
 class ReceiveDamageTrigger(Trigger):
     def __init__(self, sender=dispatcher.Any):
         super(ReceiveDamageTrigger, self).__init__(event=ReceivesDamageEvent(), sender=sender)
-class DealCombatDamageTrigger(Trigger):
-    def __init__(self, sender=dispatcher.Any):
-        super(DealCombatDamageTrigger, self).__init__(event=DealsCombatDamageEvent(), sender=sender)
-class ReceiveCombatDamageTrigger(Trigger):
-    def __init__(self, sender=dispatcher.Any):
-        super(ReceiveCombatDamageTrigger, self).__init__(event=ReceivesCombatDamageEvent(), sender=sender)
 
 # The next triggers are for events that pertain to cards but aren't sent by the card itself (ie zone changes, spells of abilities of cards)
 class CardTrigger(Trigger):

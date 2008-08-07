@@ -1,16 +1,15 @@
 import copy
 from GameObjects import MtGObject
-from GameEvent import DealsDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, ReceivesDamageEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
+from GameEvent import DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
 
 class GameRole(MtGObject):
     def __init__(self, card):
         self.card = card
-    def canDealDamage(self):
-        return True
     # the damage stuff seems kind of hacky
     def dealDamage(self, target, amount, combat=False):
         if target.canBeDamagedBy(self.card) and amount > 0:
             final_dmg = target.assignDamage(amount, source=self.card, combat=combat)
+            if final_dmg > 0: self.send(DealsDamageToEvent(), to=target, amount=final_dmg, combat=combat)
         return final_dmg
     def canBeTargetedBy(self, targeter): return True
     def canBeAttachedBy(self, targeter): return True
@@ -287,8 +286,7 @@ class Creature(SubRole):
                     self.card.counters.append(counter)
                     self.send(CounterAddedEvent(), counter=counter)
             else: self.__damage += amt
-            source.send(DealsDamageEvent(), to=self.card, amount=amt)
-            self.send(ReceivesDamageEvent(), source=source, amount=amt)
+            self.send(ReceivesDamageEvent(), source=source, amount=amt, combat=combat)
         return amt
     def removeDamage(self, amt):
         self.__damage -= amt

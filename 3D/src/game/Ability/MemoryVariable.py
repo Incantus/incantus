@@ -64,7 +64,7 @@ class ZoneMoveCountVariable(MemoryVariable):
 class DamageTrackingVariable(MemoryVariable):
     def __init__(self):
         self.reset()
-        self.register(self.damage, event=DealsDamageEvent())
+        self.register(self.damage, event=DealsDamageToEvent())
         super(DamageTrackingVariable, self).__init__()
     def reset(self):
         self.dealing = {}
