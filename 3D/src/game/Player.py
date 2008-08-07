@@ -30,7 +30,7 @@ class Player(MtGObject):
 
     def __init__(self,name):
         self.name = name
-        self._life = 200
+        self._life = 20
         self.poison = 0
         self.allowable_actions = [PassPriority]
         self.land_actions = -1
@@ -231,6 +231,7 @@ class Player(MtGObject):
                             else:
                                 if not attacker.attacking: reason = "cannot block non attacking %s"%attacker
                                 else: reason = "cannot block %s"%attacker
+                                self.send(InvalidTargetEvent(), target=blocker)
                                 self.send(InvalidTargetEvent(), target=attacker)
                                 attacker_prompt = "%s %s - select a new attacker"%(blocker,reason)
 
