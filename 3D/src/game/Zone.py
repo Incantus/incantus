@@ -134,8 +134,7 @@ class Hand(OutPlayMixin, Zone):
 class Removed(OutPlayMixin, Zone):
     name = "removed"
 
-class PlayView(AddingCardsMixin):
-    name = "play"
+class PlayView(object):
     def __init__(self, player, play):
         self.player = player
         self.play = play
@@ -161,7 +160,7 @@ class PlayView(AddingCardsMixin):
         return getattr(self.play, attr)
 
 
-class Play(OrderedZone):
+class Play(AddingCardsMixin, OrderedZone):
     name = "play"
     def __init__(self, game):
         self.game = game
