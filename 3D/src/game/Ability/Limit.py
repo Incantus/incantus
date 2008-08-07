@@ -11,14 +11,18 @@ class Unlimited(Limit):
     def __call__(self):
         return True
 
+# XXX This is broken with count limit
 class MultipleLimits(Limit):
     def __init__(self, card, limits):
         super(MultipleLimits,self).__init__(card)
-        self.limits = limits
-    def __iter__(self):
-        return iter(self.limits)
+        counts = []
+        for l in limits:
+            if isinstance(l, CountLimit):
+                counts.append(l)
+                break
+        limits.remove(l)
+        self.limits = limits+counts
     def __call__(self):
-        # XXX This is broken
         for l in self.limits:
             if not l():
                 limited = False
