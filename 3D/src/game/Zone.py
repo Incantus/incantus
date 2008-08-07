@@ -31,7 +31,7 @@ class Zone(MtGObject):
         self.cards.remove(card)
         card.zone = None
         self.send(CardLeftZone(), card=card)
-    def _add_card(self, card, position=-1):
+    def _insert_card(self, card, position=-1):
         if position == -1: self.cards.append(card)
         else: self.cards.insert(position, card)
         card.zone = self
@@ -44,7 +44,7 @@ class Zone(MtGObject):
         self.before_card_added(card)
         # Remove card from previous zone
         old_zone._remove_card(card)
-        self._add_card(card, position)
+        self._insert_card(card, position)
     # The next 2 are for zones to setup and takedown card roles
     def before_card_added(self, card):
         card.enteringZone(self.name)
@@ -58,7 +58,7 @@ class OrderedZone(Zone):
         self.pending_top = []
         self.pending_bottom = []
         self.register(self.commit, TimestepEvent())
-    def _add_card(self, card, position=-1):
+    def _insert_card(self, card, position=-1):
         self.pending = True
         if position == -1: self.pending_top.append(card)
         else: self.pending_bottom.append(card)
@@ -90,12 +90,12 @@ class OutPlayMixin(object):
         super(OutPlayMixin, self).before_card_added(card)
 
 class AddingCardsMixin(object):
-    def add_card(self, card, position=-1):
+    def add_new_card(self, card, position=-1):
         self.send(CardEnteringZone(), card=card)
         self.before_card_added(card)
-        self._add_card_unordered(card, position)
-    def _add_card_unordered(self, card, position):
-        # XXX Same as Zone._add_card
+        self._insert_card_unordered(card, position)
+    def _insert_card_unordered(self, card, position):
+        # XXX Same as Zone._insert_card
         if position == -1: self.cards.append(card)
         else: self.cards.insert(position, card)
         card.zone = self
@@ -110,11 +110,11 @@ class Library(OutPlayMixin, AddingCardsMixin, OrderedZone):
         self.ordering = True
     def disable_ordering(self):
         self.ordering = False
-    def _add_card(self, card, position=-1):
+    def _insert_card(self, card, position=-1):
         if self.ordering:
-            super(Library, self)._add_card(card, position)
+            super(Library, self)._insert_card(card, position)
         else:
-            self._add_card_unordered(card, position)
+            self._insert_card_unordered(card, position)
     def shuffle(self):
         if not self.pending: random.shuffle(self.cards)
         else: self.needs_shuffle = True
@@ -134,7 +134,7 @@ class Hand(OutPlayMixin, Zone):
 class Removed(OutPlayMixin, Zone):
     name = "removed"
 
-class PlayView(object):
+class PlayView(AddingCardsMixin):
     name = "play"
     def __init__(self, player, play):
         self.player = player
@@ -142,6 +142,11 @@ class PlayView(object):
     def get(self, match=lambda c: True, all=False):
         if all: return self.play.get(match)
         else: return [card for card in self.play if match(card) and card.controller == self.player]
+    def add_new_card(self, card):
+        self.send(CardEnteringZone(), card=card)
+        self.before_card_added(card)
+        card.controller = self.player
+        self._insert_card_unordered(card, -1)
     def move_card(self, card, position=-1):
         self.send(CardEnteringZone(), card=card)
         old_zone = card.zone
@@ -151,11 +156,12 @@ class PlayView(object):
         card.controller = self.player
         # Remove card from previous zone
         old_zone._remove_card(card)
-        self._add_card(card, position)
+        self._insert_card(card, position)
     def __getattr__(self, attr):
         return getattr(self.play, attr)
 
-class Play(AddingCardsMixin, OrderedZone):
+
+class Play(OrderedZone):
     name = "play"
     def __init__(self, game):
         self.game = game

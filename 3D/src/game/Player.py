@@ -70,7 +70,7 @@ class Player(MtGObject):
             num = int(num)
             for n in range(num):
                 card = CardLibrary.createCard(name, owner=self)
-                self.library.add_card(card)
+                self.library.add_new_card(card)
         self.library.enable_ordering()
     def shuffleLibrary(self):
         self.library.shuffle()
