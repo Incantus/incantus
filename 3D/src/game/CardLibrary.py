@@ -30,7 +30,6 @@ class CardDatabase(object):
     def close(self): return self.db.close()
 
 class _CardLibrary:
-    acceptable_keys = set(['name', 'zone', '_last_known_info', 'color', 'text', '_current_role', 'expansion', 'supertype', '_controller', 'cost', 'cardnum', 'key', '_owner', 'subtypes', 'type', 'in_play_role', 'out_play_role', 'stack_role'])
     def __init__(self):
         self.cardfile = CardDatabase()
         total = 0
@@ -115,6 +114,8 @@ in_play_role = Permanent(card, %s())
         # XXX This should be changed because out of play roles are different depending on the Zone
         card.out_play_role = CardEnvironment.CardRole(card)
 
+        acceptable_keys = set(card.__dict__.keys())
+
         # Now set up the card
         # This is a bit of a hack to get everything to load properly
         card.card = card
@@ -124,8 +125,8 @@ in_play_role = Permanent(card, %s())
             print name, e
             raise KeyError()
         # Get rid of non-standard attributes
-        #for k in card.__dict__.keys():
-        #    if k not in self.acceptable_keys: del card.__dict__[k]
+        for k in card.__dict__.keys():
+            if k not in acceptable_keys: del card.__dict__[k]
 
         # For converted manacost comparisons
         if type(card.cost) == str: card.base_cost = card.cost = CardEnvironment.ManaCost(card.cost)
