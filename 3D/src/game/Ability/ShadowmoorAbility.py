@@ -1,12 +1,12 @@
 from Ability import Ability
-from StaticAbility import GlobalStaticAbility
+from StaticAbility import GlobalStaticAbility, CardStaticAbility
 from TriggeredAbility import TriggeredAbility
 from Target import Target
 from game.Match import SelfMatch
 from game.GameEvent import CounterAddedEvent, DealsDamageEvent, ReceivesDamageEvent
 from game.CardRoles import Creature
 from Trigger import EnterFromTrigger
-from Effect import MultipleEffects, ChangeZoneToPlay, AddPowerToughnessCounter, OverrideGlobal
+from Effect import MultipleEffects, ChangeZoneToPlay, AddPowerToughnessCounter, OverrideGlobal, GiveKeyword
 from Counters import PowerToughnessCounter
 from game.stacked_function import logical_and
 
@@ -18,6 +18,12 @@ def persist(card):
             txt="persist")
 
 def wither(card):
+    keyword = "wither"
+    return CardStaticAbility(card, effects=GiveKeyword(keyword), zone="all", txt=keyword)
+
+def wither_as_override(card):
+    # This doesn't let me return the amount of damage done, since the override code uses the return value
+    # to indicate whether to process further overrides
     def assignWither(self, amt, source, combat=False):
         continue_chain = True
         if source == card:

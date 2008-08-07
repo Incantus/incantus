@@ -180,20 +180,22 @@ def prevent_damage(subrole, amt, next=True, txt=None, condition=None):
         else: nextstr = ""
         txt = 'Prevent %s %s damage'%(nextstr, amtstr)
     def shieldDamage(self, amt, source, combat=False):
+        dmg = 0
         if shieldDamage.curr_amt != -1:
             if next:
                 shielded = min([amt,shieldDamage.curr_amt])
                 shieldDamage.curr_amt -= amt
                 if shieldDamage.curr_amt <= 0:
                     if not shieldDamage.curr_amt == 0:
-                        self.assignDamage(-1*shieldDamage.curr_amt, source, combat)
+                        dmg = self.assignDamage(-1*shieldDamage.curr_amt, source, combat)
                     shieldDamage.expire()
             else:
                 shielded = shieldDamage.curr_amt
                 amt -= shieldDamage.curr_amt
-                if amt > 0: self.assignDamage(amt, source, combat)
+                if amt > 0: dmg = self.assignDamage(amt, source, combat)
         else: shielded = amt
         #self.send(DamagePreventedEvent(),amt=shielded)
+        return dmg
     shieldDamage.curr_amt = amt
     return replace(subrole, "assignDamage", shieldDamage, msg=txt, condition=condition)
 def regenerate(subrole, txt="Regenerate", condition=None):
@@ -215,23 +217,25 @@ def redirect_damage(from_target, to_target, amt, next=True, txt=None, condition=
         else: nextstr = ""
         txt = 'Redirect %s %s damage from %s to %s'%(nextstr, amtstr, from_target, to_target)
     def redirectDamage(self, amt, source, combat=False):
+        dmg = 0
         if redirectDamage.curr_amt != -1:
             if next:
                 redirected = min([amt,redirectDamage.curr_amt])
                 redirectDamage.curr_amt -= amt
                 if redirectDamage.curr_amt <= 0:
-                    self.assignDamage(-1*redirectDamage.curr_amt, source, combat)
+                    dmg = self.assignDamage(-1*redirectDamage.curr_amt, source, combat)
                     redirectDamage.curr_amt = 0
                     redirectDamage.expire()
             else:
                 redirected = redirectDamage.curr_amt
                 amt -= redirectDamage.curr_amt
-                if amt > 0: self.assignDamage(amt, source, combat)
+                if amt > 0: dmg = self.assignDamage(amt, source, combat)
         else:
             redirected = amt
         # XXX Make sure the target is in play, otherwise the damage isn't redirected
-        to_target.assignDamage(redirected, source, combat)
+        dmg += to_target.assignDamage(redirected, source, combat)
         #self.send(DamageRedirectedEvent(),amt=redirected)
+        return dmg
     redirectDamage.curr_amt = amt
     return replace(from_target, "assignDamage", redirectDamage, msg=txt, condition=condition)
 

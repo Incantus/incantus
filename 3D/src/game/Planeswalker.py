@@ -17,8 +17,8 @@ class Planeswalker(SubRole):
         self.redirect_ability = None
     def enteringPlay(self, perm):
         from Player import Player
-        from Ability.StaticAbility import GlobalStaticAbility
-        from Ability.Effect import OverrideGlobalReplacement
+        from Ability.StaticAbility import CardStaticAbility
+        from Ability.Effect import GlobalReplacementEffect
         from Ability.Counters import Counter
         super(Planeswalker, self).enteringPlay(perm)
         self.perm.counters.extend([Counter("loyalty") for i in range(self.base_loyalty)])
@@ -28,9 +28,10 @@ class Planeswalker(SubRole):
         def redirectDamage(self, amt, source, combat=False, card=card):
             opponent = source.controller
             redirect = opponent.getIntention("", "Redirect %d damage to %s?"%(amt, card))
-            if redirect: card.assignDamage(amt, source, combat)
-            else: self.assignDamage(amt, source, combat)
-        self.redirect_ability = GlobalStaticAbility(card, OverrideGlobalReplacement(redirectDamage, "assignDamage", Player, expire=False, condition=condition, txt='Redirect to planeswalker'))
+            if redirect: func = card.assignDamage
+            else: func = self.assignDamage
+            return func(amt, source, combat)
+        self.redirect_ability = CardStaticAbility(card, GlobalReplacementEffect(redirectDamage, "assignDamage", Player, expire=False, condition=condition, txt='Redirect to planeswalker'))
         self.redirect_ability.enteringPlay()
     def leavingPlay(self):
         super(Planeswalker, self).leavingPlay()
@@ -43,5 +44,6 @@ class Planeswalker(SubRole):
                 self.perm.counters.remove(counter)
             source.send(DealsDamageEvent(), to=self.card, amount=amt)
             self.send(ReceivesDamageEvent(), source=source, amount=amt)
+        return amt
     def shouldDestroy(self):
         return len([counter for counter in self.perm.counters if counter == "loyalty"]) <= 0

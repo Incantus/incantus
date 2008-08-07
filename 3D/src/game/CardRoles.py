@@ -10,8 +10,8 @@ class GameRole(MtGObject):
     # the damage stuff seems kind of hacky
     def dealDamage(self, target, amount, combat=False):
         if target.canBeDamagedBy(self.card) and amount > 0:
-            target.assignDamage(amount, source=self.card, combat=combat)
-        return amount
+            final_dmg = target.assignDamage(amount, source=self.card, combat=combat)
+        return final_dmg
     def canBeTargetedBy(self, targeter): return True
     def canBeAttachedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
@@ -280,10 +280,16 @@ class Creature(SubRole):
     def currentDamage(self):
         return self.__damage
     def assignDamage(self, amt, source, combat=False):
+        from Ability.Counters import PowerToughnessCounter
         if amt > 0:
-            self.__damage += amt
+            if "wither" in source.keywords:
+                for counter in [PowerToughnessCounter(-1, -1) for i in range(amt)]:
+                    self.card.counters.append(counter)
+                    self.send(CounterAddedEvent(), counter=counter)
+            else: self.__damage += amt
             source.send(DealsDamageEvent(), to=self.card, amount=amt)
             self.send(ReceivesDamageEvent(), source=source, amount=amt)
+        return amt
     def removeDamage(self, amt):
         self.__damage -= amt
     def trample(self, damage_assn):
