@@ -4,8 +4,8 @@ from Limit import SorceryLimit, MultipleLimits
 
 # XXX Fix the controller of the spell
 class CastSpell(object):
-    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="hand"):
-        super(CastSpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit, zone=zone)
+    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="hand", txt=''):
+        super(CastSpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit, zone=zone, txt=txt)
     def played(self):
         super(CastSpell, self).played()
         self.controller.send(PlaySpellEvent(), card=self.card)
@@ -15,10 +15,10 @@ class CastSpell(object):
         player.discard(self.card)
 
 class CastPermanentSpell(CastSpell, ActivatedAbility):
-    def __init__(self, card, cost="0", target=None, effects=[], limit=None, copy_targets=True, zone="hand"):
+    def __init__(self, card, cost="0", target=None, effects=[], limit=None, copy_targets=True, zone="hand", txt=''):
         if limit: limit += SorceryLimit(card)
         else: limit = SorceryLimit(card)
-        super(CastPermanentSpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit, zone=zone)
+        super(CastPermanentSpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit, zone=zone, txt=txt)
     def preresolve(self):
         # The card is put into play before any effects resolve
         self.card.move_to(self.controller.play)
@@ -37,10 +37,10 @@ class CastNonPermanentSpell(CastSpell, ActivatedAbility):
 
 class CastInstantSpell(CastNonPermanentSpell): pass
 class CastSorcerySpell(CastNonPermanentSpell):
-    def __init__(self, card, cost="0", target=None, effects=[], limit=None, copy_targets=True, zone="hand"):
+    def __init__(self, card, cost="0", target=None, effects=[], limit=None, copy_targets=True, zone="hand", txt=''):
         if limit and not isinstance(limit, SorceryLimit): limit = MultipleLimits(card, [SorceryLimit(card), limit])
         else: limit = SorceryLimit(card)
-        super(CastSorcerySpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit, zone=zone)
+        super(CastSorcerySpell, self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit, zone=zone, txt='')
 
 class CastBuybackSpell(CastSpell, ActivatedAbility):
     def __str__(self):
