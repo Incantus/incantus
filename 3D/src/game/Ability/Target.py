@@ -132,13 +132,14 @@ class Target(MtGObject):
         self.required = True
         self.msg = msg
         self.selector = selector
+        self.untargeted = False
     def copy(self):
         return Target(self.targeting, self.target_types, self.msg, self.selector, self.zone, player_zone=self.player_zone)
     def check_target(self, card):
         # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
         if not isPlayer(self.target):
-            return (str(self.target.zone) == self.target_zone) and self.match_role == self.target.current_role and self.match_types(self.target) and self.target.canBeTargetedBy(card)
-        else: return self.target.canBeTargetedBy(card)
+            return (str(self.target.zone) == self.target_zone) and self.match_role == self.target.current_role and self.match_types(self.target) and (self.untargeted or self.target.canBeTargetedBy(card))
+        else: return self.untargeted or self.target.canBeTargetedBy(card)
     def get(self, card):
         if not self.targeting:
             if self.msg: prompt=self.msg
@@ -206,19 +207,24 @@ class Target(MtGObject):
             self.target_zone = str(self.target.zone)
             self.match_types = SelfMatch(card)
             self.match_role = card.current_role
+            self.untargeted = True
             return True
         elif self.targeting == "you":
             self.target = card.controller
+            self.untargeted = True
             return True
         elif self.targeting == "owner":
             self.target = card.owner
+            self.untargeted = True
             return True
         elif self.targeting == "current_player":
             import game.GameKeeper
             self.target = game.GameKeeper.Keeper.curr_player
+            self.untargeted = True
             return True
         elif self.targeting == "opponent":
             self.target = card.controller.opponent
+            self.untargeted = True
             return True
         else: return False
 
