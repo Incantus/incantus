@@ -30,7 +30,7 @@ class Player(MtGObject):
 
     def __init__(self,name):
         self.name = name
-        self._life = 20
+        self._life = 200
         self.poison = 0
         self.allowable_actions = [PassPriority]
         self.land_actions = -1
@@ -104,7 +104,7 @@ class Player(MtGObject):
     def untapCards(self):
         for card in self.play.get():
             # XXX The player should be able to select with cards to Untap (possibly?)
-            if card.tapped and card.canUntap(): card.untap()
+            if card.canUntap(): card.untap()
     def canBeDamagedBy(self, damager):
         return True
     def assignDamage(self, amt, source, combat=False):

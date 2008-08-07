@@ -119,7 +119,7 @@ class Permanent(GameRole):
             self.tapped = True
             if trigger: self.card.send(CardTapped())
     def canUntap(self):
-        return True
+        return self.tapped
     def untap(self, trigger=True):
         if self.tapped:
             self.tapped = False
