@@ -175,6 +175,7 @@ class TapCost(Cost):
         return True
     def pay(self, card, player):
         for target in self.targets: target.tap()
+        self.payment = self.targets
     def __str__(self):
         if self.cardtype: who = " %s"%self.cardtype
         else: who = ""
@@ -216,6 +217,7 @@ class UntapCost(Cost):
         return True
     def pay(self, card, player):
         for target in self.targets: target.untap()
+        self.payment = self.targets
     def __str__(self):
         if self.cardtype: who = " %s"%self.cardtype
         else: who = ""
@@ -252,6 +254,7 @@ class SacrificeCost(Cost):
         for target in self.targets:
             target.move_to(target.owner.graveyard)
             #player.send(Sacrifice())
+        self.payment = self.targets
     def __str__(self):
         return 'Sacrifice'
 
@@ -287,6 +290,7 @@ class ChangeZoneCost(Cost):
     def pay(self, card, player):
         for target in self.targets:
             target.move_to(getattr(target.owner, self.to_zone))
+        self.payment = self.targets
     def __str__(self):
         if self.cardtype: txt = ' '+str(self.cardtype)
         else: txt = ''
@@ -351,6 +355,7 @@ class RemoveCounterCost(Cost):
             for c in counters[:self.number]:
                 target.counters.remove(c)
                 target.send(CounterRemovedEvent(), counter=c)
+        self.payment = self.targets
     def __str__(self):
         return "Remove %d %s counter(s)"%(self.number, self.counter_type)
 
@@ -386,6 +391,7 @@ class AddCounterCost(Cost):
             target.counters.extend(self.counters)
             for i in range(self.number):
                 target.send(CounterAddedEvent(), counter=self.counters[i])
+        self.payment = self.targets
     def __str__(self):
         return "Add %d %s counter(s)"%(self.number, self.counter_type)
 
@@ -406,6 +412,7 @@ class ConditionalCost(Cost):
         self.cost.pay(card, player)
     def __str__(self):
         return str(self.cost)
+    payment = property(fget=lambda self: self.cost.payment)
 
 class LifeCost(Cost):
     def __init__(self, amt):
@@ -414,6 +421,7 @@ class LifeCost(Cost):
         return player.life - self.amt > 0
     def pay(self, card, player):
         player.life -= self.amt
+        self.payment = self.amt
     def __str__(self):
         return "Pay %d life"%self.amt
 
@@ -441,6 +449,7 @@ class RevealCost(Cost):
         return True
     def pay(self, card, player):
         player.opponent.revealCard(self.reveals)
+        self.payment = self.reveals
     def __str__(self):
         txt = "%d %s"%(self.number, str(self.cardtype))
         if self.number > 1: txt += 's'
@@ -480,6 +489,7 @@ class DiscardCost(Cost):
     def pay(self, card, player):
         for c in self.discards:
             player.discard(c)
+        self.payment = self.discards
     def __str__(self):
         if self.cardtype:
             txt = "%d %s"%(self.number, str(self.cardtype))
@@ -505,6 +515,7 @@ class LoyaltyCost(Cost):
         for counter in self.counters:
             func(counter)
             card.send(event(), counter=counter)
+        self.payment = self.number
     def __str__(self):
         return "%d loyalty"%(self.number)
 
@@ -520,6 +531,7 @@ class SpecialCost(Cost):
         return getattr(self.cost, attr)
     def __str__(self):
         return str(self.cost)
+    payment = property(fget=lambda self: self.cost.payment)
 
 class ChoiceCost(SpecialCost):
     def __init__(self, *costs):
