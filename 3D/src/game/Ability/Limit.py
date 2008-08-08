@@ -70,7 +70,7 @@ class SorceryLimit(Limit):
         self.correct_phase = False
     def state(self, signal, sender):
         self.curr_player = sender.curr_player
-        self.correct_phase = signal == UpkeepStepEvent()
+        self.correct_phase = signal == MainPhaseEvent()
     def __call__(self, card):
         return self.correct_phase and self.curr_player == card.controller and card.controller.stack.empty()
 
