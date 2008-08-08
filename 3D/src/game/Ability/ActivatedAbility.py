@@ -3,15 +3,15 @@ from Limit import Unlimited
 from game.Cost import ManaCost
 
 class ActivatedAbility(Ability):
+    limit = Unlimited()
     def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="play", txt=''):
         super(ActivatedAbility,self).__init__(card, target=target, effects=effects, copy_targets=copy_targets, txt=txt)
         if type(cost) == str or type(cost) == int: cost = ManaCost(cost)
         self.cost = cost
-        if limit == None: limit = Unlimited(card)
-        self.limit = limit
+        if limit: self.limit += limit
         self.zone = zone
     def playable(self):
-        return (str(self.card.zone) == self.zone and self.limit())
+        return (str(self.card.zone) == self.zone and self.limit(self.card))
     def do_announce(self):
         # Do all the stuff in rule 409.1 like pick targets, pay costs, etc
         card, player, cost = self.card, self.controller, self.cost

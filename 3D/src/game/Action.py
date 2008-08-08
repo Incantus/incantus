@@ -69,7 +69,7 @@ class PlayAbility(CardAction):
 
         abilities = card.abilities.activated()
         # Include the casting ability
-        if str(card.zone) == "hand": abilities.append(card.play_spell)
+        if card.play_spell.playable(): abilities.append(card.play_spell)
         numabilities = len(abilities)
         if numabilities == 0: return False
         elif numabilities == 1: ability = abilities[0]
