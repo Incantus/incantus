@@ -176,10 +176,10 @@ class Play(AddingCardsMixin, OrderedZone):
             cardlist = []
             for player in self.game.players:
                 cards = player_cards[player]
-                if not cards: continue
-                reorder = player.getCardSelection(cards, len(cards), from_zone=str(self), from_player=player, prompt="Order cards entering %s"%(self))
-                reorder.reverse()
-                cardlist.extend(reorder)
+                if len(cards) > 1:
+                    cards = player.getCardSelection(cards, len(cards), from_zone=str(self), from_player=player, prompt="Order cards entering %s"%(self))
+                    cards.reverse()
+                cardlist.extend(cards)
         return cardlist
     def before_card_added(self, card):
         card.current_role = card.in_play_role
