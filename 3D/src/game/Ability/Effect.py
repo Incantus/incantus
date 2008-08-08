@@ -248,6 +248,7 @@ class CreateToken(Effect):
         self.token_subtypes = token_info.get("subtypes", '')
         self.token_supertype = token_info.get("supertype", '')
         self.token_subrole = token_info.get("role")
+        self.abilities = token_info.get("abilities", [])
         self.number = number
     def __call__(self, card, target):
         from game.CardLibrary import CardLibrary
@@ -255,6 +256,10 @@ class CreateToken(Effect):
         if not isPlayer(target): raise Exception("Invalid target for adding token")
         for i in range(self.get_number()):
             token = CardLibrary.createToken(self.token_name, target, self.token_color,  self.token_type, self.token_subtypes, self.token_supertype)
+            for ability in self.abilities:
+                if callable(ability): ability = ability(token)
+                else: ability = ability.copy(token)
+                token.abilities.add(ability)
             # Create the role for it
             token.in_play_role = Permanent(token, copy.deepcopy(self.token_subrole))
             # Now put it into play
@@ -775,6 +780,17 @@ class AddAbility(Effect):
         return restore
     def __str__(self):
         return "Give %s"%self.ability
+class RemoveAbility(AddAbility):
+    def __init__(self, keyword, expire=True):
+        self.keyword = keyword
+        self.expire = expire
+    def __call__(self, card, target):
+        stacked_ability = self.get_stacked(target)
+        restore = lambda: None
+        if self.expire: target.register(restore, CleanupEvent(), weak=False, expiry=1)
+        return restore
+    def __str__(self):
+        return "Remove %s"%self.keyword
 class RemoveAbilities(AddAbility):
     def __init__(self, expire=True):
         self.expire = expire

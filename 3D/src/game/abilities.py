@@ -26,8 +26,11 @@ class abilities(object):
     #    return self.__class__(new_abilities)
     def __str__(self): return '\n'.join(map(str, self._abilities))
 
-class no_abilities(object): pass
 class additional_abilities(abilities): pass
+class no_abilities(object): pass
+class remove_ability(object):
+    def __init__(self, keyword):
+        self.keyword = keyword
 
 # This is only valid in a single zone
 class stacked_abilities(object):
@@ -53,6 +56,18 @@ class stacked_abilities(object):
                 abilities.leavingZone(self.zone)
             if not self.stacking(): self.card.abilities = self.pop()
         return remove
+    def remove_one(self, keyword):
+        # XXX This logic is broken
+        # disable up to the previous remove_all
+        disabled = []
+        for group in self._stacking:
+            if isinstance(a, no_abilities): break
+            for a in group:
+                if a.txt == keyword:
+                    disabled.append(a)
+                    a.leavingZone(self.zone)
+        rem_one = remove_ability(keyword)
+        self._stacking.insert(0, rem_one)
     def remove_all(self):
         # first disable all previously active abilities
         for a in self._stacking:
