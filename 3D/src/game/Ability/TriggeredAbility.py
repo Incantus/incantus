@@ -10,14 +10,12 @@ class TriggeredAbility(MtGObject):
         self.expiry = expiry
         self.zone = zone
         self.txt = txt
-    #def can_be_countered(self):
-    #    return False
     def enteringZone(self):
         self.trigger.setup_trigger(self,self.playAbility,self.match_condition,self.expiry)
     def leavingZone(self):
         self.trigger.clear_trigger(wait=False)
     def playAbility(self, trigger=None): # We don't care about the trigger
-        Play(self.card, self.ability.copy())
+        self.ability.copy().announce(self.card.controller)
     def copy(self, card=None):
         if not card: card = self.card
         return TriggeredAbility(card, self.trigger.copy(), self.match_condition, self.ability.copy(card), self.expiry, self.zone, self.txt)
@@ -25,10 +23,3 @@ class TriggeredAbility(MtGObject):
         if not self.txt: txt = "When %s, do %s"%(self.trigger, self.ability)
         else: txt = self.txt
         return txt
-
-def Play(card, ability):
-    # This is identical to Action.PlaySpell - there's probably a way to combine them
-    ability.controller = card.controller
-    if ability.needs_stack(): ability.controller.stack.add_triggered(ability)
-    else: ability.controller.stack.stackless(ability)
-    return True
