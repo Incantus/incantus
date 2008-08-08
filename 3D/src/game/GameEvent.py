@@ -34,12 +34,6 @@ class SubRoleAddedEvent(Event): pass
 class SubRoleRemovedEvent(Event): pass
 class CounterAddedEvent(Event): pass
 class CounterRemovedEvent(Event): pass
-class AbilityAnnounced(Event): pass
-class AbilityCanceled(Event): pass
-class AbilityPlacedOnStack(Event): pass
-class AbilityRemovedFromStack(Event): pass
-class AbilityResolved(Event): pass
-class AbilityCountered(Event): pass
 class MorphEvent(Event): pass
 class ClashEvent(Event): pass
 
@@ -56,9 +50,15 @@ class ManaCleared(Event): pass
 class CardTapped(Event): pass
 class CardUntapped(Event): pass
 
-class PlayLandEvent(Event): pass
-class PlayAbilityEvent(Event): pass
-class PlaySpellEvent(Event): pass
+class LandPlayedEvent(Event): pass
+class AbilityAnnounced(Event): pass
+class AbilityCanceled(Event): pass
+class AbilityPlacedOnStack(Event): pass
+class AbilityRemovedFromStack(Event): pass
+class AbilityResolved(Event): pass
+class AbilityCountered(Event): pass
+class AbilityPlayedEvent(Event): pass
+class SpellPlayedEvent(Event): pass
 class DeclareAttackersEvent(Event): pass
 class DeclareBlockersEvent(Event): pass
 

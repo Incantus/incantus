@@ -1,4 +1,4 @@
-from Ability import Ability, Stackless
+from Ability import Ability
 from ActivatedAbility import ActivatedAbility
 from CastingAbility import CastPermanentSpell
 from Effect import *
@@ -11,7 +11,7 @@ from game.Cost import EvokeCost, ManaCost, TapCost, MultipleCosts
 from game.characteristics import all_characteristics
 from game.GameEvent import ClashEvent
 
-class ClashAbility(Stackless, ActivatedAbility):
+class ClashAbility(ActivatedAbility):
     def __init__(self, card, cost="0", target=Target(targeting="you"),effects=[]):
         super(ClashAbility, self).__init__(card, cost=cost, target=target, effects=effects)
     def resolve(self):

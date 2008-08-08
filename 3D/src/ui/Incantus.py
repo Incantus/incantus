@@ -613,7 +613,7 @@ class GameWindow(window.Window):
 
         dispatcher.connect(self.priority_stop, signal=game.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.phase_stop, signal=game.GameEvent.GameStepEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.play_ability, signal=game.GameEvent.PlayAbilityEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.play_ability, signal=game.GameEvent.AbilityPlayedEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.new_turn, signal=game.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
         self.set_stops()
 
@@ -647,7 +647,7 @@ class GameWindow(window.Window):
     def phase_stop(self, state):
         self.state = state.lower()
     def play_ability(self, ability):
-        if not self._keep_priority and ability.needs_stack():
+        if not self._keep_priority and not hasattr(ability, "mana_ability"):
             self.user_action = game.Action.PassPriority()
         else:
             # Keep priority after playing card

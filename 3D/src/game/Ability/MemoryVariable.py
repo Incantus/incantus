@@ -90,7 +90,7 @@ class PlaySpellVariable(MemoryVariable):
     def __init__(self, condition):
         self.was_played = False
         self.condition = condition
-        self.register(self.played, event=PlaySpellEvent())
+        self.register(self.played, event=SpellPlayedEvent())
         super(PlaySpellVariable, self).__init__()
     def played(self, sender, card):
         if self.condition(card):

@@ -430,7 +430,7 @@ class GameKeeper(MtGObject):
             action = player.getAction()
             if not isinstance(action, PassPriority):
                 action.perform(player)
-                responding = True    # if card is played in response
+                responding = True    # if something is done in response
             else: priorityPassed = True
         return responding
 

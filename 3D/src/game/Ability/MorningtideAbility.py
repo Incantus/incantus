@@ -1,7 +1,6 @@
 from game.GameEvent import UpkeepStepEvent, ReceivesDamageEvent
 from game.Cost import ManaCost, DiscardCost, SpecialCost
 from game.Match import isCreature, SelfMatch, isPlayer
-from Ability import Stackless
 from CastingAbility import CastPermanentSpell
 from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
@@ -22,7 +21,7 @@ class Reinforce(ActivatedAbility):
 def reinforce(card, cost, number=1):
     card.abilities.add(Reinforce(out_play_role.card, cost, number))
 
-class KinshipAbility(Stackless, ActivatedAbility):
+class KinshipAbility(ActivatedAbility):
     def __init__(self, card, cost="0", target=Target(targeting="you"), effects=[]):
         super(KinshipAbility, self).__init__(card, cost=cost, target=target, effects=effects)
     def resolve(self):

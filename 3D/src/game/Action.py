@@ -1,13 +1,11 @@
 
-from GameEvent import PlayLandEvent, PlayAbilityEvent, LogEvent
+from GameEvent import LandPlayedEvent, AbilityPlayedEvent, AbilityAnnounced, AbilityCanceled, LogEvent
 
 class Action(object):
     def __eq__(self, other):
         return self.__class__ == other.__class__
     def __repr__(self):
         return str(self.__class__.__name__)
-
-# should drawing a card be in here?
 
 class PassPriority(Action):
     pass
@@ -37,6 +35,7 @@ class MultipleSelected(Action):
     def __init__(self, selected):
         self.selection = selected
 
+# Actions for selecting X and mana amounts
 class ManaSelected(Action):
     def __init__(self, mana):
         self.mana = mana
@@ -45,38 +44,12 @@ class XSelected(Action):
     def __init__(self, amount):
         self.amount = amount
 
-class PlayAbility(Action):
+# Actions for playing cards
+class CardAction(Action):
     def __init__(self, card):
         self.card = card
-    def perform(self, player):
-        card = self.card
-        success = False
-        # Replace the representation of a with the text from the card
-        abilities = card.abilities.activated()
-        if str(card.zone) == "hand": abilities.append(card.play_spell)
-        numabilities = len(abilities)
-        if numabilities == 0: return False
-        elif numabilities == 1: ability = abilities[0]
-        else:
-            ability = player.getSelection(abilities, 1, required=False, prompt="%s: Select ability"%self.card)
-            if ability == False: return False
 
-        # Now make a copy of the ability to populate it
-        ability = ability.copy()
-        ability.controller = player
-
-        if ability.needs_stack(): success = player.stack.announce(ability)
-        else: success = player.stack.stackless(ability)
-        if success:
-            player.send(PlayAbilityEvent(), ability=ability)
-            player.send(LogEvent(), msg="%s plays (%s) of %s"%(player.name,ability,self.card))
-        return success
-    def __repr__(self):
-        return "%s %s"%(self.__class__.__name__, self.card)
-
-class PlayLand(Action):
-    def __init__(self, card):
-        self.card = card
+class PlayLand(CardAction):
     def check_zone(self):
         # Can only play a land from your hand
         return str(self.card.zone) == "hand"
@@ -86,19 +59,31 @@ class PlayLand(Action):
         elif player.land_actions > 0: player.land_actions -= 1
         card = self.card
         card.move_to(player.play)
-        player.send(PlayLandEvent(), card=card)
+        player.send(LandPlayedEvent(), card=card)
         player.send(LogEvent(), msg="%s plays %s"%(player.name,card))
         return True
-    def __repr__(self):
-        return "%s %s"%(self.__class__.__name__, self.card)
 
-class ActivateForMana(Action):
-    def __init__(self, card):
-        self.card = card
+class PlayAbility(CardAction):
+    def perform(self, player):
+        card = self.card
+
+        abilities = card.abilities.activated()
+        # Include the casting ability
+        if str(card.zone) == "hand": abilities.append(card.play_spell)
+        numabilities = len(abilities)
+        if numabilities == 0: return False
+        elif numabilities == 1: ability = abilities[0]
+        else:
+            ability = player.getSelection(abilities, 1, required=False, prompt="%s: Select ability"%self.card)
+            if ability == False: return False
+        ability.copy().announce(player)
+        return True
+
+class ActivateForMana(CardAction):
     def perform(self, player):
         card = self.card
         # Check if the card can be provide mana
-        abilities = [ability for ability in card.abilities.activated() if ability.is_mana_ability()]
+        abilities = [ability for ability in card.abilities.activated() if hasattr(ability, "mana_ability")]
 
         numabilities = len(abilities)
         if numabilities == 0: return False
@@ -106,6 +91,5 @@ class ActivateForMana(Action):
         else:
             ability = player.getSelection(abilities, 1, required=False, prompt="%s - Mana abilities"%self.card)
             if ability is False: return False
-
-        ability = ability.copy()
-        return player.stack.stackless(ability)
+        ability.copy().announce(player)
+        return True

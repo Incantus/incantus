@@ -1,11 +1,10 @@
 from game.GameObjects import MtGObject
-from game.GameEvent import PlayAbilityEvent, AbilityCountered, AbilityResolved, TimestepEvent
+from game.GameEvent import AbilityAnnounced, AbilityPlayedEvent, AbilityCanceled, AbilityCountered, AbilityResolved, TimestepEvent
 from Target import Target
 
 class Ability(MtGObject):
     def __init__(self, card, target=None, effects=[], copy_targets=True, txt=''):
         self.card = card
-        self.controller = None
         if not (type(effects) == list or type(effects) == tuple): effects = [effects]
         self.effects = effects
         if target == None: target = [Target(targeting="you")]
@@ -13,14 +12,18 @@ class Ability(MtGObject):
         self.targets = target
         self.copy_targets = copy_targets
         self.txt = txt
-    def played(self):
-        # XXX This is done in Action.py
-        #self.controller.send(PlayAbilityEvent(), ability=self)
-        pass
-    def needs_stack(self):
-        return True
-    def needs_target(self):
-        return not self.targets == None
+        self.controller = None
+    def announce(self, player):
+        self.controller = player
+        self.preannounce()
+        if self.do_announce():
+            self.played()
+            player.send(AbilityPlayedEvent(), ability=self)
+        else:
+            player.send(AbilityCanceled(), ability=self)
+    def preannounce(self): self.controller.send(AbilityAnnounced(), ability=self)
+    def do_announce(self): return self.get_target()
+    def played(self): self.controller.stack.push(self)
     def multiplex(self):
         num_targets, num_effects = len(self.targets), len(self.effects)
         if num_effects == 0: return #For cast spell effects
@@ -34,37 +37,25 @@ class Ability(MtGObject):
         elif num_effects == 1:
             yield [target.target for target in self.targets], self.effects[0]
         else: raise Exception("Mismatched number of targets and effects in %s of %s"%(self, self.card))
-    def check_target(self):
-        success = True
-        for target in self.targets:
-            if not target.check_target(self.card): success = False
-        return success
     def get_target(self):
         for target in self.targets:
-            if not target.get(self.card): return False
-        # Some effects need to process the target before it goes on the stack
+            if not target.get(self.card):
+                return False
         target_aquired = True
+        # Some effects need to process the target before it goes on the stack
         for target, effect in self.multiplex():
             if not effect.process_target(self.card, target): target_aquired = False
         return target_aquired
-    def preresolve(self): return True
-    def do_resolve(self):
-        if self.resolve(): self.resolved()
-        else: self.countered()
-        self.cleanup()
     def resolve(self):
-        success = True
-        if self.needs_target() and not self.check_target(): return False
-        if not self.preresolve(): return False
-        self.send(TimestepEvent())    # This is for any cards that are moved into play in preresolve
-        for target, effect in self.multiplex():
-            if effect(self.card, target) == False: success=False
-            self.send(TimestepEvent())
-        return success
+        if all((target.check_target(self.card) for target in self.targets)):
+            for target, effect in self.multiplex():
+                effect(self.card, target)
+                self.send(TimestepEvent())
+            self.resolved()
+        else: self.countered()
     def resolved(self): self.card.send(AbilityResolved())
     def can_be_countered(self): return True
     def countered(self): self.card.send(AbilityCountered())
-    def cleanup(self): pass
     def copy(self, card=None):
         import copy
         newcopy = copy.copy(self)
@@ -75,9 +66,3 @@ class Ability(MtGObject):
     def __str__(self):
         if self.txt: return self.txt
         else: return ', '.join(map(str,self.effects))
-
-# The following are mixin classes - I don't like them and should find a way so they aren't necessary
-# XXX Try not to use them
-
-class Stackless(object):
-    def needs_stack(self): return False

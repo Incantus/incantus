@@ -10,7 +10,7 @@ class abilities(object):
     def add(self, ability):
         self._abilities.append(ability)
     def activated(self):
-        return [ability for ability in self._abilities if hasattr(ability, "cost") and not ability.is_limited()]
+        return [ability for ability in self._abilities if hasattr(ability, "cost") and ability.playable()]
     def enteringZone(self, zone):
         if not self.enabled:
             self.enabled = True

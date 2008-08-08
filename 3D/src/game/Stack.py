@@ -1,14 +1,11 @@
 from GameObjects import MtGObject
-#from Zone import Zone
-from GameEvent import AbilityAnnounced, AbilityCanceled, AbilityPlacedOnStack, AbilityRemovedFromStack
+from Zone import Zone
+from GameEvent import AbilityPlacedOnStack, AbilityRemovedFromStack
 
 class Stack(MtGObject):
-#class Stack(Zone):
-    name = "stack"
     def __init__(self, game):
-        #super(Stack, self).__init__()
-        self.cards = []
         self.pending_triggered = []
+        self.abilities = []
         self.game = game
     def add_triggered(self, ability):
         # XXX This is hacky, and is needed for triggered abilities where the target depends on the trigger
@@ -34,56 +31,15 @@ class Stack(MtGObject):
             self.pending_triggered[:] = []
             return True
         else: return False
-    def announce(self, ability):
-        # Do all the stuff in rule 409.1 like pick targets, pay
-        # costs, etc
-        self.send(AbilityAnnounced(), ability=ability)
-        #if Match.isSpellAbility(ability): ability.card.current_role = ability.card.stack_role
-        success = True
-        if hasattr(ability, "cost"):
-            success = ability.precompute_cost()
-            if success and ability.needs_target(): success = ability.get_target()
-            if success: success = ability.compute_cost() and ability.pay_cost()
-        else:
-            if ability.needs_target(): success = ability.get_target()
-        if success: self.push(ability)
-        else:
-            self.send(AbilityCanceled(), ability=ability)
-            #if Match.isSpellAbility(ability): ability.card.current_role = ability.card.out_play_role
-            del ability
-        return success
-    def skip_announce(self, ability):
-        self.send(AbilityAnnounced(), ability=ability)
-        self.push(ability)
-    def stackless(self, ability):
-        success = True
-        if hasattr(ability, "cost"):
-            success = ability.precompute_cost()
-            if success and ability.needs_target(): success = ability.get_target()
-            if success: success = ability.compute_cost() and ability.pay_cost()
-        else:
-            if ability.needs_target(): success = ability.get_target()
-        if success:
-            ability.played()
-            ability.do_resolve()
-        del ability
-        return success
     def push(self, ability):
-        self.cards.append(ability)
+        self.abilities.append(ability)
         self.send(AbilityPlacedOnStack(), ability=ability)
-        #self.send(CardEnteredZone(), card=ability.card)
-        ability.played()
-    def on_stack(self, ability):
-        return ability in self.cards
     def resolve(self):
-        ability = self.cards.pop()
-        ability.do_resolve()
+        ability = self.abilities.pop()
+        ability.resolve()
         self.send(AbilityRemovedFromStack(), ability=ability)
-        #self.send(CardLeftZone(), card=ability.card)
-        del ability
     def counter(self, ability):
-        self.cards.remove(ability)
+        self.abilities.remove(ability)
+        ability.countered()
         self.send(AbilityRemovedFromStack(), ability=ability)
-    def empty(self): return len(self.cards) == 0
-    def find(self, obj): # XXX This is needed for pickling Abilities on the stack (when they are targets of counterspells)
-        return self.cards.index(obj)
+    def empty(self): return len(self.abilities) == 0
