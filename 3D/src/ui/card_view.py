@@ -21,6 +21,9 @@ sixteenfv = GLfloat*16
 import math
 import CardLibrary
 
+from game.Ability import CastSpell
+from game.Ability import ActivatedAbility
+
 class CardView(Widget):
     focus_size = 1.0 #0.8
     def __init__(self, pos, reverse_draw=False):
@@ -136,6 +139,7 @@ class HandView(CardView):
         card = CardLibrary.CardLibrary.getHandCard(card)
         # XXX This if statement is an ugly hack, I should remove it once I figure out
         # how to place cards from hand to the stack
+        if card in self.played: self.played.remove(card)
         if card in self.cards:
             self.cards.remove(card)
             if self.focus_dir < 0: self.focus_idx += self.focus_dir
@@ -144,7 +148,6 @@ class HandView(CardView):
             self.layout()
     def card_on_stack(self, ability):
         # XXX This is a big ugly hack
-        from game.Ability import CastSpell
         if isinstance(ability, CastSpell) and str(ability.card.zone) == "hand":
             card = CardLibrary.CardLibrary.getHandCard(ability.card)
             if card in self.cards:
@@ -156,7 +159,6 @@ class HandView(CardView):
                 self.layout()
     def card_off_stack(self, ability):
         # XXX This is a big ugly hack
-        from game.Ability import CastSpell
         if not isinstance(ability, CastSpell): return
         card = CardLibrary.CardLibrary.getHandCard(ability.card)
         if card in self.played:
@@ -308,8 +310,6 @@ class HandView(CardView):
         for card in self.cards[self.focus_idx::-1]: card.draw()
         for card in self.cards[self.focus_idx+1:]: card.draw()
 
-from game.Ability.CastingAbility import CastSpell
-from game.Ability.ActivatedAbility import ActivatedAbility
 class StackView(CardView):
     width = anim.Animatable()
     height = anim.Animatable()

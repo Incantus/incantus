@@ -7,11 +7,15 @@ class CastSpell(ActivatedAbility):
     def do_announce(self):
         # Move the card to the stack zone - this is never called from play
         player = self.controller
-        #self.card.move_to(player.stack)
         if super(CastSpell, self).do_announce():
-            player.send(SpellPlayedEvent(), card=self.card)
+            player.stack.put_card(self.card)
             return True
         else: return False
+    def played(self):
+        # Don't change this order, otherwise abilities triggering on playing the spell
+        # will be put on the stack before the played spell
+        super(CastSpell, self).played()
+        self.controller.send(SpellPlayedEvent(), card=self.card)
     def countered(self):
         self.card.move_to(self.card.owner.graveyard)
         super(CastSpell,self).countered()

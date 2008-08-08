@@ -1,5 +1,5 @@
 from GameObjects import MtGObject
-from Zone import Zone
+from Zone import CardStack
 from GameEvent import AbilityPlacedOnStack, AbilityRemovedFromStack
 
 class Stack(MtGObject):
@@ -7,6 +7,7 @@ class Stack(MtGObject):
         self.pending_triggered = []
         self.abilities = []
         self.game = game
+        self.card_stack = CardStack()
     def add_triggered(self, ability):
         # XXX This is hacky, and is needed for triggered abilities where the target depends on the trigger
         # Since the trigger is a single object, it will have different arguments everytime it triggers
@@ -31,6 +32,8 @@ class Stack(MtGObject):
             self.pending_triggered[:] = []
             return True
         else: return False
+    def put_card(self, card):
+        card.move_to(self.card_stack)
     def push(self, ability):
         self.abilities.append(ability)
         self.send(AbilityPlacedOnStack(), ability=ability)

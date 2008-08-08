@@ -188,3 +188,6 @@ class Play(AddingCardsMixin, OrderedZone):
         card.save_lki()
         super(Play, self).before_card_removed(card)
         card.controller = None
+
+class CardStack(Zone):
+    name = "stack"
