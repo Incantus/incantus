@@ -429,8 +429,8 @@ class GameKeeper(MtGObject):
             self.send(HasPriorityEvent(), player=player)
             action = player.getAction()
             if not isinstance(action, PassPriority):
-                action.perform(player)
-                responding = True    # if something is done in response
+                # if something is done in response
+                responding = action.perform(player)
             else: priorityPassed = True
         return responding
 
