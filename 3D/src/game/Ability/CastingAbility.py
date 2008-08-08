@@ -17,7 +17,7 @@ class CastSpell(ActivatedAbility):
         super(CastSpell,self).countered()
 
 class CastPermanentSpell(CastSpell):
-    limit = SorceryLimit()
+    limit_type = SorceryLimit
     def resolved(self):
         self.card.move_to(self.controller.play)
         super(CastPermanentSpell, self).resolved()
@@ -29,8 +29,7 @@ class CastNonPermanentSpell(CastSpell):
         super(CastNonPermanentSpell, self).resolved()
 
 class CastInstantSpell(CastNonPermanentSpell): pass
-class CastSorcerySpell(CastNonPermanentSpell):
-    limit = SorceryLimit()
+class CastSorcerySpell(CastNonPermanentSpell): limit_type = SorceryLimit
 
 #class CastBuybackSpell(CastSpell):
 #    def __str__(self):
