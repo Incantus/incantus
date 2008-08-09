@@ -1,7 +1,7 @@
-from GameEvent import SacrificeEvent, CounterAddedEvent, CounterRemovedEvent, InvalidTargetEvent
-from LazyInt import LazyInt
-import Mana
-from Match import isCard
+from game import Mana
+from game.GameEvent import SacrificeEvent, CounterAddedEvent, CounterRemovedEvent, InvalidTargetEvent
+from game.LazyInt import LazyInt
+from game.Match import isCard
 
 class Cost(object):
     def is_mana_cost(self): return False
