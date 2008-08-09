@@ -6,8 +6,8 @@ from Target import Target, SpecialTarget, TriggeredTarget
 from TriggeredAbility import TriggeredAbility
 from Trigger import EnterTrigger, LeavingTrigger, DealDamageToTrigger
 from Limit import Unlimited
+from Cost import EvokeCost, ManaCost, TapCost, MultipleCosts
 from game.Match import SelfMatch, isLandType, isCreature
-from game.Cost import EvokeCost, ManaCost, TapCost, MultipleCosts
 from game.characteristics import all_characteristics
 from game.GameEvent import ClashEvent
 

@@ -1,8 +1,8 @@
+from Cost import ManaCost, DiscardCost
 from ActivatedAbility import ActivatedAbility
 import TriggeredAbility
 from Effect import DrawCard, MoveCards
 from game.Match import isCard, isLandType
-from game.Cost import ManaCost, DiscardCost
 
 class Cycling(ActivatedAbility):
     def __init__(self, card, cost="0", effects=None, triggered=None):

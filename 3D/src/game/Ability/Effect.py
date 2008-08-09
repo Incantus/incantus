@@ -968,7 +968,7 @@ class ChangeZoneToPlay(ChangeZone):
 
 class PlayCard(Effect):
     def __init__(self, cost=None):
-        from game.Cost import ManaCost
+        from Cost import ManaCost
         if type(cost) == str: cost = ManaCost(cost)
         self.cost = cost
     def __call__(self, card, target):

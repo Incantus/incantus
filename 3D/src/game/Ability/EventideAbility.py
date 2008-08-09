@@ -1,6 +1,6 @@
+from Cost import DiscardCost
 from Target import Target
 from game.Match import isLandType
-from game.Cost import DiscardCost
 
 def retrace(card):
     main_spell = card.play_spell

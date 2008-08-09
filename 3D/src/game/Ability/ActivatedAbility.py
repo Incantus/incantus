@@ -1,6 +1,6 @@
 from Ability import Ability
 from Limit import Unlimited
-from game.Cost import ManaCost
+from Cost import ManaCost
 
 class ActivatedAbility(Ability):
     zone = "play"

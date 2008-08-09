@@ -1,6 +1,3 @@
-from game.GameEvent import UpkeepStepEvent, ReceivesDamageEvent
-from game.Cost import ManaCost, DiscardCost, SpecialCost
-from game.Match import isCreature, SelfMatch, isPlayer
 from CastingAbility import CastPermanentSpell
 from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
@@ -8,6 +5,9 @@ from Target import Target
 from Trigger import Trigger, EnterTrigger, PlayerTrigger
 from Effect import AddPowerToughnessCounter
 from MemoryVariable import MemoryVariable
+from Cost import ManaCost, DiscardCost, SpecialCost
+from game.GameEvent import UpkeepStepEvent, ReceivesDamageEvent
+from game.Match import isCreature, SelfMatch, isPlayer
 
 class Reinforce(ActivatedAbility):
     def __init__(self, card, cost, number=1):
