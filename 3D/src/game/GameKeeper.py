@@ -301,7 +301,8 @@ class GameKeeper(MtGObject):
         if first_strike_damage:
             # Handle trample
             if tramplers: handle_trample(tramplers, first_strike_damage)
-            self.stack.skip_announce(AssignDamage(first_strike_damage.items(),"First Strike Damage"))
+            damages = AssignDamage(first_strike_damage.items(),"First Strike Damage")
+            self.stack.push(damages)
             # Send message about damage going on stack
             self.playInstantaneous()
 
@@ -309,7 +310,8 @@ class GameKeeper(MtGObject):
         # Handle trample
         if regular_combat_damage:
             if tramplers: handle_trample(tramplers, regular_combat_damage)
-            self.stack.skip_announce(AssignDamage(regular_combat_damage.items(), "Regular Combat Damage"))
+            damages = AssignDamage(regular_combat_damage.items(), "Regular Combat Damage")
+            self.stack.push(damages)
             # Send message about damage going on stack
             self.playInstantaneous()
     def combatPhase(self):

@@ -324,16 +324,15 @@ class StackView(CardView):
         self.width = anim.animate(0, 0, dt=0.4, method="sine")
         self.height = anim.animate(0, 0, dt=0.4, method="sine")
         self.layout()
-    def add_ability(self, ability, startt=0):
-        if ability.card == "Assign Damage":
-            newcard = CardLibrary.CardLibrary.getCombatCard(ability)
-            newcard.bordered = True
-        else:
-            if isinstance(ability, CastSpell): func = CardLibrary.CardLibrary.getStackCard
-            elif isinstance(ability, ActivatedAbility): func = CardLibrary.CardLibrary.getActivatedCard
-            else: func = CardLibrary.CardLibrary.getTriggeredCard
-            newcard = func(ability.card)
+    def announce(self, ability, startt=0):
+        if isinstance(ability, CastSpell): func = CardLibrary.CardLibrary.getStackCard
+        elif isinstance(ability, ActivatedAbility): func = CardLibrary.CardLibrary.getActivatedCard
+        else: func = CardLibrary.CardLibrary.getTriggeredCard
+        newcard = func(ability.card)
         newcard.ability = ability
+        newcard.alpha = anim.animate(0, 0.5, startt=startt, dt=1.0, method="ease_out_circ")
+        return self.add_ability(newcard, startt)
+    def add_ability(self, newcard, startt):
         self.cards.append(newcard)
         self.focus_idx = len(self)-1
         newcard.size = anim.animate(0.2, 0.2, dt=0.2, method="cosine")
@@ -343,14 +342,19 @@ class StackView(CardView):
         else: self.header.dt = 0.01
         self.layout()
         newcard._pos.set_transition(dt=0.2, method="linear") #self.pos_transition)
-        newcard.alpha = anim.animate(0, 0.5, startt=startt, dt=1.0, method="ease_out_circ")
         newcard.announced = False
         return newcard
     def finalize_announcement(self, ability):
-        for card in self.cards:
-            if ability == card.ability:
-                card.announced = True
-                card.alpha = 1.0
+        if ability.card == "Assign Damage":
+            newcard = CardLibrary.CardLibrary.getCombatCard(ability)
+            newcard.bordered = True
+            newcard.ability = ability
+            self.add_ability(newcard, 0)
+        else:
+            for card in self.cards:
+                if ability == card.ability:
+                    card.announced = True
+                    card.alpha = 1.0
     def remove_ability(self, ability):
         for idx, card in enumerate(self.cards):
             if ability == card.ability:

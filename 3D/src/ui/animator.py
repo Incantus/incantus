@@ -205,9 +205,7 @@ class ZoneAnimator(object):
             self.red_zone = None
     def enter_stack(self, sender, ability):
         card = ability.card
-        if card == "Assign Damage":
-            self.stack.add_ability(ability)
-            return
+        if card == "Assign Damage": return
         # XXX this is a hack right now because the card isn't actually placed on the stack (or it never leaves it's zone)
         zone = card.zone
         start_pos = None
@@ -219,10 +217,10 @@ class ZoneAnimator(object):
             guicard = zone.get_card(card)
             start_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))
         if start_pos:
-            guicard = self.stack.add_ability(ability, 0.85) #1.0) #0.75)
+            guicard = self.stack.announce(ability, 0.85) #1.0) #0.75)
             end_pos = self.stack.pos + guicard.pos
             self.sparks.add_spark(start_pos, end_pos, grow=True, dt=1.0, color=str(card.color))
-        else: self.stack.add_ability(ability)
+        else: self.stack.announce(ability)
     def leave_stack(self, sender, ability):
         from game.Ability import CastSpell
         guicard = self.stack.get_card(ability)
