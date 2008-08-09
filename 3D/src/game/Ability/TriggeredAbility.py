@@ -1,10 +1,10 @@
 from game.GameObjects import MtGObject
 
 class TriggeredAbility(MtGObject):
-    def __init__(self, card, trigger, condition, ability, expiry=-1, zone="play", txt=''):
+    def __init__(self, card, trigger, match_condition, ability, expiry=-1, zone="play", txt=''):
         self.card = card
         self.trigger = trigger
-        self.condition = condition
+        self.condition = match_condition
         self.ability = ability
         self.expiry = expiry
         self.zone = zone
@@ -12,7 +12,7 @@ class TriggeredAbility(MtGObject):
     def enteringZone(self):
         self.trigger.setup_trigger(self,self.playAbility,self.condition,self.expiry)
     def leavingZone(self):
-        self.trigger.clear_trigger(wait=False)
+        self.trigger.clear_trigger()
     def playAbility(self, trigger=None): # We don't care about the trigger
         self.ability.copy().announce(self.card.controller)
     def copy(self, card=None):

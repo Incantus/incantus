@@ -1,10 +1,8 @@
 import copy
 from game.GameObjects import MtGObject
 from game.GameEvent import DealsDamageEvent, ReceivesDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZone, CardLeavingZone, TimestepEvent
-from game.Match import SelfMatch
-from game.LazyInt import LazyInt
-from game.pydispatch.robustapply import function
 from game.pydispatch import dispatcher
+from game.pydispatch.robustapply import function
 
 def robustApply(receiver, *arguments, **named):
     """Call receiver with arguments and an appropriate subset of named
@@ -41,12 +39,10 @@ class Trigger(MtGObject):
         else: self.match_condition = lambda *args: True
         self.register(self.filter, event=self.trigger_event, sender=self.trigger_sender)
         self.activated = True
-    def clear_trigger(self, wait=True):
+    def clear_trigger(self):
         # This guarantees that all simultaneous events are caught by a registered trigger
         if self.activated:
-            unregister = lambda: self.unregister(self.filter, event=self.trigger_event, sender=self.trigger_sender)
-            if wait: self.register(unregister, event=TimestepEvent(), weak=False, expiry=1)
-            else: unregister()
+            self.unregister(self.filter, event=self.trigger_event, sender=self.trigger_sender)
             self.activated = False
     def filter(self, sender, **keys):
         if robustApply(self.match_condition, sender, **keys) and (self.expiry == -1 or self.count < self.expiry):
@@ -138,16 +134,14 @@ class EnterFromTrigger(Trigger):
         self.events_senders = [(CardEnteringZone(), self.filter_entering), (CardLeavingZone(), self.filter_leaving)]
         for event, filter in self.events_senders: self.register(filter, event=event)
         self.activated = True
-    def clear_trigger(self, wait):
-        # XXX We want to wait because of the nature of the events we are catching
-        wait = True
+    def clear_trigger(self):
         if self.activated:
             # closures are not bound properly in loops, so have to define an external function
             def unregister(event, filter):
                 return lambda: self.unregister(filter, event=event)
             for event, filter in self.events_senders:
-                if wait: self.register(unregister(event, filter), event=TimestepEvent(), weak=False, expiry=1)
-                else: self.unregister(filter, event=event)
+                # XXX We want to wait because of the nature of the events we are catching
+                self.register(unregister(event, filter), event=TimestepEvent(), weak=False, expiry=1)
             self.activated = False
     def check_player(self, sender, card):
         if self.to_zone == "play": player_cmp = card.controller

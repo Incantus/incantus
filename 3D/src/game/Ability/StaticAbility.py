@@ -45,9 +45,9 @@ class CardTrackingAbility(StaticAbility):
         self.leave_trigger.setup_trigger(self, self.leaving)
         for trigger in self.other_triggers: trigger.setup_trigger(self,self.event_triggered)
     def leavingZone(self):
-        self.enter_trigger.clear_trigger(wait=False)
-        self.leave_trigger.clear_trigger(wait=False)
-        for trigger in self.other_triggers: trigger.clear_trigger(wait=False)
+        self.enter_trigger.clear_trigger()
+        self.leave_trigger.clear_trigger()
+        for trigger in self.other_triggers: trigger.clear_trigger()
 
         for card in self.effect_tracking.keys(): self.remove_effects(card)
         self.effect_tracking.clear()
