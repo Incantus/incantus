@@ -141,6 +141,8 @@ class EnterFromTrigger(Trigger):
                 return lambda: self.unregister(filter, event=event)
             for event, filter in self.events_senders:
                 # XXX We want to wait because of the nature of the events we are catching
+                # If I get rid of this, then i'll have to entering ordered zones so that removing from
+                # the previous zone happens exactly before adding to the new zone
                 self.register(unregister(event, filter), event=TimestepEvent(), weak=False, expiry=1)
             self.activated = False
     def check_player(self, sender, card):
