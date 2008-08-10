@@ -1,7 +1,7 @@
 
+import bsddb, os, glob, cPickle as pickle, traceback
 from characteristics import characteristic, no_characteristic
 from GameObjects import Card, Token
-import bsddb, os, glob, cPickle as pickle
 
 class CardDatabase(object):
     def __init__(self):
@@ -124,6 +124,7 @@ in_play_role = Permanent(card, %s())
             exec card_code in vars(CardEnvironment), vars(card)
         except Exception, e:
             print name, e
+            traceback.print_exc(4)
             raise KeyError()
         # Get rid of non-standard attributes
         for k in card.__dict__.keys():
