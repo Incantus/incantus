@@ -1,8 +1,7 @@
-from game.GameObjects import MtGObject
 from game.GameEvent import AbilityAnnounced, AbilityPlayedEvent, AbilityCanceled, AbilityCountered, AbilityResolved, TimestepEvent
 from Target import Target
 
-class Ability(MtGObject):
+class Ability(object):
     def __init__(self, card, target=None, effects=[], copy_targets=True, txt=''):
         self.card = card
         if not (type(effects) == list or type(effects) == tuple): effects = [effects]
@@ -50,7 +49,7 @@ class Ability(MtGObject):
         if all((target.check_target(self.card) for target in self.targets)):
             for target, effect in self.multiplex():
                 effect(self.card, target)
-                self.send(TimestepEvent())
+                self.card.send(TimestepEvent())
             self.resolved()
         else: self.countered()
     def resolved(self): self.card.send(AbilityResolved())

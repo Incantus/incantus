@@ -1,6 +1,4 @@
-from game.GameObjects import MtGObject
-
-class TriggeredAbility(MtGObject):
+class TriggeredAbility(object):
     def __init__(self, card, trigger, match_condition, ability, expiry=-1, zone="play", txt=''):
         self.card = card
         self.trigger = trigger
