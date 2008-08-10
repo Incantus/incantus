@@ -1,11 +1,10 @@
 import copy
-from game.GameObjects import MtGObject
 from game.Match import isPermanent
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger, robustApply
 from game.GameEvent import ControllerChanged, SubroleModifiedEvent, TimestepEvent
 
 # Static abilities always function while the permanent is in the relevant zone
-class StaticAbility(MtGObject):
+class StaticAbility(object):
     def __init__(self, card, effects=[], zone="play", txt=''):
         self.card = card
         if not (type(effects) == list or type(effects) == tuple):
