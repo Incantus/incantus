@@ -1,6 +1,7 @@
 from pickletools import genops
 #import pickle
 import cPickle as pickle
+import game
 from game import Player
 from game.Ability.Ability import Ability
 from game.GameObjects import GameObject
