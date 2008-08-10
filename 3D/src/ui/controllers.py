@@ -751,7 +751,7 @@ class HandController(object):
             return True
         else: return False
 
-from game.Ability import MultipleTargets, AllPermanentTargets, AllPlayerTargets
+from game.Ability.Target import MultipleTargets, AllPermanentTargets, AllPlayerTargets
 from game.Match import isPlayer, isPermanent, isAbility
 class StackController(object):
     def __init__(self, stack_gui, window):

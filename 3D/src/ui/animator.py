@@ -10,6 +10,7 @@ import CardLibrary
 from game import GameEvent
 from game.pydispatch import dispatcher
 from game.Match import isPlayer, isPermanent, isAbility
+from game.Ability.CastingAbility import CastSpell
 
 from play_view import CombatZone
 
@@ -222,7 +223,6 @@ class ZoneAnimator(object):
             self.sparks.add_spark(start_pos, end_pos, grow=True, dt=1.0, color=str(card.color))
         else: self.stack.announce(ability)
     def leave_stack(self, sender, ability):
-        from game.Ability import CastSpell
         guicard = self.stack.get_card(ability)
         pos = self.stack.pos + guicard.pos
         if isinstance(ability, CastSpell): self.tracker[ability.card] = pos, self.stack

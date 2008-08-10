@@ -2,11 +2,11 @@ from Ability import Ability
 from Limit import Unlimited
 from Cost import ManaCost
 
-class ActivatedAbility(Ability):
+class CostAbility(Ability):
     zone = "play"
     limit_type = Unlimited   # This is because if instantiate when the class is created, all the signalling is cleared
     def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone=None, txt=''):
-        super(ActivatedAbility,self).__init__(card, target=target, effects=effects, copy_targets=copy_targets, txt=txt)
+        super(CostAbility,self).__init__(card, target=target, effects=effects, copy_targets=copy_targets, txt=txt)
         if type(cost) == str or type(cost) == int: cost = ManaCost(cost)
         self.cost = cost
         if limit: self.limit = limit
@@ -26,7 +26,9 @@ class ActivatedAbility(Ability):
             return False
     def __str__(self):
         if self.txt: return self.txt
-        else: return "%s: %s"%(self.cost,super(ActivatedAbility,self).__str__())
+        else: return "%s: %s"%(self.cost,super(CostAbility,self).__str__())
+
+class ActivatedAbility(CostAbility): pass
 
 class ManaAbility(ActivatedAbility):
     mana_ability = True

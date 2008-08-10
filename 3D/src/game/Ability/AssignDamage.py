@@ -1,5 +1,6 @@
 from game.GameEvent import CombatDamageAssigned, DealsDamageEvent
 from Ability import Ability
+from Target import MultipleTargets
 
 class AssignDamage(Ability):
     # XXX These two are very hacky, and are only here to support the GUI
@@ -10,7 +11,6 @@ class AssignDamage(Ability):
     card = property(**card())
     def targets():
         def fget(self):
-            from Target import MultipleTargets
             targets = set()
             for damager, damage_assn in self.damages:
                 targets.add(damager)

@@ -354,8 +354,8 @@ class Creature(SubRole):
         self.block_cost = ["0"]
         return True
     def payBlockCost(self):
+        from Ability.Cost import MultipleCosts
         player = self.card.controller
-        from Cost import MultipleCosts
         cost = MultipleCosts(self.block_cost)
         if cost.precompute(self.card, player) and cost.compute(self.card, player):
             cost.pay(self.card, player)
@@ -363,8 +363,8 @@ class Creature(SubRole):
         self.attack_cost = ["0"]
         return True
     def payAttackCost(self):
+        from Ability.Cost import MultipleCosts
         player = self.card.controller
-        from Cost import MultipleCosts
         cost = MultipleCosts(self.attack_cost)
         if cost.precompute(self.card, player) and cost.compute(self.card, player):
             cost.pay(self.card, player)

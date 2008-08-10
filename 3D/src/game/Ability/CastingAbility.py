@@ -1,8 +1,8 @@
 from game.GameEvent import SpellPlayedEvent
-from ActivatedAbility import ActivatedAbility
+from ActivatedAbility import CostAbility
 from Limit import SorceryLimit, MultipleLimits
 
-class CastSpell(ActivatedAbility):
+class CastSpell(CostAbility):
     zone = "hand"
     def do_announce(self):
         # Move the card to the stack zone - this is never called from play

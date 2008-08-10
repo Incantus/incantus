@@ -1,7 +1,9 @@
 from pickletools import genops
 #import pickle
 import cPickle as pickle
-import game
+from game import Player
+from game.Ability.Ability import Ability
+from game.GameObjects import GameObject
 
 # This whole thing is ugly - i should probably replace it with a global object store with weakrefs (for the abilities)
 # or find a better way to pass this data back and forth
@@ -9,11 +11,11 @@ players = {}
 stack = None
 def persistent_id(obj):
     persid = None
-    if isinstance(obj,game.GameObjects.GameObject):
+    if isinstance(obj,GameObject):
         persid = pickle.dumps(("Object", obj.key), 2)
-    elif isinstance(obj,game.Player):
+    elif isinstance(obj,Player):
         persid = pickle.dumps(("Player", obj.name), 2)
-    elif isinstance(obj,game.Ability.Ability):
+    elif isinstance(obj,Ability):
         persid = pickle.dumps(("Ability", stack.find(obj)), 2)
     return persid
 

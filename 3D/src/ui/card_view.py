@@ -21,8 +21,8 @@ sixteenfv = GLfloat*16
 import math
 import CardLibrary
 
-from game.Ability import CastSpell
-from game.Ability import ActivatedAbility
+from game.Ability.CastingAbility import CastSpell
+from game.Ability.ActivatedAbility import ActivatedAbility
 
 class CardView(Widget):
     focus_size = 1.0 #0.8

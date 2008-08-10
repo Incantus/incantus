@@ -409,7 +409,7 @@ class ForceSacrifice(Effect):
 
 class PayExtraCost(Effect):
     def __init__(self, cost="0", selector=None):
-        from game.Cost import ManaCost
+        from Cost import ManaCost
         if type(cost) == str: cost = ManaCost(cost)
         self.cost = cost
         self.selector = selector
