@@ -1,4 +1,5 @@
 import copy
+from game.GameObjects import MtGObject
 from game.Match import isPermanent
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger, robustApply
 from game.GameEvent import ControllerChanged, SubroleModifiedEvent, TimestepEvent
