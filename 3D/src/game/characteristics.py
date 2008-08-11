@@ -1,5 +1,34 @@
 
-class characteristic(object):
+def _find_stacked(card, attr):
+    original = getattr(card, attr)
+    if hasattr(original, "stacked"): stacked = original
+    else: stacked = stacked_characteristic(card, attr, None)
+    return stacked
+def set_characteristic(card, name, characteristic):
+    stacked = _find_stacked(card, name)
+    return stacked.set_characteristic(characteristic)
+def add_characteristic(card, name, characteristic):
+    stacked = _find_stacked(card, name)
+    return stacked.add_characteristic(characteristic)
+def add_all(card, name):
+    stacked = _find_stacked(card, name)
+    return stacked.add_all()
+def remove_all(card, name):
+    stacked = _find_stacked(card, name)
+    return stacked.remove_all()
+
+class _base_characteristic(object):
+    pass
+    #def set_characteristic(self, characteristic):
+    #    return self._insert_into_stacking(characteristic(characteristic))
+    #def add_characteristic(self, characteristic):
+    #    return self._insert_into_stacking(additional_characteristic(characteristic))
+    #def add_all(self):
+    #    return self._insert_into_stacking(all_characteristics())
+    #def remove_all(self):
+    #    return self._insert_into_stacking(no_characteristic())
+
+class characteristic(_base_characteristic):
     # Internally stored as a set
     def __init__(self, init_val):
         if not (type(init_val) == tuple or type(init_val) == list): init_val = [init_val]
@@ -13,16 +42,16 @@ class characteristic(object):
     def __repr__(self): return "characteristic([%s])"%', '.join(map(repr, self.characteristics))
     def make_text_line(self, fields): fields[:] = self.characteristics
 
-class all_characteristics(object):
+class all_characteristics(_base_characteristic):
     # This characteristic matches everything
     def __eq__(self, other): return True
     def __contains__(self, val): return self == val
     def intersects(self, other): return True
     def __str__(self): return "All"
-    def __repr__(self): return repr("All")
+    def __repr__(self): return "all_characteristics()"
     def make_text_line(self, fields): fields[:] = ["All"]
 
-class no_characteristic(object):
+class no_characteristic(_base_characteristic):
     # This characterisitic matches nothing
     def __eq__(self, other): return False
     def __contains__(self, val): return self == val
@@ -56,17 +85,31 @@ class additional_characteristic(characteristic):
 
 class stacked_characteristic(object):
     stacked = True
-    def __init__(self, orig):
-        self._stacking = [orig]
-    def add(self, characteristic):
-        self._stacking.append(characteristic)
-    def remove(self, characteristic):
-        for i, c in enumerate(self._stacking):
-            if characteristic is c: break
-        else: raise ValueError
-        self._stacking.pop(i)
+    def __init__(self, card, attr, change_event):
+        self._stacking = [getattr(card, attr)]
+        setattr(card, attr, self)
+        self.card = card
+        self.attr = attr
+        self.change_event = change_event
+    def _insert_into_stacking(self, char):
+        self._stacking.append(char)
+        self.card.send(self.change_event)
+        def remove():
+            if char in self._stacking:
+                self._stacking.remove(char)
+                self.card.send(self.change_event)
+            if not self.stacking(): self.restore_original()
+        return remove
+    def set_characteristic(self, characteristic):
+        return self._insert_into_stacking(characteristic(characteristic))
+    def add_characteristic(self, characteristic):
+        return self._insert_into_stacking(additional_characteristic(characteristic))
+    def add_all(self):
+        return self._insert_into_stacking(all_characteristics())
+    def remove_all(self):
+        return self._insert_into_stacking(no_characteristic())
     def stacking(self): return len(self._stacking) > 1
-    def pop(self): return self._stacking.pop()
+    def restore_original(self): setattr(self.card, self.attr, self._stacking.pop())
     def process_stacked(self, other, operator):
         result = False
         for char in self._stacking:
@@ -83,35 +126,35 @@ class stacked_characteristic(object):
         for char in self._stacking: char.make_text_line(fields)
         return ' '.join(fields)
     def __repr__(self):
-        return "[stacked_characteristic: %s]"%repr(self._stacking)
+        return "stacked: %s"%repr(self._stacking)
 
 if __name__ == "__main__":
 
-    subtypes = characteristic(["Goblin", "Warrior"])
-    changeling = all_characteristics()
-    clear = no_characteristic()
-    #no_elf = remove_characteristic("Elf")
-    add_merfolk = additional_characteristic("Merfolk")
+    class Creature(object):
+        def __init__(self, name, subtypes):
+            self.name = name
+            self.subtypes = characteristic(subtypes)
+        def __str__(self):
+            return "%s: %s"%(self.name, repr(self.subtypes))
+        def send(self, *args, **kw): pass
 
-    Elf = characteristic(["Elf", "Warrior"])
+    goblin = Creature("Hobgolin", ["Goblin", "Warrior"])
+    elf = Creature("Llanowar Elves", ["Elf", "Warrior"])
 
-    def check(msg, subtype):
-        print "%s: %s"%(msg, subtype.characteristics)
-        for t in ["Elf", "Goblin", "Merfolk"]:
-            print "\tcard is %s:"%t, subtype == t
-        print "\tCard intersect [%s]"%Elf, subtype.intersects(Elf)
+    def check(msg, creature):
+        print "%s:\n %s"%(msg, creature)
+        for subtype in ["Elf", "Goblin", "Merfolk"]:
+            print "\tcreature is %s:"%subtype, creature.subtypes == subtype
+        print "\tCreature intersects (%s)"%elf, creature.subtypes.intersects(elf.subtypes)
 
-    stacked = stacked_characteristic(subtypes)
-    check("Starting %s"%subtypes, stacked)
-    stacked.add(changeling)
-    check("Adding %s"%changeling, stacked)
-    #stacked.add(no_elf)
-    #check("Adding %s"%no_elf, stacked)
-    stacked.add(clear)
-    check("Adding %s"%clear, stacked)
-    stacked.add(add_merfolk)
-    check("Adding %s"%add_merfolk, stacked)
-    stacked.remove(changeling)
-    check("Removing %s"%changeling, stacked)
-    stacked.remove(clear)
-    check("Removing %s"%clear, stacked)
+    check("Starting", goblin)
+    rem1 = add_all(goblin, "subtypes")
+    check("Adding changeling", goblin)
+    rem2 = remove_all(goblin, "subtypes")
+    check("Removing all", goblin)
+    add_characteristic(goblin, "subtypes", "Merfolk")
+    check("Adding Merfolk", goblin)
+    rem1()
+    check("Removing changeling", goblin)
+    rem2()
+    check("Clearing no subtypes", goblin)
