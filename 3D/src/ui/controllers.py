@@ -110,6 +110,7 @@ class SelectController(object):
         else:
             self.indices.add(self.index)
             self.listview.options[self.index][0].main_text.color = (0.5, 0.5, 0.5, 1.0)
+            if self.numselections == 1: self.return_selections()
         #if len(self.indices) == self.numselections: self.return_selections()
     def return_selections(self, all=False):
         if self.numselections == 1: SelAction = Action.SingleSelected
@@ -787,7 +788,7 @@ class StackController(object):
         # Get targets
         targets = self.stack_gui.focused.ability.targets
         for t in targets:
-            if not isinstance(t, MultipleTargets) or isinstance(t, AllPermanentTargets) or isinstance(t, AllPlayerTargets)): t = [t.target]
+            if not isinstance(t, MultipleTargets) or isinstance(t, AllPermanentTargets) or isinstance(t, AllPlayerTargets): t = [t.target]
             else: t = t.target
             for i, tt in enumerate(t):
                 if tt == None: continue  # For delayed targeting abilities, like champion
