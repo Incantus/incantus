@@ -44,7 +44,7 @@ class SparkFXManager(object):
         elif type(color) == str: color = self.COLORS.get(color)
         else: color = color
         spark = Label(str(number), size=40, color=color, shadow=False, halign="center", valign="center", pos=start_pos)
-        spark._pos.set_transition(dt=dt, method="ease_out_circ") #ease_out_back")
+        spark._pos.set_transition(dt=0.5*dt, method="ease_out_circ") #ease_out_back")
         spark.pos = end_pos
         spark.visible = anim.animate(1., 0., dt=dt)
         spark.scale = anim.animate(1.0, 1.3, dt=dt, method="sine")
@@ -52,7 +52,7 @@ class SparkFXManager(object):
         else: self.active_sparks_3d.append(spark)
     def add_spark(self, start_pos, end_pos, dt=1.0, color=None, grow=False, dim=2):
         spark = Image("glow", pos=start_pos)
-        spark._pos.set_transition(dt=dt, method="ease_out_circ") #ease_out_back")
+        spark._pos.set_transition(dt=0.5*dt, method="ease_out_circ") #ease_out_back")
         spark.pos = end_pos
         if color == None: spark.color=(1.,1.,1.)
         elif type(color) == str:
@@ -89,7 +89,7 @@ class SparkFXManager(object):
         else: self.active_sparks_3d.append(spark)
         dt = 0.75*dt
         spark = Image('glow', pos=start_pos)
-        spark._pos.set_transition(dt=dt, method="ease_out_circ")
+        spark._pos.set_transition(dt=0.5*dt, method="ease_out_circ")
         spark.pos = end_pos
         spark.color = color
         spark.visible = anim.animate(1., 0., dt=dt)
