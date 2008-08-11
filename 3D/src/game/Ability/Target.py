@@ -7,11 +7,11 @@ class NoTarget(object):
     def check_target(self, card): return True
 
 class MultipleTargets(object):
-    def __init__(self, number, target_types=None, exact=True, msg='', selector="controller"):
+    def __init__(self, number, target_types, up_to=False, msg='', selector="controller"):
         self.number = number
         self.zones = []
         self.target = []
-        self.exact = exact
+        self.up_to = up_to
         self.msg = msg
         self.selector = selector
         if not (type(target_types) == tuple or type(target_types) == list):
@@ -38,7 +38,7 @@ class MultipleTargets(object):
         number = self.number-curr
         if curr > 0: another = "another "
         else: another = "" 
-        if not self.exact: another = "up to "+another
+        if self.up_to: another = "up to "+another
 ########
         if self.msg: prompt=self.msg
         elif self.target_types: prompt="Target %s%d %s(s) for %s"%(another,number, ' or '.join([str(t) for t in self.target_types]), card)
@@ -52,10 +52,10 @@ class MultipleTargets(object):
         else: selector = card.controller
         i = 0
         targets = []
-        while i < self.number:
-            target = selector.getTarget(self.target_types,zone="play",required=False,prompt=self.get_prompt(i, card.name))
+        while i <= self.number:
+            target = selector.getTarget(self.target_types,zone="play",controller=card.controller,required=False,prompt=self.get_prompt(i, card.name))
             if target == False:
-                if self.exact or len(targets) == 0: return False
+                if not self.up_to or len(targets) == 0: return False
                 else: break
             elif target.canBeTargetedBy(card) and not target in targets:
                 targets.append(target)
