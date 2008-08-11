@@ -26,13 +26,12 @@ class CardTrackingAbility(StaticAbility):
         super(CardTrackingAbility, self).__init__(card, effects, zone, txt)
         self.enter_trigger = EnterTrigger(tracking, player="any")
         self.leave_trigger = LeaveTrigger(tracking, player="any")
+        self.control_changed = Trigger(ControllerChanged(), sender=self.card)
         if not type(events) == list: events = [events]
         self.other_triggers = [Trigger(event) for event in [SubroleModifiedEvent(), ControllerChanged()] + events]
         self.condition = condition
         self.tracking = tracking
-    def enteringZone(self):
-        self.effect_tracking = {}
-        # Get all cards in the tracked zone
+    def get_current(self):
         zone_condition = partial(self.condition, self.card)
         if self.tracking == "play":
             zone = getattr(self.card.controller, self.tracking)
@@ -41,19 +40,31 @@ class CardTrackingAbility(StaticAbility):
             zone = getattr(self.card.controller, self.tracking)
             opp_zone = getattr(self.card.controller.opponent, self.tracking)
             cards = zone.get(zone_condition) + opp_zone.get(zone_condition)
-
-        for card in cards: self.add_effects(card)
+        return cards
+    def enteringZone(self):
+        self.effect_tracking = {}
+        # Get all cards in the tracked zone
+        for card in self.get_current(): self.add_effects(card)
 
         self.enter_trigger.setup_trigger(self.card, self.entering, self.condition)
         self.leave_trigger.setup_trigger(self.card, self.leaving)
+        self.control_changed.setup_trigger(self.card, self.new_controller)
         for trigger in self.other_triggers: trigger.setup_trigger(self.card, self.card_changed)
     def leavingZone(self):
         self.enter_trigger.clear_trigger()
         self.leave_trigger.clear_trigger()
+        self.control_changed.clear_trigger()
         for trigger in self.other_triggers: trigger.clear_trigger()
 
         for card in self.effect_tracking.keys(): self.remove_effects(card)
         self.effect_tracking.clear()
+    def new_controller(self, original):
+        # Check all current cards, to see if they should be added or removed from the current set
+        new_cards, old_cards = set(self.get_current()), set(self.effect_tracking)
+        for card in new_cards-old_cards:
+            self.add_effects(card)
+        for card in old_cards-new_cards:
+            self.remove_effects(card)
     def entering(self, card):
         # This is called everytime a card that matches condition enters the tracking zone
         if not card in self.effect_tracking: self.add_effects(card)
