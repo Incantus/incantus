@@ -1,4 +1,4 @@
-from game.GameEvent import CombatDamageAssigned, DealsDamageEvent
+from game.GameEvent import DealsDamageEvent
 from Ability import Ability
 from Target import MultipleTargets
 
@@ -36,5 +36,4 @@ class AssignDamage(Ability):
                 if amt > 0: total += damager.dealDamage(damagee, amt, combat=True)
 
             if total > 0: damager.send(DealsDamageEvent(), amount=total, combat=True)
-        self.send(CombatDamageAssigned())
     def __str__(self): return self.txt
