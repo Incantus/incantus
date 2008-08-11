@@ -34,6 +34,7 @@ class _CardLibrary:
         self.cardfile = CardDatabase()
         total = 0
         self.cardinfo = {}
+        self.unimplemented = set()
         self.clear()
 
     def clear(self):
@@ -75,10 +76,13 @@ in_play_role = Permanent(card, %s())
         # XXX I should add them to a factory and return a deepcopy - this will never work with the lambda bindings
         card = Card(owner)
         # Now load the card's abilities
-        try:
-            self.loadCardObj(card, name)
-        except (KeyError):
-            self.loadDefaultCard(card, name)
+        if not name in self.unimplemented:
+            try:
+                self.loadCardObj(card, name)
+            except (KeyError):
+                self.unimplemented.add(name)
+                self.loadDefaultCard(card, name)
+        else: self.loadDefaultCard(card, name)
 
         card._current_role = card.out_play_role
 
@@ -123,8 +127,8 @@ in_play_role = Permanent(card, %s())
         try:
             exec card_code in vars(CardEnvironment), vars(card)
         except Exception, e:
-            print name, e
             traceback.print_exc(4)
+            print "Error with %s\n"%name
             raise KeyError()
         # Get rid of non-standard attributes
         for k in card.__dict__.keys():
