@@ -1,4 +1,4 @@
-import types, new
+import types
 from Match import isPlayer
 
 # this is probably where the static layering rules come into play
