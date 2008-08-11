@@ -63,7 +63,7 @@ def convert_mana_string(manastr):
 def converted_mana_cost(mana):
     if type(mana) == str:
         if "(" in mana: mana = generate_hybrid_choices(mana)[0]
-        else: mana = convert_mana_string(mana)
+        mana = convert_mana_string(mana)
     return sum(mana)
 
 def iterall(iterables):
