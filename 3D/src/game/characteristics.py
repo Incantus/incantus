@@ -1,8 +1,8 @@
 
-def _find_stacked(card, attr):
+def _find_stacked(card, attr, event=None):
     original = getattr(card, attr)
     if hasattr(original, "stacked"): stacked = original
-    else: stacked = stacked_characteristic(card, attr, None)
+    else: stacked = stacked_characteristic(card, attr, event)
     return stacked
 def set_characteristic(card, name, characteristic):
     stacked = _find_stacked(card, name)
@@ -100,10 +100,10 @@ class stacked_characteristic(object):
                 self.card.send(self.change_event)
             if not self.stacking(): self.restore_original()
         return remove
-    def set_characteristic(self, characteristic):
-        return self._insert_into_stacking(characteristic(characteristic))
-    def add_characteristic(self, characteristic):
-        return self._insert_into_stacking(additional_characteristic(characteristic))
+    def set_characteristic(self, new_char):
+        return self._insert_into_stacking(characteristic(new_char))
+    def add_characteristic(self, new_char):
+        return self._insert_into_stacking(additional_characteristic(new_char))
     def add_all(self):
         return self._insert_into_stacking(all_characteristics())
     def remove_all(self):
