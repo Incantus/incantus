@@ -141,10 +141,13 @@ class PlayView(object):
     def get(self, match=lambda c: True, all=False):
         if all: return self.play.get(match)
         else: return [card for card in self.play if match(card) and card.controller == self.player]
+    def before_card_added(self, card):
+        card.current_role = card.in_play_role
+        card.controller = self.player
+        self.play.before_card_added(card)
     def add_new_card(self, card):
         self.send(CardEnteringZone(), card=card)
         self.before_card_added(card)
-        card.controller = self.player
         self._insert_card_unordered(card, -1)
     def move_card(self, card, position=-1):
         self.send(CardEnteringZone(), card=card)
@@ -152,7 +155,6 @@ class PlayView(object):
         old_zone.send(CardLeavingZone(), card=card)
         old_zone.before_card_removed(card)
         self.before_card_added(card)
-        card.controller = self.player
         # Remove card from previous zone
         old_zone._remove_card(card)
         self._insert_card(card, position)
@@ -181,9 +183,6 @@ class Play(AddingCardsMixin, OrderedZone):
                     cards.reverse()
                 cardlist.extend(cards)
         return cardlist
-    def before_card_added(self, card):
-        card.current_role = card.in_play_role
-        super(Play, self).before_card_added(card)
     def before_card_removed(self, card):
         card.save_lki()
         super(Play, self).before_card_removed(card)
