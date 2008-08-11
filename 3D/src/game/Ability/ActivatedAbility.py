@@ -1,38 +1,39 @@
 from Ability import Ability
 from Limit import Unlimited
-from Cost import ManaCost
 
 class CostAbility(Ability):
     zone = "play"
     limit_type = Unlimited   # This is because if instantiate when the class is created, all the signalling is cleared
-    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone=None, txt=''):
-        super(CostAbility,self).__init__(card, target=target, effects=effects, copy_targets=copy_targets, txt=txt)
-        if type(cost) == str or type(cost) == int: cost = ManaCost(cost)
-        self.cost = cost
+    def __init__(self, card, effects, limit=None, zone=None, txt=''):
+        super(CostAbility,self).__init__(card, effects, txt=txt)
         if limit: self.limit = limit
         else: self.limit = self.limit_type()
         if zone: self.zone = zone
     def playable(self):
-        return (str(self.card.zone) == self.zone and self.limit(self.card))
+        return (self.zone == "all" or str(self.card.zone) == self.zone) and self.limit(self.card)
     def do_announce(self):
         # Do all the stuff in rule 409.1 like pick targets, pay costs, etc
-        card, player, cost = self.card, self.controller, self.cost
-        if (cost.precompute(card, player) and
-           self.get_target() and
-           cost.compute(card, player)):
-               cost.pay(card, player)
+        card, player = self.card, self.controller
+        self.effects = self.effect_generator(self.card)  # Start up generator
+        self.cost = self.effects.next()
+        if (self.cost.precompute(card, player) and
+           self.get_targets() and
+           self.cost.compute(card, player)):
+               self.cost.pay(card, player)
                return True
         else:
             return False
+    def _get_targets_from_effects(self):
+        return self.effects.send(self.cost)
     def __str__(self):
-        if self.txt: return self.txt
-        else: return "%s: %s"%(self.cost,super(CostAbility,self).__str__())
+        return self.txt
 
-class ActivatedAbility(CostAbility): pass
+class ActivatedAbility(CostAbility): activated = True
 
 class ManaAbility(ActivatedAbility):
     mana_ability = True
     def preannounce(self): pass
+    def canceled(self): pass
     def played(self): self.resolve()
 
 #class MultipleAbilities(ActivatedAbility):

@@ -43,7 +43,6 @@ class SubtypeModifiedEvent(Event): pass
 class SupertypeModifiedEvent(Event): pass
 
 class SacrificeEvent(Event): pass
-class ManaEvent(Event): pass
 class ManaAdded(Event): pass
 class ManaSpent(Event): pass
 class ManaCleared(Event): pass
@@ -76,10 +75,10 @@ class CreatureCombatClearedEvent(Event): pass
 class RegenerateEvent(Event): pass
 class DamagePreventedEvent(Event): pass
 class PlayerDamageEvent(Event): pass
-class CombatDamageAssigned(Event): pass
 class DealsDamageEvent(Event): pass
 class DealsDamageToEvent(Event): pass
 class ReceivesDamageEvent(Event): pass
+class PermanentSacrificedEvent(Event): pass
 class PermanentDestroyedEvent(Event): pass
 class AttachedEvent(Event): pass
 class UnAttachedEvent(Event): pass

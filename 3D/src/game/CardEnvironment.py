@@ -8,24 +8,99 @@ from Match import *
 from LazyInt import LazyInt, X
 from GameEvent import *
 
-from Ability.Ability import Ability
 from Ability.ActivatedAbility import ActivatedAbility, ManaAbility
 from Ability.TriggeredAbility import TriggeredAbility
 from Ability.StaticAbility import *
 from Ability.CastingAbility import *
-from Ability.Effects import *
 from Ability.Target import *
 from Ability.Trigger import *
 from Ability.Cost import *
 from Ability.Counters import *
-from Ability.CreatureAbility import *
-from Ability.PermanentAbility import *
-from Ability.CyclingAbility import *
-from Ability.LorwynAbility import *
-from Ability.MorningtideAbility import *
-from Ability.ShadowmoorAbility import *
-from Ability.EventideAbility import *
+from Ability.Effects import *
+#from Ability.CreatureAbility import *
+#from Ability.PermanentAbility import *
+#from Ability.CyclingAbility import *
+#from Ability.LorwynAbility import *
+#from Ability.MorningtideAbility import *
+#from Ability.ShadowmoorAbility import *
+#from Ability.EventideAbility import *
 from Ability.MemoryVariable import *
 
 damage_tracker = DamageTrackingVariable()
 graveyard_tracker = ZoneMoveVariable(from_zone="play", to_zone="graveyard")
+
+def play_permanent(card, cost):
+    if type(cost) == str: cost = ManaCost(cost)
+    def effects(source):
+        yield cost
+        yield NoTarget()
+        yield
+    card.play_spell = CastPermanentSpell(card, effects, txt="Play spell")
+
+# Decorators for effects of cards
+def play_sorcery(card):
+    def make_spell(effects):
+        card.play_spell = CastSorcerySpell(card, effects, txt="Play spell")
+    return make_spell
+
+def play_instant(card):
+    def make_spell(effects):
+        card.play_spell = CastInstantSpell(card, effects, txt="Play spell")
+    return make_spell
+
+def modal(*modes, **kw):
+    choose = kw['choose']
+    def make_modal(effects):
+        def modal_effects(source):
+            indices = source.controller.getSelection([(mode.__doc__,i) for i, mode in enumerate(modes)], choose, idx=False, msg='Select %d mode(s):'%choose)
+            if hasattr(indices, "__len__"): chosen = tuple((modes[i](source) for i in indices))
+            else: chosen = (modes[indices](source), )
+            # get the costs
+            costs = tuple((mode.next() for mode in chosen))
+            payment = yield effects(source).next()
+
+            # get the targets
+            targets = yield tuple((mode.send(payment) for mode in chosen))
+            if not hasattr(targets, "__len__"): targets = (targets, )
+            yield tuple((mode.send(t) for t, mode in zip(targets, chosen)))
+
+        return modal_effects
+    return make_modal
+
+def modal_triggered(*modes, **kw):
+    choose = kw['choose']
+    def make_modal(effects):
+        def modal_effects(source):
+            indices = source.controller.getSelection([(mode.__doc__,i) for i, mode in enumerate(modes)], choose, idx=False, msg='Select %d mode(s):'%choose)
+            if hasattr(indices, "__len__"): chosen = tuple((modes[i](source) for i in indices))
+            else: chosen = (modes[indices](source), )
+            # get the targets
+            targets = yield tuple((mode.next() for mode in chosen))
+            if not hasattr(targets, "__len__"): targets = (targets, )
+            yield tuple((mode.send(t) for t, mode in zip(targets, chosen)))
+
+        return modal_effects
+    return make_modal
+
+def mana(card, limit=None, zone='play', txt=''):
+    def make_ability(effects):
+        card.abilities.add(ManaAbility(card, effects, limit, zone, txt))
+    return make_ability
+
+def activated(card, limit=None, zone='play', txt=''):
+    def make_ability(effects):
+       card.abilities.add(ActivatedAbility(card, effects, limit, zone, txt))
+    return make_ability
+
+def triggered(card, triggers, expiry=-1, zone="play", txt=''):
+    if not (type(triggers) == list or type(triggers) == tuple): triggers=[triggers]
+    def make_triggered(ability):
+        condition, effects = ability()
+        card.abilities.add(TriggeredAbility(card, triggers, condition, effects, expiry, zone, txt))
+    return make_triggered
+
+def static_tracking(card, events=[], tracking="play", zone="play", txt=''):
+    def make_ability(ability):
+        condition, effects = ability()
+        card.abilities.add(CardTrackingAbility(card, effects, condition, events, tracking, zone, txt))
+    return make_ability

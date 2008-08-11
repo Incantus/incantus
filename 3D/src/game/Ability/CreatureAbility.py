@@ -128,8 +128,8 @@ protection_from_blue = lambda card: protection(card, attribute_match = lambda ot
 protection_from_white = lambda card: protection(card, attribute_match = lambda other: other.color == "W")
 protection_from_red = lambda card: protection(card, attribute_match = lambda other: other.color == "R")
 protection_from_green = lambda card: protection(card, attribute_match = lambda other: other.color == "G")
-protection_from_ge_cmc = lambda card, n: protection(card, attribute_match = lambda other: other.cost.converted_cost() >= n)
-protection_from_le_cmc = lambda card, n: protection(card, attribute_match = lambda other: other.cost.converted_cost() <= n)
+protection_from_ge_cmc = lambda card, n: protection(card, attribute_match = lambda other: other.cost >= n)
+protection_from_le_cmc = lambda card, n: protection(card, attribute_match = lambda other: other.cost <= n)
 protection_from_artifacts = lambda card: protection(card, attribute_match = lambda other: isArtifact(other))
 
 # 502.68b If a permanent has multiple instances of lifelink, each triggers separately.

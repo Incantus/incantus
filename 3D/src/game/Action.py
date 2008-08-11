@@ -1,5 +1,5 @@
 
-from GameEvent import LandPlayedEvent, AbilityPlayedEvent, AbilityAnnounced, AbilityCanceled, LogEvent
+from GameEvent import LandPlayedEvent, AbilityPlayedEvent, LogEvent
 
 class Action(object):
     def __eq__(self, other):
@@ -76,8 +76,12 @@ class PlayAbility(CardAction):
         else:
             ability = player.getSelection(abilities, 1, required=False, prompt="%s: Select ability"%self.card)
             if ability == False: return False
-        ability.copy().announce(player)
-        return True
+        ability = ability.copy()
+        if ability.announce(player):
+            player.send(AbilityPlayedEvent(), ability=ability)
+            return True
+        else:
+            return False
 
 class ActivateForMana(CardAction):
     def perform(self, player):

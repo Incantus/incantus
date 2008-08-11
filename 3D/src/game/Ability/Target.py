@@ -1,46 +1,12 @@
-from game.GameObjects import MtGObject
 from game.Match import isPermanent, isPlayer, SelfMatch, PlayerMatch, OpponentMatch, PlayerOrCreatureMatch
 from game.GameEvent import InvalidTargetEvent
 
-#class Target(MtGObject):
-#    def __init__(self):
-#        self.target = None
-#    def copy(self):
-#        pass
-#    def check_target(self, card):
-#        return True
-#    def get(self, card):
-#        return True
+class NoTarget(object):
+    def __init__(self): self.target = None
+    def get(self, card): return True
+    def check_target(self, card): return True
 
-class AllPlayerTargets(MtGObject):
-    def __init__(self):
-        self.target = []
-    def copy(self):
-        return AllPlayerTargets()
-    def check_target(self, card):
-        return True
-    def get(self, card):
-        if self.target: return
-        self.target = [card.controller, card.controller.opponent]
-        return True
-
-class AllPermanentTargets(MtGObject):
-    def __init__(self, target_types=isPermanent):
-        self.target = []
-        if not (type(target_types) == tuple or type(target_types) == list):
-            self.target_types = [target_types]
-        else: self.target_types = target_types
-    def copy(self):
-        return AllPermanentTargets(self.target_types)
-    def check_target(self, card):
-        perm = []
-        for ttype in self.target_types: perm.extend(card.controller.play.get(ttype, all=True))
-        self.target = perm
-        return True
-    def get(self, card):
-        return True
-
-class MultipleTargets(MtGObject):
+class MultipleTargets(object):
     def __init__(self, number, target_types=None, exact=True, msg='', selector="controller"):
         self.number = number
         self.zones = []
@@ -56,8 +22,6 @@ class MultipleTargets(MtGObject):
                 if match(card): return True
             else: return False
         self.match_type = match_type
-    def copy(self):
-        return MultipleTargets(self.number, self.target_types, self.exact, self.msg, self.selector)
     def check_target(self, card):
         # Remove any targets no longer in the correct zone, or no longer matching the original condition
         # XXX This is wrong - since it won't match up with the number requested
@@ -73,14 +37,14 @@ class MultipleTargets(MtGObject):
     def get_prompt(self, curr, card):
         number = self.number-curr
         if curr > 0: another = "another "
-        else: another = ""
+        else: another = "" 
         if not self.exact: another = "up to "+another
-        
+########
         if self.msg: prompt=self.msg
         elif self.target_types: prompt="Target %s%d %s(s) for %s"%(another,number, ' or '.join([str(t) for t in self.target_types]), card)
         else: prompt = "Select %s%d target(s) for %s"%(another,number,card)
         return prompt
-    def get(self, card):
+    def get(self, card): 
         if self.selector == "opponent": selector = card.controller.opponent
         elif self.selector == "current_player":
             import game.GameKeeper
@@ -106,15 +70,13 @@ class MultipleTargets(MtGObject):
         self.target = targets
         return True
 
-
 # When I add a new argument to constructor, make sure to add it to the copy function
 # or use the copy module
-class Target(MtGObject):
-    def __init__(self, targeting=None, target_types=None, msg='', selector="controller", zone="play", player_zone=None):
+class Target(object):
+    def __init__(self, target_types=None, msg='', selector="controller", zone="play", player=None):
         self.target = None
         self.zone = zone
-        self.player_zone = player_zone
-        self.targeting = targeting
+        self.player = player
         if not (type(target_types) == tuple or type(target_types) == list): self.target_types = [target_types]
         else: self.target_types = target_types
         # It should still be able to match any target types in the spell
@@ -124,156 +86,84 @@ class Target(MtGObject):
                 if match(card): return True
             else: return False
         self.match_types = match_types
-        for ttype in self.target_types:
-            if sum([isinstance(ttype, match) for match in [PlayerMatch, OpponentMatch, PlayerOrCreatureMatch]]):
-                self.targeting_player = True
-                break
-        else: self.targeting_player = False
-        self.required = True
+        self.targeting_player = any(isinstance(ttype, match) for match in (PlayerMatch, OpponentMatch, PlayerOrCreatureMatch) for ttype in self.target_types)
         self.msg = msg
         self.selector = selector
         self.untargeted = False
-    def copy(self):
-        return Target(self.targeting, self.target_types, self.msg, self.selector, self.zone, player_zone=self.player_zone)
+        self.required = True
     def check_target(self, card):
         # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
         if not isPlayer(self.target):
             return (str(self.target.zone) == self.target_zone) and self.match_role == self.target.current_role and self.match_types(self.target) and (self.untargeted or self.target.canBeTargetedBy(card))
         else: return self.untargeted or self.target.canBeTargetedBy(card)
     def get(self, card):
-        if not self.targeting:
-            if self.msg: prompt=self.msg
+        if self.msg: prompt=self.msg
+        else:
+            if self.zone != "play":
+                if self.player == None: zl = " in any %s"%self.zone
+                elif self.player == "you": zl = " in your %s"%self.zone
+                else: zl = " in opponent %s"%self.zone
             else:
+                if self.player == None: zl = ""
+                elif self.player == "you": zl = " you control"
+                else: zl = " opponent controls"
+            prompt="Target %s%s for %s"%(' or '.join([str(t) for t in self.target_types]), zl, card)
+        if self.selector == "opponent": selector = card.controller.opponent
+        elif self.selector == "current_player":
+            from game.GameKeeper import Keeper
+            selector = Keeper.curr_player
+        else: selector = card.controller
+        if self.player == None: controller=None
+        elif self.player == "you": controller=selector
+        else: controller=selector.opponent
+        # If required, make sure there is actually a target available
+        if self.required and not self.targeting_player:
+            perm = []
+            sel_zone = getattr(selector, self.zone)
+            opponent_zone = getattr(selector.opponent, self.zone)
+            for ttype in self.target_types:
                 if self.zone != "play":
-                    if self.player_zone == None: zl = " in any %s"%self.zone
-                    elif self.player_zone == "controller": zl = " in your %s"%self.zone
-                    else: zl = " in opponent %s"%self.zone
+                    if self.player == None: zones = [sel_zone, opponent_zone]
+                    elif self.player == "you": zones = [sel_zone]
+                    else: zones = [opponent_zone]
+                    for zone in zones:
+                        perm.extend([p for p in zone.get(ttype) if p.canBeTargetedBy(card)])
                 else:
-                    if self.player_zone == None: zl = ""
-                    elif self.player_zone == "controller": zl = " you control"
-                    else: zl = " opponent controls"
-                prompt="Target %s%s for %s"%(' or '.join([str(t) for t in self.target_types]), zl, card)
-            if self.selector == "opponent": selector = card.controller.opponent
-            elif self.selector == "current_player":
-                from game.GameKeeper import Keeper
-                selector = Keeper.curr_player
-            else: selector = card.controller
-            if self.player_zone == None: controller=None
-            elif self.player_zone == "controller": controller=selector
-            else: controller=selector.opponent
-            # If required, make sure there is actually a target available
-            if self.required and not self.targeting_player:
-                perm = []
-                sel_zone = getattr(selector, self.zone)
-                opponent_zone = getattr(selector.opponent, self.zone)
-                for ttype in self.target_types:
-                    if self.zone != "play":
-                        if self.player_zone == None: zones = [sel_zone, opponent_zone]
-                        elif self.player_zone == "controller": zones = [sel_zone]
-                        else: zones = [opponent_zone]
-                        for zone in zones:
-                            perm.extend([p for p in zone.get(ttype) if p.canBeTargetedBy(card)])
+                    if self.player == None:
+                        perm.extend([p for p in selector.play.get(ttype, all=True) if p.canBeTargetedBy(card)])
+                    elif self.player == "you":
+                        perm.extend([p for p in selector.play.get(ttype) if p.canBeTargetedBy(card)])
                     else:
-                        if self.player_zone == None:
-                            perm.extend([p for p in selector.play.get(ttype, all=True) if p.canBeTargetedBy(card)])
-                        elif self.player_zone == "controller":
-                            perm.extend([p for p in selector.play.get(ttype) if p.canBeTargetedBy(card)])
-                        else:
-                            perm.extend([p for p in selector.opponent.play.get(ttype) if p.canBeTargetedBy(card)])
+                        perm.extend([p for p in selector.opponent.play.get(ttype) if p.canBeTargetedBy(card)])
 
-                numtargets = len(perm)
-                if numtargets == 0: return False
-                elif numtargets == 1: self.target = perm[0]
-                else:
-                    while True:
-                        self.target = selector.getTarget(self.target_types,zone=self.zone,controller=controller,required=self.required,prompt=prompt)
-                        if self.target.canBeTargetedBy(card): break
+            numtargets = len(perm)
+            if numtargets == 0: return False
+            elif numtargets == 1: self.target = perm[0]
             else:
-                self.target = selector.getTarget(self.target_types,zone=self.zone,controller=controller,required=self.required,prompt=prompt)
-                if self.target == False: return False
-            # Save the zone if we are targetting a permanent (not a player)
-            if not isPlayer(self.target):
-                self.target_zone = str(self.target.zone)
-                self.match_role = self.target.current_role
-            if self.target.canBeTargetedBy(card):
-                self.target.isTargetedBy(card)
-                return True
-            else:
-                selector.send(InvalidTargetEvent(), target=self.target)
-                return False
-        # XXX This is kind of hacky - I don't know if it can generalize
-        elif self.targeting == "self":
-            self.target = card
-            self.target_zone = str(self.target.zone)
-            self.match_types = SelfMatch(card)
-            self.match_role = card.current_role
-            self.untargeted = True
-            return True
-        elif self.targeting == "you":
-            self.target = card.controller
-            self.untargeted = True
-            return True
-        elif self.targeting == "owner":
-            self.target = card.owner
-            self.untargeted = True
-            return True
-        elif self.targeting == "current_player":
-            import game.GameKeeper
-            self.target = game.GameKeeper.Keeper.curr_player
-            self.untargeted = True
-            return True
-        elif self.targeting == "opponent":
-            self.target = card.controller.opponent
-            self.untargeted = True
-            return True
-        else: return False
-
-class SpecialTarget(MtGObject):
-    def __init__(self, targeting):
-        if not callable(targeting): raise Exception("Argument to SpecialTarget must be a function")
-        self.targeting = targeting
-        self.target = None
-    def copy(self):
-        return SpecialTarget(self.targeting)
-    def check_target(self, card):
-        # This is a final catchall for lambda functions
-        self.target = self.targeting()
-        return True
-    def get(self, card):
-        return True
-
-class TriggeredTarget(MtGObject):
-    def __init__(self, trigger, attribute, sender=False):
-        self.trigger = trigger
-        self.attribute = attribute
-        self.sender = sender
-        self.triggered = False
-    def check_target(self, card):
-        # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
+                while True:
+                    self.target = selector.getTarget(self.target_types,zone=self.zone,controller=controller,required=self.required,prompt=prompt)
+                    if self.target.canBeTargetedBy(card): break
+        else:
+            self.target = selector.getTarget(self.target_types,zone=self.zone,controller=controller,required=False,prompt=prompt)
+            if self.target == False: return False
+        # Save the zone if we are targetting a permanent (not a player)
         if not isPlayer(self.target):
-            return (str(self.target.zone) == self.target_zone) and self.target.current_role == self.match_role
-        else: return True
-    def get(self, card):
-        if not self.triggered:
-            if not self.sender: self.target = getattr(self.trigger, self.attribute)
-            else: self.target = getattr(self.trigger.sender, self.attribute)
-            if not isPlayer(self.target):
-                self.target_zone = str(self.target.zone)
-                self.match_role = self.target.current_role
-            self.triggered = True
-        return True
-    def copy(self):
-        return TriggeredTarget(self.trigger, self.attribute)
+            self.target_zone = str(self.target.zone)
+            self.match_role = self.target.current_role
+        if self.target.canBeTargetedBy(card):
+            self.target.isTargetedBy(card)
+            return True
+        else:
+            selector.send(InvalidTargetEvent(), target=self.target)
+            return False
 
-class StackTarget(MtGObject):
+class StackTarget(object):
     def __init__(self, target_types=None, msg=''):
         self.target = None
         if not (type(target_types) == tuple or type(target_types) == list):
             self.target_types = [target_types]
         else: self.target_types = target_types
         self.msg = msg
-    def copy(self):
-        return StackTarget(self.target_types, self.msg)
     def check_target(self, card):
         return card.controller.stack.on_stack(self.target)
     def get(self, card):

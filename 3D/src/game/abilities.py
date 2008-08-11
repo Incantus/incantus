@@ -10,17 +10,17 @@ class abilities(object):
     def add(self, ability):
         self._abilities.append(ability)
     def activated(self):
-        return [ability for ability in self._abilities if hasattr(ability, "cost") and ability.playable()]
+        return [ability for ability in self._abilities if hasattr(ability, "activated") and ability.playable()]
     def enteringZone(self, zone):
         if not self.enabled:
             self.enabled = True
             for ability in self._abilities:
-                if (ability.zone == "all" or ability.zone == zone) and not hasattr(ability, "cost"): ability.enteringZone()
+                if (ability.zone == "all" or ability.zone == zone) and not hasattr(ability, "activated"): ability.enteringZone()
     def leavingZone(self, zone):
         if self.enabled:
             self.enabled = False
             for ability in self._abilities:
-                if (ability.zone == "all" or ability.zone == zone) and not hasattr(ability, "cost"): ability.leavingZone()
+                if (ability.zone == "all" or ability.zone == zone) and not hasattr(ability, "activated"): ability.leavingZone()
     #def copy(self, card):
     #    new_abilities = [a.copy(card) for a in self._abilities]
     #    return self.__class__(new_abilities)

@@ -45,6 +45,7 @@ class GamePhases(object):
         pass
 
 class GameKeeper(MtGObject):
+    players = property(fget=lambda self: self.game_phases.players)
     def __init__(self):
         self.ready_to_start = False
 

@@ -1,15 +1,17 @@
 import copy
 from GameObjects import MtGObject
-from GameEvent import DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
+from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, PermanentSacrificedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
 
 class GameRole(MtGObject):
     def __init__(self, card):
         self.card = card
     # the damage stuff seems kind of hacky
     def dealDamage(self, target, amount, combat=False):
+        final_dmg = 0
         if target.canBeDamagedBy(self.card) and amount > 0:
             final_dmg = target.assignDamage(amount, source=self.card, combat=combat)
-            if final_dmg > 0: self.send(DealsDamageToEvent(), to=target, amount=final_dmg, combat=combat)
+            if final_dmg > 0: self.card.send(DealsDamageToEvent(), to=target, amount=final_dmg, combat=combat)
+        #self.card.send(DealsDamageEvent(), amount=final_dmg, combat=combat)
         return final_dmg
     def canBeTargetedBy(self, targeter): return True
     def canBeAttachedBy(self, targeter): return True
@@ -107,22 +109,26 @@ class Permanent(GameRole):
     def faceUp(self):
         self.facedown = False
     def canBeTapped(self): # Called by game action (such as an effect)
-        return True
+        return not self.tapped
     def canTap(self): # Called as a result of user action
         for role in self.subroles:
             if not role.canTap(): return False
         else: return not self.tapped
-    def tap(self, trigger=True):
+    def tap(self):
         # Don't tap if already tapped:
-        if not self.tapped:
+        if self.canBeTapped():
             self.tapped = True
-            if trigger: self.card.send(CardTapped())
+            self.card.send(CardTapped())
+            return True
+        else: return False
     def canUntap(self):
         return self.tapped
-    def untap(self, trigger=True):
+    def untap(self):
         if self.tapped:
             self.tapped = False
-            if trigger: self.card.send(CardUntapped())
+            self.card.send(CardUntapped())
+            return True
+        else: return False
     def shouldDestroy(self):
         # This is called to check whether the permanent should be destroyed (by SBE)
         result = False
@@ -139,11 +145,15 @@ class Permanent(GameRole):
                 result = True
                 break
         return result
-    def destroy(self, skip=False):
-        if skip or self.canDestroy():
+    def destroy(self, regenerate=True):
+        if not regenerate or self.canDestroy():
             card = self.card
             card.move_to(card.owner.graveyard)
             card.send(PermanentDestroyedEvent())
+    def sacrifice(self):
+        card = self.card
+        card.move_to(card.owner.graveyard)
+        card.send(PermanentSacrificeEvent())
     def summoningSickness(self):
         def remove_summoning_sickness(player):
             if self.card.controller == player:
@@ -197,18 +207,17 @@ class Land(SubRole):
         super(Land,self).__init__()
         self.color = color
 
+# PowerToughnessChanged isn't needed, because the power/toughness is invalidated every timestep (and the gui calculates it)
 class PTModifiers(object):
     def __init__(self):
         self._modifiers = []
     def add(self, PT):
-        #self.role.send(PowerToughnessChangedEvent())
         self._modifiers.append(PT)
-    def remove(self, PT):
-        for i, modifier in enumerate(self._modifiers):
-            if PT is modifier: break
-        else: raise ValueError
-        #self.role.send(PowerToughnessChangedEvent())
-        self._modifiers.pop(i)
+        #self.subrole.send(PowerToughnessChangedEvent())
+        def remove():
+            self._modifiers.remove(PT)
+            #self.subrole.send(PowerToughnessChangedEvent())
+        return remove
     def calculate(self, power, toughness):
         return reduce(lambda PT, modifier: modifier.calculate(PT[0], PT[1]), self._modifiers, (power, toughness))
     def __str__(self):

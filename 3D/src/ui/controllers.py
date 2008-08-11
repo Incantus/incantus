@@ -762,7 +762,7 @@ class HandController(object):
             return True
         else: return False
 
-from game.Ability.Target import MultipleTargets, AllPermanentTargets, AllPlayerTargets
+from game.Ability.Target import MultipleTargets #, AllPermanentTargets, AllPlayerTargets
 from game.Match import isPlayer, isPermanent, isAbility
 class StackController(object):
     def __init__(self, stack_gui, window):
@@ -788,7 +788,7 @@ class StackController(object):
         # Get targets
         targets = self.stack_gui.focused.ability.targets
         for t in targets:
-            if not isinstance(t, MultipleTargets) or isinstance(t, AllPermanentTargets) or isinstance(t, AllPlayerTargets): t = [t.target]
+            if not isinstance(t, MultipleTargets): t = [t.target] #or isinstance(t, AllPermanentTargets) or isinstance(t, AllPlayerTargets)): t = [t.target]
             else: t = t.target
             for i, tt in enumerate(t):
                 if tt == None: continue  # For delayed targeting abilities, like champion

@@ -4,36 +4,38 @@ from game.GameEvent import DealsDamageEvent, ReceivesDamageEvent, CardEnteredZon
 from game.pydispatch import dispatcher
 from game.pydispatch.robustapply import function
 
-def robustApply(receiver, *arguments, **named):
+def robustApply(receiver, **named):
     """Call receiver with arguments and an appropriate subset of named
     """
     receiver, codeObject, startIndex = function( receiver )
     acceptable = codeObject.co_varnames[startIndex:codeObject.co_argcount]
-    for name in acceptable:
-        if name == "sender":
-            named[name] = arguments[0]
-            break
-        elif not named.has_key(name): break
-    else: arguments = ()
+    #for name in acceptable:
+    #    if name == "sender":
+    #        named[name] = arguments[0]
+    #        break
+    #    elif not named.has_key(name): break
+    #else: arguments = ()
 
-    acceptable = codeObject.co_varnames[startIndex+len(arguments):codeObject.co_argcount]
+    #acceptable = codeObject.co_varnames[startIndex+len(arguments):codeObject.co_argcount]
+    acceptable = codeObject.co_varnames[startIndex:codeObject.co_argcount]
     if not (codeObject.co_flags & 8):
         # fc does not have a **kwds type parameter, therefore
         # remove unacceptable arguments.
         for arg in named.keys():
             if arg not in acceptable:
                 del named[arg]
-    return receiver(*arguments, **named)
+    #return receiver(*arguments, **named)
+    return receiver(**named)
 
 class Trigger(MtGObject):
     def __init__(self, event=None, sender=dispatcher.Any):
         self.trigger_event = event
         self.trigger_sender = sender
         self.activated = False
-    def setup_trigger(self, ability, trigger_function, match_condition=None, expiry=-1):
+    def setup_trigger(self, card, trigger_function, match_condition=None, expiry=-1):
+        self.card = card
         self.count = 0
         self.expiry = expiry
-        self.ability = ability
         self.trigger_function = trigger_function
         if match_condition: self.match_condition = match_condition
         else: self.match_condition = lambda *args: True
@@ -45,22 +47,20 @@ class Trigger(MtGObject):
             self.unregister(self.filter, event=self.trigger_event, sender=self.trigger_sender)
             self.activated = False
     def filter(self, sender, **keys):
-        if robustApply(self.match_condition, sender, **keys) and (self.expiry == -1 or self.count < self.expiry):
-            self.sender = sender
-            self.__dict__.update(keys)
-            self.trigger_function(self)
+        keys["source"] = self.card
+        keys["sender"] = sender
+        if robustApply(self.match_condition, **keys) and (self.expiry == -1 or self.count < self.expiry):
+            robustApply(self.trigger_function, **keys)
             self.count += 1
     def __str__(self): return self.__class__.__name__
     def copy(self):
         return copy.copy(self)
 
-class PlayerTrigger(Trigger):
-    def filter(self):
-        from game.GameKeeper import Keeper
-        player = Keeper.curr_player
-        if self.match_condition(player) and (self.expiry == -1 or self.count < self.expiry):
-            self.player = player
-            self.trigger_function(self)
+class PhaseTrigger(Trigger):
+    def filter(self, sender):
+        keys = {'player': sender.curr_player, 'source': self.card}
+        if robustApply(self.match_condition, **keys) and (self.expiry == -1 or self.count < self.expiry):
+            robustApply(self.trigger_function, **keys)
             self.count += 1
 
 class DealDamageTrigger(Trigger):
@@ -74,13 +74,7 @@ class ReceiveDamageTrigger(Trigger):
         super(ReceiveDamageTrigger, self).__init__(event=ReceivesDamageEvent(), sender=sender)
 
 # The next triggers are for events that pertain to cards but aren't sent by the card itself (ie zone changes, spells of abilities of cards)
-class CardTrigger(Trigger):
-    def filter(self, sender, card):
-        if self.match_condition(card) and (self.expiry == -1 or self.count < self.expiry):
-            self.sender = sender
-            self.matched_card = card
-            self.trigger_function(self)
-            self.count += 1
+class CardTrigger(Trigger): pass
 
 class MoveTrigger(Trigger):
     def __init__(self, event, zone, player="controller"):
@@ -91,16 +85,15 @@ class MoveTrigger(Trigger):
         if self.zone == "play": player_cmp = card.controller
         else: player_cmp = card.owner
 
-        if self.player == "controller" and player_cmp == self.ability.card.controller: return True
-        elif self.player == "opponent" and not player_cmp == self.ability.card.controller: return True
+        if self.player == "controller" and player_cmp == self.card.controller: return True
+        elif self.player == "opponent" and not player_cmp == self.card.controller: return True
         elif self.player == "any": return True
         else: return False
     def filter(self, sender, card):
-        if (self.match_condition(card) and (self.expiry == -1 or self.count < self.expiry) and
+        keys = {"sender": sender, "card":card, "source":self.card}
+        if (robustApply(self.match_condition, **keys) and (self.expiry == -1 or self.count < self.expiry) and
            self.zone == str(sender) and self.check_player(sender, card)):
-            self.sender = sender
-            self.matched_card = card
-            self.trigger_function(self)
+            robustApply(self.trigger_function, **keys)
             self.count += 1
 
 class EnterTrigger(MoveTrigger):
@@ -123,11 +116,11 @@ class EnterFromTrigger(Trigger):
         self.from_zone = from_zone
         self.to_zone = to_zone
         self.player = player
-    def setup_trigger(self, ability, trigger_function, match_condition=None, expiry=-1):
+    def setup_trigger(self, card, trigger_function, match_condition=None, expiry=-1):
         self.entering = set()
         self.count = 0
         self.expiry = expiry
-        self.ability = ability
+        self.card = card
         self.trigger_function = trigger_function
         if match_condition: self.match_condition = match_condition
         else: self.match_condition = lambda *args: True
@@ -149,17 +142,18 @@ class EnterFromTrigger(Trigger):
         if self.to_zone == "play": player_cmp = card.controller
         else: player_cmp = card.owner
 
-        if self.player == "controller" and player_cmp == self.ability.card.controller: return True
-        elif self.player == "opponent" and not player_cmp == self.ability.card.controller: return True
+        if self.player == "controller" and player_cmp == self.card.controller: return True
+        elif self.player == "opponent" and not player_cmp == self.card.controller: return True
         elif self.player == "any": return True
         else: return False
     def filter_entering(self, sender, card):
-        if self.match_condition(card) and str(sender) == self.to_zone and self.check_player(sender, card):
+        keys = {"source": self.card, "card": card}
+        if robustApply(self.match_condition, **keys) and str(sender) == self.to_zone and self.check_player(sender, card):
             self.entering.add(card)
     def filter_leaving(self, sender, card):
+        keys = {"source": self.card, "card": card}
         if card in self.entering:
             self.entering.remove(card)
-            if str(sender) == self.from_zone:
-                self.matched_card = card
-                if (self.expiry == -1 or self.count < self.expiry): self.trigger_function(self)
+            if str(sender) == self.from_zone and (self.expiry == -1 or self.count < self.expiry):
+                robustApply(self.trigger_function, **keys)
                 self.count += 1

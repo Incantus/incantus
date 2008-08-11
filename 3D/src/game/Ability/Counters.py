@@ -28,7 +28,6 @@ class PowerToughnessModifier(object):
         return curr_power+self.power, curr_toughness+self.toughness
     def __str__(self):
         return "%+d/%+d"%(self.power, self.toughness)
-
 class PowerToughnessSetter(object):
     def __init__(self, power, toughness):
         self.power = power

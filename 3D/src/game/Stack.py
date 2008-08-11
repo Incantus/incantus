@@ -4,31 +4,26 @@ from GameEvent import AbilityPlacedOnStack, AbilityRemovedFromStack
 
 class Stack(MtGObject):
     def __init__(self, game):
-        self.pending_triggered = []
         self.abilities = []
         self.game = game
         self.card_stack = CardStack()
-    def add_triggered(self, ability):
-        # XXX This is hacky, and is needed for triggered abilities where the target depends on the trigger
-        # Since the trigger is a single object, it will have different arguments everytime it triggers
-        # so the target will only reference the most recent one. I need to find a better way to bind things together
-        for target in ability.targets:
-            if hasattr(target, "triggered"): target.get(ability.card)
-        self.pending_triggered.append(ability) 
+        self.pending_triggered =[]
+    def add_triggered(self, ability, controller):
+        self.pending_triggered.append((ability, controller))
     def process_triggered(self):
         # Check if there are any triggered abilities waiting
         if len(self.pending_triggered) > 0:
             # group all triggered abilities by player
             triggered_sets = dict([(player, []) for player in self.game.players])
-            for ability in self.pending_triggered:
-                triggered_sets[ability.controller].append(ability)
+            for ability, controller in self.pending_triggered:
+                triggered_sets[controller].append(ability)
             # Now ask the player to order them if there are more than one
             for player in self.game.players:
                 triggered = triggered_sets[player]
                 if len(triggered) > 1:
-                    triggered = player.getSelection(triggered, len(triggered), prompt="Drag to reorder triggered abilities(Top ability resolves first)")
+                    triggered = player.getSelection(triggered, -1, prompt="Drag to reorder triggered abilities(Top ability resolves first)")
                 # Now reorder
-                for ability in triggered: self.announce(ability)
+                for ability in triggered: ability.announce(player)
             self.pending_triggered[:] = []
             return True
         else: return False

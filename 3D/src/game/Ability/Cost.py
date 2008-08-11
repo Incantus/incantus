@@ -22,7 +22,7 @@ class NoCost(Cost):
     def compute(self, card, player): return False
     def __eq__(self, other): return isinstance(other, NoCost)
     def __str__(self): return ''
-    def converted_cost(self): return 0
+    def converted_mana_cost(self): return 0
 
 class MultipleCosts(Cost):
     def __init__(self, costs):
@@ -118,7 +118,7 @@ class ManaCost(Cost):
     def isHybrid(self):
         # XXX this is hacky
         return '(' in self.cost
-    def converted_cost(self):
+    def converted_mana_cost(self):
         return Mana.converted_mana_cost(self.cost)
     #def __eq__(self, other):
     #     XXX compare_mana doesn't work with hybrid
