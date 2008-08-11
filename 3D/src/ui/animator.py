@@ -52,7 +52,7 @@ class SparkFXManager(object):
         else: self.active_sparks_3d.append(spark)
     def add_spark(self, start_pos, end_pos, dt=1.0, color=None, grow=False, dim=2):
         spark = Image("glow", pos=start_pos)
-        spark._pos.set_transition(dt=dt, method="ease_out_back") #ease_out_circ") #ease_out_back")
+        spark._pos.set_transition(dt=dt, method="ease_out_circ") #ease_out_back")
         spark.pos = end_pos
         if color == None: spark.color=(1.,1.,1.)
         elif type(color) == str:
@@ -70,7 +70,7 @@ class SparkFXManager(object):
             spark.color = self.COLORS.get(color)
         else: spark.color = color
         spark.visible = anim.animate(1., 0., dt=dt)
-        spark.rotatez = anim.animate(-15, 45, dt=dt, method="sine")
+        spark.rotatez = anim.animate(15, -45, dt=dt, method="sine")
         spark.scale = anim.animate(start_size, end_size, dt=dt, method="sine")
         spark.alpha = anim.animate(1.0, 0., dt=dt)
         if dim == 2: self.active_sparks.append(spark)
@@ -81,7 +81,7 @@ class SparkFXManager(object):
         else: color = color
         spark = Image('targeting', pos=start_pos)
         spark.visible = anim.animate(1., 0., dt=dt)
-        spark.rotatez = anim.animate(-15, 45, dt=dt, method="sine")
+        spark.rotatez = anim.animate(15, -45, dt=dt, method="sine")
         spark.scale = anim.animate(0.2, 1.5, dt=dt, method="sine")
         spark.color = color
         spark.alpha = anim.animate(1.0, 0., dt=dt)
@@ -89,7 +89,7 @@ class SparkFXManager(object):
         else: self.active_sparks_3d.append(spark)
         dt = 0.75*dt
         spark = Image('glow', pos=start_pos)
-        spark._pos.set_transition(dt=dt, method="ease_out_back")
+        spark._pos.set_transition(dt=dt, method="ease_out_circ")
         spark.pos = end_pos
         spark.color = color
         spark.visible = anim.animate(1., 0., dt=dt)
@@ -217,6 +217,7 @@ class ZoneAnimator(object):
             zone = self.play_zones[card.controller]
             guicard = zone.get_card(card)
             start_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))
+            self.sparks.add_star_spark(start_pos, start_pos, dt=0.5, color=str(card.color))
         if start_pos:
             guicard = self.stack.announce(ability, 0.85) #1.0) #0.75)
             end_pos = self.stack.pos + guicard.pos
