@@ -52,8 +52,11 @@ class MultipleCosts(Cost):
             if not cost.compute(card, player): return False
         return True
     def pay(self, card, player):
+        self.payment = []
         for cost in self.final_costs:
             cost.pay(card, player)
+            self.payment.append(cost.payment)
+    def __iter__(self): return iter(self.final_costs)
     def __iadd__(self, other):
         if isinstance(other, str): self.costs.append(ManaCost(other))
         elif isinstance(other, MultipleCosts): self.costs.extend(other.costs)
