@@ -150,9 +150,11 @@ class SelectionList(Widget):
             y -= option.height
             option.pos = euclid.Vector3(0,y,0)
             count += 1
-    def selection(self, index=0, number=1):
-        if number == 1:
-            return self.options[index][1]
+    def selection(self, indices, all):
+        if not all:
+            sel = [self.options[i][1] for i in indices]
+            if len(sel) == 1: sel = sel[0]
+            return sel
         else:
             return [self.options[i][1] for i in range(number-1,-1,-1)]
     def handle_click(self, x, y):

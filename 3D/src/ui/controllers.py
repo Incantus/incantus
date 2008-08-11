@@ -87,10 +87,11 @@ class SelectController(object):
         self.numselections = numselections
         self.listview.construct(prompt,sellist)
         self.index = -1
+        self.indices = set()
         self.activate()
     def on_key_press(self, symbol, modifiers):
         if symbol == key.ENTER:
-            if self.numselections != 1:
+            if self.numselections == -1 or len(self.indices) == self.numselections:
                 self.return_selections()
             return True
         elif symbol == key.ESCAPE:
@@ -102,10 +103,18 @@ class SelectController(object):
             self.listview.focus_previous()
         elif symbol == key.DOWN:
             self.listview.focus_next()
-    def return_selections(self):
+    def toggle_selection(self):
+        if self.index in self.indices:
+            self.indices.remove(self.index)
+            self.listview.options[self.index][0].main_text.color = (1., 1., 1., 1.)
+        else:
+            self.indices.add(self.index)
+            self.listview.options[self.index][0].main_text.color = (0.5, 0.5, 0.5, 1.0)
+        #if len(self.indices) == self.numselections: self.return_selections()
+    def return_selections(self, all=False):
         if self.numselections == 1: SelAction = Action.SingleSelected
         else: SelAction = Action.MultipleSelected
-        self.window.user_action = SelAction(self.listview.selection(self.index, self.numselections))
+        self.window.user_action = SelAction(self.listview.selection(self.indices, all))
         self.deactivate()
     def on_mouse_press(self, x, y, button, modifiers):
         x -= self.listview.pos.x
@@ -135,21 +144,22 @@ class SelectController(object):
                     self.listview.options[idx][0].main_text.color = (0.5, 0.5, 0.5, 1.0)
             else:
                 if idx == self.index:
-                    self.return_selections()
+                    self.toggle_selection()
         return True
     def on_mouse_motion(self, x, y, dx, dy):
         x -= self.listview.pos.x
         y -= self.listview.pos.y
         idx = self.listview.handle_click(x, y)
         options = self.listview.options
-        if not idx == -1:
-            if not idx == self.index:
-                options[self.index][0].main_text.color = (1., 1., 1., 1.)
-                options[idx][0].main_text.color = (0.5, 0.5, 0.5, 1.0)
-                self.index = idx
-        elif self.index != -1:
-            options[self.index][0].main_text.color = (1., 1., 1., 1.)
-            self.index = -1
+        self.index = idx
+        #if not idx == -1:
+        #    if not idx == self.index and not self.index in self.indices:
+        #        options[self.index][0].main_text.color = (1., 1., 1., 1.)
+        #        options[idx][0].main_text.color = (0.5, 0.5, 0.5, 1.0)
+        #        self.index = idx
+        #elif self.index != -1 and not self.index in self.indices:
+        #    options[self.index][0].main_text.color = (1., 1., 1., 1.)
+        #    self.index = -1
         return True
 
 class CardSelector(object):
@@ -777,7 +787,7 @@ class StackController(object):
         # Get targets
         targets = self.stack_gui.focused.ability.targets
         for t in targets:
-            if not (isinstance(t, MultipleTargets) or isinstance(t, AllPermanentTargets) or isinstance(t, AllPlayerTargets)): t = [t.target]
+            if not isinstance(t, MultipleTargets) or isinstance(t, AllPermanentTargets) or isinstance(t, AllPlayerTargets)): t = [t.target]
             else: t = t.target
             for i, tt in enumerate(t):
                 if tt == None: continue  # For delayed targeting abilities, like champion
