@@ -85,6 +85,12 @@ def ease_out_back(t, s=None):
     if not s: s = 1.70158
     t -= 1
     return t*t*((s+1)*t+s)+1
+def ease_in_out_circ(t):
+    t = t*2
+    if t < 1.0: return 0.5*(1-sqrt(1-t*t));
+    else:
+        t = t-2
+        return 0.5*(sqrt(1-t*t)+1)
 def ease_in_circ(t):
     return 1 - sqrt(1 - t*t)
 def ease_out_circ(t):
