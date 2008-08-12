@@ -304,6 +304,7 @@ class Player(MtGObject):
         if isinstance(sel, CancelAction): return False
         elif idx == True:
             if numselections == 1: return sellist[sel][0]
+            elif numselections == -1: return [sellist[i][0] for i in sel]
             else: return [sellist[i][0] for i in sel][:numselections]
         else: return sel
     def getCardSelection(self, sellist, numselections, from_zone, from_player, card_types=isGameObject, required=True, prompt=''):
