@@ -44,7 +44,7 @@ class SparkFXManager(object):
         elif type(color) == str: color = self.COLORS.get(color)
         else: color = color
         spark = Label(str(number), size=40, color=color, shadow=False, halign="center", valign="center", pos=start_pos)
-        spark._pos.set_transition(dt=0.5*dt, method="ease_out_circ") #ease_out_back")
+        spark._pos.set_transition(dt=dt, method="ease_out_circ") #ease_out_back")
         spark.pos = end_pos
         spark.visible = anim.animate(1., 0., dt=dt)
         spark.scale = anim.animate(1.0, 1.3, dt=dt, method="sine")
@@ -52,7 +52,7 @@ class SparkFXManager(object):
         else: self.active_sparks_3d.append(spark)
     def add_spark(self, start_pos, end_pos, dt=1.0, color=None, grow=False, dim=2):
         spark = Image("glow", pos=start_pos)
-        spark._pos.set_transition(dt=0.5*dt, method="ease_out_circ") #ease_out_back")
+        spark._pos.set_transition(dt=dt, method="ease_out_circ") #ease_out_back")
         spark.pos = end_pos
         if color == None: spark.color=(1.,1.,1.)
         elif type(color) == str:
@@ -89,7 +89,7 @@ class SparkFXManager(object):
         else: self.active_sparks_3d.append(spark)
         dt = 0.75*dt
         spark = Image('glow', pos=start_pos)
-        spark._pos.set_transition(dt=0.5*dt, method="ease_out_circ")
+        spark._pos.set_transition(dt=dt, method="ease_out_circ")
         spark.pos = end_pos
         spark.color = color
         spark.visible = anim.animate(1., 0., dt=dt)
@@ -219,15 +219,15 @@ class ZoneAnimator(object):
             start_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))
             self.sparks.add_star_spark(start_pos, start_pos, dt=0.5, color=str(card.color))
         if start_pos:
-            guicard = self.stack.announce(ability, 0.85) #1.0) #0.75)
+            guicard = self.stack.announce(ability, 0.5)
             end_pos = self.stack.pos + guicard.pos
-            self.sparks.add_spark(start_pos, end_pos, grow=True, dt=1.0, color=str(card.color))
+            self.sparks.add_spark(start_pos, end_pos, grow=True, dt=0.6, color=str(card.color))
         else: self.stack.announce(ability)
     def leave_stack(self, sender, ability):
         guicard = self.stack.get_card(ability)
         pos = self.stack.pos + guicard.pos
         if isinstance(ability, CastSpell): self.tracker[ability.card] = pos, self.stack
-        elif not ability.card == "Assign Damage": self.sparks.add_sparkle_star(pos, pos, dt=1.0, color=str(ability.card.color))
+        elif not ability.card == "Assign Damage": self.sparks.add_sparkle_star(pos, pos, dt=0.5, color=str(ability.card.color))
         self.stack.remove_ability(ability)
     def controller_changed(self, sender, original):
         start_zone = self.play_zones[original]
@@ -235,9 +235,9 @@ class ZoneAnimator(object):
         guicard = start_zone.get_card(sender)
         start_pos = self.window.project_to_window(*tuple(start_zone.pos+guicard.pos))
         start_zone.remove_card(sender, clock)
-        guicard = end_zone.add_card(sender,startt=2.)
+        guicard = end_zone.add_card(sender,startt=1.6)
         end_pos = self.window.project_to_window(*tuple(end_zone.pos+guicard.pos))
-        clock.schedule_once(lambda t: self.sparks.add_spark(start_pos, end_pos, dt=1.25, color=str(sender.color)), 0.75)
+        clock.schedule_once(lambda t: self.sparks.add_spark(start_pos, end_pos, dt=1., color=str(sender.color)), 0.7)
     def enter_zone(self, sender, card):
         if sender in self.status_zones:
             pstatus, symbol = self.status_zones[sender]
@@ -248,22 +248,20 @@ class ZoneAnimator(object):
                     self.sparks.add_spark(start_pos, start_pos, dt=1.5, color=str(card.color), grow=True)
                     clock.schedule_once(lambda t: self.sparks.add_spark(start_pos, end_pos, dt=1.25, color=str(card.color)), 1.55)
                     clock.schedule_once(lambda t: pstatus.update_zone(sender), 2.80)
-                    #clock.schedule_once(lambda t: pstatus.update_cards(), 2.80)
                     clock.schedule_once(lambda t: self.sparks.add_star_spark(end_pos, end_pos, dt=.5, color=str(card.color)) , 2.70)
                 else:
-                    self.sparks.add_spark(start_pos, end_pos, dt=1.25, color="")
-                    clock.schedule_once(lambda t: pstatus.update_zone(sender), 1.25)
-                    #clock.schedule_once(lambda t: pstatus.update_cards(), 1.25)
+                    self.sparks.add_spark(start_pos, end_pos, dt=1., color="")
+                    clock.schedule_once(lambda t: pstatus.update_zone(sender), 1.)
                 del self.tracker[card]
             else: pstatus.update_zone(sender)
-            #else: pstatus.update_cards()
         elif str(sender) == "play":
+            dt = 0.8
             if card in self.tracker:
-                guicard = self.play_zones[card.controller].add_card(card,startt=1.0)
+                guicard = self.play_zones[card.controller].add_card(card,startt=dt)
                 zone = self.play_zones[card.controller]
                 start_pos, from_zone = self.tracker[card]
                 end_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))
-                self.sparks.add_spark(start_pos, end_pos, grow=True, dt=1.0, color=str(card.color))
+                self.sparks.add_spark(start_pos, end_pos, grow=True, dt=dt, color=str(card.color))
                 del self.tracker[card]
             else: self.play_zones[card.controller].add_card(card,startt=0)
     def leave_zone(self, sender, card):
