@@ -156,7 +156,7 @@ class SelectionList(Widget):
             if len(sel) == 1: sel = sel[0]
             return sel
         else:
-            return [self.options[i][1] for i in range(number-1,-1,-1)]
+            return [self.options[i][1] for i in range(len(self.options)-1,-1,-1)]
     def handle_click(self, x, y):
         y -= self.height/2
         for idx, (item, val) in enumerate(self.options):
@@ -298,7 +298,7 @@ class ManaView(Widget):
     def __init__(self, pos=euclid.Vector3(0, 0, 0)):
         from game import Mana
         super(ManaView,self).__init__(pos)
-        self._pos.set_transition(dt=0.4, method="ease_out_back")
+        self._pos.set_transition(dt=1.0, method="ease_out_circ")
         self.colors = ["white", "blue", "black", "red", "green", "colorless"]
         self.colormap = dict(zip(self.colors, "WUBRG"))
         self.nummana = len(self.colors)

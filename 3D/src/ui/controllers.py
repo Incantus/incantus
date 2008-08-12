@@ -112,10 +112,10 @@ class SelectController(object):
             self.listview.options[self.index][0].main_text.color = (0.5, 0.5, 0.5, 1.0)
             if self.numselections == 1: self.return_selections()
         #if len(self.indices) == self.numselections: self.return_selections()
-    def return_selections(self, all=False):
+    def return_selections(self):
         if self.numselections == 1: SelAction = Action.SingleSelected
         else: SelAction = Action.MultipleSelected
-        self.window.user_action = SelAction(self.listview.selection(self.indices, all))
+        self.window.user_action = SelAction(self.listview.selection(self.indices, all=self.numselections==-1))
         self.deactivate()
     def on_mouse_press(self, x, y, button, modifiers):
         x -= self.listview.pos.x
