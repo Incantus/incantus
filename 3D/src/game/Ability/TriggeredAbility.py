@@ -18,6 +18,7 @@ class TriggeredAbility(object):
         self.effects = effects
         self.expiry = expiry
         self.zone = zone
+        if not txt: txt = '%s - Triggered Ability'%card
         self.txt = txt
     def enteringZone(self):
         for trigger in self.triggers:
