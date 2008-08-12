@@ -4,6 +4,7 @@ class Ability(object):
     def __init__(self, card, effects, txt=''):
         self.card = card
         self.effect_generator = effects
+        if not txt and effects.__doc__: txt = effects.__doc__
         self.txt = txt
         self.controller = None
     def announce(self, player):
@@ -15,7 +16,9 @@ class Ability(object):
         else:
             self.canceled()
             return False
-    def preannounce(self): self.controller.send(AbilityAnnounced(), ability=self)
+    def preannounce(self): 
+        self.targets = []
+        self.controller.send(AbilityAnnounced(), ability=self)
     def canceled(self): self.controller.send(AbilityCanceled(), ability=self)
     def do_announce(self): raise NotImplementedException()
     def played(self): self.controller.stack.push(self)
