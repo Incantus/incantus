@@ -243,6 +243,7 @@ class ZoneAnimator(object):
             pstatus, symbol = self.status_zones[sender]
             if card in self.tracker:
                 start_pos, from_zone = self.tracker[card]
+                from_zone.remove_card(card, clock)
                 end_pos = pstatus.pos + symbol.pos
                 if from_zone in self.play_zones.values():
                     self.sparks.add_spark(start_pos, start_pos, dt=1.5, color=str(card.color), grow=True)
@@ -250,12 +251,13 @@ class ZoneAnimator(object):
                     clock.schedule_once(lambda t: pstatus.update_zone(sender), 2.80)
                     clock.schedule_once(lambda t: self.sparks.add_star_spark(end_pos, end_pos, dt=.5, color=str(card.color)) , 2.70)
                 else:
-                    self.sparks.add_spark(start_pos, end_pos, dt=1., color="")
-                    clock.schedule_once(lambda t: pstatus.update_zone(sender), 1.)
+                    dt = 1.0
+                    self.sparks.add_spark(start_pos, end_pos, dt=dt, color="")
+                    clock.schedule_once(lambda t: pstatus.update_zone(sender), dt)
                 del self.tracker[card]
             else: pstatus.update_zone(sender)
         elif str(sender) == "play":
-            dt = 0.8
+            dt = 0.5
             if card in self.tracker:
                 guicard = self.play_zones[card.controller].add_card(card,startt=dt)
                 zone = self.play_zones[card.controller]
@@ -275,7 +277,6 @@ class ZoneAnimator(object):
             zone = self.play_zones[card.controller]
             guicard = zone.get_card(card)
             self.tracker[card] = (self.window.project_to_window(*tuple(zone.pos+guicard.pos)), zone)
-            zone.remove_card(card, clock)
     def render2d(self):
         self.sparks.render2d()
     def render3d(self):
