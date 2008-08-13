@@ -68,6 +68,7 @@ class GameObject(MtGObject):
 
             # Set up base characteristics
             role.name = self.base_name
+            role.owner = self.owner
             role.cost = self.base_cost
             role.text = self.base_text
             role.color = stacked_characteristic(self, self.base_color, ColorModifiedEvent())
