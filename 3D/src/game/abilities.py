@@ -100,8 +100,8 @@ class stacked_abilities(object):
         return total
     def activated(self): return self.process_stacked("activated", [])
     def __len__(self): return self.process_stacked("__len__", 0)
-    #def enteringZone(self, zone):
-    #    for a in self._stacking: a.enteringZone(zone)
+    def enteringZone(self, zone):
+        for a in self._stacking: a.enteringZone(zone)
     def leavingZone(self, zone):
         for a in self._stacking: 
             if isinstance(a, no_abilities): break
