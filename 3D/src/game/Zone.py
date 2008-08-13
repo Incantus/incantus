@@ -24,14 +24,14 @@ class Zone(MtGObject):
         # Retrieve all of a type of Card in current location
         return [card for card in iter(self.cards[::-1]) if match(card)]
     def cease_to_exist(self, card):
+        self._remove_card(card, CardCeasesToExist())
+    def _remove_card(self, card, event=CardLeftZone()):
         self.cards.remove(card)
         card.zone = None
-        self.send(CardCeasesToExist(), card=card)
-    def _remove_card(self, card):
-        self.cards.remove(card)
-        card.zone = None
-        self.send(CardLeftZone(), card=card)
+        self.send(event, card=card)
+        self.after_card_removed(card)
     def _insert_card(self, card, position=-1):
+        self.before_card_added(card)
         if position == -1: self.cards.append(card)
         else: self.cards.insert(position, card)
         card.zone = self
@@ -40,15 +40,13 @@ class Zone(MtGObject):
         self.send(CardEnteringZone(), card=card)
         old_zone = card.zone
         old_zone.send(CardLeavingZone(), card=card)
-        old_zone.before_card_removed(card)
-        self.before_card_added(card)
         # Remove card from previous zone
         old_zone._remove_card(card)
         self._insert_card(card, position)
     # The next 2 are for zones to setup and takedown card roles
     def before_card_added(self, card):
         card.enteringZone(self.name)
-    def before_card_removed(self, card):
+    def after_card_removed(self, card):
         card.leavingZone(self.name)
 
 class OrderedZone(Zone):
@@ -73,6 +71,8 @@ class OrderedZone(Zone):
     def commit(self):
         if self.pending_top or self.pending_bottom:
             self.pre_commit()
+            for card in self.pending_top+self.pending_bottom:
+                self.before_card_added(card)
             toplist = self.get_card_order([c for c in self.pending_top], "top")
             bottomlist = self.get_card_order([c for c in self.pending_bottom], "bottom")
             self.cards = bottomlist + self.cards + toplist
@@ -89,13 +89,22 @@ class OutPlayMixin(object):
         card.current_role = card.out_play_role
         super(OutPlayMixin, self).before_card_added(card)
 
+class Graveyard(OutPlayMixin, OrderedZone):
+    name = "graveyard"
+
+class Hand(OutPlayMixin, Zone):
+    name = "hand"
+
+class Removed(OutPlayMixin, Zone):
+    name = "removed"
+
 class AddingCardsMixin(object):
     def add_new_card(self, card, position=-1):
         self.send(CardEnteringZone(), card=card)
-        self.before_card_added(card)
         self._insert_card_unordered(card, position)
     def _insert_card_unordered(self, card, position):
         # XXX Same as Zone._insert_card
+        self.before_card_added(card)
         if position == -1: self.cards.append(card)
         else: self.cards.insert(position, card)
         card.zone = self
@@ -125,15 +134,6 @@ class Library(OutPlayMixin, AddingCardsMixin, OrderedZone):
             self.send(ShuffleEvent())
     name = "library"
 
-class Graveyard(OutPlayMixin, OrderedZone):
-    name = "graveyard"
-
-class Hand(OutPlayMixin, Zone):
-    name = "hand"
-
-class Removed(OutPlayMixin, Zone):
-    name = "removed"
-
 class PlayView(object):
     def __init__(self, player, play):
         self.player = player
@@ -141,31 +141,16 @@ class PlayView(object):
     def get(self, match=lambda c: True, all=False):
         if all: return self.play.get(match)
         else: return [card for card in self.play if match(card) and card.controller == self.player]
-    def before_card_added(self, card):
-        card.current_role = card.in_play_role
-        card.controller = self.player
-        self.play.before_card_added(card)
-    def add_new_card(self, card):
-        self.send(CardEnteringZone(), card=card)
-        self.before_card_added(card)
-        self._insert_card_unordered(card, -1)
-    def move_card(self, card, position=-1):
-        self.send(CardEnteringZone(), card=card)
-        old_zone = card.zone
-        old_zone.send(CardLeavingZone(), card=card)
-        old_zone.before_card_removed(card)
-        self.before_card_added(card)
-        # Remove card from previous zone
-        old_zone._remove_card(card)
-        self._insert_card(card, position)
     def __getattr__(self, attr):
         return getattr(self.play, attr)
-
+    def move_card(self, card, position=-1):
+        self.play.move_card(card, position, self.player)
 
 class Play(AddingCardsMixin, OrderedZone):
     name = "play"
     def __init__(self, game):
         self.game = game
+        self.controllers = {}
         super(Play, self).__init__()
     def get_view(self, player):
         return PlayView(player, self)
@@ -183,10 +168,15 @@ class Play(AddingCardsMixin, OrderedZone):
                     cards.reverse()
                 cardlist.extend(cards)
         return cardlist
-    def before_card_removed(self, card):
-        card.save_lki()
-        super(Play, self).before_card_removed(card)
-        card.controller = None
+    def move_card(self, card, position=-1, controller=None):
+        self.controllers[card] = controller
+        super(Play, self).move_card(card, position)
+    def before_card_added(self, card):
+        card.current_role = card.in_play_role
+        card.controller = self.controllers[card]
+        super(Play, self).before_card_added(card)
+    def post_commit(self):
+        self.controllers = {}
 
 class CardStack(Zone):
     name = "stack"
