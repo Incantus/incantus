@@ -30,10 +30,10 @@ class Ability(object):
             self.targets = targets
             return True
         else: return False
-    def check_targets(self): return all((target.check_target(self.card) for target in self.targets))
+    def check_targets(self): return any((target.check_target(self.card) for target in self.targets))
     def resolve(self):
         if self.check_targets():
-            targets = [target.target for target in self.targets]
+            targets = [target.get_targeted() for target in self.targets]
             if len(targets) == 1: targets = targets[0]
             self.effects.send(targets)
             self.card.send(TimestepEvent())
