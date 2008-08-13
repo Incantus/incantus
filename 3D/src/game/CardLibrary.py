@@ -130,12 +130,9 @@ in_play_role = Permanent(card, %s())
             traceback.print_exc(4)
             print "Error with %s\n"%name
             raise KeyError()
-        # Get rid of non-standard attributes
-        for k in card.__dict__.keys():
-            if k not in acceptable_keys: del card.__dict__[k]
 
         # For converted manacost comparisons
-        if type(card.cost) == str: card.base_cost = card.cost = CardEnvironment.ManaCost(card.cost)
+        if type(card.cost) == str: card.base_cost = CardEnvironment.ManaCost(card.cost)
         else: card.base_cost = card.cost
 
         # Build default characteristics
@@ -146,10 +143,13 @@ in_play_role = Permanent(card, %s())
         card.base_subtypes = card.subtypes
         card.base_supertype = card.supertype
 
-        card.key = (self.counter, card.name)
-
         if (card.type == "Instant" or card.type == "Sorcery"):
             card.in_play_role = CardEnvironment.NoRole(card)
+
+        # Get rid of non-standard attributes
+        for k in card.__dict__.keys():
+            if k not in acceptable_keys: del card.__dict__[k]
+        card.key = (self.counter, card.name)
 
     def __getitem__(self, key):
         # This is for unpickling during network transfer - we don't want to send the card across

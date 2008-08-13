@@ -1,8 +1,32 @@
 import copy
 from GameObjects import MtGObject
-from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, PermanentSacrificedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
+from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, PermanentSacrificedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, ControllerChanged
 
 class GameRole(MtGObject):
+    def info():
+        def fget(self): 
+            txt = [str(self.name)]
+            color = str(self.color)
+            if color: txt.append("\n%s"%color)
+            txt.append("\n") 
+            supertype = str(self.supertype)
+            if supertype: txt.append(supertype+" ")
+            txt.append(str(self.type))
+            subtypes = str(self.subtypes)
+            if subtypes: txt.append(" - %s"%subtypes)
+            #txt.append("\n\n"+'\n'.join(self.text))
+            #keywords = str(self.keywords)
+            #if keywords: txt.append('\n\n%s'%keywords)
+            abilities = str(self.abilities)
+            if abilities: txt.append('\n\n%s'%abilities)
+            counters = ', '.join([str(c) for c in self.counters])
+            if counters: txt.append('\nCounters: %s'%counters)
+            subrole_info = self.subrole_info()
+            if subrole_info: txt.append('\n\n'+subrole_info)
+            return ''.join(txt)
+        return locals()
+    info = property(**info())
+    controller = property(fget=lambda self: self.card.owner)
     def __init__(self, card):
         self.card = card
     # the damage stuff seems kind of hacky
@@ -51,9 +75,21 @@ class SpellRole(GameRole):  # Spells on the stack
         self.facedown = False
 
 class Permanent(GameRole):
+    def controller():
+        doc = "The controller of this card - only valid when in play or on the stack"
+        def fget(self): return self._controller
+        def fset(self, controller):
+            if controller == None: self._controller = controller
+            elif not controller == self._controller:
+                self._controller, old_controller = controller, self._controller
+                self.summoningSickness()
+                if old_controller: self.card.send(ControllerChanged(), original=old_controller)
+        return dict(doc=doc, fset=fset, fget=fget)
+    controller = property(**controller())
     continuously_in_play = property(fget=lambda self: self._continuously_in_play)
     def __init__(self, card, subroles):
         super(Permanent, self).__init__(card)
+        self._controller = None
         if not (type(subroles) == list or type(subroles) == tuple): subroles = [subroles]
         self.subroles = subroles
         self.tapped = False
@@ -153,7 +189,7 @@ class Permanent(GameRole):
     def sacrifice(self):
         card = self.card
         card.move_to(card.owner.graveyard)
-        card.send(PermanentSacrificeEvent())
+        card.send(PermanentSacrificedEvent())
     def summoningSickness(self):
         def remove_summoning_sickness(player):
             if self.card.controller == player:
@@ -202,10 +238,7 @@ class SubRole(object):
     def __str__(self):
         return self.__class__.__name__
 
-class Land(SubRole):
-    def __init__(self, color):
-        super(Land,self).__init__()
-        self.color = color
+class Land(SubRole): pass
 
 # PowerToughnessChanged isn't needed, because the power/toughness is invalidated every timestep (and the gui calculates it)
 class PTModifiers(object):

@@ -1,37 +1,10 @@
 
-def _find_stacked(card, attr, event=None):
-    original = getattr(card, attr)
-    if hasattr(original, "stacked"): stacked = original
-    else: stacked = stacked_characteristic(card, attr, event)
-    return stacked
-def set_characteristic(card, name, characteristic):
-    stacked = _find_stacked(card, name)
-    return stacked.set_characteristic(characteristic)
-def add_characteristic(card, name, characteristic):
-    stacked = _find_stacked(card, name)
-    return stacked.add_characteristic(characteristic)
-def add_all(card, name):
-    stacked = _find_stacked(card, name)
-    return stacked.add_all()
-def remove_all(card, name):
-    stacked = _find_stacked(card, name)
-    return stacked.remove_all()
-
-class _base_characteristic(object):
-    pass
-    #def set_characteristic(self, characteristic):
-    #    return self._insert_into_stacking(characteristic(characteristic))
-    #def add_characteristic(self, characteristic):
-    #    return self._insert_into_stacking(additional_characteristic(characteristic))
-    #def add_all(self):
-    #    return self._insert_into_stacking(all_characteristics())
-    #def remove_all(self):
-    #    return self._insert_into_stacking(no_characteristic())
+class _base_characteristic(object): pass
 
 class characteristic(_base_characteristic):
     # Internally stored as a set
-    def __init__(self, init_val):
-        if not (type(init_val) == tuple or type(init_val) == list): init_val = [init_val]
+    def __init__(self, *init_val):
+        #if not (type(init_val) == tuple or type(init_val) == list): init_val = [init_val]
         self.characteristics = set(init_val)
     def intersects(self, other):
         if not isinstance(other, characteristic): return other.intersects(self)
@@ -41,6 +14,17 @@ class characteristic(_base_characteristic):
     def __str__(self): return str(' '.join(self.characteristics))
     def __repr__(self): return "characteristic([%s])"%', '.join(map(repr, self.characteristics))
     def make_text_line(self, fields): fields[:] = self.characteristics
+
+# These are only used internally
+class additional_characteristic(characteristic):
+    def __eq__(self, other):
+        if super(additional_characteristic, self).__eq__(other): return True
+        else: return None
+    def intersects(self, other):
+        if super(additional_characteristic, self).intersects(other): return True
+        else: return None
+    def __repr__(self): return  "Add '%s'"%str(self)
+    def make_text_line(self, fields): fields.extend(self.characteristics)
 
 class all_characteristics(_base_characteristic):
     # This characteristic matches everything
@@ -60,17 +44,6 @@ class no_characteristic(_base_characteristic):
     def __repr__(self): return "no_characteristic()"
     def make_text_line(self, fields): fields[:] = []
 
-# These are only used internally
-class additional_characteristic(characteristic):
-    def __eq__(self, other):
-        if super(additional_characteristic, self).__eq__(other): return True
-        else: return None
-    def intersects(self, other):
-        if super(additional_characteristic, self).intersects(other): return True
-        else: return None
-    def __repr__(self): return  "Add '%s'"%str(self)
-    def make_text_line(self, fields): fields.extend(self.characteristics)
-
 #class remove_characteristic(characteristic):
 #    def __eq__(self, other):
 #        if other in self: return False
@@ -85,11 +58,9 @@ class additional_characteristic(characteristic):
 
 class stacked_characteristic(object):
     stacked = True
-    def __init__(self, card, attr, change_event):
-        self._stacking = [getattr(card, attr)]
-        setattr(card, attr, self)
+    def __init__(self, card, orig, change_event):
+        self._stacking = [orig]
         self.card = card
-        self.attr = attr
         self.change_event = change_event
     def _insert_into_stacking(self, char):
         self._stacking.append(char)
@@ -98,7 +69,6 @@ class stacked_characteristic(object):
             if char in self._stacking:
                 self._stacking.remove(char)
                 self.card.send(self.change_event)
-            if not self.stacking(): self.restore_original()
         return remove
     def set_characteristic(self, new_char):
         return self._insert_into_stacking(characteristic(new_char))
@@ -109,7 +79,6 @@ class stacked_characteristic(object):
     def remove_all(self):
         return self._insert_into_stacking(no_characteristic())
     def stacking(self): return len(self._stacking) > 1
-    def restore_original(self): setattr(self.card, self.attr, self._stacking.pop())
     def process_stacked(self, other, operator):
         result = False
         for char in self._stacking:
