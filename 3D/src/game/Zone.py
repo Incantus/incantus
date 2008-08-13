@@ -31,6 +31,7 @@ class Zone(MtGObject):
         self.send(event, card=card)
         self.after_card_removed(card)
     def _insert_card(self, card, position=-1):
+        card.zone._remove_card(card)
         self.before_card_added(card)
         if position == -1: self.cards.append(card)
         else: self.cards.insert(position, card)
@@ -41,7 +42,6 @@ class Zone(MtGObject):
         old_zone = card.zone
         old_zone.send(CardLeavingZone(), card=card)
         # Remove card from previous zone
-        old_zone._remove_card(card)
         self._insert_card(card, position)
     # The next 2 are for zones to setup and takedown card roles
     def before_card_added(self, card):
@@ -72,6 +72,7 @@ class OrderedZone(Zone):
         if self.pending_top or self.pending_bottom:
             self.pre_commit()
             for card in self.pending_top+self.pending_bottom:
+                card.zone._remove_card(card)
                 self.before_card_added(card)
             toplist = self.get_card_order([c for c in self.pending_top], "top")
             bottomlist = self.get_card_order([c for c in self.pending_bottom], "bottom")
@@ -120,6 +121,7 @@ class Library(OutPlayMixin, AddingCardsMixin, OrderedZone):
     def disable_ordering(self):
         self.ordering = False
     def _insert_card(self, card, position=-1):
+        card.zone._remove_card(card)
         if self.ordering:
             super(Library, self)._insert_card(card, position)
         else:
