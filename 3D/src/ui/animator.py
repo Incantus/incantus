@@ -243,9 +243,9 @@ class ZoneAnimator(object):
             pstatus, symbol = self.status_zones[sender]
             if card in self.tracker:
                 start_pos, from_zone = self.tracker[card]
-                from_zone.remove_card(card, clock)
                 end_pos = pstatus.pos + symbol.pos
                 if from_zone in self.play_zones.values():
+                    from_zone.remove_card(card, clock)
                     self.sparks.add_spark(start_pos, start_pos, dt=1.5, color=str(card.color), grow=True)
                     clock.schedule_once(lambda t: self.sparks.add_spark(start_pos, end_pos, dt=1.25, color=str(card.color)), 1.55)
                     clock.schedule_once(lambda t: pstatus.update_zone(sender), 2.80)
