@@ -1,10 +1,11 @@
-from game.Match import isPermanent, isPlayer, SelfMatch, PlayerMatch, OpponentMatch, PlayerOrCreatureMatch
+from game.Match import isPermanent, isPlayer, PlayerMatch, OpponentMatch, PlayerOrCreatureMatch
 from game.GameEvent import InvalidTargetEvent
 
 class NoTarget(object):
-    def __init__(self): self.target = None
+    def __init__(self): pass
     def get(self, card): return True
     def check_target(self, card): return True
+    def get_targeted(self): return None
 
 class MultipleTargets(object):
     def __init__(self, number, target_types, up_to=False, msg='', selector="controller"):
@@ -22,6 +23,8 @@ class MultipleTargets(object):
                 if match(card): return True
             else: return False
         self.match_type = match_type
+    def get_targeted(self): return self.target
+    #def get_targeted(self): return [target.current_role if not isPlayer(target) else target for target in self.target]
     def check_target(self, card):
         # Remove any targets no longer in the correct zone, or no longer matching the original condition
         # XXX This is wrong - since it won't match up with the number requested
@@ -91,6 +94,8 @@ class Target(object):
         self.selector = selector
         self.untargeted = False
         self.required = True
+    def get_targeted(self): return self.target
+    #def get_targeted(self): return self.target.current_role if not isPlayer(self.target) else self.target
     def check_target(self, card):
         # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
         if not isPlayer(self.target):
