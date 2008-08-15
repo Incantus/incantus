@@ -32,7 +32,7 @@ def set_power_toughness(target, power, toughness):
 def set_power(target, power):
     PT = PowerSetter(power, None)
     return target.PT_other_modifiers.add(PT)
-def set_power(target, toughness):
+def set_toughness(target, toughness):
     PT = ToughnessSetter(None, toughness)
     return target.PT_other_modifiers.add(PT)
 def switch_power_toughness(target):
