@@ -32,8 +32,8 @@ class Trigger(MtGObject):
         self.trigger_event = event
         self.trigger_sender = sender
         self.activated = False
-    def setup_trigger(self, card, trigger_function, match_condition=None, expiry=-1):
-        self.card = card
+    def setup_trigger(self, source, trigger_function, match_condition=None, expiry=-1):
+        self.source = source
         self.count = 0
         self.expiry = expiry
         self.trigger_function = trigger_function
@@ -47,7 +47,7 @@ class Trigger(MtGObject):
             self.unregister(self.filter, event=self.trigger_event, sender=self.trigger_sender)
             self.activated = False
     def filter(self, sender, **keys):
-        keys["source"] = self.card
+        keys["source"] = self.source
         keys["sender"] = sender
         if robustApply(self.match_condition, **keys) and (self.expiry == -1 or self.count < self.expiry):
             robustApply(self.trigger_function, **keys)
@@ -58,7 +58,7 @@ class Trigger(MtGObject):
 
 class PhaseTrigger(Trigger):
     def filter(self, sender):
-        keys = {'player': sender.curr_player, 'source': self.card}
+        keys = {'player': sender.curr_player, 'source': self.source}
         if robustApply(self.match_condition, **keys) and (self.expiry == -1 or self.count < self.expiry):
             robustApply(self.trigger_function, **keys)
             self.count += 1
@@ -85,12 +85,12 @@ class MoveTrigger(Trigger):
         if self.zone == "play": player_cmp = card.controller
         else: player_cmp = card.owner
 
-        if self.player == "controller" and player_cmp == self.card.controller: return True
-        elif self.player == "opponent" and not player_cmp == self.card.controller: return True
+        if self.player == "controller" and player_cmp == self.source.controller: return True
+        elif self.player == "opponent" and not player_cmp == self.source.controller: return True
         elif self.player == "any": return True
         else: return False
     def filter(self, sender, card):
-        keys = {"sender": sender, "card":card, "source":self.card}
+        keys = {"sender": sender, "source": self.source, "card":card}
         if (robustApply(self.match_condition, **keys) and (self.expiry == -1 or self.count < self.expiry) and
            self.zone == str(sender) and self.check_player(sender, card)):
             robustApply(self.trigger_function, **keys)
@@ -116,11 +116,11 @@ class EnterFromTrigger(Trigger):
         self.from_zone = from_zone
         self.to_zone = to_zone
         self.player = player
-    def setup_trigger(self, card, trigger_function, match_condition=None, expiry=-1):
+    def setup_trigger(self, source, trigger_function, match_condition=None, expiry=-1):
         self.entering = set()
         self.count = 0
         self.expiry = expiry
-        self.card = card
+        self.source = source
         self.trigger_function = trigger_function
         if match_condition: self.match_condition = match_condition
         else: self.match_condition = lambda *args: True
@@ -142,16 +142,16 @@ class EnterFromTrigger(Trigger):
         if self.to_zone == "play": player_cmp = card.controller
         else: player_cmp = card.owner
 
-        if self.player == "controller" and player_cmp == self.card.controller: return True
-        elif self.player == "opponent" and not player_cmp == self.card.controller: return True
+        if self.player == "controller" and player_cmp == self.source.controller: return True
+        elif self.player == "opponent" and not player_cmp == self.source.controller: return True
         elif self.player == "any": return True
         else: return False
     def filter_entering(self, sender, card):
-        keys = {"source": self.card, "card": card}
+        keys = {"source": self.source, "card": card}
         if robustApply(self.match_condition, **keys) and str(sender) == self.to_zone and self.check_player(sender, card):
             self.entering.add(card)
     def filter_leaving(self, sender, card):
-        keys = {"source": self.card, "card": card}
+        keys = {"source": self.source, "card": card}
         if card in self.entering:
             self.entering.remove(card)
             if str(sender) == self.from_zone and (self.expiry == -1 or self.count < self.expiry):

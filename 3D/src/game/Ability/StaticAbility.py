@@ -6,50 +6,46 @@ from game.GameEvent import ControllerChanged, SubroleModifiedEvent, TimestepEven
 
 # Static abilities always function while the permanent is in the relevant zone
 class StaticAbility(object):
-    def __init__(self, card, effects, zone="play", txt=''):
-        self.card = card
+    def __init__(self, effects, zone="play", txt=''):
         self.effects = effects
         self.zone = zone
         self.txt = txt
         self.effect_tracking = None
     def enteringZone(self): pass
     def leavingZone(self): pass
-    def copy(self, card=None):
-        newcopy = copy.copy(self)
-        if not card: card = self.card
-        newcopy.card = card
-        return newcopy
+    def copy(self): return copy.copy(self)
     def __str__(self): return self.txt
 
 class CardTrackingAbility(StaticAbility):
-    def __init__(self, card, effects, condition, events = [], tracking="play", zone="play", txt=''):
-        super(CardTrackingAbility, self).__init__(card, effects, zone, txt)
+    def __init__(self, effects, condition, events = [], tracking="play", zone="play", txt=''):
+        super(CardTrackingAbility, self).__init__(effects, zone, txt)
         self.enter_trigger = EnterTrigger(tracking, player="any")
         self.leave_trigger = LeaveTrigger(tracking, player="any")
-        self.control_changed = Trigger(ControllerChanged(), sender=self.card)
         if not type(events) == list: events = [events]
         self.other_triggers = [Trigger(event) for event in [SubroleModifiedEvent(), ControllerChanged()] + events]
         self.condition = condition
         self.tracking = tracking
     def get_current(self):
-        zone_condition = partial(self.condition, self.card)
+        zone_condition = partial(self.condition, self.source)
         if self.tracking == "play":
-            zone = getattr(self.card.controller, self.tracking)
+            zone = getattr(self.source.controller, self.tracking)
             cards = zone.get(zone_condition, all=True)
         else:
-            zone = getattr(self.card.controller, self.tracking)
-            opp_zone = getattr(self.card.controller.opponent, self.tracking)
+            zone = getattr(self.source.controller, self.tracking)
+            opp_zone = getattr(self.source.controller.opponent, self.tracking)
             cards = zone.get(zone_condition) + opp_zone.get(zone_condition)
         return cards
-    def enteringZone(self):
+    def enteringZone(self, source):
+        self.source = source
         self.effect_tracking = {}
         # Get all cards in the tracked zone
         for card in self.get_current(): self.add_effects(card)
 
-        self.enter_trigger.setup_trigger(self.card, self.entering, self.condition)
-        self.leave_trigger.setup_trigger(self.card, self.leaving)
-        self.control_changed.setup_trigger(self.card, self.new_controller)
-        for trigger in self.other_triggers: trigger.setup_trigger(self.card, self.card_changed)
+        self.control_changed = Trigger(ControllerChanged(), sender=self.source)
+        self.enter_trigger.setup_trigger(self.source, self.entering, self.condition)
+        self.leave_trigger.setup_trigger(self.source, self.leaving)
+        self.control_changed.setup_trigger(self.source, self.new_controller)
+        for trigger in self.other_triggers: trigger.setup_trigger(self.source, self.card_changed)
     def leavingZone(self):
         self.enter_trigger.clear_trigger()
         self.leave_trigger.clear_trigger()
@@ -82,7 +78,7 @@ class CardTrackingAbility(StaticAbility):
         del self.effect_tracking[card]   # necessary to prevent recursion
     def card_changed(self, sender):
         tracking = sender in self.effect_tracking
-        pass_condition = self.condition(self.card, sender)
+        pass_condition = self.condition(self.source, sender)
         # If card is already tracked, but doesn't pass the condition, remove it
         # Note the condition can't rely on any trigger data
         if not tracking and pass_condition: self.add_effects(sender)
@@ -92,7 +88,7 @@ class CardStaticAbility(StaticAbility):
     # Target is the card itself
     def enteringZone(self):
         effect_removal = []
-        for effect in self.effects: effect_removal.append(effect(self.card, self.card))
+        for effect in self.effects: effect_removal.append(effect(self.source, self.source))
         self.effect_tracking = effect_removal
     def leavingZone(self):
         for remove in self.effect_tracking: remove()
@@ -102,7 +98,7 @@ class GlobalStaticAbility(StaticAbility):
     # Target is the cards controller
     def enteringZone(self):
         effect_removal = []
-        for effect in self.effects: effect_removal.append(effect(self.card, self.card.controller))
+        for effect in self.effects: effect_removal.append(effect(self.source, self.source.controller))
         self.effect_tracking = effect_removal
     def leavingZone(self):
         for remove in self.effect_tracking: remove()
@@ -112,7 +108,7 @@ class AttachedStaticAbility(StaticAbility):
     # Target is the card which is attached
     def enteringZone(self):
         effect_removal = []
-        for effect in self.effects: effect_removal.append(effect(self.card, self.card.attached_to))
+        for effect in self.effects: effect_removal.append(effect(self.source, self.source.attached_to))
         self.effect_tracking = effect_removal
     def leavingZone(self):
         for remove in self.effect_tracking: remove()
@@ -137,7 +133,7 @@ class Conditional(MtGObject):
             self.activated = False
             super(Conditional, self).leavingZone()
     def check_condition(self):
-        pass_condition = self.condition(self.card)
+        pass_condition = self.condition(self.source)
         if not self.activated and pass_condition:
             super(Conditional, self).enteringZone()
             self.activated = True
@@ -146,11 +142,11 @@ class Conditional(MtGObject):
             self.activated = False
 
 class ConditionalAttachedStaticAbility(Conditional, AttachedStaticAbility):
-    def __init__(self, card, effects, condition, zone="play", txt=''):
-        super(ConditionalAttachedStaticAbility, self).__init__(card, effects, zone, txt)
+    def __init__(self, effects, condition, zone="play", txt=''):
+        super(ConditionalAttachedStaticAbility, self).__init__(effects, zone, txt)
         self.init_condition(condition)
 
 class ConditionalStaticAbility(Conditional, CardStaticAbility):
-    def __init__(self, card, effects, condition, zone="play", txt=''):
-        super(ConditionalStaticAbility, self).__init__(card, effects, zone, txt)
+    def __init__(self, effects, condition, zone="play", txt=''):
+        super(ConditionalStaticAbility, self).__init__(effects, zone, txt)
         self.init_condition(condition)

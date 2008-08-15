@@ -4,22 +4,22 @@ from Limit import Unlimited
 class CostAbility(Ability):
     zone = "play"
     limit_type = Unlimited   # This is because if instantiate when the class is created, all the signalling is cleared
-    def __init__(self, card, effects, limit=None, zone=None, txt=''):
-        super(CostAbility,self).__init__(card, effects, txt=txt)
+    def __init__(self, effects, limit=None, zone=None, txt=''):
+        super(CostAbility,self).__init__(effects, txt=txt)
         if limit: self.limit = limit
         else: self.limit = self.limit_type()
         if zone: self.zone = zone
-    def playable(self):
-        return (self.zone == "all" or str(self.card.zone) == self.zone) and self.limit(self.card)
+    def playable(self, source):
+        return (self.zone == "all" or str(source.zone) == self.zone) and self.limit(source)
     def do_announce(self):
         # Do all the stuff in rule 409.1 like pick targets, pay costs, etc
-        card, player = self.card, self.controller
-        self.effects = self.effect_generator(self.card)  # Start up generator
+        source, player = self.source, self.controller
+        self.effects = self.effect_generator(source)  # Start up generator
         self.cost = self.effects.next()
-        if (self.cost.precompute(card, player) and
+        if (self.cost.precompute(source, player) and
            self.get_targets() and
-           self.cost.compute(card, player)):
-               self.cost.pay(card, player)
+           self.cost.compute(source, player)):
+               self.cost.pay(source, player)
                return True
         else:
             return False

@@ -205,12 +205,12 @@ class ZoneAnimator(object):
             self.board.render_redzone = False
             self.red_zone = None
     def enter_stack(self, sender, ability):
-        card = ability.card
+        card = ability.source
         if card == "Assign Damage": return
         # XXX this is a hack right now because the card isn't actually placed on the stack (or it never leaves it's zone)
         zone = card.zone
         start_pos = None
-        if zone in self.status_zones and not ability.card.controller ==self.player:
+        if zone in self.status_zones and not card.controller == self.player:
             pstatus, symbol = self.status_zones[zone]
             start_pos = pstatus.pos + symbol.pos
         elif str(zone) == "play":
@@ -226,8 +226,8 @@ class ZoneAnimator(object):
     def leave_stack(self, sender, ability):
         guicard = self.stack.get_card(ability)
         pos = self.stack.pos + guicard.pos
-        if isinstance(ability, CastSpell): self.tracker[ability.card] = pos, self.stack
-        elif not ability.card == "Assign Damage": self.sparks.add_sparkle_star(pos, pos, dt=0.5, color=str(ability.card.color))
+        if isinstance(ability, CastSpell): self.tracker[ability.source] = pos, self.stack
+        elif not ability.source == "Assign Damage": self.sparks.add_sparkle_star(pos, pos, dt=0.5, color=str(ability.source.color))
         self.stack.remove_ability(ability)
     def controller_changed(self, sender, original):
         start_zone = self.play_zones[original]

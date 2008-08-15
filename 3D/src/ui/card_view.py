@@ -148,8 +148,8 @@ class HandView(CardView):
             self.layout()
     def card_on_stack(self, ability):
         # XXX This is a big ugly hack
-        if isinstance(ability, CastSpell) and str(ability.card.zone) == "hand":
-            card = CardLibrary.CardLibrary.getHandCard(ability.card)
+        if isinstance(ability, CastSpell) and str(ability.source.zone) == "hand":
+            card = CardLibrary.CardLibrary.getHandCard(ability.source)
             if card in self.cards:
                 self.cards.remove(card)
                 if self.focus_dir < 0: self.focus_idx += self.focus_dir
@@ -160,7 +160,7 @@ class HandView(CardView):
     def card_off_stack(self, ability):
         # XXX This is a big ugly hack
         if not isinstance(ability, CastSpell): return
-        card = CardLibrary.CardLibrary.getHandCard(ability.card)
+        card = CardLibrary.CardLibrary.getHandCard(ability.source)
         if card in self.played:
             self.played.remove(card)
             self.cards.append(card)
@@ -328,7 +328,7 @@ class StackView(CardView):
         if isinstance(ability, CastSpell): func = CardLibrary.CardLibrary.getStackCard
         elif isinstance(ability, ActivatedAbility): func = CardLibrary.CardLibrary.getActivatedCard
         else: func = CardLibrary.CardLibrary.getTriggeredCard
-        newcard = func(ability.card)
+        newcard = func(ability.source)
         newcard.ability = ability
         newcard.alpha = anim.animate(0, 0.5, startt=startt, dt=1.0, method="ease_out_circ")
         return self.add_ability(newcard, startt)
@@ -345,7 +345,7 @@ class StackView(CardView):
         newcard.announced = False
         return newcard
     def finalize_announcement(self, ability):
-        if ability.card == "Assign Damage":
+        if ability.source == "Assign Damage":
             newcard = CardLibrary.CardLibrary.getCombatCard(ability)
             newcard.bordered = True
             newcard.ability = ability

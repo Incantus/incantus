@@ -8,22 +8,25 @@ class Stack(MtGObject):
         self.game = game
         self.card_stack = CardStack()
         self.pending_triggered =[]
-    def add_triggered(self, ability, controller):
-        self.pending_triggered.append((ability, controller))
+    def add_triggered(self, ability, source):
+        self.pending_triggered.append(ability)
+        # XXX This is a bit ugly
+        ability.source = source
     def process_triggered(self):
         # Check if there are any triggered abilities waiting
         if len(self.pending_triggered) > 0:
             # group all triggered abilities by player
             triggered_sets = dict([(player, []) for player in self.game.players])
-            for ability, controller in self.pending_triggered:
-                triggered_sets[controller].append(ability)
+            for ability in self.pending_triggered:
+                player = ability.source.controller
+                triggered_sets[player].append(ability)
             # Now ask the player to order them if there are more than one
             for player in self.game.players:
                 triggered = triggered_sets[player]
                 if len(triggered) > 1:
                     triggered = player.getSelection(triggered, -1, prompt="Drag to reorder triggered abilities(Top ability resolves first)")
                 # Now reorder
-                for ability in triggered: ability.announce(player)
+                for ability in triggered: ability.announce(ability.source, player)
             self.pending_triggered[:] = []
             return True
         else: return False

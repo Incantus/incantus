@@ -1,13 +1,14 @@
+import copy
 from game.GameEvent import AbilityAnnounced, AbilityCanceled, AbilityCountered, AbilityResolved, TimestepEvent
 
 class Ability(object):
-    def __init__(self, card, effects, txt=''):
-        self.card = card
+    def __init__(self, effects, txt=''):
         self.effect_generator = effects
         if not txt and effects.__doc__: txt = effects.__doc__
         self.txt = txt
         self.controller = None
-    def announce(self, player):
+    def announce(self, source, player):
+        self.source = source
         self.controller = player
         self.preannounce()
         if self.do_announce():
@@ -16,7 +17,7 @@ class Ability(object):
         else:
             self.canceled()
             return False
-    def preannounce(self): 
+    def preannounce(self):
         self.targets = []
         self.controller.send(AbilityAnnounced(), ability=self)
     def canceled(self): self.controller.send(AbilityCanceled(), ability=self)
@@ -26,30 +27,25 @@ class Ability(object):
     def get_targets(self):
         targets = self._get_targets_from_effects()
         if not (type(targets) == tuple): targets = (targets,)
-        if all((target.get(self.card) for target in targets)):
+        if all((target.get(self.source) for target in targets)):
             self.targets = targets
             return True
         else: return False
-    def check_targets(self): return any((target.check_target(self.card) for target in self.targets))
+    def check_targets(self): return any((target.check_target(self.source) for target in self.targets))
     def resolve(self):
         if self.check_targets():
             targets = [target.get_targeted() for target in self.targets]
             if len(targets) == 1: targets = targets[0]
             self.effects.send(targets)
-            self.card.send(TimestepEvent())
+            self.source.send(TimestepEvent())
             for _ in self.effects:
-                self.card.send(TimestepEvent())
+                self.source.send(TimestepEvent())
             self.resolved()
         else: self.countered()
         del self.effects
-    def resolved(self): self.card.send(AbilityResolved())
+    def resolved(self): self.source.send(AbilityResolved())
     def can_be_countered(self): return True
-    def countered(self): self.card.send(AbilityCountered())
-    def copy(self, card=None):
-        import copy
-        newcopy = copy.copy(self)
-        if not card: newcopy.card = self.card
-        else: newcopy.card = card
-        return newcopy
+    def countered(self): self.source.send(AbilityCountered())
+    def copy(self): return copy.copy(self)
     def __str__(self):
         return self.txt

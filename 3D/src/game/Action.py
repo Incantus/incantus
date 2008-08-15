@@ -68,9 +68,9 @@ class PlayAbility(CardAction):
     def perform(self, player):
         card = self.card
 
-        abilities = card.abilities.activated()
+        abilities = card.abilities.activated(card)
         # Include the casting ability
-        if card.play_spell and card.play_spell.playable(): abilities.append(card.play_spell)
+        if card.play_spell and card.play_spell.playable(card): abilities.append(card.play_spell)
         numabilities = len(abilities)
         if numabilities == 0: return False
         elif numabilities == 1: ability = abilities[0]
@@ -78,7 +78,7 @@ class PlayAbility(CardAction):
             ability = player.getSelection(abilities, 1, required=False, prompt="%s: Select ability"%self.card)
             if ability == False: return False
         ability = ability.copy()
-        if ability.announce(player):
+        if ability.announce(card, player):
             player.send(AbilityPlayedEvent(), ability=ability)
             return True
         else:
@@ -88,7 +88,7 @@ class ActivateForMana(CardAction):
     def perform(self, player):
         card = self.card
         # Check if the card can be provide mana
-        abilities = [ability for ability in card.abilities.activated() if hasattr(ability, "mana_ability")]
+        abilities = [ability for ability in card.abilities.activated(card) if hasattr(ability, "mana_ability")]
 
         numabilities = len(abilities)
         if numabilities == 0: return False
@@ -96,5 +96,5 @@ class ActivateForMana(CardAction):
         else:
             ability = player.getSelection(abilities, 1, required=False, prompt="%s - Mana abilities"%self.card)
             if ability is False: return False
-        ability.copy().announce(player)
+        ability.copy().announce(card, player)
         return True
