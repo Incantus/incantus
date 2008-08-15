@@ -22,7 +22,11 @@ class abilities(object):
                 if (ability.zone == "all" or ability.zone == zone) and not hasattr(ability, "activated"): ability.leavingZone()
     def __str__(self): return '\n'.join(map(str, self._abilities))
 
-class additional_abilities(abilities): pass
+class additional_abilities(abilities):
+    def __init__(self, abilities):
+        super(additional_abilities, self).__init__()
+        if not type(abilities) == list: abilities = [abilities]
+        self._abilities.extend(abilities)
 class no_abilities(object): pass
 class remove_ability(object):
     def __init__(self, keyword):
@@ -43,7 +47,7 @@ class stacked_abilities(object):
     def add_abilities(self, abilities):
         abilities = additional_abilities(abilities)
         self._stacking.insert(0, abilities)
-        abilities.enteringZone(self.zone)
+        abilities.enteringZone(self.zone, self.source)
         def remove():
             if abilities in self._stacking:
                 self._stacking.remove(abilities)
@@ -81,7 +85,7 @@ class stacked_abilities(object):
                 if restore:
                     for a in self._stacking[i:]:
                         if isinstance(a, no_abilities): break
-                        else: a.enteringZone(self.zone)
+                        else: a.enteringZone(self.zone, self.source)
         return remove
     def stacking(self): return len(self._stacking) > 1
     def pop(self): return self._stacking.pop()

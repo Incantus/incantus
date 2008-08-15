@@ -4,11 +4,7 @@ from Target import MultipleTargets
 
 class AssignDamage(Ability):
     # XXX These two are very hacky, and are only here to support the GUI
-    def card():
-        def fget(self):
-            return "Assign Damage"
-        return locals()
-    card = property(**card())
+    source = property(fget=lambda self: "Assign Damage")
     def targets():
         def fget(self):
             targets = set()

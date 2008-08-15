@@ -40,8 +40,6 @@ def switch_power_toughness(target):
     return target.PT_switch_modifiers.add(PT)
 
 def add_activated(target, effects, is_mana=False):
-    if not hasattr(target.abilities, "stacked"): stacked_ability = stacked_abilities(target)
-    else: stacked_ability = target.abilities
     if not is_mana: ability_cls = ActivatedAbility
     else: ability_cls = ManaAbility
-    return stacked_ability.add_abilities(ability_cls(target, effects))
+    return target.abilities.add_abilities(ability_cls(effects))

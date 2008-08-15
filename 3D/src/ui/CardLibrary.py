@@ -101,10 +101,7 @@ class _CardLibrary:
         return card
 
     def getCombatCard(self, ability):
-        return Card(ability.card, self.combat, self.combat)
-
-    def getFakeCard(self, ability):
-        return Card(ability.card, self.back, self.back)
+        return Card(ability.source, self.combat, self.combat)
 
     def getCardCopy(self, gamecard):
         return self.getCard(gamecard).copy()
