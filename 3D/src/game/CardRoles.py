@@ -27,6 +27,7 @@ class GameRole(MtGObject):
         return locals()
     info = property(**info())
     controller = property(fget=lambda self: self.card.owner)
+    zone = property(fget=lambda self: self.card.zone)
     def __init__(self, card):
         self.card = card
     # the damage stuff seems kind of hacky
@@ -41,8 +42,8 @@ class GameRole(MtGObject):
     def canBeAttachedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
         self.card.send(TargetedByEvent(), targeter=targeter)
-    def enteringZone(self, zone): pass
-    def leavingZone(self, zone): pass
+    def enteringZone(self, zone): self.abilities.enteringZone(zone)
+    def leavingZone(self, zone): self.abilities.leavingZone(zone)
     def match_role(self, matchrole):
         return matchrole == self.__class__
     def move_to(self, zone, position=-1):
@@ -200,12 +201,12 @@ class Permanent(GameRole):
         self._continuously_in_play = False
         self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
     def enteringZone(self, zone):
-        if zone == "play":
-            for role in self.subroles: role.enteringPlay(self)
+        for role in self.subroles: role.enteringPlay(self)
+        super(Permanent, self).enteringZone(zone)
     def leavingZone(self, zone):
-        if zone == "play":
-            for role in self.subroles: role.leavingPlay()
-            for attached in self.attachments: attached.attachedLeavingPlay()
+        for role in self.subroles: role.leavingPlay()
+        for attached in self.attachments: attached.attachedLeavingPlay()
+        super(Permanent, self).leavingZone(zone)
     def __deepcopy__(self, memo):
         newcopy = super(Permanent, self).__deepcopy__(memo)
         newcopy.subroles = [copy.deepcopy(role, memo) for role in self.subroles]

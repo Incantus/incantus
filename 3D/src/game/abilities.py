@@ -34,7 +34,6 @@ class stacked_abilities(object):
     def __init__(self, source, abilities):
         self._stacking = [abilities]
         self.source = source
-        self.zone = str(source.zone)
     def __str__(self):
         s = []
         for a in self._stacking:
@@ -94,6 +93,7 @@ class stacked_abilities(object):
     def activated(self): return self.process_stacked("activated", [], self.source)
     def __len__(self): return self.process_stacked("__len__", 0)
     def enteringZone(self, zone):
+        self.zone = zone
         for a in self._stacking: a.enteringZone(zone, self.source)
     def leavingZone(self, zone):
         for a in self._stacking:

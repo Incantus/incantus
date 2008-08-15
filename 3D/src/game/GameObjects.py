@@ -2,7 +2,7 @@ import copy
 from pydispatch import dispatcher
 from GameEvent import TokenLeavingPlay, ColorModifiedEvent, SubtypeModifiedEvent, SupertypeModifiedEvent
 from data_structures import keywords
-from abilities import abilities
+from abilities import abilities, stacked_abilities
 from characteristics import stacked_characteristic
 
 class MtGObject(object):
@@ -51,7 +51,7 @@ class GameObject(MtGObject):
         self.base_subtypes = None
         self.base_supertype = None
         self.base_keywords = self.keywords = keywords()
-        self.base_abilities = self.abilities = abilities([])
+        self.base_abilities = abilities()
         self.play_spell = None
 
         self._owner = owner
@@ -75,19 +75,13 @@ class GameObject(MtGObject):
             role.type = self.base_type
             role.subtypes = stacked_characteristic(self, self.base_subtypes, SubtypeModifiedEvent())
             role.supertype = stacked_characteristic(self, self.base_supertype, SupertypeModifiedEvent)
-            role.abilities = self.base_abilities
+            role.abilities = stacked_abilities(self, self.base_abilities)
             role.keywords = copy.deepcopy(self.base_keywords)
             self._current_role = role
         return locals()
     current_role = property(**current_role())
     def move_to(self, to_zone, position=-1):
         to_zone.move_card(self, position)
-    def enteringZone(self, zone):
-        self.current_role.enteringZone(zone)
-        self.abilities.enteringZone(zone)
-    def leavingZone(self, zone):
-        self.current_role.leavingZone(zone)
-        self.abilities.leavingZone(zone)
     # I should probably get rid of the getattr call, and make everybody refer to current_role directly
     # But that makes the code so much uglier
     # XXX This is just temporary

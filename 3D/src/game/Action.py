@@ -68,7 +68,7 @@ class PlayAbility(CardAction):
     def perform(self, player):
         card = self.card
 
-        abilities = card.abilities.activated(card)
+        abilities = card.abilities.activated()
         # Include the casting ability
         if card.play_spell and card.play_spell.playable(card): abilities.append(card.play_spell)
         numabilities = len(abilities)
@@ -88,7 +88,7 @@ class ActivateForMana(CardAction):
     def perform(self, player):
         card = self.card
         # Check if the card can be provide mana
-        abilities = [ability for ability in card.abilities.activated(card) if hasattr(ability, "mana_ability")]
+        abilities = [ability for ability in card.abilities.activated() if hasattr(ability, "mana_ability")]
 
         numabilities = len(abilities)
         if numabilities == 0: return False
