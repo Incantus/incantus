@@ -365,14 +365,7 @@ class GameKeeper(MtGObject):
         # - clear non-lethal damage
         self.setState("Cleanup")
         while True:
-            numcards = len(self.curr_player.hand)
-            diff = numcards - self.curr_player.hand_limit
-            if diff > 1: a = 's'
-            else: a = ''
-            for i in range(diff):
-                card = self.curr_player.getTarget(Match.isCard, zone="hand", controller=self.curr_player, required=True, prompt="Select card%s to discard: %d left of %d"%(a, diff-i,diff))
-                self.curr_player.discard(card)
-
+            self.curr_player.discard_down()
             # Clear all nonlethal damage
             self.send(CleanupEvent())
             self.send(TimestepEvent())
