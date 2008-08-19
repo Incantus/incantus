@@ -35,7 +35,7 @@ class ImageCache(object):
         ImageCache._load("life.png", "life")
         status = ['Untap','Upkeep','Draw','Main1','PreCombat','Attack','Block','Damage','EndCombat','Main2','EndPhase','Cleanup']
         ImageCache._load_multi("phases.png", status, 4, 3)
-        fx = ["ring", "blank", "targeting", "glow"]
+        fx = ["ring", "spiral", "targeting", "glow"]
         ImageCache._load_multi("fx.png", fx, 2, 2)
 
 class ColorDict(object):
