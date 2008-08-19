@@ -16,6 +16,8 @@ from widget import Label
 from resources import ColorDict
 from counter import Counter
 
+#from foil import foil
+
 sixteenfv = GLfloat*16
 
 class Card(anim.Animable):
@@ -446,7 +448,9 @@ class PlayCard(Card):
             glEnable(self._texture.target)
             glBindTexture(self._texture.target, self._texture.id)
             glColor4f(self.alpha, self.alpha, self.alpha, self.alpha)
+            #foil.install()
             glCallList(self.cardlist)
+            #foil.uninstall()
             self.info_box.render()
             glDisable(self._texture.target)
             for c in self.counters: c.draw()
