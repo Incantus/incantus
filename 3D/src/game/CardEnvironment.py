@@ -30,6 +30,7 @@ damage_tracker = DamageTrackingVariable()
 graveyard_tracker = ZoneMoveVariable(from_zone="play", to_zone="graveyard")
 
 def play_permanent(cost):
+    global play_spell
     if type(cost) == str: cost = ManaCost(cost)
     def effects(source):
         yield cost
@@ -38,14 +39,15 @@ def play_permanent(cost):
     return CastPermanentSpell(effects, txt="Play spell")
 
 # Decorators for effects of cards
-def play_sorcery(card):
+def play_sorcery():
     def make_spell(effects):
-        card.play_spell = CastSorcerySpell(effects, txt="Play spell")
+        global play_spell
+        return CastSorcerySpell(effects, txt="Play spell")
     return make_spell
 
-def play_instant(card):
+def play_instant():
     def make_spell(effects):
-        card.play_spell = CastInstantSpell(effects, txt="Play spell")
+        return CastInstantSpell(effects, txt="Play spell")
     return make_spell
 
 def modal(*modes, **kw):
@@ -82,25 +84,25 @@ def modal_triggered(*modes, **kw):
         return modal_effects
     return make_modal
 
-def mana(card, limit=None, zone='play', txt=''):
+def mana(limit=None, zone='play', txt=''):
     def make_ability(effects):
-        card.abilities.add(ManaAbility(effects, limit, zone, txt))
+        return ManaAbility(effects, limit, zone, txt)
     return make_ability
 
-def activated(card, limit=None, zone='play', txt=''):
+def activated(limit=None, zone='play', txt=''):
     def make_ability(effects):
-       card.abilities.add(ActivatedAbility(effects, limit, zone, txt))
+       return ActivatedAbility(effects, limit, zone, txt)
     return make_ability
 
-def triggered(card, triggers, expiry=-1, zone="play", txt=''):
+def triggered(triggers, expiry=-1, zone="play", txt=''):
     if not (type(triggers) == list or type(triggers) == tuple): triggers=[triggers]
     def make_triggered(ability):
         condition, effects = ability()
-        card.abilities.add(TriggeredAbility(triggers, condition, effects, expiry, zone, txt))
+        return TriggeredAbility(triggers, condition, effects, expiry, zone, txt)
     return make_triggered
 
-def static_tracking(card, events=[], tracking="play", zone="play", txt=''):
+def static_tracking(events=[], tracking="play", zone="play", txt=''):
     def make_ability(ability):
         condition, effects = ability()
-        card.abilities.add(CardTrackingAbility(effects, condition, events, tracking, zone, txt))
+        return CardTrackingAbility(effects, condition, events, tracking, zone, txt)
     return make_ability

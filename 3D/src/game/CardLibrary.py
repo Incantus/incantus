@@ -124,6 +124,7 @@ in_play_role = Permanent(card, %s())
         # Now set up the card
         # This is a bit of a hack to get everything to load properly
         card.card = card
+        card.abilities = card.base_abilities
         try:
             exec card_code in vars(CardEnvironment), vars(card)
         except Exception, e:

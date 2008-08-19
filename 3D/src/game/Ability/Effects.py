@@ -38,8 +38,3 @@ def set_toughness(target, toughness):
 def switch_power_toughness(target):
     PT = PowerToughnessSwitcher()
     return target.PT_switch_modifiers.add(PT)
-
-def add_activated(target, effects, is_mana=False):
-    if not is_mana: ability_cls = ActivatedAbility
-    else: ability_cls = ManaAbility
-    return target.abilities.add_abilities(ability_cls(effects))
