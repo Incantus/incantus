@@ -72,9 +72,12 @@ class Player(MtGObject):
         self.library.enable_ordering()
     def shuffleLibrary(self):
         self.library.shuffle()
-    def may(self, msg, action):
-        if self.getIntention(prompt="You may %s"%msg,msg="Would you like to %s?"%msg):
-            return action()
+    def you_may(self, msg): return self.getIntention(prompt="You may %s"%msg,msg="Would you like to %s?"%msg)
+    def you_may_pay(self, source, cost):
+        intent = self.getIntention(prompt="You may pay %s"%cost, msg="Would you like to pay %s"%cost)
+        if intent and cost.precompute(source, self) and cost.compute(source, self):
+            cost.pay(source, self)
+            return True
         else: return False
     def draw(self):
         card = self.library.top()
