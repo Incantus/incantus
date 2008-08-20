@@ -110,28 +110,27 @@ class EquipmentStaticAbility(AttachedStaticAbility): pass
 
 
 # The condition is checked every timestep
-# XXX enteringZone and leavingZone are currently broken
 class Conditional(MtGObject):
-    def init_condition(self, condition=lambda card: True):
+    def init_condition(self, condition=lambda source: True):
         self.condition = condition
-        self.activated = False
+        self._enabled = False
     def enteringZone(self, source):
         self.source = source
         self.register(self.check_condition, event=TimestepEvent())
         self.check_condition()
     def leavingZone(self):
         self.unregister(self.check_condition, event=TimestepEvent())
-        if self.activated:
-            self.activated = False
+        if self._enabled:
+            self._enabled = False
             super(Conditional, self).leavingZone()
     def check_condition(self):
         pass_condition = self.condition(self.source)
-        if not self.activated and pass_condition:
+        if not self._enabled and pass_condition:
             super(Conditional, self).enteringZone(self.source)
-            self.activated = True
-        elif self.activated and not pass_condition:
+            self._enabled = True
+        elif self._enabled and not pass_condition:
             super(Conditional, self).leavingZone()
-            self.activated = False
+            self._enabled = False
 
 class ConditionalAttachedStaticAbility(Conditional, AttachedStaticAbility):
     def __init__(self, effects, condition, zone="play", txt=''):

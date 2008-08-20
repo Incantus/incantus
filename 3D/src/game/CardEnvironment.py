@@ -16,7 +16,9 @@ from Ability.Target import *
 from Ability.Trigger import *
 from Ability.Cost import *
 from Ability.Counters import *
+from Ability.Limit import *
 from Ability.Effects import *
+from Ability.MemoryVariable import *
 
 from Ability.CreatureAbility import *
 #from Ability.PermanentAbility import *
@@ -25,7 +27,6 @@ from Ability.CreatureAbility import *
 #from Ability.MorningtideAbility import *
 #from Ability.ShadowmoorAbility import *
 #from Ability.EventideAbility import *
-from Ability.MemoryVariable import *
 
 damage_tracker = DamageTrackingVariable()
 graveyard_tracker = ZoneMoveVariable(from_zone="play", to_zone="graveyard")
@@ -105,4 +106,13 @@ def static_tracking(events=[], tracking="play", zone="play", txt=''):
     def make_ability(ability):
         condition, effects = ability()
         return CardTrackingAbility(effects, condition, events, tracking, zone, txt)
+    return make_ability
+
+no_condition = None
+
+def static(zone="play", txt=''):
+    def make_ability(ability):
+        condition, effects = ability()
+        if condition: return ConditionalStaticAbility(effects, condition, zone, txt)
+        else: return CardStaticAbility(effects, zone, txt)
     return make_ability
