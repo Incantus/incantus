@@ -77,7 +77,7 @@ class GameObject(MtGObject):
             self._current_role = role
         return locals()
     current_role = property(**current_role())
-    def move_to(self, to_zone, position=-1):
+    def move_to(self, to_zone, position="top"):
         to_zone.move_card(self, position)
     # I should probably get rid of the getattr call, and make everybody refer to current_role directly
     # But that makes the code so much uglier
@@ -100,7 +100,7 @@ class Card(GameObject):
         return self.name
 
 class Token(GameObject):
-    def move_to(self, to_zone, position=-1):
+    def move_to(self, to_zone, position="top"):
         super(Token, self).move_to(to_zone, position)
         if not str(to_zone) == "play": self.send(TokenLeavingPlay())
     def __str__(self):

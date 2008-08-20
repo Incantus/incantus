@@ -44,7 +44,7 @@ class GameRole(MtGObject):
     def leavingZone(self, zone): self.abilities.leavingZone(zone)
     def match_role(self, matchrole):
         return matchrole == self.__class__
-    def move_to(self, zone, position=-1):
+    def move_to(self, zone, position="top"):
         self.card.move_to(zone, position)
     def __deepcopy__(self,memo,mutable=set([list,set,dict])):
         newcopy = copy.copy(self)

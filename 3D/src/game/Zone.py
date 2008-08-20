@@ -30,14 +30,15 @@ class Zone(MtGObject):
         card.zone = None
         self.send(event, card=card)
         self.after_card_removed(card)
-    def _insert_card(self, card, position=-1):
+    def _insert_card(self, card, position):
         card.zone._remove_card(card)
         self.before_card_added(card)
-        if position == -1: self.cards.append(card)
+        if position == "top": self.cards.append(card)
+        elif position == "bottom": self.cards.insert(0, card)
         else: self.cards.insert(position, card)
         card.zone = self
         self.send(CardEnteredZone(), card=card)
-    def move_card(self, card, position=-1):
+    def move_card(self, card, position):
         self.send(CardEnteringZone(), card=card)
         old_zone = card.zone
         old_zone.send(CardLeavingZone(), card=card)
@@ -56,9 +57,9 @@ class OrderedZone(Zone):
         self.pending_top = []
         self.pending_bottom = []
         self.register(self.commit, TimestepEvent())
-    def _insert_card(self, card, position=-1):
+    def _insert_card(self, card, position):
         self.pending = True
-        if position == -1: self.pending_top.append(card)
+        if position == "top": self.pending_top.append(card)
         else: self.pending_bottom.append(card)
     def get_card_order(self, cardlist, pos):
         if len(cardlist) > 1:
@@ -106,7 +107,8 @@ class AddingCardsMixin(object):
     def _insert_card_unordered(self, card, position):
         # XXX Same as Zone._insert_card
         self.before_card_added(card)
-        if position == -1: self.cards.append(card)
+        if position == "top": self.cards.append(card)
+        elif position == "bottom": self.cards.insert(0, card)
         else: self.cards.insert(position, card)
         card.zone = self
         self.send(CardEnteredZone(), card=card)
@@ -120,7 +122,7 @@ class Library(OutPlayMixin, AddingCardsMixin, OrderedZone):
         self.ordering = True
     def disable_ordering(self):
         self.ordering = False
-    def _insert_card(self, card, position=-1):
+    def _insert_card(self, card, position):
         card.zone._remove_card(card)
         if self.ordering:
             super(Library, self)._insert_card(card, position)
@@ -145,7 +147,7 @@ class PlayView(object):
         else: return [card for card in self.play if match(card) and card.controller == self.player]
     def __getattr__(self, attr):
         return getattr(self.play, attr)
-    def move_card(self, card, position=-1):
+    def move_card(self, card, position):
         self.play.move_card(card, position, self.player)
 
 class Play(AddingCardsMixin, OrderedZone):
@@ -170,7 +172,7 @@ class Play(AddingCardsMixin, OrderedZone):
                     cards.reverse()
                 cardlist.extend(cards)
         return cardlist
-    def move_card(self, card, position=-1, controller=None):
+    def move_card(self, card, position, controller=None):
         self.controllers[card] = controller
         super(Play, self).move_card(card, position)
     def before_card_added(self, card):
