@@ -70,9 +70,9 @@ class stacked_characteristic(object):
                 self._stacking.remove(char)
                 self.card.send(self.change_event)
         return remove
-    def set_characteristic(self, new_char):
+    def set(self, new_char):
         return self._insert_into_stacking(characteristic(new_char))
-    def add_characteristic(self, new_char):
+    def add(self, new_char):
         return self._insert_into_stacking(additional_characteristic(new_char))
     def add_all(self):
         return self._insert_into_stacking(all_characteristics())
