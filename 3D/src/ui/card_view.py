@@ -319,7 +319,7 @@ class StackView(CardView):
         self.visible = anim.constant(0)
         self.header = Label("Stack", halign="left", valign="top")
         self.header.pos = euclid.Vector3(0,0,0)
-        self.text = Label("", halign="left", valign="center", background=True)
+        self.text = Label("", halign="left", valign="center", shadow=False, background=True)
         self.text.visible = anim.animate(0, 0, dt=0.4, method="linear")
         self.width = anim.animate(0, 0, dt=0.4, method="sine")
         self.height = anim.animate(0, 0, dt=0.4, method="sine")
