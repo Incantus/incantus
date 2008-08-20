@@ -258,15 +258,15 @@ class GameKeeper(MtGObject):
 
         tramplers = []
         def check_strike(card):
-            return ((first_strike and ("first-strike" in card.keywords or "double-strike" in card.keywords)) or
-               (not first_strike and not ("first-strike" in card.keywords)))
+            return ((first_strike and ("first-strike" in card.abilities or "double-strike" in card.abilities)) or
+               (not first_strike and not ("first-strike" in card.abilities)))
         for attacker, blockers in new_combat_list:
             if check_strike(attacker):
                 if not attacker.blocked:
                     # XXX I should check that the attacker can damage the player
                     damage = {self.other_player: attacker.combatDamage()}
                 else:
-                    if "trample" in attacker.keywords:
+                    if "trample" in attacker.abilities:
                         trampling = True
                         tramplers.append(attacker)
                     else: trampling = False

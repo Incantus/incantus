@@ -6,7 +6,6 @@ from Mana import ManaPool
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
 from Match import isCreature, isPlayer, isGameObject, isCard, isLandType
-from data_structures import keywords
 
 class Player(MtGObject):
     def life():
@@ -38,7 +37,6 @@ class Player(MtGObject):
         self.draw_empty = False
         self.opponent = None
         self.decklist = []
-        self.keywords = keywords()
         self.current_role = self    # XXX This is an ugly hack to get targetting to work uniformly
     def match_role(self, role): return False    # XXX This is an ugly hack to get targetting to work uniformly
     def init(self, play, stack):

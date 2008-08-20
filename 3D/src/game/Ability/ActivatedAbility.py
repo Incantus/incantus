@@ -4,11 +4,13 @@ from Limit import Unlimited
 class CostAbility(Ability):
     zone = "play"
     limit_type = Unlimited   # This is because if instantiate when the class is created, all the signalling is cleared
-    def __init__(self, effects, limit=None, zone=None, txt=''):
+    def __init__(self, effects, limit=None, zone=None, txt='', keyword=''):
         super(CostAbility,self).__init__(effects, txt=txt)
         if limit: self.limit = limit
         else: self.limit = self.limit_type()
         if zone: self.zone = zone
+        if keyword: self.txt = keyword.title()
+        self.keyword = keyword
     def playable(self, source):
         return (self.zone == "all" or str(source.zone) == self.zone) and self.limit(source)
     def do_announce(self):

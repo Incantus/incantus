@@ -1,7 +1,6 @@
 import copy
 from pydispatch import dispatcher
 from GameEvent import TokenLeavingPlay, ColorModifiedEvent, SubtypeModifiedEvent, SupertypeModifiedEvent
-from data_structures import keywords
 from abilities import abilities, stacked_abilities
 from characteristics import stacked_characteristic
 
@@ -50,7 +49,6 @@ class GameObject(MtGObject):
         self.base_type = None
         self.base_subtypes = None
         self.base_supertype = None
-        self.base_keywords = self.keywords = keywords()
         self.base_abilities = abilities()
         self.play_spell = None
 
@@ -76,7 +74,6 @@ class GameObject(MtGObject):
             role.subtypes = stacked_characteristic(self, self.base_subtypes, SubtypeModifiedEvent())
             role.supertype = stacked_characteristic(self, self.base_supertype, SupertypeModifiedEvent)
             role.abilities = stacked_abilities(self, self.base_abilities)
-            role.keywords = copy.deepcopy(self.base_keywords)
             self._current_role = role
         return locals()
     current_role = property(**current_role())

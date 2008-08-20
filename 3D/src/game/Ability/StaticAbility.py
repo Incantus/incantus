@@ -6,12 +6,14 @@ from game.GameEvent import ControllerChanged, SubroleModifiedEvent, TimestepEven
 
 # Static abilities always function while the permanent is in the relevant zone
 class StaticAbility(object):
-    def __init__(self, effects, zone="play", txt=''):
-        self.effects = effects
+    def __init__(self, effects, zone="play", txt='', keyword=''):
+        self.effect_generator = effects
         self.zone = zone
-        self.txt = txt
+        if keyword: self.txt = keyword.title()
+        else: self.txt = txt
+        self.keyword = keyword
         self.effect_tracking = None
-    def enteringZone(self): pass
+    def enteringZone(self, source): pass
     def leavingZone(self): pass
     def copy(self): return copy.copy(self)
     def __str__(self): return self.txt
@@ -21,6 +23,7 @@ class CardTrackingAbility(StaticAbility):
         super(CardTrackingAbility, self).__init__(effects, zone, txt)
         self.enter_trigger = EnterTrigger(tracking, player="any")
         self.leave_trigger = LeaveTrigger(tracking, player="any")
+        self.control_changed = Trigger(ControllerChanged(), sender="source")
         if not type(events) == list: events = [events]
         self.other_triggers = [Trigger(event) for event in [SubroleModifiedEvent(), ControllerChanged()] + events]
         self.condition = condition
@@ -41,7 +44,6 @@ class CardTrackingAbility(StaticAbility):
         # Get all cards in the tracked zone
         for card in self.get_current(): self.add_effects(card)
 
-        self.control_changed = Trigger(ControllerChanged(), sender=self.source)
         self.enter_trigger.setup_trigger(self.source, self.entering, self.condition)
         self.leave_trigger.setup_trigger(self.source, self.leaving)
         self.control_changed.setup_trigger(self.source, self.new_controller)
@@ -70,11 +72,9 @@ class CardTrackingAbility(StaticAbility):
         if card in self.effect_tracking: self.remove_effects(card)
     def add_effects(self, card):
         self.effect_tracking[card] = True  # this is to prevent recursion when the effect is called
-        effects = self.effects(card)
-        self.effect_tracking[card] = [removal_func for removal_func in effects]
+        self.effect_tracking[card] = [removal_func for removal_func in self.effect_generator(card)]
     def remove_effects(self, card):
-        removal = self.effect_tracking[card]
-        for remove in removal: remove()
+        for remove in self.effect_tracking[card]: remove()
         del self.effect_tracking[card]   # necessary to prevent recursion
     def card_changed(self, sender):
         tracking = sender in self.effect_tracking
@@ -85,31 +85,16 @@ class CardTrackingAbility(StaticAbility):
         elif tracking and not pass_condition and not self.effect_tracking[sender] == True: self.remove_effects(sender)
 
 class CardStaticAbility(StaticAbility):
-    # Target is the card itself
-    def enteringZone(self):
-        effect_removal = []
-        for effect in self.effects: effect_removal.append(effect(self.source, self.source))
-        self.effect_tracking = effect_removal
-    def leavingZone(self):
-        for remove in self.effect_tracking: remove()
-        self.effect_tracking = None
-
-class GlobalStaticAbility(StaticAbility):
-    # Target is the cards controller
-    def enteringZone(self):
-        effect_removal = []
-        for effect in self.effects: effect_removal.append(effect(self.source, self.source.controller))
-        self.effect_tracking = effect_removal
+    def enteringZone(self, source):
+        self.effect_tracking = [removal_func for removal_func in self.effect_generator(source)]
     def leavingZone(self):
         for remove in self.effect_tracking: remove()
         self.effect_tracking = None
 
 class AttachedStaticAbility(StaticAbility):
     # Target is the card which is attached
-    def enteringZone(self):
-        effect_removal = []
-        for effect in self.effects: effect_removal.append(effect(self.source, self.source.attached_to))
-        self.effect_tracking = effect_removal
+    def enteringZone(self, source):
+        self.effect_tracking = [removal_func for removal_func in self.effect_generator(source)]
     def leavingZone(self):
         for remove in self.effect_tracking: remove()
         self.effect_tracking = None
@@ -120,6 +105,7 @@ class EquipmentStaticAbility(AttachedStaticAbility): pass
 
 
 # The condition is checked every timestep
+# XXX enteringZone and leavingZone are currently broken
 class Conditional(MtGObject):
     def init_condition(self, condition=lambda card: True):
         self.condition = condition

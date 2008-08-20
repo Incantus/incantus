@@ -17,7 +17,8 @@ from Ability.Trigger import *
 from Ability.Cost import *
 from Ability.Counters import *
 from Ability.Effects import *
-#from Ability.CreatureAbility import *
+
+from Ability.CreatureAbility import *
 #from Ability.PermanentAbility import *
 #from Ability.CyclingAbility import *
 #from Ability.LorwynAbility import *
@@ -95,7 +96,6 @@ def activated(limit=None, zone='play', txt=''):
     return make_ability
 
 def triggered(triggers, expiry=-1, zone="play", txt=''):
-    if not (type(triggers) == list or type(triggers) == tuple): triggers=[triggers]
     def make_triggered(ability):
         condition, effects = ability()
         return TriggeredAbility(triggers, condition, effects, expiry, zone, txt)

@@ -15,8 +15,6 @@ class GameRole(MtGObject):
             subtypes = str(self.subtypes)
             if subtypes: txt.append(" - %s"%subtypes)
             #txt.append("\n\n"+'\n'.join(self.text))
-            #keywords = str(self.keywords)
-            #if keywords: txt.append('\n\n%s'%keywords)
             abilities = str(self.abilities)
             if abilities: txt.append('\n\n%s'%abilities)
             counters = ', '.join([str(c) for c in self.counters])
@@ -326,7 +324,7 @@ class Creature(SubRole):
     def assignDamage(self, amt, source, combat=False):
         from Ability.Counters import PowerToughnessCounter
         if amt > 0:
-            if "wither" in source.keywords:
+            if "wither" in source.abilities:
                 for counter in [PowerToughnessCounter(-1, -1) for i in range(amt)]:
                     self.card.counters.append(counter)
                     self.send(CounterAddedEvent(), counter=counter)

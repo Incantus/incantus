@@ -11,14 +11,16 @@ class TriggeredStackAbility(Ability):
         return self.get_targets()
 
 class TriggeredAbility(object):
-    def __init__(self, triggers, condition, effects, expiry=-1, zone="play", txt=''):
+    def __init__(self, triggers, condition, effects, expiry=-1, zone="play", txt='Triggered Ability', keyword=''):
+        if not (type(triggers) == list or type(triggers) == tuple): triggers=[triggers]
         self.triggers = triggers
         self.condition = condition
         self.effects = effects
         self.expiry = expiry
         self.zone = zone
-        if not txt: txt = 'Triggered Ability'
-        self.txt = txt
+        if keyword: self.txt = keyword.title()
+        else: self.txt = txt
+        self.keyword = keyword
     def enteringZone(self, source):
         self.source = source
         for trigger in self.triggers:

@@ -4,10 +4,14 @@ class abilities(object):
     # Internally stored as a list
     def __init__(self):
         self._abilities = []
+        self._keywords = set()
         self.enabled = False
     def __len__(self): return len(self._abilities)
+    def __contains__(self, keyword): # This is to match keyword abilities
+        return keyword in self._keywords
     def add(self, ability):
         self._abilities.append(ability)
+        if ability.keyword: self._keywords.add(ability.keyword)
     def activated(self, source):
         return [ability for ability in self._abilities if hasattr(ability, "activated") and ability.playable(source)]
     def enteringZone(self, zone, source):
@@ -27,6 +31,8 @@ class additional_abilities(abilities):
         super(additional_abilities, self).__init__()
         if not type(abilities) == list: abilities = [abilities]
         self._abilities.extend(abilities)
+        for ability in abilities:
+            if ability.keyword: self._keywords.add(ability.keyword)
 class no_abilities(object): pass
 class remove_ability(object):
     def __init__(self, keyword):
@@ -44,7 +50,7 @@ class stacked_abilities(object):
             if isinstance(a, no_abilities): break
             else: s.append(str(a))
         return '\n'.join(s)
-    def add_abilities(self, abilities):
+    def add(self, abilities):
         abilities = additional_abilities(abilities)
         self._stacking.insert(0, abilities)
         abilities.enteringZone(self.zone, self.source)
@@ -96,6 +102,7 @@ class stacked_abilities(object):
         return total
     def activated(self): return self.process_stacked("activated", [], self.source)
     def __len__(self): return self.process_stacked("__len__", 0)
+    def __contains__(self, keyword): return self.process_stacked("__contains__", False, keyword) > 0
     def enteringZone(self, zone):
         self.zone = zone
         for a in self._stacking: a.enteringZone(zone, self.source)
