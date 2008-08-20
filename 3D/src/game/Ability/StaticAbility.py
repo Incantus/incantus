@@ -13,7 +13,7 @@ class StaticAbility(object):
         else: self.txt = txt
         self.keyword = keyword
         self.effect_tracking = None
-    def enteringZone(self, source): pass
+    def enteringZone(self, source): self.source = source
     def leavingZone(self): pass
     def copy(self): return copy.copy(self)
     def __str__(self): return self.txt
@@ -39,7 +39,7 @@ class CardTrackingAbility(StaticAbility):
             cards = zone.get(zone_condition) + opp_zone.get(zone_condition)
         return cards
     def enteringZone(self, source):
-        self.source = source
+        super(CardTrackingAbility, self).enteringZone(source)
         self.effect_tracking = {}
         # Get all cards in the tracked zone
         for card in self.get_current(): self.add_effects(card)
@@ -49,6 +49,7 @@ class CardTrackingAbility(StaticAbility):
         self.control_changed.setup_trigger(self.source, self.new_controller)
         for trigger in self.other_triggers: trigger.setup_trigger(self.source, self.card_changed)
     def leavingZone(self):
+        super(CardTrackingAbility, self).leavingZone()
         self.enter_trigger.clear_trigger()
         self.leave_trigger.clear_trigger()
         self.control_changed.clear_trigger()
@@ -86,16 +87,20 @@ class CardTrackingAbility(StaticAbility):
 
 class CardStaticAbility(StaticAbility):
     def enteringZone(self, source):
+        super(CardStaticAbility, self).enteringZone(source)
         self.effect_tracking = [removal_func for removal_func in self.effect_generator(source)]
     def leavingZone(self):
+        super(CardStaticAbility, self).leavingZone()
         for remove in self.effect_tracking: remove()
         self.effect_tracking = None
 
 class AttachedStaticAbility(StaticAbility):
     # Target is the card which is attached
     def enteringZone(self, source):
+        super(AttachedStaticAbility, self).enteringZone(source)
         self.effect_tracking = [removal_func for removal_func in self.effect_generator(source)]
     def leavingZone(self):
+        super(AttachedStaticAbility, self).leavingZone()
         for remove in self.effect_tracking: remove()
         self.effect_tracking = None
 
@@ -110,7 +115,8 @@ class Conditional(MtGObject):
     def init_condition(self, condition=lambda card: True):
         self.condition = condition
         self.activated = False
-    def enteringZone(self):
+    def enteringZone(self, source):
+        self.source = source
         self.register(self.check_condition, event=TimestepEvent())
         self.check_condition()
     def leavingZone(self):
@@ -121,7 +127,7 @@ class Conditional(MtGObject):
     def check_condition(self):
         pass_condition = self.condition(self.source)
         if not self.activated and pass_condition:
-            super(Conditional, self).enteringZone()
+            super(Conditional, self).enteringZone(self.source)
             self.activated = True
         elif self.activated and not pass_condition:
             super(Conditional, self).leavingZone()
