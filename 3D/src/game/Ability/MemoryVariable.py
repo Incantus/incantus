@@ -92,8 +92,8 @@ class PlaySpellVariable(MemoryVariable):
         self.condition = condition
         self.register(self.played, event=SpellPlayedEvent())
         super(PlaySpellVariable, self).__init__()
-    def played(self, sender, card):
-        if self.condition(card):
+    def played(self, sender, spell):
+        if self.condition(spell):
             self.was_played = True
     def value(self): return self.was_played
     def reset(self): self.was_played = False
