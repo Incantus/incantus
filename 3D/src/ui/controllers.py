@@ -788,8 +788,8 @@ class StackController(object):
         # Get targets
         targets = self.stack_gui.focused.ability.targets
         for t in targets:
-            if not isinstance(t, MultipleTargets): t = [t.target] #or isinstance(t, AllPermanentTargets) or isinstance(t, AllPlayerTargets)): t = [t.target]
-            else: t = t.target
+            if not isinstance(t, MultipleTargets): t = [t.get_targeted()] #or isinstance(t, AllPermanentTargets) or isinstance(t, AllPlayerTargets)): t = [t.target]
+            else: t = t.get_targeted()
             for i, tt in enumerate(t):
                 if tt == None: continue  # For delayed targeting abilities, like champion
                 if isAbility(tt):
