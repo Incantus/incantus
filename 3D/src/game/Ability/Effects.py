@@ -2,9 +2,8 @@ from game.pydispatch import dispatcher
 from game.CardEnvironment import *
 from game.abilities import stacked_abilities
 
-def until_end_of_turn(restore):
-    dispatcher.connect(restore, signal=CleanupEvent(), weak=False, expiry=1)
-    return restore
+def until_end_of_turn(*restores):
+    for restore in restores: dispatcher.connect(restore, signal=CleanupEvent(), weak=False, expiry=1)
 
 def change_controller(target, new_controller):
     if not isPlayer(new_controller): raise Exception()
