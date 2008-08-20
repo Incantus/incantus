@@ -1,4 +1,4 @@
-from game.GameEvent import SpellPlayedEvent
+from game.GameEvent import SpellPlayedEvent, TimestepEvent
 from ActivatedAbility import CostAbility
 from Limit import SorceryLimit, MultipleLimits
 
@@ -30,6 +30,7 @@ class EnchantAbility(CastSpell):
     limit_type = SorceryLimit
     def resolved(self):
         self.source.move_to(self.controller.play)
+        self.source.send(TimestepEvent())
         self.source.attach(self.targets[0].target)
 
 class CastNonPermanentSpell(CastSpell):

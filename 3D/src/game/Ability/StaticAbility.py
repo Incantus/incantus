@@ -94,21 +94,6 @@ class CardStaticAbility(StaticAbility):
         for remove in self.effect_tracking: remove()
         self.effect_tracking = None
 
-class AttachedStaticAbility(StaticAbility):
-    # Target is the card which is attached
-    def enteringZone(self, source):
-        super(AttachedStaticAbility, self).enteringZone(source)
-        self.effect_tracking = [removal_func for removal_func in self.effect_generator(source)]
-    def leavingZone(self):
-        super(AttachedStaticAbility, self).leavingZone()
-        for remove in self.effect_tracking: remove()
-        self.effect_tracking = None
-
-# If the attachment target is destroyed, the aura will be destroyed, and the target is no longer valid
-class AuraStaticAbility(AttachedStaticAbility): pass
-class EquipmentStaticAbility(AttachedStaticAbility): pass
-
-
 # The condition is checked every timestep
 class Conditional(MtGObject):
     def init_condition(self, condition=lambda source: True):
@@ -131,11 +116,6 @@ class Conditional(MtGObject):
         elif self._enabled and not pass_condition:
             super(Conditional, self).leavingZone()
             self._enabled = False
-
-class ConditionalAttachedStaticAbility(Conditional, AttachedStaticAbility):
-    def __init__(self, effects, condition, zone="play", txt=''):
-        super(ConditionalAttachedStaticAbility, self).__init__(effects, zone, txt)
-        self.init_condition(condition)
 
 class ConditionalStaticAbility(Conditional, CardStaticAbility):
     def __init__(self, effects, condition, zone="play", txt=''):

@@ -12,6 +12,7 @@ class abilities(object):
     def add(self, ability):
         self._abilities.append(ability)
         if ability.keyword: self._keywords.add(ability.keyword)
+    def attached(self): return [ability for ability in self._abilities if ability.zone == "attached"]
     def activated(self, source):
         return [ability for ability in self._abilities if hasattr(ability, "activated") and ability.playable(source)]
     def enteringZone(self, zone, source):
@@ -100,6 +101,7 @@ class stacked_abilities(object):
             if isinstance(a, no_abilities): break
             else: total += getattr(a, func).__call__(*args)
         return total
+    def attached(self): return self.process_stacked("attached", [])
     def activated(self): return self.process_stacked("activated", [], self.source)
     def __len__(self): return self.process_stacked("__len__", 0)
     def __contains__(self, keyword): return self.process_stacked("__contains__", False, keyword) > 0

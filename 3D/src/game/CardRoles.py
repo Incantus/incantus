@@ -430,13 +430,12 @@ class Artifact(SubRole): pass
 class Enchantment(SubRole): pass
 
 class Attachment(object):
-    def __init__(self):
-        self.attached_abilities = []
+    attached_abilities = property(fget=lambda self: self.perm.abilities.attached())
     def attach(self, target):
         if self.attached_to != None: self.unattach()
         self.attached_to = target
         self.attached_to.attachments.append(self.perm.card)
-        for ability in self.attached_abilities: ability.enteringZone()
+        for ability in self.attached_abilities: ability.enteringZone(target)
         self.send(AttachedEvent(), attached=self.attached_to)
         return True
     def unattach(self):

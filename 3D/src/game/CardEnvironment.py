@@ -32,13 +32,21 @@ damage_tracker = DamageTrackingVariable()
 graveyard_tracker = ZoneMoveVariable(from_zone="play", to_zone="graveyard")
 
 def play_permanent(cost):
-    global play_spell
     if type(cost) == str: cost = ManaCost(cost)
     def effects(source):
         yield cost
         yield NoTarget()
         yield
     return CastPermanentSpell(effects, txt="Play spell")
+
+def play_aura(cost, target_type):
+    if type(cost) == str: cost = ManaCost(cost)
+    def effects(source):
+        yield cost
+        target = yield Target(target_type)
+        yield
+    return EnchantAbility(effects, txt="Enchant %s"%target_type)
+
 
 # Decorators for effects of cards
 def play_sorcery():
@@ -111,6 +119,13 @@ def static_tracking(events=[], tracking="play", zone="play", txt=''):
 no_condition = None
 
 def static(zone="play", txt=''):
+    def make_ability(ability):
+        condition, effects = ability()
+        if condition: return ConditionalStaticAbility(effects, condition, zone, txt)
+        else: return CardStaticAbility(effects, zone, txt)
+    return make_ability
+
+def attached(zone="attached", txt=''):
     def make_ability(ability):
         condition, effects = ability()
         if condition: return ConditionalStaticAbility(effects, condition, zone, txt)

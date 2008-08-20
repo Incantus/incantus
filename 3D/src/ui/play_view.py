@@ -222,7 +222,7 @@ class PlayView(Widget):
                     self.lands[key].append(guicard)
                     break
             else: self.lands['Other'].append(guicard)
-        elif Match.isAura(card): self.attached.append(guicard)
+        #elif Match.isAura(card): self.attached.append(guicard)
         else: self.other_perms.insert(0, guicard)
         guicard._orientation.set(euclid.Quaternion.new_rotate_axis(-math.pi/2, euclid.Vector3(1,0,0)))
         if self.is_opponent_view: guicard.orientation *= euclid.Quaternion.new_rotate_axis(math.pi, euclid.Vector3(0,0,1))
