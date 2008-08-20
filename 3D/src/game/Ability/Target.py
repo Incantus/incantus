@@ -169,8 +169,9 @@ class StackTarget(object):
             self.target_types = [target_types]
         else: self.target_types = target_types
         self.msg = msg
+    def get_targeted(self): return self.target
     def check_target(self, card):
-        return card.controller.stack.on_stack(self.target)
+        return self.target in card.controller.stack
     def get(self, card):
         if self.msg: prompt=self.msg
         elif self.target_types: prompt="Target %s for %s"%(' or '.join([str(t) for t in self.target_types]), card)

@@ -17,7 +17,7 @@ def persistent_id(obj):
     elif isinstance(obj,Player):
         persid = pickle.dumps(("Player", obj.name), 2)
     elif isinstance(obj,Ability):
-        persid = pickle.dumps(("Ability", stack.find(obj)), 2)
+        persid = pickle.dumps(("Ability", stack.index(obj)), 2)
     return persid
 
 def persistent_load(persid):
@@ -27,7 +27,7 @@ def persistent_load(persid):
     elif id == "Player":
         return players[val]
     elif id == "Ability":
-        return stack.stack[val]
+        return stack[val]
     else:
         raise pickle.UnpicklingError("Invalid persistent id")
 
