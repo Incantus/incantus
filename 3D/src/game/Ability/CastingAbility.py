@@ -15,7 +15,7 @@ class CastSpell(CostAbility):
         # Don't change this order, otherwise abilities triggering on playing the spell
         # will be put on the stack before the played spell
         super(CastSpell, self).played()
-        self.controller.send(SpellPlayedEvent(), card=self.source)
+        self.controller.send(SpellPlayedEvent(), spell=self.source)
     def countered(self):
         self.source.move_to(self.source.owner.graveyard)
         super(CastSpell,self).countered()
