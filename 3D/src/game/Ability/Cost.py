@@ -326,16 +326,14 @@ class RemoveCounterCost(Cost):
         self.number = number
         self.cardtype = cardtype
     def enough_counters(self, perm):
-        counters = [c for c in perm.counters if c == self.counter_type]
-        return len(counters) >= self.number
+        return perm.num_counters(self.counter_type) >= self.number
     def precompute(self, card, player):
         if self.cardtype == None: return True
         else: return any((True for perm in player.play.get(self.cardtype) if self.enough_counters(perm)))
     def compute(self, card, player):
-        self.targets = []
         if self.cardtype == None:
             # Target myself
-            if self.enough_counters(card): self.targets.append(card)
+            if self.enough_counters(card): self.target = card
             else: return False
         else:
             prompt = "Select %s from which to remove %d %s counter(s)"%(self.cardtype, self.number, self.counter_type)
@@ -345,20 +343,12 @@ class RemoveCounterCost(Cost):
                 if not self.enough_counters(target):
                     prompt = "Card doesn't have enough %s counters - select again"%self.counter_type
                     player.send(InvalidTargetEvent(), target=target)
-                elif target in self.targets:
-                    prompt = "Card already selected - select again"
-                    player.send(InvalidTargetEvent(), target=target)
                 else:
-                    self.targets.append(target)
+                    self.target = target
                     break
         return True
     def pay(self, card, player):
-        for target in self.targets:
-            counters = [c for c in target.counters if c == self.counter_type]
-            for c in counters[:self.number]:
-                target.counters.remove(c)
-                target.send(CounterRemovedEvent(), counter=c)
-        self.payment = self.targets
+        self.payment = self.target.remove_counters(self.counter_type, self.number)
     def __str__(self):
         return "Remove %d %s counter(s)"%(self.number, self.counter_type)
 
@@ -371,30 +361,22 @@ class AddCounterCost(Cost):
         if self.cardtype == None: return True
         else: return len(player.play.get(self.cardtype)) >= self.number
     def compute(self, card, player):
-        self.targets = []
-        self.counters = [self.counter_type.copy() for i in range(self.number)]
         if self.cardtype == None:
             # Target myself
-            if str(card.zone) == "play": self.targets.append(card)
+            if str(card.zone) == "play": self.target = card
             else: return False
         else:
             prompt = "Select %s on which to place %d %s counter(s)"%(self.cardtype, self.number, self.counter_type)
             while True:
                 target = player.getTarget(self.cardtype, zone="play", controller=player, required=False, prompt=prompt)
                 if target == False: return False
-                if target in self.targets:
-                    prompt = "Card already selected - select again"
-                    player.send(InvalidTargetEvent(), target=target)
                 else:
-                    self.targets.append(target)
+                    self.target = target
                     break
         return True
     def pay(self, card, player):
-        for target in self.targets:
-            target.counters.extend(self.counters)
-            for i in range(self.number):
-                target.send(CounterAddedEvent(), counter=self.counters[i])
-        self.payment = self.targets
+        self.target.add_counters(self.counter_type, self.number)
+        self.payment = self.number
     def __str__(self):
         return "Add %d %s counter(s)"%(self.number, self.counter_type)
 
@@ -504,20 +486,11 @@ class LoyaltyCost(Cost):
     def __init__(self, number=0):
         self.number = number
     def compute(self, card, player):
-        from Ability.Counters import Counter
-        if self.number < 0:
-            number = -self.number
-            self.counters = [counter for counter in card.counters if counter == "loyalty"][:number]
-            return len(self.counters) >= number
-        else:
-            self.counters = [Counter("loyalty") for i in range(self.number)]
-            return True
+        if self.number < 0: return card.num_counters("loyalty") >= -self.number
+        else: return True
     def pay(self, card, player):
-        if self.number < 0: func, event = card.counters.remove, CounterRemovedEvent
-        else: func, event = card.counters.append, CounterAddedEvent
-        for counter in self.counters:
-            func(counter)
-            card.send(event(), counter=counter)
+        if self.number < 0: card.remove_counters("loyalty", -self.number)
+        else: card.add_counters("loyalty", self.number)
         self.payment = self.number
     def __str__(self):
         return "%d loyalty"%(self.number)

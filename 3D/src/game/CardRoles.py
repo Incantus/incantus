@@ -1,6 +1,7 @@
-import copy
+import copy, itertools
 from GameObjects import MtGObject
-from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, PermanentSacrificedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, ControllerChanged
+from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, PermanentSacrificedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, ControllerChanged
+from Ability.Counters import Counter, PowerToughnessCounter
 
 class GameRole(MtGObject):
     def info():
@@ -14,11 +15,9 @@ class GameRole(MtGObject):
             txt.append(str(self.type))
             subtypes = str(self.subtypes)
             if subtypes: txt.append(" - %s"%subtypes)
-            #txt.append("\n\n"+'\n'.join(self.text))
             abilities = str(self.abilities)
             if abilities: txt.append('\n\n%s'%abilities)
-            counters = ', '.join([str(c) for c in self.counters])
-            if counters: txt.append('\nCounters: %s'%counters)
+            if self.counters: txt.append('\nCounters: %s'%', '.join(map(str,self.counters)))
             subrole_info = self.subrole_info()
             if subrole_info: txt.append('\n\n'+subrole_info)
             return ''.join(txt)
@@ -28,24 +27,41 @@ class GameRole(MtGObject):
     zone = property(fget=lambda self: self.card.zone)
     def __init__(self, card):
         self.card = card
+        self._counters = []
     # the damage stuff seems kind of hacky
+    def send(self, *args, **named):
+        self.card.send(*args, **named)
     def dealDamage(self, target, amount, combat=False):
         final_dmg = 0
         if target.canBeDamagedBy(self.card) and amount > 0:
             final_dmg = target.assignDamage(amount, source=self.card, combat=combat)
-            if final_dmg > 0: self.card.send(DealsDamageToEvent(), to=target, amount=final_dmg, combat=combat)
-        #self.card.send(DealsDamageEvent(), amount=final_dmg, combat=combat)
+            if final_dmg > 0: self.send(DealsDamageToEvent(), to=target, amount=final_dmg, combat=combat)
+        #self.send(DealsDamageEvent(), amount=final_dmg, combat=combat)
         return final_dmg
     def canBeTargetedBy(self, targeter): return True
     def canBeAttachedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
-        self.card.send(TargetedByEvent(), targeter=targeter)
+        self.send(TargetedByEvent(), targeter=targeter)
     def enteringZone(self, zone): self.abilities.enteringZone(zone)
     def leavingZone(self, zone): self.abilities.leavingZone(zone)
     def match_role(self, matchrole):
         return matchrole == self.__class__
     def move_to(self, zone, position="top"):
         self.card.move_to(zone, position)
+    def add_counters(self, counter_type, number=1):
+        if type(counter_type) == str: counter_type = Counter(counter_type)
+        for counter in [counter_type.copy() for i in range(number)]:
+            self._counters.append(counter)
+            self.send(CounterAddedEvent(), counter=counter)
+    def remove_counters(self, counter_type, number=1):
+        num = 0
+        for counter in itertools.islice((c for c in self._counters if c == counter_type), number):
+            num += 1
+            self._counters.remove(counter)
+            self.send(CounterRemovedEvent(), counter=counter)
+        return num  # Return the number of counters we actually removed
+    def num_counters(self, counter=None): return len([c for c in self._counters if counter and c == counter])
+    counters = property(fget=lambda self: self._counters)
     def __deepcopy__(self,memo,mutable=set([list,set,dict])):
         newcopy = copy.copy(self)
         for attr, value in self.__dict__.iteritems():
@@ -84,7 +100,7 @@ class Permanent(GameRole):
             elif not controller == self._controller:
                 self._controller, old_controller = controller, self._controller
                 self.summoningSickness()
-                if old_controller: self.card.send(ControllerChanged(), original=old_controller)
+                if old_controller: self.send(ControllerChanged(), original=old_controller)
         return dict(doc=doc, fset=fset, fget=fget)
     controller = property(**controller())
     continuously_in_play = property(fget=lambda self: self._continuously_in_play)
@@ -97,7 +113,6 @@ class Permanent(GameRole):
         self.flipped = False
         self.facedown = False
         self.attachments = []
-        self.counters = []          # Any counters on permanent
         self._continuously_in_play = False
     def get_subrole(self, matchrole):
         for role in self.subroles:
@@ -106,14 +121,14 @@ class Permanent(GameRole):
     def add_subrole(self, role):
         role.enteringPlay(self)
         self.subroles.append(role)
-        self.card.send(SubRoleAddedEvent(), subrole=role)
+        self.send(SubRoleAddedEvent(), subrole=role)
     def remove_subrole(self, role):
         # XXX Is this correct - the role is only missing when card enters play, gains role for the turn,
         # and then is blinked back
         if role in self.subroles:
             role.leavingPlay()
             self.subroles.remove(role)
-            self.card.send(SubRoleRemovedEvent(), subrole=role)
+            self.send(SubRoleRemovedEvent(), subrole=role)
     def match_role(self, matchrole):
         success = False
         if matchrole == self.__class__: success = True
@@ -155,7 +170,7 @@ class Permanent(GameRole):
         # Don't tap if already tapped:
         if self.canBeTapped():
             self.tapped = True
-            self.card.send(CardTapped())
+            self.send(CardTapped())
             return True
         else: return False
     def canUntap(self):
@@ -163,7 +178,7 @@ class Permanent(GameRole):
     def untap(self):
         if self.tapped:
             self.tapped = False
-            self.card.send(CardUntapped())
+            self.send(CardUntapped())
             return True
         else: return False
     def shouldDestroy(self):
@@ -184,13 +199,11 @@ class Permanent(GameRole):
         return result
     def destroy(self, regenerate=True):
         if not regenerate or self.canDestroy():
-            card = self.card
-            card.move_to(card.owner.graveyard)
-            card.send(PermanentDestroyedEvent())
+            self.move_to(self.owner.graveyard)
+            self.send(PermanentDestroyedEvent())
     def sacrifice(self):
-        card = self.card
-        card.move_to(card.owner.graveyard)
-        card.send(PermanentSacrificedEvent())
+        self.move_to(self.owner.graveyard)
+        self.send(PermanentSacrificedEvent())
     def summoningSickness(self):
         def remove_summoning_sickness(player):
             if self.card.controller == player:
@@ -213,7 +226,7 @@ class Permanent(GameRole):
 class SubRole(object):
     def subrole_info(self): return ''
     def send(self, *args, **named):
-        self.perm.card.send(*args, **named)
+        self.perm.send(*args, **named)
     def register(self, *args, **named):
         self.perm.card.register(*args, **named)
     def unregister(self, *args, **named):
@@ -322,12 +335,8 @@ class Creature(SubRole):
     def currentDamage(self):
         return self.__damage
     def assignDamage(self, amt, source, combat=False):
-        from Ability.Counters import PowerToughnessCounter
         if amt > 0:
-            if "wither" in source.abilities:
-                for counter in [PowerToughnessCounter(-1, -1) for i in range(amt)]:
-                    self.card.counters.append(counter)
-                    self.send(CounterAddedEvent(), counter=counter)
+            if "wither" in source.abilities: self.perm.add_counters(PowerToughnessCounter(-1, -1), amt)
             else: self.__damage += amt
             self.send(ReceivesDamageEvent(), source=source, amount=amt, combat=combat)
         return amt
