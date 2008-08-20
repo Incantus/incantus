@@ -12,7 +12,7 @@ class AssignDamage(Ability):
                 targets.add(damager)
                 for d in damage_assn.keys():
                     targets.add(d)
-            target = MultipleTargets(len(targets))
+            target = MultipleTargets(len(targets), None)
             target.target = targets
             return [target]
         return locals()
