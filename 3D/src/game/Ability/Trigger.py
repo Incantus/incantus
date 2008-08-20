@@ -1,22 +1,13 @@
 import copy
 from game.GameObjects import MtGObject
 from game.GameEvent import DealsDamageEvent, ReceivesDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZone, CardLeavingZone, TimestepEvent
-from game.pydispatch import dispatcher
+from game.pydispatch.dispatcher import Any
 from game.pydispatch.robustapply import function
 
 def robustApply(receiver, **named):
     """Call receiver with arguments and an appropriate subset of named
     """
-    receiver, codeObject, startIndex = function( receiver )
-    acceptable = codeObject.co_varnames[startIndex:codeObject.co_argcount]
-    #for name in acceptable:
-    #    if name == "sender":
-    #        named[name] = arguments[0]
-    #        break
-    #    elif not named.has_key(name): break
-    #else: arguments = ()
-
-    #acceptable = codeObject.co_varnames[startIndex+len(arguments):codeObject.co_argcount]
+    receiver, codeObject, startIndex = function(receiver)
     acceptable = codeObject.co_varnames[startIndex:codeObject.co_argcount]
     if not (codeObject.co_flags & 8):
         # fc does not have a **kwds type parameter, therefore
@@ -24,11 +15,10 @@ def robustApply(receiver, **named):
         for arg in named.keys():
             if arg not in acceptable:
                 del named[arg]
-    #return receiver(*arguments, **named)
     return receiver(**named)
 
 class Trigger(MtGObject):
-    def __init__(self, event=None, sender=dispatcher.Any):
+    def __init__(self, event=None, sender=None):
         self.trigger_event = event
         self.trigger_sender = sender
         self.activated = False
@@ -39,12 +29,15 @@ class Trigger(MtGObject):
         self.trigger_function = trigger_function
         if match_condition: self.match_condition = match_condition
         else: self.match_condition = lambda *args: True
-        self.register(self.filter, event=self.trigger_event, sender=self.trigger_sender)
+        if self.trigger_sender == "source": sender = self.source
+        else: sender=Any
+        self.register(self.filter, event=self.trigger_event, sender=sender)
         self.activated = True
     def clear_trigger(self):
-        # This guarantees that all simultaneous events are caught by a registered trigger
         if self.activated:
-            self.unregister(self.filter, event=self.trigger_event, sender=self.trigger_sender)
+            if self.trigger_sender == "source": sender = self.source
+            else: sender=Any
+            self.unregister(self.filter, event=self.trigger_event, sender=sender)
             self.activated = False
     def filter(self, sender, **keys):
         keys["source"] = self.source
@@ -64,13 +57,13 @@ class PhaseTrigger(Trigger):
             self.count += 1
 
 class DealDamageTrigger(Trigger):
-    def __init__(self, sender=dispatcher.Any):
+    def __init__(self, sender=None):
         super(DealDamageTrigger, self).__init__(event=DealsDamageEvent(), sender=sender)
 class DealDamageToTrigger(Trigger):
-    def __init__(self, sender=dispatcher.Any):
+    def __init__(self, sender=None):
         super(DealDamageTrigger, self).__init__(event=DealsDamageToEvent(), sender=sender)
 class ReceiveDamageTrigger(Trigger):
-    def __init__(self, sender=dispatcher.Any):
+    def __init__(self, sender=None):
         super(ReceiveDamageTrigger, self).__init__(event=ReceivesDamageEvent(), sender=sender)
 
 # The next triggers are for events that pertain to cards but aren't sent by the card itself (ie zone changes, spells of abilities of cards)
