@@ -72,6 +72,10 @@ class Player(MtGObject):
         self.library.enable_ordering()
     def shuffleLibrary(self):
         self.library.shuffle()
+    def may(self, msg, action):
+        if self.getIntention(prompt="You may %s"%msg,msg="Would you like to %s?"%msg):
+            return action()
+        else: return False
     def draw(self):
         card = self.library.top()
         if card == None: self.draw_empty = True
