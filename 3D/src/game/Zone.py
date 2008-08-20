@@ -123,10 +123,10 @@ class Library(OutPlayMixin, AddingCardsMixin, OrderedZone):
     def disable_ordering(self):
         self.ordering = False
     def _insert_card(self, card, position):
-        card.zone._remove_card(card)
         if self.ordering:
             super(Library, self)._insert_card(card, position)
         else:
+            card.zone._remove_card(card)
             self._insert_card_unordered(card, position)
     def shuffle(self):
         if not self.pending: random.shuffle(self.cards)
