@@ -55,6 +55,7 @@ class _CardLibrary:
                     data = img_file.read()
                     img_file.close()
                     if "HTML" in data: return self.back
+                    else: self.cardfile[name] = data
                 else: return self.back
             else:
                 # Try local directory
