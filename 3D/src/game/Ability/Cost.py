@@ -45,9 +45,9 @@ class MultipleCosts(Cost):
     def precompute(self, card, player):
         for cost in self.costs:
             if not cost.precompute(card, player): return False
+        self.final_costs = self.consolidate(self.costs)
         return True
     def compute(self, card, player):
-        self.final_costs = self.consolidate(self.costs)
         for cost in self.final_costs:
             if not cost.compute(card, player): return False
         return True
@@ -57,6 +57,7 @@ class MultipleCosts(Cost):
             cost.pay(card, player)
             self.payment.append(cost.payment)
     def __iter__(self): return iter(self.final_costs)
+    def __getitem__(self, i): return self.final_costs[i]
     def __iadd__(self, other):
         if isinstance(other, str): self.costs.append(ManaCost(other))
         elif isinstance(other, MultipleCosts): self.costs.extend(other.costs)
@@ -473,7 +474,7 @@ class DiscardCost(Cost):
         return True
     def pay(self, card, player):
         for c in self.discards:
-            player.discard(c)
+            player.discard_card(c)
         self.payment = self.discards
     def __str__(self):
         if self.cardtype:

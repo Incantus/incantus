@@ -86,13 +86,15 @@ class Player(MtGObject):
             card.move_to(to_zone=self.hand)
             self.send(DrawCardEvent())
             #self.send(LogEvent(), msg="%s draws a card"%self)
+    def discard_card(self, card):
+        card.move_to(self.graveyard)
+        self.send(DiscardCardEvent(), card=card)
+        self.send(LogEvent(), msg="%s discards %s"%(self, card))
     def discard(self, number=1, cardtype=isCard):
         a = 's' if number > 1 else ''
         for i in range(number):
             card = self.getTarget(cardtype, zone="hand", controller=self, required=True, prompt="Select card%s to discard: %d left of %d"%(a, number-i,number))
-            card.move_to(to_zone=self.graveyard)
-            self.send(DiscardCardEvent(), card=card)
-            #self.send(LogEvent(), msg="%s discards %s"%(self, card))
+            self.discard_card(card)
     def discard_down(self):
         number = len(self.hand) - self.hand_limit
         self.discard(number)
