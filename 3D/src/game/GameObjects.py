@@ -3,6 +3,7 @@ from pydispatch import dispatcher
 from GameEvent import TokenLeavingPlay, ColorModifiedEvent, SubtypeModifiedEvent, SupertypeModifiedEvent
 from abilities import abilities, stacked_abilities
 from characteristics import stacked_characteristic
+import CardDatabase
 
 class MtGObject(object):
     #Universal dispatcher
@@ -90,6 +91,11 @@ class GameObject(MtGObject):
     def __repr__(self):
         return "%s at %s"%(str(self),str(id(self)))
 
+    # Class attributes for mapping the cards
+    def __hash__(self): return hash(self.key)
+    counter = 0
+    cardmap = {}
+
 class Card(GameObject):
     def __init__(self, owner):
         super(Card, self).__init__(owner)
@@ -99,9 +105,37 @@ class Card(GameObject):
     def __str__(self):
         return self.name
 
+    @classmethod
+    def create(cls, cardname, owner):
+        from CardRoles import SpellRole, CardRole, NoRole
+        card = CardDatabase.loadCardFromDB(cls(owner), cardname)
+        card.stack_role = SpellRole(card)
+        card.current_role = card.out_play_role = CardRole(card)
+        if (card.type == "Instant" or card.type == "Sorcery"):
+            card.in_play_role = NoRole(card)
+
+        # Add to our mapping
+        card.key = (cls.counter, cardname)
+        cls.cardmap[hash(card)] = card
+        cls.counter += 1
+        return card
+
 class Token(GameObject):
     def move_to(self, to_zone, position="top"):
         super(Token, self).move_to(to_zone, position)
         if not str(to_zone) == "play": self.send(TokenLeavingPlay())
     def __str__(self):
         return "Token: %s"%self.name
+
+    @classmethod
+    def create(cls, info, owner):
+        from CardRoles import NoRole
+        if type(info) == dict: info = CardDatabase.convertToTxt(info)
+        card = CardDatabase.execCode(cls(owner), info)
+        card.current_role = card.out_play_role = NoRole(card)
+        card.key = (cls.counter, card.name+" Token")
+        # Add to our mapping
+        cls.cardmap[hash(card)] = card
+        cls.counter += 1
+        return card
+

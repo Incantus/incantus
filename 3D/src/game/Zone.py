@@ -101,7 +101,7 @@ class Removed(OutPlayMixin, Zone):
     name = "removed"
 
 class AddingCardsMixin(object):
-    def add_new_card(self, card, position=-1):
+    def add_new_card(self, card, position="top"):
         self.send(CardEnteringZone(), card=card)
         self._insert_card_unordered(card, position)
     def _insert_card_unordered(self, card, position):
@@ -147,8 +147,10 @@ class PlayView(object):
         else: return [card for card in self.play if match(card) and card.controller == self.player]
     def __getattr__(self, attr):
         return getattr(self.play, attr)
-    def move_card(self, card, position):
+    def move_card(self, card, position="top"):
         self.play.move_card(card, position, self.player)
+    def add_new_card(self, card, position="top"):
+        self.play.add_new_card(card, position, self.player)
 
 class Play(AddingCardsMixin, OrderedZone):
     name = "play"
@@ -172,7 +174,10 @@ class Play(AddingCardsMixin, OrderedZone):
                     cards.reverse()
                 cardlist.extend(cards)
         return cardlist
-    def move_card(self, card, position, controller=None):
+    def add_new_card(self, card, position, controller):
+        self.controllers[card] = controller
+        super(Play, self).add_new_card(card, position)
+    def move_card(self, card, position, controller):
         self.controllers[card] = controller
         super(Play, self).move_card(card, position)
     def before_card_added(self, card):

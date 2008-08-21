@@ -5,7 +5,6 @@ import Match
 from GameEvent import *
 from Zone import Play
 from Stack import Stack
-from CardLibrary import CardLibrary
 
 class GamePhases(object):
     players = property(fget=lambda self: [self.curr_player, self.other_player])
@@ -50,7 +49,6 @@ class GameKeeper(MtGObject):
         self.ready_to_start = False
 
     def init(self, player1, player2):
-        CardLibrary.clear()
         self.game_phases = GamePhases(self, (player1, player2))
         self.stack = Stack(self.game_phases)
         self.play = Play(self.game_phases)
@@ -179,7 +177,7 @@ class GameKeeper(MtGObject):
         if len(self.tokens_out_play) > 0:
             def SBE():
                 for token in self.tokens_out_play: token.zone.cease_to_exist(token)
-                # XXX Now only CardLibrary has a reference to the token - we need to delete it somehow
+                # XXX Now only GameObjects.cardmap has a reference to the token - we need to delete it somehow
                 self.tokens_out_play[:] = []
             actions.append(SBE)
         # 420.5g A player who attempted to draw a card from an empty library since the last time state-based effects were checked loses the game.

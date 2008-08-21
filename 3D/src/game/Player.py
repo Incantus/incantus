@@ -1,6 +1,5 @@
 
-from CardLibrary import CardLibrary
-from GameObjects import MtGObject, Card
+from GameObjects import MtGObject, Card, Token
 from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent
 from Mana import ManaPool
 from Zone import Library, Hand, Graveyard, Removed
@@ -67,8 +66,7 @@ class Player(MtGObject):
         for num, name in self.decklist:
             num = int(num)
             for n in range(num):
-                card = CardLibrary.createCard(name, owner=self)
-                self.library.add_new_card(card)
+                self.library.add_new_card(Card.create(name, owner=self))
         self.library.enable_ordering()
     def shuffleLibrary(self):
         self.library.shuffle()
@@ -79,6 +77,9 @@ class Player(MtGObject):
             cost.pay(source, self)
             return True
         else: return False
+    def play_token(self, info, number=1):
+        for n in range(number):
+            self.play.add_new_card(Token.create(info, owner=self))
     def draw(self):
         card = self.library.top()
         if card == None: self.draw_empty = True

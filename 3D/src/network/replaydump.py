@@ -1,8 +1,7 @@
 from pickletools import genops
 #import pickle
 import cPickle as pickle
-import game
-from game import Player
+from game import Player, GameKeeper
 from game.Ability.Ability import Ability
 from game.GameObjects import GameObject
 
@@ -13,7 +12,7 @@ stack = None
 def persistent_id(obj):
     persid = None
     if isinstance(obj,GameObject):
-        persid = pickle.dumps(("Object", obj.key), 2)
+        persid = pickle.dumps(("Object", hash(obj)), 2)
     elif isinstance(obj,Player):
         persid = pickle.dumps(("Player", obj.name), 2)
     elif isinstance(obj,Ability):
@@ -23,7 +22,7 @@ def persistent_id(obj):
 def persistent_load(persid):
     id, val = pickle.loads(persid)
     if id == "Object":
-        return game.CardLibrary.CardLibrary[val]
+        return GameObject.cardmap[val]
     elif id == "Player":
         return players[val]
     elif id == "Ability":
@@ -87,7 +86,7 @@ class ReplayDump(object):
             return obj
         except Exception: #(EOFError, TypeError, KeyError):
             self.app.replay = False
-            if self.prompt_continue: start_dumping = game.GameKeeper.Keeper.curr_player.getIntention(self.app.game_status.prompt.value, "...continue recording?")
+            if self.prompt_continue: start_dumping = GameKeeper.Keeper.curr_player.getIntention(self.app.game_status.prompt.value, "...continue recording?")
             else: start_dumping = True
             if start_dumping:
                 self.save = True
