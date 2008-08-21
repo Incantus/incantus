@@ -37,12 +37,15 @@ class MtGObject(object):
 class GameObject(MtGObject):
     #__slots__ = ["name", "base_name", "base_cost", "base_text", "base_color", "base_type", "base_subtypes", "base_supertypes", "_owner", "zone", "out_play_role", "in_play_role", "stack_role", "_current_role", "key"]
     def __init__(self, owner):
-        # characteristics
+        self._owner = owner
+        self.zone = None
 
+        self._current_role = None
         self.out_play_role = None
         self.in_play_role = None
         self.stack_role = None
 
+        # characteristics
         self.name = self.base_name = None
         self.base_cost = None
         self.base_text = None
@@ -53,18 +56,12 @@ class GameObject(MtGObject):
         self.base_abilities = abilities()
         self.play_spell = None
 
-        self._owner = owner
-        self.zone = None
-
-        self._current_role = None
     owner = property(fget=lambda self: self._owner)
     def current_role():
-        doc = '''The current role for this card. Either a Spell (when in hand, library, graveyard or out of game), Spell, (stack) or Permanent (in play)'''
-        def fget(self):
-            return self._current_role
+        doc = '''The current role for this card. Either a Card (when in hand, library, graveyard or removed from game), Spell, (stack) or Permanent (in play)'''
+        def fget(self): return self._current_role
         def fset(self, role):
             role = copy.deepcopy(role)
-
             # Set up base characteristics
             role.name = self.base_name
             role.owner = self.owner
@@ -92,50 +89,40 @@ class GameObject(MtGObject):
         return "%s at %s"%(str(self),str(id(self)))
 
     # Class attributes for mapping the cards
-    def __hash__(self): return hash(self.key)
-    counter = 0
-    cardmap = {}
+    _counter = 0
+    _cardmap = {}
+    def _add_to_map(self):
+        self.key = (self._counter, self.name)
+        self._cardmap[self.key] = self
+        self.__class__._counter += 1
 
 class Card(GameObject):
-    def __init__(self, owner):
+    def __init__(self, cardname, owner):
         super(Card, self).__init__(owner)
         # characteristics
         self.expansion = None
         self.hidden = False
+
+        from CardRoles import SpellRole, CardRole, NoRole
+        CardDatabase.loadCardFromDB(self, cardname)
+        self.stack_role = SpellRole(self)
+        self.current_role = self.out_play_role = CardRole(self)
+        if (self.base_type == "Instant" or self.base_type == "Sorcery"):
+            self.in_play_role = NoRole(self)
+        self._add_to_map()
     def __str__(self):
         return self.name
 
-    @classmethod
-    def create(cls, cardname, owner):
-        from CardRoles import SpellRole, CardRole, NoRole
-        card = CardDatabase.loadCardFromDB(cls(owner), cardname)
-        card.stack_role = SpellRole(card)
-        card.current_role = card.out_play_role = CardRole(card)
-        if (card.type == "Instant" or card.type == "Sorcery"):
-            card.in_play_role = NoRole(card)
-
-        # Add to our mapping
-        card.key = (cls.counter, cardname)
-        cls.cardmap[hash(card)] = card
-        cls.counter += 1
-        return card
-
 class Token(GameObject):
+    def __init__(self, info, owner):
+        super(Token, self).__init__(owner)
+        from CardRoles import NoRole
+        if type(info) == dict: info = CardDatabase.convertToTxt(info)
+        CardDatabase.execCode(self, info)
+        self.current_role = self.out_play_role = self.stack_role = NoRole(self)
+        self._add_to_map()
     def move_to(self, to_zone, position="top"):
         super(Token, self).move_to(to_zone, position)
         if not str(to_zone) == "play": self.send(TokenLeavingPlay())
     def __str__(self):
         return "Token: %s"%self.name
-
-    @classmethod
-    def create(cls, info, owner):
-        from CardRoles import NoRole
-        if type(info) == dict: info = CardDatabase.convertToTxt(info)
-        card = CardDatabase.execCode(cls(owner), info)
-        card.current_role = card.out_play_role = NoRole(card)
-        card.key = (cls.counter, card.name+" Token")
-        # Add to our mapping
-        cls.cardmap[hash(card)] = card
-        cls.counter += 1
-        return card
-

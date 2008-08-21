@@ -66,7 +66,7 @@ class Player(MtGObject):
         for num, name in self.decklist:
             num = int(num)
             for n in range(num):
-                self.library.add_new_card(Card.create(name, owner=self))
+                self.library.add_new_card(Card(name, owner=self))
         self.library.enable_ordering()
     def shuffleLibrary(self):
         self.library.shuffle()
@@ -79,7 +79,7 @@ class Player(MtGObject):
         else: return False
     def play_token(self, info, number=1):
         for n in range(number):
-            self.play.add_new_card(Token.create(info, owner=self))
+            self.play.add_new_card(Token(info, owner=self))
     def draw(self):
         card = self.library.top()
         if card == None: self.draw_empty = True

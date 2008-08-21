@@ -1,5 +1,4 @@
 from pickletools import genops
-#import pickle
 import cPickle as pickle
 from game import Player, GameKeeper
 from game.Ability.Ability import Ability
@@ -12,7 +11,7 @@ stack = None
 def persistent_id(obj):
     persid = None
     if isinstance(obj,GameObject):
-        persid = pickle.dumps(("Object", hash(obj)), 2)
+        persid = pickle.dumps(("Object", obj.key), 2)
     elif isinstance(obj,Player):
         persid = pickle.dumps(("Player", obj.name), 2)
     elif isinstance(obj,Ability):
@@ -22,7 +21,7 @@ def persistent_id(obj):
 def persistent_load(persid):
     id, val = pickle.loads(persid)
     if id == "Object":
-        return GameObject.cardmap[val]
+        return GameObject._cardmap[val]
     elif id == "Player":
         return players[val]
     elif id == "Ability":
