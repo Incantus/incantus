@@ -213,9 +213,9 @@ class GameKeeper(MtGObject):
                 numremove = min(plus, minus)
                 if numremove: actions.append(RemoveCounters(perm, numremove))
 
-        self.send(TimestepEvent())
         if actions:
             for action in actions: action()
+        self.send(TimestepEvent())
         return not len(actions) == 0
     def beginningPhase(self):
         self.setState("BeginTurn")
