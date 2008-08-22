@@ -84,7 +84,7 @@ class Player(MtGObject):
         card = self.library.top()
         if card == None: self.draw_empty = True
         else:
-            card.move_to(to_zone=self.hand)
+            card.move_to(self.hand)
             self.send(DrawCardEvent())
             #self.send(LogEvent(), msg="%s draws a card"%self)
     def discard_card(self, card):
@@ -107,7 +107,7 @@ class Player(MtGObject):
             if self.getIntention("", "Would you like to mulligan?"): #, "Would you like to mulligan?"):
                 self.send(LogEvent(), msg="%s mulligans"%self)
                 for card in self.hand:
-                    card.move_to(to_zone=self.library)
+                    card.move_to(zone=self.library)
                 self.shuffleLibrary()
                 for i in range(number): self.draw()
             else: break

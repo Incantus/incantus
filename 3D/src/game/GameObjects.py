@@ -78,8 +78,8 @@ class GameObject(MtGObject):
     current_role = property(**current_role())
     def save_lki(self):
         self._last_known_info = self._current_role
-    def move_to(self, to_zone, position="top"):
-        to_zone.move_card(self, position)
+    def move_to(self, zone, position="top"):
+        zone.move_card(self, position)
     # I should probably get rid of the getattr call, and make everybody refer to current_role directly
     # But that makes the code so much uglier
     # XXX This is just temporary
@@ -127,8 +127,8 @@ class Token(GameObject):
         CardDatabase.execCode(self, info)
         self.current_role = self.out_play_role = self.stack_role = NoRole(self)
         self._add_to_map()
-    def move_to(self, to_zone, position="top"):
-        super(Token, self).move_to(to_zone, position)
-        if not str(to_zone) == "play": self.send(TokenLeavingPlay())
+    def move_to(self, zone, position="top"):
+        super(Token, self).move_to(zone, position)
+        if not str(zone) == "play": self.send(TokenLeavingPlay())
     def __str__(self):
         return "Token: %s"%self.name
