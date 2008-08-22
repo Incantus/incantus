@@ -44,7 +44,7 @@ def execCode(card, code):
         exec code in vars(CardEnvironment), vars(card)
     except Exception:
         traceback.print_exc(4)
-        raise CardNotImplemented("%s not implemented correctly"%name)
+        raise CardNotImplemented("%s not implemented correctly"%card.name)
 
     # For converted manacost comparisons
     if type(card.cost) == str: card.base_cost = CardEnvironment.ManaCost(card.cost)
