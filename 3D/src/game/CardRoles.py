@@ -60,7 +60,9 @@ class GameRole(MtGObject):
             self._counters.remove(counter)
             self.send(CounterRemovedEvent(), counter=counter)
         return num  # Return the number of counters we actually removed
-    def num_counters(self, counter=None): return len([c for c in self._counters if counter and c == counter])
+    def num_counters(self, counter=None):
+        if counter: return len([c for c in self._counters if c == counter])
+        else: return len(self._counters)
     counters = property(fget=lambda self: self._counters)
     def __deepcopy__(self,memo,mutable=set([list,set,dict])):
         newcopy = copy.copy(self)
@@ -320,6 +322,7 @@ class Creature(SubRole):
     def _PT_changed(self, sender): self.cached_PT_dirty=True
     def enteringPlay(self, perm):
         super(Creature,self).enteringPlay(perm)
+        self.cached_PT_dirty = True
         self.register(self._PT_changed, TimestepEvent())
         #self.register(self._PT_changed, PowerToughnessChangedEvent(), sender=self.card)
     def leavingPlay(self):
