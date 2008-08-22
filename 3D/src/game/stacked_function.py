@@ -6,6 +6,8 @@ def logical_or(funcs, *args, **kw):
     return reduce(lambda x, y: x or y(*args, **kw), funcs, False)
 def logical_and(funcs, *args, **kw):
     return reduce(lambda x, y: x and y(*args, **kw), funcs, True)
+def do_all(funcs, *args, **kw):
+    for f in funcs: f(*args, **kw)
 
 def find_stacked(target, name):
     if type(target) == types.TypeType:
@@ -80,20 +82,22 @@ class stacked_function(object):
         return func.expire
     def add_override(self, func, obj=None):
         return self._add(self.overrides, func, obj)
+    def mark(self):
+        self._first_call = False
+        self.__current_replacements = set()
     def build_replacements(self, obj):
         replacements = set()
         # Walk up the inheritance hierarchy
-        for cls in self.f_class.__mro__:
+        for cls in self.f_class.mro():
             if self.f_name in cls.__dict__:
                 func = getattr(cls, self.f_name)
                 if hasattr(func, "stacked"):
-                    rpls = [f for f in func.replacements if hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)]
-                    replacements.update(rpls)
-        return replacements
+                    func.mark()
+                    replacements.update([f for f in func.replacements if hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)])
+        self.__current_replacements = replacements
 
     def do_replacement(self, *args, **kw):
         obj = args[0]
-        # XXX Do i need to check the conditions everytime?
         replacements = self.__current_replacements
         funcs = [func for func in replacements if func.cond(*args, **kw)]
         if funcs:
@@ -101,32 +105,24 @@ class stacked_function(object):
                 if isPlayer(obj): player = affected = obj
                 # In this case it is either a Permanent or a subrole
                 # XXX I've only seen the subrole case for Creatures, not sure if anything else can be replaced
-                else: player, affected = obj.card.controller, obj.perm.card
+                else: player, affected = obj.card.controller, obj.card
                 i = player.getSelection([(f.msg, i) for i, f in enumerate(funcs)], numselections=1, required=True, idx=False, prompt="Choose replacement effect to affect %s"%(affected))
             else: i = 0
             func = funcs[i]
             # Remove the selected replacement function
             replacements.remove(func)
-            #print replacements, func, args, kw
             # *** This where we could potentially recurse
             return func(*args, **kw)
         else:
-            # No more replacements
+            # No more replacements - unmark this stacked_function
+            self._first_call = True
+            del self.__current_replacements
             overrides = [f for f in self.overrides[::-1] if hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)]+[self.original]
-            #print "No more replacements", overrides, args, kw
             return self.combiner(overrides, *args, **kw)
 
     def __call__(self, *args, **kw):
-        obj = args[0]
-        # First do replacement effects
-        if self._first_call:
-            self.__current_replacements = self.build_replacements(obj)
-            self._first_call = False
-            # This is the start of the recursive calls
-            result = self.do_replacement(*args, **kw)
-            self._first_call = True
-            del self.__current_replacements
-            return result
+        if self._first_call: self.build_replacements(args[0])
+        # This is the start of the recursive calls
         return self.do_replacement(*args, **kw)
     def __get__(self, obj, objtype=None):
         return types.MethodType(self, obj, objtype)
