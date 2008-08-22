@@ -48,6 +48,7 @@ class Zone(MtGObject):
     def before_card_added(self, card):
         card.enteringZone(self.name)
     def after_card_removed(self, card):
+        card.save_lki()
         card.leavingZone(self.name)
 
 class OrderedZone(Zone):

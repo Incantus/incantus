@@ -44,6 +44,7 @@ class GameObject(MtGObject):
         self.out_play_role = None
         self.in_play_role = None
         self.stack_role = None
+        self._last_known_info = None
 
         # characteristics
         self.name = self.base_name = None
@@ -75,6 +76,8 @@ class GameObject(MtGObject):
             self._current_role = role
         return locals()
     current_role = property(**current_role())
+    def save_lki(self):
+        self._last_known_info = self._current_role
     def move_to(self, to_zone, position="top"):
         to_zone.move_card(self, position)
     # I should probably get rid of the getattr call, and make everybody refer to current_role directly
@@ -84,7 +87,10 @@ class GameObject(MtGObject):
     def __getattr__(self, attr):
         if hasattr(self.current_role, attr):
             return getattr(self._current_role,attr)
-        else: raise Exception, "no attribute named %s"%attr
+        #else: raise Exception, "no attribute named %s"%attr
+        else:
+        # We are probably out of play - check the last known info
+            return getattr(self._last_known_info, attr)
     def __repr__(self):
         return "%s at %s"%(str(self),str(id(self)))
 
