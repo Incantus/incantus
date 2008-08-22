@@ -152,6 +152,7 @@ class PlayView(object):
         self.play.move_card(card, position, self.player)
     def add_new_card(self, card, position="top"):
         self.play.add_new_card(card, position, self.player)
+    def __str__(self): return "play"
 
 class Play(AddingCardsMixin, OrderedZone):
     name = "play"
