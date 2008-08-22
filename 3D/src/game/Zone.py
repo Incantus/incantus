@@ -31,7 +31,7 @@ class Zone(MtGObject):
         self.send(event, card=card)
         self.after_card_removed(card)
     def _insert_card(self, card, position):
-        card.zone._remove_card(card)
+        if card.zone: card.zone._remove_card(card)
         self.before_card_added(card)
         if position == "top": self.cards.append(card)
         elif position == "bottom": self.cards.insert(0, card)
@@ -40,8 +40,7 @@ class Zone(MtGObject):
         self.send(CardEnteredZone(), card=card)
     def move_card(self, card, position):
         self.send(CardEnteringZone(), card=card)
-        old_zone = card.zone
-        old_zone.send(CardLeavingZone(), card=card)
+        if card.zone: card.zone.send(CardLeavingZone(), card=card)
         # Remove card from previous zone
         self._insert_card(card, position)
     # The next 2 are for zones to setup and takedown card roles
@@ -74,7 +73,7 @@ class OrderedZone(Zone):
         if self.pending_top or self.pending_bottom:
             self.pre_commit()
             for card in self.pending_top+self.pending_bottom:
-                card.zone._remove_card(card)
+                if card.zone: card.zone._remove_card(card)
                 self.before_card_added(card)
             toplist = self.get_card_order([c for c in self.pending_top], "top")
             bottomlist = self.get_card_order([c for c in self.pending_bottom], "bottom")
@@ -150,11 +149,9 @@ class PlayView(object):
         return getattr(self.play, attr)
     def move_card(self, card, position="top"):
         self.play.move_card(card, position, self.player)
-    def add_new_card(self, card, position="top"):
-        self.play.add_new_card(card, position, self.player)
     def __str__(self): return "play"
 
-class Play(AddingCardsMixin, OrderedZone):
+class Play(OrderedZone):
     name = "play"
     def __init__(self, game):
         self.game = game
@@ -176,9 +173,6 @@ class Play(AddingCardsMixin, OrderedZone):
                     cards.reverse()
                 cardlist.extend(cards)
         return cardlist
-    def add_new_card(self, card, position, controller):
-        self.controllers[card] = controller
-        super(Play, self).add_new_card(card, position)
     def move_card(self, card, position, controller):
         self.controllers[card] = controller
         super(Play, self).move_card(card, position)

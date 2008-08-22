@@ -79,7 +79,8 @@ class Player(MtGObject):
         else: return False
     def play_token(self, info, number=1):
         for n in range(number):
-            self.play.add_new_card(Token(info, owner=self))
+            token = Token(info, owner=self)
+            token.move_to(self.play)
     def draw(self):
         card = self.library.top()
         if card == None: self.draw_empty = True
