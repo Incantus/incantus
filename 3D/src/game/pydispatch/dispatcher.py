@@ -360,9 +360,9 @@ def send(signal=Any, sender=Anonymous, *arguments, **named):
     # Return a list of tuple pairs [(receiver, response), ... ].
     responses = []
     removals = []
-    receivers = list(liveReceivers(getAllReceivers(sender, signal)))
+    #receivers = list(liveReceivers(getAllReceivers(sender, signal)))
     #receivers.sort(key=lambda r: (hasattr(r, "priority") and r.priority) or LOW_PRIORITY)
-    for receiver in receivers: #liveReceivers(getAllReceivers(sender, signal)):
+    for receiver in liveReceivers(getAllReceivers(sender, signal)):
         response = robustapply.robustApply(
             receiver,
             signal=signal,
