@@ -266,6 +266,12 @@ class ZoneAnimator(object):
                 self.sparks.add_spark(start_pos, end_pos, grow=True, dt=dt, color=str(card.color))
                 del self.tracker[card]
             else: self.play_zones[card.controller].add_card(card,startt=0)
+        else:
+            if card in self.tracker:
+                start_pos, from_zone = self.tracker[card]
+                if from_zone in self.play_zones.values():
+                    from_zone.remove_card(card, clock)
+                del self.tracker[card]
     def leave_zone(self, sender, card):
         if sender in self.status_zones:
             pstatus, symbol = self.status_zones[sender]
