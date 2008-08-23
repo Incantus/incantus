@@ -79,6 +79,7 @@ class GameObject(MtGObject):
     current_role = property(**current_role())
     def save_lki(self):
         self._last_known_info = self._current_role
+        self._last_known_info.is_LKI = True
     def move_to(self, zone, position="top"):
         zone.move_card(self, position)
     # I should probably get rid of the getattr call, and make everybody refer to current_role directly

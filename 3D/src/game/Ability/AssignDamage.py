@@ -1,4 +1,5 @@
 from game.GameEvent import DealsDamageEvent
+from game.Match import isPlayer
 from Ability import Ability
 from Target import MultipleTargets
 
@@ -9,8 +10,9 @@ class AssignDamage(Ability):
         def fget(self):
             targets = set()
             for damager, damage_assn in self.damages:
-                targets.add(damager)
                 for d in damage_assn.keys():
+                    # XXX Fix for LKI
+                    if not isPlayer(d) and not d.is_LKI: continue
                     targets.add(d)
             target = MultipleTargets(len(targets), None)
             target.target = targets
@@ -20,7 +22,15 @@ class AssignDamage(Ability):
 
 
     def __init__(self, damages, txt = "Combat Damages"):
-        self.damages = damages
+        #self.damages = damages
+        # XXX Fix for LKI
+        self.damages = []
+        for damager, damage_assn in damages:
+            damaging = {}
+            for damagee, amt in damage_assn.iteritems():
+                damaging[damagee.current_role] = amt
+            self.damages.append((damager.current_role, damaging))
+
         self.txt = txt
     def resolve(self):
         # 310.4a Combat damage is dealt as it was originally assigned even if the creature dealing damage is no longer in play, its power has changed, or the creature receiving damage has left combat.

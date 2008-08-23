@@ -24,18 +24,18 @@ class GameRole(MtGObject):
         return locals()
     info = property(**info())
     controller = property(fget=lambda self: self.card.owner)
-    zone = property(fget=lambda self: self.card.zone)
     def __init__(self, card):
         self.card = card
         self._counters = []
+        self.is_LKI = False
     # the damage stuff seems kind of hacky
     def send(self, *args, **named):
         self.card.send(*args, **named)
-    def dealDamage(self, target, amount, combat=False):
+    def dealDamage(self, to, amount, combat=False):
         final_dmg = 0
-        if target.canBeDamagedBy(self.card) and amount > 0:
-            final_dmg = target.assignDamage(amount, source=self.card, combat=combat)
-            if final_dmg > 0: self.send(DealsDamageToEvent(), to=target, amount=final_dmg, combat=combat)
+        if to.canBeDamagedBy(self.card) and amount > 0:
+            final_dmg = to.assignDamage(amount, source=self.card, combat=combat)
+            if final_dmg > 0: self.send(DealsDamageToEvent(), to=to, amount=final_dmg, combat=combat)
         #self.send(DealsDamageEvent(), amount=final_dmg, combat=combat)
         return final_dmg
     def canBeTargetedBy(self, targeter): return True
@@ -247,6 +247,7 @@ class SubRole(object):
         # So the subrole(s) are always the pristine one specified in the card definition
         newcopy = copy.copy(self)
         for attr, value in self.__dict__.iteritems():
+            if attr == "card" or attr == "perm": continue
             if type(value) in mutable: setattr(newcopy,attr,copy.copy(value))
             elif callable(value): setattr(newcopy,attr, value)
             else: setattr(newcopy,attr,copy.deepcopy(value, memo))
@@ -330,7 +331,7 @@ class Creature(SubRole):
         self.unregister(self._PT_changed, TimestepEvent())
         #self.unregister(PowerToughnessChangedEvent(), sender=self.card)
     def canBeDamagedBy(self, damager):
-        return True
+        return not self.perm.is_LKI
     def combatDamage(self):
         return self.power
     def clearDamage(self):
