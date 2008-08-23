@@ -1,5 +1,5 @@
 from characteristics import characteristic, all_characteristics, no_characteristic, additional_characteristic
-from stacked_function import override, replace, logical_or, logical_and
+from stacked_function import override, replace, logical_or, logical_and, do_all
 from Player import Player
 from GameKeeper import Keeper
 from CardRoles import *
@@ -131,3 +131,35 @@ def attached(zone="attached", txt=''):
         if condition: return ConditionalStaticAbility(effects, condition, zone, txt)
         else: return CardStaticAbility(effects, zone, txt)
     return make_ability
+
+def comes_into_play(card, txt='', complex=False, condition=None):
+    def wrap(CiP):
+        if complex:
+            before, during = CiP()
+            def move_to(self, zone, position="top"):
+                # Add the entering function to the in_play_role
+                remove_entering = override(self.in_play_role, "enteringZone", lambda self, zone: during(self), combiner=do_all)
+                # Now move to play
+                before(self)
+                self.move_to(zone, position)
+                # Remove the entering function from the in_play_role
+                # XXX There might be timing issue, since we want to remove the override after the card is put into play
+                dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False)
+        else:
+            during = CiP
+            def move_to(self, zone, position="top"):
+                # Add the entering function to the in_play_role
+                remove_entering = override(self.in_play_role, "enteringZone", lambda self, zone: during(self), combiner=do_all)
+                # Now move to play
+                self.move_to(zone, position)
+                # Remove the entering function from the in_play_role
+                # XXX There might be timing issue, since we want to remove the override after the card is put into play
+                dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False)
+        play_condition = lambda self, zone, position="top": str(zone) == "play"
+        if condition: cond = lambda self, zone, position="top": play_condition(self,zone,position) and condition(self,zone,position)
+        else: cond = play_condition
+
+        if not txt and hasattr(during, "__doc__"): msg = during.__doc__
+        else: msg = txt
+        return replace(card, "move_to", move_to, msg=msg, condition=cond)
+    return wrap
