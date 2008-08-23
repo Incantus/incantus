@@ -208,9 +208,9 @@ class Permanent(GameRole):
         self.send(PermanentSacrificedEvent())
     def summoningSickness(self):
         def remove_summoning_sickness(player):
-            if self.card.controller == player:
-                self._continuously_in_play = True
+            if self.controller == player:
                 self.unregister(remove_summoning_sickness, NewTurnEvent(), weak=False)
+                self._continuously_in_play = True
         self._continuously_in_play = False
         self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
     def enteringZone(self, zone):
