@@ -43,7 +43,9 @@ class Ability(object):
             self.resolved()
         else: self.countered()
         del self.effects
-    def resolved(self): self.source.send(AbilityResolved())
+    def resolved(self):
+        self.source.send(TimestepEvent())
+        self.source.send(AbilityResolved())
     def can_be_countered(self): return True
     def countered(self): self.source.send(AbilityCountered())
     def copy(self): return copy.copy(self)
