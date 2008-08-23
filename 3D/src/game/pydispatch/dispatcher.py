@@ -84,6 +84,9 @@ connections = {}
 senders = {}
 sendersBack = {}
 
+disconnected = set()
+recurse = 0
+
 def reset():
     global connections, senders, sendersBack
     connections = {}
@@ -221,6 +224,7 @@ def disconnect(receiver, signal=Any, sender=Any, weak=True):
         raise errors.DispatcherTypeError(
             'Signal cannot be None (receiver=%r sender=%r)'%( receiver,sender)
         )
+    orig = receiver
     if weak: receiver = saferef.safeRef(receiver)
     senderkey = id(sender)
     try:
@@ -236,6 +240,7 @@ def disconnect(receiver, signal=Any, sender=Any, weak=True):
     try:
         # also removes from receivers
         _removeOldBackRefs(senderkey, signal, receiver, receivers)
+        disconnected.add(orig)
     except ValueError:
         raise errors.DispatcherKeyError(
             """No connection to receiver %s for signal %s from sender %s""" %(
@@ -362,8 +367,11 @@ def send(signal=Any, sender=Anonymous, *arguments, **named):
     removals = []
     receivers = list(liveReceivers(getAllReceivers(sender, signal)))
     #receivers.sort(key=lambda r: (hasattr(r, "priority") and r.priority) or LOW_PRIORITY)
+    global recurse
+    recurse += 1
     #for receiver in liveReceivers(getAllReceivers(sender, signal)):
     for receiver in receivers:
+        if receiver in disconnected: continue
         response = robustapply.robustApply(
             receiver,
             signal=signal,
@@ -376,6 +384,8 @@ def send(signal=Any, sender=Anonymous, *arguments, **named):
             if receiver.expiry == 0: removals.append(receiver)
         responses.append((receiver, response))
     for receiver in removals: disconnect(receiver,receiver.signal,receiver.sender,receiver.weak)
+    recurse -= 1
+    if recurse == 0: disconnected.clear()
     return responses
 
 def sendExact( signal=Any, sender=Anonymous, *arguments, **named ):
