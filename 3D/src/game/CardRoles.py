@@ -17,7 +17,7 @@ class GameRole(MtGObject):
             if subtypes: txt.append(" - %s"%subtypes)
             abilities = str(self.abilities)
             if abilities: txt.append('\n\n%s'%abilities)
-            if self.counters: txt.append('\nCounters: %s'%', '.join(map(str,self.counters)))
+            if self.counters: txt.append('\n\nCounters: %s'%', '.join(map(str,self.counters)))
             subrole_info = self.subrole_info()
             if subrole_info: txt.append('\n\n'+subrole_info)
             return ''.join(txt)
@@ -318,7 +318,7 @@ class Creature(SubRole):
         txt.append(', '.join([str(c) for c in self.perm.counters if hasattr(c,"power")]))
         txt.append(str(self.PT_static_modifiers))
         txt.append(str(self.PT_switch_modifiers))
-        return 'P/T:\n'+'\n'.join(["6%s: %s"%(layer, mod) for layer, mod in zip("ABCDE", txt) if mod])
+        return '' #'P/T:\n'+'\n'.join(["6%s: %s"%(layer, mod) for layer, mod in zip("ABCDE", txt) if mod])
     def _PT_changed(self, sender): self.cached_PT_dirty=True
     def enteringPlay(self, perm):
         super(Creature,self).enteringPlay(perm)
