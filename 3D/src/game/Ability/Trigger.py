@@ -141,7 +141,7 @@ class EnterFromTrigger(Trigger):
         else: return False
     def filter_entering(self, sender, card):
         keys = {"source": self.source, "card": card}
-        if robustApply(self.match_condition, **keys) and str(sender) == self.to_zone and self.check_player(sender, card):
+        if str(sender) == self.to_zone and self.check_player(sender, card) and robustApply(self.match_condition, **keys):
             self.entering.add(card)
     def filter_leaving(self, sender, card):
         keys = {"source": self.source, "card": card}
