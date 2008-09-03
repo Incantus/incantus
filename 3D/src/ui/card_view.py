@@ -98,9 +98,10 @@ class HandView(CardView):
         self.render_after_transform = self.render_unfocused
         self.unfocused_size = (0.05, 0.30)
         self.unfocused_spacing = 1.025
-        self.solitaire = False
-    def set_solitaire(self):
-        self.solitaire = True
+        self.hidden = False
+    def set_hidden(self, value=True):
+        self.hidden = value
+        for card in self.cards: card.hidden = value
     def resize(self, width, height, avail_width):
         self.screen_width = width
         self.avail_width = avail_width-10
@@ -128,7 +129,7 @@ class HandView(CardView):
         #super(HandView,self).hide()
     def add_card(self, card):
         newcard = CardLibrary.CardLibrary.getHandCard(card)
-        if self.is_opponent and not self.solitaire: newcard.hidden = True
+        newcard.hidden = self.hidden
         newcard._pos.set_transition(dt=0.8, method="sine") #self.pos_transition)
         newcard._orientation.set_transition(dt=0.2, method=self.orientation_transition)
         newcard.size = anim.animate(newcard.size, newcard.size, dt=0.2, method="sine")
