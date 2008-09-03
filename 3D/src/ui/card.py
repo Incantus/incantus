@@ -55,10 +55,10 @@ class Card(anim.Animable):
     cardlist = None
 
     def __init__(self, gamecard, front, back):
+        self.gamecard = gamecard
         self.front = front
         self.back = back
         self.hidden = False
-        self.gamecard = gamecard
         self.width, self.height = self.front.width, self.front.height
         self.size = anim.constant(1.0) 
         self._pos = AnimatedVector3(0,0,0)
