@@ -4,7 +4,6 @@ class _base_characteristic(object): pass
 class characteristic(_base_characteristic):
     # Internally stored as a set
     def __init__(self, *init_val):
-        #if not (type(init_val) == tuple or type(init_val) == list): init_val = [init_val]
         self.characteristics = set(init_val)
     def intersects(self, other):
         if not isinstance(other, characteristic): return other.intersects(self)
@@ -13,6 +12,7 @@ class characteristic(_base_characteristic):
     def __contains__(self, val): return self == val
     def __str__(self): return str(' '.join(self.characteristics))
     def __repr__(self): return "characteristic([%s])"%', '.join(map(repr, self.characteristics))
+    def __len__(self): return len(self.characteristics)
     def make_text_line(self, fields): fields[:] = self.characteristics
 
 # These are only used internally
@@ -94,6 +94,10 @@ class stacked_characteristic(object):
         fields = []
         for char in self._stacking: char.make_text_line(fields)
         return ' '.join(fields)
+    def __len__(self):
+        fields = []
+        for char in self._stacking: char.make_text_line(fields)
+        return len(set(fields))
     def __repr__(self):
         return "stacked: %s"%repr(self._stacking)
 
