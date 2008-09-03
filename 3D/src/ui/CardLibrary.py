@@ -29,7 +29,7 @@ class _CardLibrary:
         self.notfound = pyglet.image.load("./data/images/notfound.jpg").texture
         self.combat = pyglet.image.load("./data/images/combat.png").texture
         self.triggered = pyglet.image.load("./data/images/fx/triggered.png").texture
-        self.activated = pyglet.image.load("./data/images/fx/triggered.png").texture
+        self.activated = pyglet.image.load("./data/images/fx/activated.png").texture
 
     def close(self):
         self.cardfile.close()
