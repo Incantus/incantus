@@ -48,7 +48,7 @@ class Player(MtGObject):
         self.manapool = ManaPool()
 
         self.loadDeck()
-        self.shuffleLibrary()
+        self.shuffle_library()
     def setOpponent(self, opponent):
         self.opponent = opponent
     def setDeck(self, decklist):
@@ -68,7 +68,9 @@ class Player(MtGObject):
             for n in range(num):
                 self.library.add_new_card(Card(name, owner=self))
         self.library.enable_ordering()
-    def shuffleLibrary(self):
+
+    # The following functions are part of the card code DSL
+    def shuffle_library(self):
         self.library.shuffle()
     def you_may(self, msg): return self.getIntention(prompt="You may %s"%msg,msg="Would you like to %s?"%msg)
     def you_may_pay(self, source, cost):
@@ -135,7 +137,7 @@ class Player(MtGObject):
                 self.send(LogEvent(), msg="%s mulligans"%self)
                 for card in self.hand:
                     card.move_to(zone=self.library)
-                self.shuffleLibrary()
+                self.shuffle_library()
                 for i in range(number): self.draw()
             else: break
             if number == 0: break
