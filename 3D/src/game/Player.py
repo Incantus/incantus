@@ -111,20 +111,20 @@ class Player(MtGObject):
             self.send(DiscardCardEvent(), card=card)
             return True
         else: return False
-    def choose_discard(self, number=1, cardtype=isCard):
+    def force_discard(self, number=1, cardtype=isCard):
         cards = self.choose_from_zone(number, cardtype, "hand", "discard")
         for card in cards: self.discard(card)
         return len(cards)
     def discard_down(self):
         number = len(self.hand) - self.hand_limit
-        self.choose_discard(number)
+        self.force_discard(number)
     def sacrifice(self, perm):
         if perm.controller == self and str(perm.zone) == "play":
             perm.move_to(self.graveyard)
             self.send(PermanentSacrificedEvent(), card=perm)
             return True
         else: return False
-    def choose_sacrifice(self, number=1, cardtype=isPermanent):
+    def force_sacrifice(self, number=1, cardtype=isPermanent):
         perms = self.choose_from_zone(number, cardtype, "play", "sacrifice")
         for perm in perms: self.sacrifice(perm)
         return len(perms)
