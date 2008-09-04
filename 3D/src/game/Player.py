@@ -110,7 +110,9 @@ class Player(MtGObject):
             return True
         else: return False
     def choose_discard(self, number=1, cardtype=isCard):
-        for card in self.choose_from_zone(number, cardtype, "hand", "discard"): self.discard(card)
+        cards = self.choose_from_zone(number, cardtype, "hand", "discard")
+        for card in cards: self.discard(card)
+        return len(cards)
     def discard_down(self):
         number = len(self.hand) - self.hand_limit
         self.choose_discard(number)
@@ -121,7 +123,9 @@ class Player(MtGObject):
             return True
         else: return False
     def choose_sacrifice(self, number=1, cardtype=isPermanent):
-        for perm in self.choose_from_zone(number, cardtype, "play", "sacrifice"): self.sacrifice(perm)
+        perms = self.choose_from_zone(number, cardtype, "play", "sacrifice")
+        for perm in perms: self.sacrifice(perm)
+        return len(perms)
     def mulligan(self):
         number = 7
         self.library.disable_ordering()
