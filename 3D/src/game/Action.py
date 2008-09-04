@@ -22,18 +22,26 @@ class DamageAssignment(Action):
 class CardSelected(Action):
     def __init__(self, card):
         self.selection = card
+    def __str__(self):
+        return "%s - %s"%(repr(self), self.selection)
 
 class PlayerSelected(Action):
     def __init__(self, player):
         self.selection = player
+    def __str__(self):
+        return "%s - %s"%(repr(self), self.selection)
 
 class SingleSelected(Action):
     def __init__(self, selected):
         self.selection = selected
+    def __str__(self):
+        return "%s - %s"%(repr(self), self.selection)
 
 class MultipleSelected(Action):
     def __init__(self, selected):
         self.selection = selected
+    def __str__(self):
+        return "%s - %s"%(repr(self), self.selection)
 
 # Actions for selecting X and mana amounts
 class ManaSelected(Action):
