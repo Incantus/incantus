@@ -1,6 +1,6 @@
 import copy, itertools
 from GameObjects import MtGObject
-from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, PermanentSacrificedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, ControllerChanged
+from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, ControllerChanged
 from Ability.Counters import Counter, PowerToughnessCounter
 
 class GameRole(MtGObject):
@@ -203,9 +203,6 @@ class Permanent(GameRole):
         if not regenerate or self.canDestroy():
             self.move_to(self.owner.graveyard)
             self.send(PermanentDestroyedEvent())
-    def sacrifice(self):
-        self.move_to(self.owner.graveyard)
-        self.send(PermanentSacrificedEvent())
     def summoningSickness(self):
         def remove_summoning_sickness(player):
             if self.controller == player:

@@ -1,10 +1,10 @@
 
 from GameObjects import MtGObject, Card, Token
-from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent
+from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent
 from Mana import ManaPool
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
-from Match import isCreature, isPlayer, isGameObject, isCard, isLandType
+from Match import isCreature, isPermanent, isPlayer, isGameObject, isCard, isLandType
 
 class Player(MtGObject):
     def life():
@@ -81,25 +81,47 @@ class Player(MtGObject):
         for n in range(number):
             token = Token(info, owner=self)
             token.move_to(self.play)
+    def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action=''):
+        a = 's' if number > 1 else ''
+        cards = []; i = 0
+        prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number-i,number)
+        while True:
+            card = self.getTarget(cardtype, zone=zone, controller=self, required=True, prompt=prompt)
+            if card == False: break
+            if card in cards:
+                prompt = "Card already selected - select again"
+                self.send(InvalidTargetEvent(), target=card)
+            else:
+                cards.append(card)
+                i += 1
+                prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number-i,number)
+            if len(cards) == number: break
+        return cards
     def draw(self):
         card = self.library.top()
         if card == None: self.draw_empty = True
         else:
             card.move_to(self.hand)
             self.send(DrawCardEvent())
-            #self.send(LogEvent(), msg="%s draws a card"%self)
-    def discard_card(self, card):
-        card.move_to(self.graveyard)
-        self.send(DiscardCardEvent(), card=card)
-        self.send(LogEvent(), msg="%s discards %s"%(self, card))
-    def discard(self, number=1, cardtype=isCard):
-        a = 's' if number > 1 else ''
-        for i in range(number):
-            card = self.getTarget(cardtype, zone="hand", controller=self, required=True, prompt="Select card%s to discard: %d left of %d"%(a, number-i,number))
-            self.discard_card(card)
+    def discard(self, card):
+        if str(card.zone) == "hand":
+            card.move_to(self.graveyard)
+            self.send(DiscardCardEvent(), card=card)
+            return True
+        else: return False
+    def choose_discard(self, number=1, cardtype=isCard):
+        for card in self.choose_from_zone(number, cardtype, "hand", "discard"): self.discard(card)
     def discard_down(self):
         number = len(self.hand) - self.hand_limit
-        self.discard(number)
+        self.choose_discard(number)
+    def sacrifice(self, perm):
+        if perm.controller == self and str(perm.zone) == "play":
+            perm.move_to(self.graveyard)
+            self.send(PermanentSacrificedEvent(), card=perm)
+            return True
+        else: return False
+    def choose_sacrifice(self, number=1, cardtype=isPermanent):
+        for perm in self.choose_from_zone(number, cardtype, "play", "sacrifice"): self.sacrifice(perm)
     def mulligan(self):
         number = 7
         self.library.disable_ordering()

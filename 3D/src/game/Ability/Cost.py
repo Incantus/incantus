@@ -1,5 +1,5 @@
 from game import Mana
-from game.GameEvent import SacrificeEvent, CounterAddedEvent, CounterRemovedEvent, InvalidTargetEvent
+from game.GameEvent import CounterAddedEvent, CounterRemovedEvent, InvalidTargetEvent
 from game.LazyInt import LazyInt
 from game.Match import isCard
 
@@ -256,8 +256,7 @@ class SacrificeCost(Cost):
         return True
     def pay(self, card, player):
         for target in self.targets:
-            target.move_to(target.owner.graveyard)
-            #player.send(Sacrifice())
+            player.sacrifice(target)
         self.payment = self.targets
     def __str__(self):
         return 'Sacrifice'
@@ -474,7 +473,7 @@ class DiscardCost(Cost):
         return True
     def pay(self, card, player):
         for c in self.discards:
-            player.discard_card(c)
+            player.discard(c)
         self.payment = self.discards
     def __str__(self):
         if self.cardtype:

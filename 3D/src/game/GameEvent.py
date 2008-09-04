@@ -41,7 +41,6 @@ class ColorModifiedEvent(Event): pass
 class SubtypeModifiedEvent(Event): pass
 class SupertypeModifiedEvent(Event): pass
 
-class SacrificeEvent(Event): pass
 class ManaAdded(Event): pass
 class ManaSpent(Event): pass
 class ManaCleared(Event): pass
