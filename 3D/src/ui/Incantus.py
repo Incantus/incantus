@@ -55,9 +55,9 @@ class Camera:
         self._orientation = AnimatedQuaternion()
         #self._pos.set_transition(dt=0.5, method="sine")
         self._orientation.set_transition(dt=0.5, method="sine")
-        self.viewangle = -7*math.pi/16
+        #self.viewangle = -7*math.pi/16
         #self.viewangle = -15*math.pi/32
-        #self.viewangle = -127*math.pi/256
+        self.viewangle = -127*math.pi/256
         self._orientation.rotate_axis(self.viewangle, euclid.Vector3(1,0,0))
         self.view_switched = False
         self.vis_distance = 6.5
@@ -262,28 +262,29 @@ class GameWindow(window.Window):
         elif not self.start_new_game:
             if symbol == key.N:
                 self.status_controller.set_solitaire()
-                self.otherplayer_hand.set_solitaire()
+                self.player_hand.set_hidden(False)
                 self.action_new_game()
             elif symbol == key.F7:
                 self.status_controller.set_solitaire()
-                self.otherplayer_hand.set_solitaire()
+                self.player_hand.set_hidden(False)
                 self.action_new_game(True)
             elif symbol == key.F8:
                 self.status_controller.set_solitaire()
-                self.otherplayer_hand.set_solitaire()
+                self.player_hand.set_hidden(False)
                 self.action_new_game(False)
             elif symbol == key.C and modifiers & key.MOD_SHIFT: # client
+                self.player_hand.set_hidden(False)
                 self.start_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")), False)
             elif symbol == key.S and modifiers & key.MOD_SHIFT: #server
+                self.player_hand.set_hidden(False)
                 self.start_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")), True)
             elif symbol == key.F6:
+                self.player_hand.set_hidden(False)
                 self.restart_network_game(self.conf.get("network", "server"), int(self.conf.get("network", "port")))
         elif self.start_new_game:
             if symbol == key.F2:
-                #if self.hand_controller.activated: self.hand_controller.deactivate()
                 self.phase_controller.activate(other=False)
             elif symbol == key.F3:
-                #if self.hand_controller.activated: self.hand_controller.deactivate()
                 self.phase_controller.activate(other=True)
         else:
             return event.EVENT_UNHANDLED
@@ -636,12 +637,18 @@ class GameWindow(window.Window):
                ((player == game.Keeper.other_player and self.state in self.opponent_turn_stops) or 
                (player == game.Keeper.curr_player and self.state in self.my_turn_stops))):
                 self.user_action = game.Action.PassPriority()
+                return
             elif self.finish_turn: #player == game.Keeper.curr_player and self.finish_turn:
                 self.user_action = game.Action.PassPriority()
-            elif (player == self.player1): dispatcher.send(GUIEvent.MyPriority())
+                return
+        if (player == self.player1):
+            #self.player_hand.set_hidden(False)
+            #self.otherplayer_hand.set_hidden(True)
+            dispatcher.send(GUIEvent.MyPriority())
         else:
-            if (player == self.player1): dispatcher.send(GUIEvent.MyPriority())
-            else: dispatcher.send(GUIEvent.OpponentPriority())
+            #self.player_hand.set_hidden(True)
+            #self.otherplayer_hand.set_hidden(False)
+            dispatcher.send(GUIEvent.OpponentPriority())
     def new_turn(self, player):
         self.finish_turn = False
     def phase_stop(self, state):
@@ -727,40 +734,33 @@ class GameWindow(window.Window):
             from_zone = context['from_zone']
             from_player = context['from_player']
             check_card = context['check_card']
-            #if self.hand_controller.activated: self.hand_controller.deactivate()
             self.card_selector.activate(sellist, from_zone, numselections, required=required, is_opponent=(from_player != self.player1), filter=check_card)
         elif context.get("get_selection", False):
             sellist = context['list']
             numselections = context['numselections']
             required = context['required']
             msg = context['msg']
-            #if self.hand_controller.activated: self.hand_controller.deactivate()
             self.list_selector.build(sellist,required,numselections,msg)
         elif context.get("get_choice", False):
             msg = context['msg']
             notify = context['notify']
-            #if self.hand_controller.activated: self.hand_controller.deactivate()
             if notify: self.msg_controller.notify(msg)
             else: self.msg_controller.ask(msg)
         elif context.get("get_mana_choice", False):
             required = context['required']
             manapool = context['manapool']
             from_player = context['from_player']
-            #if self.hand_controller.activated: self.hand_controller.deactivate()
             self.mana_controller.request_mana(required, manapool, is_opponent=(from_player != self.player1))
         elif context.get("get_X", False):
-            #if self.hand_controller.activated: self.hand_controller.deactivate()
             from_player = context['from_player']
             self.x_controller.request_x(is_opponent=(from_player != self.player1))
         elif context.get("get_damage_assign", False):
             blocking_list = context['blocking_list']
             trample = context['trample']
-            #if self.hand_controller.activated: self.hand_controller.deactivate()
             self.damage_assignment.activate(blocking_list, trample)
         elif context.get("reveal_card", False):
             #msgs = context['msgs']
             sellist = context['cards']
-            #if self.hand_controller.activated: self.hand_controller.deactivate()
             self.card_selector.activate(sellist, '', 0, required=False)
 
         while not (self.has_exit or userevent):
