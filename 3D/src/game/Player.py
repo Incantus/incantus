@@ -130,7 +130,7 @@ class Player(MtGObject):
     def mulligan(self):
         number = 7
         self.library.disable_ordering()
-        while True:
+        while number > 0:
             number -= 1
             if self.getIntention("", "Would you like to mulligan?"): #, "Would you like to mulligan?"):
                 self.send(LogEvent(), msg="%s mulligans"%self)
@@ -139,7 +139,6 @@ class Player(MtGObject):
                 self.shuffle_library()
                 for i in range(number): self.draw()
             else: break
-            if number == 0: break
         self.library.enable_ordering()
 
     # Who should handle these? Player or GameKeeper?
@@ -167,17 +166,6 @@ class Player(MtGObject):
             self.manapool.clear()
             self.life -= manaburn
         return True
-    def getMainAction(self):
-        self.allowable_actions.extend([PlayLand, ActivateForMana, PlayAbility])
-        num_added_actions = 3
-        action = self.get(prompt="Play Spells or Activated Abilities")
-        [self.allowable_actions.pop() for i in range(num_added_actions)]
-        return action
-    def getAction(self):
-        self.allowable_actions.extend([ActivateForMana, PlayAbility])
-        action = self.get(prompt="Play Instants or Activated Abilities")
-        [self.allowable_actions.pop() for i in range(2)]
-        return action
     def attackingIntention(self):
         # First check to make sure you have cards in play
         # XXX although if you have creatures with Flash this might not work since you can play it anytime
@@ -324,6 +312,17 @@ class Player(MtGObject):
                     break
             if allowed: break
             #else: print self.name, str(action)+" not allowed"
+        return action
+    def getMainAction(self):
+        self.allowable_actions.extend([PlayLand, ActivateForMana, PlayAbility])
+        num_added_actions = 3
+        action = self.get(prompt="Play Spells or Activated Abilities")
+        [self.allowable_actions.pop() for i in range(num_added_actions)]
+        return action
+    def getAction(self):
+        self.allowable_actions.extend([ActivateForMana, PlayAbility])
+        action = self.get(prompt="Play Instants or Activated Abilities")
+        [self.allowable_actions.pop() for i in range(2)]
         return action
     def getIntention(self, prompt='', msg="", notify=False):
         def filter(action):
