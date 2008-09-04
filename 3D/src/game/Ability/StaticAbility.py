@@ -6,6 +6,7 @@ from game.GameEvent import ControllerChanged, SubroleModifiedEvent, TimestepEven
 
 # Static abilities always function while the permanent is in the relevant zone
 class StaticAbility(object):
+    enabled = property(fget=lambda self: self._status_count > 0)
     def __init__(self, effects, zone="play", txt='', keyword=''):
         self.effect_generator = effects
         self.zone = zone
@@ -13,8 +14,15 @@ class StaticAbility(object):
         else: self.txt = txt
         self.keyword = keyword
         self.effect_tracking = None
-    def enteringZone(self, source): self.source = source
-    def leavingZone(self): pass
+        self._status_count = 0
+    def enable(self, source):
+        self._status_count += 1
+        if self._status_count == 1: self._enable(source)
+    def disable(self):
+        self._status_count -= 1
+        if self._status_count == 0: self._disable()
+    def _enable(self, source): self.source = source
+    def _disable(self): pass
     def copy(self): return copy.copy(self)
     def __str__(self): return self.txt
 
@@ -38,8 +46,8 @@ class CardTrackingAbility(StaticAbility):
             opp_zone = getattr(self.source.controller.opponent, self.tracking)
             cards = zone.get(zone_condition) + opp_zone.get(zone_condition)
         return cards
-    def enteringZone(self, source):
-        super(CardTrackingAbility, self).enteringZone(source)
+    def _enable(self, source):
+        super(CardTrackingAbility, self)._enable(source)
         self.effect_tracking = {}
         # Get all cards in the tracked zone
         for card in self.get_current(): self.add_effects(card)
@@ -48,8 +56,8 @@ class CardTrackingAbility(StaticAbility):
         self.leave_trigger.setup_trigger(self.source, self.leaving)
         self.control_changed.setup_trigger(self.source, self.new_controller)
         for trigger in self.other_triggers: trigger.setup_trigger(self.source, self.card_changed)
-    def leavingZone(self):
-        super(CardTrackingAbility, self).leavingZone()
+    def _disable(self):
+        super(CardTrackingAbility, self)._disable()
         self.enter_trigger.clear_trigger()
         self.leave_trigger.clear_trigger()
         self.control_changed.clear_trigger()
@@ -70,7 +78,9 @@ class CardTrackingAbility(StaticAbility):
     def leaving(self, card):
         # This is called everytime a card that matches condition leaves the tracking zone
         # The card might already be removed if the tracked card is removed and this card leaves play
-        if card in self.effect_tracking: self.remove_effects(card)
+        # XXX Don't remove the effect since it's part of LKI
+        #if card in self.effect_tracking: self.remove_effects(card)
+        if card in self.effect_tracking: del self.effect_tracking[card]
     def add_effects(self, card):
         self.effect_tracking[card] = True  # this is to prevent recursion when the effect is called
         self.effect_tracking[card] = [removal_func for removal_func in self.effect_generator(card)]
@@ -86,11 +96,11 @@ class CardTrackingAbility(StaticAbility):
         elif tracking and not pass_condition and not self.effect_tracking[sender] == True: self.remove_effects(sender)
 
 class CardStaticAbility(StaticAbility):
-    def enteringZone(self, source):
-        super(CardStaticAbility, self).enteringZone(source)
+    def _enable(self, source):
+        super(CardStaticAbility, self)._enable(source)
         self.effect_tracking = [removal_func for removal_func in self.effect_generator(source)]
-    def leavingZone(self):
-        super(CardStaticAbility, self).leavingZone()
+    def _disable(self):
+        super(CardStaticAbility, self)._disable()
         for remove in self.effect_tracking: remove()
         self.effect_tracking = None
 
@@ -98,24 +108,24 @@ class CardStaticAbility(StaticAbility):
 class Conditional(MtGObject):
     def init_condition(self, condition=lambda source: True):
         self.condition = condition
-        self._enabled = False
-    def enteringZone(self, source):
+        self.__enabled = False
+    def _enable(self, source):
         self.source = source
         self.register(self.check_condition, event=TimestepEvent())
         self.check_condition()
-    def leavingZone(self):
+    def _disable(self):
         self.unregister(self.check_condition, event=TimestepEvent())
-        if self._enabled:
-            self._enabled = False
-            super(Conditional, self).leavingZone()
+        if self.__enabled:
+            self.__enabled = False
+            super(Conditional, self)._disable()
     def check_condition(self):
         pass_condition = self.condition(self.source)
-        if not self._enabled and pass_condition:
-            super(Conditional, self).enteringZone(self.source)
-            self._enabled = True
-        elif self._enabled and not pass_condition:
-            super(Conditional, self).leavingZone()
-            self._enabled = False
+        if not self.__enabled and pass_condition:
+            super(Conditional, self)._enable(self.source)
+            self.__enabled = True
+        elif self.__enabled and not pass_condition:
+            super(Conditional, self)._disable()
+            self.__enabled = False
 
 class ConditionalStaticAbility(Conditional, CardStaticAbility):
     def __init__(self, effects, condition, zone="play", txt=''):

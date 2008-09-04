@@ -11,6 +11,7 @@ class TriggeredStackAbility(Ability):
         return self.get_targets()
 
 class TriggeredAbility(object):
+    enabled = property(fget=lambda self: self._status_count > 0)
     def __init__(self, triggers, condition, effects, expiry=-1, zone="play", txt='Triggered Ability', keyword=''):
         if not (type(triggers) == list or type(triggers) == tuple): triggers=[triggers]
         self.triggers = triggers
@@ -21,13 +22,18 @@ class TriggeredAbility(object):
         if keyword: self.txt = keyword.title()
         else: self.txt = txt
         self.keyword = keyword
-    def enteringZone(self, source):
-        self.source = source
-        for trigger in self.triggers:
-            trigger.setup_trigger(source,self.playAbility,self.condition,self.expiry)
-    def leavingZone(self):
-        for trigger in self.triggers:
-            trigger.clear_trigger()
+        self._status_count = 0
+    def enable(self, source):
+        self._status_count += 1
+        if self._status_count == 1:
+            self.source = source
+            for trigger in self.triggers:
+                trigger.setup_trigger(source,self.playAbility,self.condition,self.expiry)
+    def disable(self):
+        self._status_count -= 1
+        if self._status_count == 0:
+            for trigger in self.triggers:
+                trigger.clear_trigger()
     def playAbility(self, **trigger_keys):
         player = self.source.controller
         player.stack.add_triggered(TriggeredStackAbility(self.effects, trigger_keys, txt=self.txt), self.source)

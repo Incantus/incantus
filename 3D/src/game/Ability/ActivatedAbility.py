@@ -30,7 +30,15 @@ class CostAbility(Ability):
     def __str__(self):
         return self.txt
 
-class ActivatedAbility(CostAbility): activated = True
+class ActivatedAbility(CostAbility):
+    activated = True
+    enabled = property(fget=lambda self: self._status_count > 0)
+    def __init__(self, effects, limit=None, zone=None, txt='', keyword=''):
+        super(ActivatedAbility,self).__init__(effects, limit, zone, txt, keyword)
+        self._status_count = 0
+    def enable(self, source): self._status_count += 1
+    def disable(self): self._status_count -= 1
+    def playable(self, source): return self.enabled and self.limit(source)
 
 class ManaAbility(ActivatedAbility):
     mana_ability = True
