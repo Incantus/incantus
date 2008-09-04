@@ -85,9 +85,9 @@ class Player(MtGObject):
             token.move_to(self.play)
     def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action=''):
         a = 's' if number > 1 else ''
-        cards = []; i = 0
-        prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number-i,number)
-        while True:
+        cards = []; total = number
+        prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
+        while number > 0:
             card = self.getTarget(cardtype, zone=zone, controller=self, required=True, prompt=prompt)
             if card == False: break
             if card in cards:
@@ -95,9 +95,8 @@ class Player(MtGObject):
                 self.send(InvalidTargetEvent(), target=card)
             else:
                 cards.append(card)
-                i += 1
-                prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number-i,number)
-            if len(cards) == number: break
+                number -= 1
+                prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
         return cards
     def draw(self):
         card = self.library.top()
@@ -111,13 +110,13 @@ class Player(MtGObject):
             self.send(DiscardCardEvent(), card=card)
             return True
         else: return False
-    def force_discard(self, number=1, cardtype=isCard):
+    def force_discard(if number > 0: self, number=1, cardtype=isCard):
         cards = self.choose_from_zone(number, cardtype, "hand", "discard")
         for card in cards: self.discard(card)
         return len(cards)
     def discard_down(self):
         number = len(self.hand) - self.hand_limit
-        self.force_discard(number)
+        if number > 0: self.force_discard(number)
     def sacrifice(self, perm):
         if perm.controller == self and str(perm.zone) == "play":
             perm.move_to(self.graveyard)
