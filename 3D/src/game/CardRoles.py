@@ -439,17 +439,17 @@ class Attachment(object):
         if self.attached_to != None: self.unattach()
         self.attached_to = target
         self.attached_to.attachments.append(self.perm.card)
-        for ability in self.attached_abilities: ability.enteringZone(target)
+        for ability in self.attached_abilities: ability.enable(target)
         self.send(AttachedEvent(), attached=self.attached_to)
         return True
     def unattach(self):
         if self.attached_to:
-            for ability in self.attached_abilities: ability.leavingZone()
+            for ability in self.attached_abilities: ability.disable()
             self.attached_to.attachments.remove(self.perm.card)
             self.send(UnAttachedEvent(), unattached=self.attached_to)
         self.attached_to = None
     def attachedLeavingPlay(self):
-        for ability in self.attached_abilities: ability.leavingZone()
+        for ability in self.attached_abilities: ability.disable()
         self.send(UnAttachedEvent(), unattached=self.attached_to)
         self.attached_to = None
     def leavingPlay(self):
