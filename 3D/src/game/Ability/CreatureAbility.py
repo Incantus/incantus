@@ -168,12 +168,11 @@ def indestructible():
     return CardStaticAbility(effects=[Override(func1, attr="permanent"), Override(func2, attr="permanent")], txt="indestructible")
 
 # Replacement effects for damage
-# XXX I think these are broken right now
 def _replace(target, func_name, func, msg, condition, attr="creature"):
     if isPlayer(target): obj = target
     elif attr == "permanent": obj = target.current_role
     elif attr == "creature": obj = target.get_subrole(Creature)
-    return replace(target, func_name, func, msg, condition=condition)
+    return replace(obj, func_name, func, msg, condition=condition)
 
 def prevent_damage(target, amt, next=True, txt=None, condition=None):
     if txt == None:
