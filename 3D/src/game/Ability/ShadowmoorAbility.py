@@ -4,6 +4,9 @@ from Target import NoTarget
 from Trigger import EnterFromTrigger
 from Counters import PowerToughnessCounter
 from CreatureAbility import keyword_effect
+from game.stacked_function import override, do_all
+from game.pydispatch import dispatcher
+from game.GameEvent import TimestepEvent
 
 def persist():
     def condition(source, card):
@@ -11,8 +14,12 @@ def persist():
     def persist_effect(source, card):
         yield NoTarget()
         if condition(source, card):
+
+            # XXX Fix for LKI
+            remove_entering = override(source.in_play_role, "enteringZone", lambda self, zone: self.add_counters(PowerToughnessCounter(-1, -1)), combiner=do_all)
+            # Now move to play
             source.move_to(source.owner.play)
-            source.add_counters(PowerToughnessCounter(-1, -1))
+            dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False)
         yield
 
     return TriggeredAbility(EnterFromTrigger(from_zone="play", to_zone="graveyard"),

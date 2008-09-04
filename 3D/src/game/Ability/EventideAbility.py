@@ -16,3 +16,8 @@ def retrace():
         yield restore
 
     return CardStaticAbility(effects=retrace_effect, zone="graveyard", keyword="retrace")
+
+
+def chroma(selection, color):
+    if not (type(selection) == list or type(selection) == tuple): selection = [selection]
+    return sum([sum([1 for symbol in obj.cost if symbol == color]) for obj in selection if obj.cost.is_mana_cost()])
