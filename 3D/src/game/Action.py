@@ -15,7 +15,7 @@ class CancelAction(Action):
     pass
 
 # For attackers to assign damage to multiple blockers
-class DamageAssignment(Action):
+class DistributionAssignment(Action):
     def __init__(self, assnment):
         self.assignment = assnment
 

@@ -108,6 +108,7 @@ class GameWindow(window.Window):
         self.otherplay = PlayView(z=-3, is_opponent_view=True)
         self.play_controller = PlayController(self.mainplay, self.otherplay, self)
         self.damage_assignment = DamageSelector(self.mainplay, self.otherplay, self)
+        self.distribution_assignment = DistributionSelector(self.mainplay, self.otherplay, self)
         self.player_hand = HandView()
         self.hand_controller = HandController(self.player_hand, self)
         self.otherplayer_hand = HandView(is_opponent=True)
@@ -754,6 +755,10 @@ class GameWindow(window.Window):
         elif context.get("get_X", False):
             from_player = context['from_player']
             self.x_controller.request_x(is_opponent=(from_player != self.player1))
+        elif context.get("get_distribution", False):
+            amount = context['amount']
+            targets = context['targets']
+            self.distribution_assignment.activate(amount, targets)
         elif context.get("get_damage_assign", False):
             blocking_list = context['blocking_list']
             trample = context['trample']

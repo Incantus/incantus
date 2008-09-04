@@ -335,7 +335,7 @@ class DamageSelector(object):
                 dmg[blocker.gamecard] = damage
                 total_dmg += damage
             if int(self.attacker.damage_text.value) == 0 or (self.trample and all([int(blocker.damage_text.value)>=blocker.gamecard.toughness for b in self.blockers])):
-                self.window.user_action = Action.DamageAssignment(dmg)
+                self.window.user_action = Action.DistributionAssignment(dmg)
                 self.deactivate()
             return True
     def on_mouse_press(self, x, y, button, modifiers):
@@ -349,6 +349,78 @@ class DamageSelector(object):
             if not int(power.value) == 0:
                 power.set_text(int(power.value)-1)
                 dmg.set_text(int(dmg.value)+1)
+                selected.flash()
+            #else:
+            #    selected.shake()
+        return True
+    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+        return True
+    def on_mouse_release(self, x, y, button, modifiers):
+        return True
+    def on_mouse_motion(self, x, y, dx, dy):
+        return True
+
+class DistributionSelector(object):
+    def __init__(self, playzone1, playzone2, window):
+        self.play1 = playzone1
+        self.play2 = playzone2
+        self.window = window
+    def activate(self, amount, targets):
+        self.amount = amount
+        self.layout(targets)
+        self.window.push_handlers(self)
+    def deactivate(self):
+        for card in self.targets:
+            card.text.visible = 1.0
+            card.damage_text.color = (1., 0., 0., 1.)
+            card.damage_text.set_text("%d"%card.damage)
+            card.restore_pos()
+        self.window.pop_handlers()
+    def layout(self, targets):
+        self.targets = []
+        size = 0.01
+        x = z = 0
+        camera = self.window.camera
+        currplay, otherplay = self.play1, self.play2
+        card = currplay.get_card(targets[0])
+        if not card: card = otherplay.get_card(targets[0])
+        width = card.width*size*(len(targets)+0.1*(len(targets)-1))
+        x = (-width+card.width*size)*0.5*1.1
+
+        for target in targets:
+            card, play = currplay.get_card(target), currplay
+            if not card: card, play = otherplay.get_card(target), otherplay
+            card.zoom_to_camera(camera, play.pos.z, size=size, show_info=False, offset=euclid.Vector3(x,0,z))
+            #card.text.visible = 0.0
+            card.text.pos = card.text.orig_pos
+            card.damage_text.visible = 1.0
+            card.damage_text.scale = 2.0
+            card.damage_text.pos = euclid.Vector3(0, card.height/5, 0.01)
+            card.damage_text.set_text("0")
+            self.targets.append(card)
+            x += card.width*size*1.1
+    def on_key_press(self, symbol, modifiers):
+        if symbol == key.ENTER:
+            # Check damage assignment
+            if self.amount == 0:
+                assn = {}
+                for target in self.targets:
+                    amt = int(target.damage_text.value)
+                    assn[target.gamecard] = amt
+                self.window.user_action = Action.DistributionAssignment(assn)
+                self.deactivate()
+            return True
+    def on_mouse_press(self, x, y, button, modifiers):
+        select_ray = self.window.selection_ray(x, y)
+        selected, play = self.play1.get_card_from_hit(select_ray), self.play1
+        if not selected: selected, play = self.play2.get_card_from_hit(select_ray), self.play2
+        if selected in self.targets:
+            amt = selected.damage_text
+            if not (button == mouse.RIGHT or modifiers & key.MOD_OPTION): incr = 1
+            else: incr = -1
+            if (incr == 1 and self.amount > 0) or (incr == -1 and int(amt.value) > 0):
+                self.amount -= incr
+                amt.set_text(int(amt.value)+incr)
                 selected.flash()
             #else:
             #    selected.shake()

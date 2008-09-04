@@ -419,6 +419,13 @@ class Player(MtGObject):
         result = self.input(context, "%s: %s"%(self.name,prompt))
         if isinstance(result, CancelAction): return -1
         else: return result
+    def getDistribution(self, amount, targets, prompt=''):
+        if not prompt: prompt = "Distribute %d to target permanents"%amount
+        def filter(action):
+            if isinstance(action, CancelAction): return False
+            return action.assignment
+        context = {'get_distribution': True, 'targets': targets, 'amount': amount, 'process': filter}
+        return self.input(context, "%s: %s"%(self.name,prompt))
     def getDamageAssignment(self, blocking_list, prompt="Assign damage to blocking creatures", trample=False):
         def filter(action):
             if isinstance(action, CancelAction): return False

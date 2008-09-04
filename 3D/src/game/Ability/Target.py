@@ -8,13 +8,19 @@ class NoTarget(object):
     def get_targeted(self): return None
 
 class MultipleTargets(object):
-    def __init__(self, number, target_types, up_to=False, msg='', selector="controller"):
+    def __init__(self, target_types, number=1, up_to=False, distribute=0, distribute_type='', msg='', selector="controller", player=None):
         self.number = number
+        self.distribute = distribute
+        self.distribute_type = distribute_type
+        # When you can distribute N among any number of targets
+        if self.distribute > 0 and self.number == -1:
+            self.number = self.distribute
         self.zones = []
         self.target = []
         self.up_to = up_to
         self.msg = msg
         self.selector = selector
+        self.player = player
         if not (type(target_types) == tuple or type(target_types) == list):
             self.target_types = [target_types]
         else: self.target_types = target_types
@@ -23,11 +29,12 @@ class MultipleTargets(object):
                 if match(card): return True
             else: return False
         self.match_type = match_type
-    def get_targeted(self): return self.target
+    def get_targeted(self):
+        if self.distribute == 0: return self.target
+        else: return [(target, self.distribution[target]) for target in self.target] # only return valid targets
     #def get_targeted(self): return [target.current_role if not isPlayer(target) else target for target in self.target]
     def check_target(self, card):
         # Remove any targets no longer in the correct zone, or no longer matching the original condition
-        # XXX This is wrong - since it won't match up with the number requested
         final_targets = []
         for target, zone in zip(self.target, self.zones):
             if not isPlayer(target):
@@ -42,7 +49,7 @@ class MultipleTargets(object):
         if curr > 0: another = "another "
         else: another = "" 
         if self.up_to: another = "up to "+another
-########
+
         if self.msg: prompt=self.msg
         elif self.target_types: prompt="Target %s%d %s(s) for %s"%(another,number, ' or '.join([str(t) for t in self.target_types]), card)
         else: prompt = "Select %s%d target(s) for %s"%(another,number,card)
@@ -53,17 +60,25 @@ class MultipleTargets(object):
             import game.GameKeeper
             selector = game.GameKeeper.Keeper.curr_player
         else: selector = card.controller
+        if self.player == None: controller=None
+        elif self.player == "you": controller=selector
+        else: controller=selector.opponent
         i = 0
         targets = []
-        while i <= self.number:
-            target = selector.getTarget(self.target_types,zone="play",controller=card.controller,required=False,prompt=self.get_prompt(i, card.name))
+        while i < self.number:
+            target = selector.getTarget(self.target_types,zone="play",controller=controller,required=False,prompt=self.get_prompt(i, card.name))
             if target == False:
                 if not self.up_to or len(targets) == 0: return False
                 else: break
             elif target.canBeTargetedBy(card) and not target in targets:
                 targets.append(target)
                 i += 1
-            else: player.send(InvalidTargetEvent(), target=target)
+            else: selector.send(InvalidTargetEvent(), target=target)
+
+        # Now distribute among them if we need to
+        if self.distribute > 0:
+            self.distribution = selector.getDistribution(amount=self.distribute, targets=targets, prompt="Distribute %d %s among targets"%(self.distribute, self.distribute_type))
+
         # Got our targets, now save info:
         for target in targets:
             # The zone
