@@ -110,7 +110,7 @@ class Player(MtGObject):
             self.send(DiscardCardEvent(), card=card)
             return True
         else: return False
-    def force_discard(if number > 0: self, number=1, cardtype=isCard):
+    def force_discard(self, number=1, cardtype=isCard):
         cards = self.choose_from_zone(number, cardtype, "hand", "discard")
         for card in cards: self.discard(card)
         return len(cards)
