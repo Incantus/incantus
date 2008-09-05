@@ -6,7 +6,7 @@ def retrace():
     def retrace_effect(card):
         orig_spell = card.play_spell
         def play_retrace(source):
-            play = orig_spell.effect_generator(source)
+            play = orig_spell.effect_generator(source.controller, source)
             payment = yield play.next()+DiscardCost(cardtype=isLandType)
             target = yield play.send(payment[:-1])
             yield play.send(target)

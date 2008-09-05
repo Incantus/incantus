@@ -33,7 +33,7 @@ graveyard_tracker = ZoneMoveVariable(from_zone="play", to_zone="graveyard")
 
 def play_permanent(cost):
     if type(cost) == str: cost = ManaCost(cost)
-    def effects(source):
+    def effects(controller, source):
         yield cost
         yield NoTarget()
         yield
@@ -41,7 +41,7 @@ def play_permanent(cost):
 
 def play_aura(cost, target_type):
     if type(cost) == str: cost = ManaCost(cost)
-    def effects(source):
+    def effects(controller, source):
         yield cost
         target = yield Target(target_type)
         yield
@@ -63,13 +63,13 @@ def play_instant():
 def modal(*modes, **kw):
     choose = kw['choose']
     def make_modal(effects):
-        def modal_effects(source):
-            indices = source.controller.getSelection([(mode.__doc__,i) for i, mode in enumerate(modes)], choose, idx=False, msg='Select %d mode(s):'%choose)
-            if hasattr(indices, "__len__"): chosen = tuple((modes[i](source) for i in indices))
+        def modal_effects(controller, source):
+            indices = controller.getSelection([(mode.__doc__,i) for i, mode in enumerate(modes)], choose, idx=False, msg='Select %d mode(s):'%choose)
+            if hasattr(indices, "__len__"): chosen = tuple((modes[i](controller, source) for i in indices))
             else: chosen = (modes[indices](source), )
             # get the costs
             costs = tuple((mode.next() for mode in chosen))
-            payment = yield effects(source).next()
+            payment = yield effects(controller, source).next()
 
             # get the targets
             targets = yield tuple((mode.send(payment) for mode in chosen))
@@ -82,9 +82,9 @@ def modal(*modes, **kw):
 def modal_triggered(*modes, **kw):
     choose = kw['choose']
     def make_modal(effects):
-        def modal_effects(source):
-            indices = source.controller.getSelection([(mode.__doc__,i) for i, mode in enumerate(modes)], choose, idx=False, msg='Select %d mode(s):'%choose)
-            if hasattr(indices, "__len__"): chosen = tuple((modes[i](source) for i in indices))
+        def modal_effects(controller, source):
+            indices = controller.getSelection([(mode.__doc__,i) for i, mode in enumerate(modes)], choose, idx=False, msg='Select %d mode(s):'%choose)
+            if hasattr(indices, "__len__"): chosen = tuple((modes[i](controller, source) for i in indices))
             else: chosen = (modes[indices](source), )
             # get the targets
             targets = yield tuple((mode.next() for mode in chosen))

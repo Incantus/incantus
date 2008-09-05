@@ -134,7 +134,7 @@ protection_from_artifacts = partial(protection, attribute_match = lambda other: 
 
 # 502.68b If a permanent has multiple instances of lifelink, each triggers separately.
 def lifelink():
-    def lifelink_effect(source, amount):
+    def lifelink_effect(controller, source, amount):
         yield NoTarget()
         source.controller.life += amount
         yield

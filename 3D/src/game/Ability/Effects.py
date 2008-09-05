@@ -2,6 +2,11 @@ from game.pydispatch import dispatcher
 from game.CardEnvironment import *
 from game.abilities import stacked_abilities
 
+def delay(source, delayed_trigger):
+    delayed_trigger.enable(source)
+    def expire(): delayed_trigger.disable()
+    return expire
+
 def until_end_of_turn(*restores):
     for restore in restores: dispatcher.connect(restore, signal=CleanupEvent(), weak=False, expiry=1)
 

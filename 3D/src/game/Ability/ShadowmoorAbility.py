@@ -11,7 +11,7 @@ from game.GameEvent import TimestepEvent
 def persist():
     def condition(source, card):
         return card==source and card.num_counters("-1-1") == 0
-    def persist_effect(source, card):
+    def persist_effect(controller, source, card):
         yield NoTarget()
         if condition(source, card):
 

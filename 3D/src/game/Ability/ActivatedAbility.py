@@ -16,7 +16,7 @@ class CostAbility(Ability):
     def do_announce(self):
         # Do all the stuff in rule 409.1 like pick targets, pay costs, etc
         source, player = self.source, self.controller
-        self.effects = self.effect_generator(source)  # Start up generator
+        self.effects = self.effect_generator(player, source)  # Start up generator
         self.cost = self.effects.next()
         if (self.cost.precompute(source, player) and
            self.get_targets() and

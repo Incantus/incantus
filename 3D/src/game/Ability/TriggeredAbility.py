@@ -36,6 +36,7 @@ class TriggeredAbility(object):
                 trigger.clear_trigger()
     def playAbility(self, **trigger_keys):
         player = self.source.controller
+        trigger_keys["controller"] = player
         player.stack.add_triggered(TriggeredStackAbility(self.effects, trigger_keys, txt=self.txt), self.source)
     def copy(self):
         return TriggeredAbility([t.copy() for t in self.triggers], self.condition, self.effects, self.expiry, self.zone, self.txt)
