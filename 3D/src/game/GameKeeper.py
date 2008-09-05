@@ -106,7 +106,7 @@ class GameKeeper(MtGObject):
                      "Block": BlockStepEvent, "Damage": AssignDamageEvent, "EndCombat": EndCombatEvent,
                      "EndTurn": EndTurnStepEvent, "Cleanup": CleanupPhase}
         self.send(GameStepEvent(), state=state)
-        self.send(state_map[state]())
+        self.send(state_map[state](), player=self.curr_player)
     def manaBurn(self):
         for player in self.game_phases.players:
             while not player.manaBurn():

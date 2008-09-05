@@ -50,8 +50,8 @@ class Trigger(MtGObject):
         return copy.copy(self)
 
 class PhaseTrigger(Trigger):
-    def filter(self, sender):
-        keys = {'player': sender.curr_player, 'source': self.source}
+    def filter(self, sender, player):
+        keys = {'player': player, 'source': self.source}
         if robustApply(self.match_condition, **keys) and (self.expiry == -1 or self.count < self.expiry):
             robustApply(self.trigger_function, **keys)
             self.count += 1
