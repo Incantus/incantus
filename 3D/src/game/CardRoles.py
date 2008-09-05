@@ -186,19 +186,14 @@ class Permanent(GameRole):
     def shouldDestroy(self):
         # This is called to check whether the permanent should be destroyed (by SBE)
         result = False
-        for role in self.subroles: 
+        for role in self.subroles:
             if role.shouldDestroy():
                 result = True
                 break
         return result
     def canDestroy(self):
         # this can be replaced by regeneration for creatures - what about artifacts and enchantments?
-        result = False
-        for role in self.subroles:
-            if role.canDestroy():
-                result = True
-                break
-        return result
+        return True
     def destroy(self, regenerate=True):
         if not regenerate or self.canDestroy():
             self.move_to(self.owner.graveyard)
@@ -234,7 +229,6 @@ class SubRole(object):
         self.perm = perm
         self.card = perm.card
     def leavingPlay(self): pass
-    def canDestroy(self): return True
     def shouldDestroy(self): return False
     def canBeTargetedBy(self, targeter): return True
     def canBeAttachedBy(self, targeter): return True
