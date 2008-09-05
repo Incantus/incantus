@@ -1,5 +1,5 @@
 from game.GameObjects import MtGObject
-from game.GameEvent import EndTurnEvent, UpkeepStepEvent, MainPhaseEvent, EndMainPhaseEvent, NewTurnEvent
+from game.GameEvent import TurnFinishedEvent, UpkeepStepEvent, MainPhaseEvent, EndMainPhaseEvent, NewTurnEvent
 
 class Limit(MtGObject):
     def __call__(self, card): raise Exception()
@@ -36,7 +36,7 @@ class CountLimit(Limit):
         self.original_count = count
         self.count = count
         # Setup the limit to reset every turn
-        self.register(self.reset, event=EndTurnEvent())
+        self.register(self.reset, event=TurnFinishedEvent())
     def reset(self):
         self.count = self.original_count
     def __call__(self, card):

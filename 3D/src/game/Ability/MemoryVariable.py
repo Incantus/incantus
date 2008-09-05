@@ -3,7 +3,7 @@ from game.GameEvent import *
 
 class MemoryVariable(MtGObject):
     def __init__(self):
-        self.register(self.reset, event=EndTurnEvent())
+        self.register(self.reset, event=TurnFinishedEvent())
     def value(self): raise NotImplementedError()
     def reset(self): pass
     def __int__(self):

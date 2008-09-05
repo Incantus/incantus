@@ -84,8 +84,9 @@ class TargetedByEvent(Event): pass
 class InvalidTargetEvent(Event): pass
 class PowerToughnessChangedEvent(Event): pass
 
+class NewTurnEvent(Event): pass
+class TurnFinishedEvent(Event): pass
 class GameStepEvent(Event): pass
-class NewTurnEvent(GameStepEvent): pass
 class BeginTurnEvent(GameStepEvent): pass
 class UntapStepEvent(GameStepEvent): pass
 class UpkeepStepEvent(GameStepEvent): pass
@@ -97,7 +98,6 @@ class AttackStepEvent(GameStepEvent): pass
 class BlockStepEvent(GameStepEvent): pass
 class AssignDamageEvent(GameStepEvent): pass
 class EndCombatEvent(GameStepEvent): pass
-class EndPhaseEvent(GameStepEvent): pass
+class EndTurnStepEvent(GameStepEvent): pass
 class CleanupPhase(GameStepEvent): pass
 class CleanupEvent(GameStepEvent): pass
-class EndTurnEvent(GameStepEvent): pass

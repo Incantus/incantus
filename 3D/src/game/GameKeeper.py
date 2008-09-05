@@ -104,7 +104,7 @@ class GameKeeper(MtGObject):
                      "Main1": MainPhaseEvent, "Main2": MainPhaseEvent, "EndMain": EndMainPhaseEvent,
                      "PreCombat": PreCombatEvent, "Attack": AttackStepEvent,
                      "Block": BlockStepEvent, "Damage": AssignDamageEvent, "EndCombat": EndCombatEvent,
-                     "EndPhase": EndPhaseEvent, "Cleanup": CleanupPhase, "EndTurn": EndTurnEvent}
+                     "EndTurn": EndTurnStepEvent, "Cleanup": CleanupPhase}
         self.send(GameStepEvent(), state=state)
         self.send(state_map[state]())
     def manaBurn(self):
@@ -351,7 +351,7 @@ class GameKeeper(MtGObject):
         self.setState("EndMain")
     def endPhase(self):
         # End of turn
-        self.setState("EndPhase")
+        self.setState("EndTurn")
         #  - trigger "at end of turn" abilities - if new "at end of turn" event occurs doesn't happen until next turn
         #  - can play instants or abilities
         self.playInstantaneous()
@@ -373,7 +373,7 @@ class GameKeeper(MtGObject):
             if self.stack.process_triggered(): triggered_once = True
             if triggered_once: self.playInstantaneous()
             else: break
-        self.setState("EndTurn")
+        self.send(TurnFinishedEvent(), player=self.curr_player)
 
     # The next set of functions deals with the operation of the stack
     # It may seem recursive but it's not
