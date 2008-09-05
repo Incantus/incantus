@@ -110,6 +110,8 @@ def triggered(triggers, expiry=-1, zone="play", txt=''):
         return TriggeredAbility(triggers, condition, effects, expiry, zone, txt)
     return make_triggered
 
+delayed_trigger = triggered
+
 def static_tracking(events=[], tracking="play", zone="play", txt=''):
     def make_ability(ability):
         condition, effects = ability()
