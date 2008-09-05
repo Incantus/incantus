@@ -639,7 +639,7 @@ class PhaseStatus(Widget):
             ('Damage','Combat damage'),
             ('EndCombat','End of combat'),
             ('Main2','Main'),
-            ('EndPhase','End of turn'),
+            ('EndTurn','End of turn'),
             ('Cleanup','Cleanup')]
         self.group = [0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0]
         self.state_map = dict([(key, (i, val)) for i,(key,val) in enumerate(states)])
