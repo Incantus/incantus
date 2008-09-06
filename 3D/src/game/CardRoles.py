@@ -93,19 +93,32 @@ class SpellRole(GameRole):  # Spells on the stack
     def faceUp(self):
         self.facedown = False
 
+class stacked_controller(object):
+    def __init__(self, perm, initial):
+        self.perm = perm
+        self._controllers = [(initial,)]
+    def get(self): return self._controllers[-1][0]
+    def set(self, new_controller):
+        old_controller = self.get()
+        contr = (new_controller,)
+        self._controllers.append(contr)
+        if not new_controller == old_controller: self.controller_change(old_controller)
+        def remove():
+            orig = self.get()
+            self._controllers.remove(contr)
+            if orig != self.get(): self.controller_change(orig)
+        return remove
+    def controller_change(self, old_controller):
+        self.perm.summoningSickness()
+        self.perm.send(ControllerChanged(), original=old_controller)
+
 class Permanent(GameRole):
-    def controller():
-        doc = "The controller of this card - only valid when in play or on the stack"
-        def fget(self): return self._controller
-        def fset(self, controller):
-            if controller == None: self._controller = controller
-            elif not controller == self._controller:
-                self._controller, old_controller = controller, self._controller
-                self.summoningSickness()
-                if old_controller: self.send(ControllerChanged(), original=old_controller)
-        return dict(doc=doc, fset=fset, fget=fget)
-    controller = property(**controller())
+    controller = property(fget=lambda self: self._controller.get())
     continuously_in_play = property(fget=lambda self: self._continuously_in_play)
+    def initialize_controller(self, controller):
+        self._controller = stacked_controller(self, controller)
+    def change_controller(self, new_controller):
+        return self._controller.set(new_controller)
     def __init__(self, card, subroles):
         super(Permanent, self).__init__(card)
         self._controller = None

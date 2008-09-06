@@ -178,7 +178,7 @@ class Play(OrderedZone):
         super(Play, self).move_card(card, position)
     def before_card_added(self, card):
         card.current_role = card.in_play_role
-        card.controller = self.controllers[card]
+        card.initialize_controller(self.controllers[card])
         super(Play, self).before_card_added(card)
     def post_commit(self):
         self.controllers = {}

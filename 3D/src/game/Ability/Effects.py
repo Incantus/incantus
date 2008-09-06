@@ -10,14 +10,6 @@ def delay(source, delayed_trigger):
 def until_end_of_turn(*restores):
     for restore in restores: dispatcher.connect(restore, signal=CleanupEvent(), weak=False, expiry=1)
 
-def change_controller(target, new_controller):
-    if not isPlayer(new_controller): raise Exception()
-    if not isPermanent(target): raise Exception()
-    old_controller, target.controller = target.controller, new_controller
-    def restore():
-        if str(target.zone) == "play": target.controller = old_controller
-    return restore
-
 def add_mana(player, amount):
     if not isPlayer(player): raise Exception()
     # XXX Do some sanity checking
