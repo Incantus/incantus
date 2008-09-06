@@ -443,7 +443,7 @@ class Attachment(object):
         if self.attached_to != None: self.unattach()
         self.attached_to = target
         self.attached_to.attachments.append(self.perm.card)
-        for ability in self.attached_abilities: ability.enable(target)
+        for ability in self.attached_abilities: ability.enable(self.perm.card)
         self.send(AttachedEvent(), attached=self.attached_to)
         return True
     def unattach(self):

@@ -130,8 +130,8 @@ def static(zone="play", txt=''):
 def attached(zone="attached", txt=''):
     def make_ability(ability):
         condition, effects = ability()
-        if condition: return ConditionalStaticAbility(effects, condition, zone, txt)
-        else: return CardStaticAbility(effects, zone, txt)
+        if condition: return ConditionalAttachedAbility(effects, condition, zone, txt)
+        else: return AttachedAbility(effects, zone, txt)
     return make_ability
 
 def comes_into_play(card, txt='', complex=False, condition=None):

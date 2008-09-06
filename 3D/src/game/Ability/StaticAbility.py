@@ -83,7 +83,7 @@ class CardTrackingAbility(StaticAbility):
         if card in self.effect_tracking: del self.effect_tracking[card]
     def add_effects(self, card):
         self.effect_tracking[card] = True  # this is to prevent recursion when the effect is called
-        self.effect_tracking[card] = [removal_func for removal_func in self.effect_generator(card)]
+        self.effect_tracking[card] = [removal_func for removal_func in self.effect_generator(self.source, card)]
     def remove_effects(self, card):
         for remove in self.effect_tracking[card]: remove()
         del self.effect_tracking[card]   # necessary to prevent recursion
@@ -101,6 +101,15 @@ class CardStaticAbility(StaticAbility):
         self.effect_tracking = [removal_func for removal_func in self.effect_generator(source)]
     def _disable(self):
         super(CardStaticAbility, self)._disable()
+        for remove in self.effect_tracking: remove()
+        self.effect_tracking = None
+
+class AttachedAbility(StaticAbility):
+    def _enable(self, source):
+        super(AttachedAbility, self)._enable(source)
+        self.effect_tracking = [removal_func for removal_func in self.effect_generator(source, source.attached_to)]
+    def _disable(self):
+        super(AttachedAbility, self)._disable()
         for remove in self.effect_tracking: remove()
         self.effect_tracking = None
 
@@ -130,4 +139,9 @@ class Conditional(MtGObject):
 class ConditionalStaticAbility(Conditional, CardStaticAbility):
     def __init__(self, effects, condition, zone="play", txt=''):
         super(ConditionalStaticAbility, self).__init__(effects, zone, txt)
+        self.init_condition(condition)
+
+class ConditionalAttachedAbility(Conditional, AttachedAbility):
+    def __init__(self, effects, condition, zone="play", txt=''):
+        super(ConditionalAttachedAbility, self).__init__(effects, zone, txt)
         self.init_condition(condition)
