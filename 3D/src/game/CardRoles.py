@@ -190,7 +190,9 @@ class Permanent(GameRole):
             return True
         else: return False
     def canUntap(self):
-        return self.tapped
+        for role in self.subroles:
+            if not role.canUntap(): return False
+        else: return self.tapped
     def untap(self):
         if self.tapped:
             self.tapped = False
@@ -249,6 +251,7 @@ class SubRole(object):
     def canBeTargetedBy(self, targeter): return True
     def canBeAttachedBy(self, targeter): return True
     def canTap(self): return True
+    def canUntap(self): return True
     def __deepcopy__(self,memo,mutable=set([list,set,dict])):
         # This only copies one level deep
         # So the subrole(s) are always the pristine one specified in the card definition
@@ -432,6 +435,7 @@ class Creature(SubRole):
 
     # These two override the functions in the Permanent
     def canTap(self): return self.continuouslyInPlay()
+    def canUntap(self): return self.continuouslyInPlay()
     def shouldDestroy(self):
         return self.__damage >= self.toughness
 
