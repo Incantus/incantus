@@ -1,6 +1,6 @@
 import copy
 from game.GameObjects import MtGObject
-from game.GameEvent import DealsDamageEvent, ReceivesDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZone, CardLeavingZone, TimestepEvent
+from game.GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZone, CardLeavingZone, TimestepEvent
 from game.pydispatch.dispatcher import Any
 from game.pydispatch.robustapply import function
 
@@ -61,7 +61,7 @@ class DealDamageTrigger(Trigger):
         super(DealDamageTrigger, self).__init__(event=DealsDamageEvent(), sender=sender)
 class DealDamageToTrigger(Trigger):
     def __init__(self, sender=None):
-        super(DealDamageTrigger, self).__init__(event=DealsDamageToEvent(), sender=sender)
+        super(DealDamageToTrigger, self).__init__(event=DealsDamageToEvent(), sender=sender)
 class ReceiveDamageTrigger(Trigger):
     def __init__(self, sender=None):
         super(ReceiveDamageTrigger, self).__init__(event=ReceivesDamageEvent(), sender=sender)
