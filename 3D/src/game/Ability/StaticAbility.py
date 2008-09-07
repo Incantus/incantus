@@ -16,12 +16,13 @@ class StaticAbility(object):
         self.effect_tracking = None
         self._status_count = 0
     def enable(self, source):
+        self.source = source
         self._status_count += 1
-        if self._status_count == 1: self._enable(source)
+        if self._status_count == 1: self._enable()
     def disable(self):
         self._status_count -= 1
         if self._status_count == 0: self._disable()
-    def _enable(self, source): self.source = source
+    def _enable(self): pass
     def _disable(self): pass
     def copy(self): return copy.copy(self)
     def __str__(self): return self.txt
@@ -46,8 +47,8 @@ class CardTrackingAbility(StaticAbility):
             opp_zone = getattr(self.source.controller.opponent, self.tracking)
             cards = zone.get(zone_condition) + opp_zone.get(zone_condition)
         return cards
-    def _enable(self, source):
-        super(CardTrackingAbility, self)._enable(source)
+    def _enable(self):
+        super(CardTrackingAbility, self)._enable()
         self.effect_tracking = {}
         # Get all cards in the tracked zone
         for card in self.get_current(): self.add_effects(card)
@@ -96,18 +97,18 @@ class CardTrackingAbility(StaticAbility):
         elif tracking and not pass_condition and not self.effect_tracking[sender] == True: self.remove_effects(sender)
 
 class CardStaticAbility(StaticAbility):
-    def _enable(self, source):
-        super(CardStaticAbility, self)._enable(source)
-        self.effect_tracking = [removal_func for removal_func in self.effect_generator(source)]
+    def _enable(self):
+        super(CardStaticAbility, self)._enable()
+        self.effect_tracking = [removal_func for removal_func in self.effect_generator(self.source)]
     def _disable(self):
         super(CardStaticAbility, self)._disable()
         for remove in self.effect_tracking: remove()
         self.effect_tracking = None
 
 class AttachedAbility(StaticAbility):
-    def _enable(self, source):
-        super(AttachedAbility, self)._enable(source)
-        self.effect_tracking = [removal_func for removal_func in self.effect_generator(source, source.attached_to)]
+    def _enable(self):
+        super(AttachedAbility, self)._enable()
+        self.effect_tracking = [removal_func for removal_func in self.effect_generator(self.source, self.source.attached_to)]
     def _disable(self):
         super(AttachedAbility, self)._disable()
         for remove in self.effect_tracking: remove()
@@ -118,8 +119,7 @@ class Conditional(MtGObject):
     def init_condition(self, condition=lambda source: True):
         self.condition = condition
         self.__enabled = False
-    def _enable(self, source):
-        self.source = source
+    def _enable(self):
         self.register(self.check_condition, event=TimestepEvent())
         self.check_condition()
     def _disable(self):
@@ -130,7 +130,7 @@ class Conditional(MtGObject):
     def check_condition(self):
         pass_condition = self.condition(self.source)
         if not self.__enabled and pass_condition:
-            super(Conditional, self)._enable(self.source)
+            super(Conditional, self)._enable()
             self.__enabled = True
         elif self.__enabled and not pass_condition:
             super(Conditional, self)._disable()
