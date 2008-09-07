@@ -95,13 +95,15 @@ def modal_triggered(*modes, **kw):
     return make_modal
 
 def mana(limit=None, zone='play', txt=''):
-    def make_ability(effects):
+    def make_ability(ability):
+        effects = ability()
         return ManaAbility(effects, limit, zone, txt)
     return make_ability
 
 def activated(limit=None, zone='play', txt=''):
-    def make_ability(effects):
-       return ActivatedAbility(effects, limit, zone, txt)
+    def make_ability(ability):
+        effects = ability()
+        return ActivatedAbility(effects, limit, zone, txt)
     return make_ability
 
 def triggered(triggers, expiry=-1, zone="play", txt=''):
