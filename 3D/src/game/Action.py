@@ -56,7 +56,7 @@ class XSelected(Action):
 class CardAction(Action):
     def __init__(self, card):
         self.card = card
-    def __str__(self): return "Playing %s"%self.card
+    def __str__(self): return "Playing %s"%str(self.card)
 
 class PlayLand(CardAction):
     def check_zone(self):
