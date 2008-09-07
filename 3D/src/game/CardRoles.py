@@ -212,6 +212,8 @@ class Permanent(GameRole):
         if not regenerate or self.canDestroy():
             self.move_to(self.owner.graveyard)
             self.send(PermanentDestroyedEvent())
+    def continuouslyInPlay(self):
+        return self.continuously_in_play
     def summoningSickness(self):
         def remove_summoning_sickness(player):
             if self.controller == player:
@@ -369,12 +371,10 @@ class Creature(SubRole):
             total_applied += damage_assn[b]
         if not_enough: return 0
         else: return total_damage - total_applied
-    def continuouslyInPlay(self):
-        return self.perm.continuously_in_play
     def checkAttack(self, attackers, not_attacking):
         return True
     def canAttack(self):
-        return (not self.perm.tapped) and (not self.in_combat) and self.continuouslyInPlay()
+        return (not self.perm.tapped) and (not self.in_combat) and self.perm.continuouslyInPlay()
     def checkBlock(self, combat_assignment, not_blocking):
         return True
     def canBeBlocked(self):

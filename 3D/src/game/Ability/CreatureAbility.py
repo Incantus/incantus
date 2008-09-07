@@ -64,7 +64,7 @@ def flying():
 def haste():
     keyword = "haste"
     def continuouslyInPlay(self): return True
-    return CardStaticAbility(effects=do_override("continuouslyInPlay", continuouslyInPlay, combiner=logical_or), keyword=keyword)
+    return CardStaticAbility(effects=do_override("continuouslyInPlay", continuouslyInPlay, combiner=logical_or, attr="permanent"), keyword=keyword)
 
 def defender():
     keyword = "defender"
