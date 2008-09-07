@@ -97,6 +97,7 @@ class stacked_controller(object):
     def __init__(self, perm, initial):
         self.perm = perm
         self._controllers = [(initial,)]
+        self.perm.summoningSickness()
     def get(self): return self._controllers[-1][0]
     def set(self, new_controller):
         old_controller = self.get()
