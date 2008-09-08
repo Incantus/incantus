@@ -35,6 +35,7 @@ class CounterAddedEvent(Event): pass
 class CounterRemovedEvent(Event): pass
 class MorphEvent(Event): pass
 class ClashEvent(Event): pass
+class CardCycledEvent(Event): pass
 
 class SubroleModifiedEvent(Event): pass
 class ColorModifiedEvent(Event): pass
