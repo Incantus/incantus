@@ -136,29 +136,19 @@ def attached(zone="attached", txt=''):
         else: return AttachedAbility(effects, zone, txt)
     return make_ability
 
-def comes_into_play(card, txt='', complex=False, condition=None):
+no_before = lambda source: None
+def comes_into_play(card, txt='', condition=None):
     def wrap(CiP):
-        if complex:
-            before, during = CiP()
-            def move_to(self, zone, position="top"):
-                # Add the entering function to the in_play_role
-                remove_entering = override(self.in_play_role, "enteringZone", lambda self, zone: during(self), combiner=do_all)
-                # Now move to play
-                before(self)
-                self.move_to(zone, position)
-                # Remove the entering function from the in_play_role
-                # XXX There might be timing issue, since we want to remove the override after the card is put into play
-                dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False)
-        else:
-            during = CiP
-            def move_to(self, zone, position="top"):
-                # Add the entering function to the in_play_role
-                remove_entering = override(self.in_play_role, "enteringZone", lambda self, zone: during(self), combiner=do_all)
-                # Now move to play
-                self.move_to(zone, position)
-                # Remove the entering function from the in_play_role
-                # XXX There might be timing issue, since we want to remove the override after the card is put into play
-                dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False)
+        before, during = CiP()
+        def move_to(self, zone, position="top"):
+            # Add the entering function to the in_play_role
+            remove_entering = override(self.in_play_role, "enteringZone", lambda self, zone: during(self), combiner=do_all)
+            # Now move to play
+            before(self)
+            self.move_to(zone, position)
+            # Remove the entering function from the in_play_role
+            # XXX There might be timing issue, since we want to remove the override after the card is put into play
+            dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False)
         play_condition = lambda self, zone, position="top": str(zone) == "play"
         if condition: cond = lambda self, zone, position="top": play_condition(self,zone,position) and condition(self,zone,position)
         else: cond = play_condition
