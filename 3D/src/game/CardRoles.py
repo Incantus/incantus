@@ -434,8 +434,8 @@ class Creature(SubRole):
             cost.pay(self.card, player)
 
     # These two override the functions in the Permanent
-    def canTap(self): return self.continuouslyInPlay()
-    def canUntap(self): return self.continuouslyInPlay()
+    def canTap(self): return self.perm.continuouslyInPlay()
+    def canUntap(self): return self.perm.continuouslyInPlay()
     def shouldDestroy(self):
         return self.__damage >= self.toughness
 
