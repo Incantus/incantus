@@ -1,6 +1,6 @@
 
 from GameObjects import MtGObject, Card, Token
-from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent
+from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent, TimestepEvent
 from Mana import ManaPool
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
@@ -62,12 +62,10 @@ class Player(MtGObject):
             for card in from_location:
                 card.move_to(card.owner.library)
     def loadDeck(self):
-        self.library.disable_ordering()
         for num, name in self.decklist:
             num = int(num)
             for n in range(num):
                 self.library.add_new_card(Card(name, owner=self))
-        self.library.enable_ordering()
 
     # The following functions are part of the card code DSL
     def shuffle_library(self):
@@ -137,18 +135,16 @@ class Player(MtGObject):
         return len(perms)
     def mulligan(self):
         number = 7
-        self.library.disable_ordering()
         while number > 0:
             number -= 1
             if self.getIntention("", "Would you like to mulligan?"): #, "Would you like to mulligan?"):
                 self.send(LogEvent(), msg="%s mulligans"%self)
-                for card in self.hand:
-                    card.move_to(zone=self.library)
+                for card in self.hand: card.move_to(zone=self.library)
                 self.shuffle_library()
                 for i in range(number): self.draw()
+                yield True
             else: break
-        self.library.enable_ordering()
-
+        yield False
     # Who should handle these? Player or GameKeeper?
     def untapCards(self):
         for card in self.play.get():

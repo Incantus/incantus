@@ -100,38 +100,23 @@ class Hand(OutPlayMixin, Zone):
 class Removed(OutPlayMixin, Zone):
     name = "removed"
 
-class AddingCardsMixin(object):
-    def add_new_card(self, card, position="top"):
-        self.send(CardEnteringZone(), card=card)
-        self._insert_card_unordered(card, position)
-    def _insert_card_unordered(self, card, position):
-        # XXX Same as Zone._insert_card
-        self.before_card_added(card)
-        if position == "top": self.cards.append(card)
-        elif position == "bottom": self.cards.insert(0, card)
-        else: self.cards.insert(position, card)
-        card.zone = self
-        self.send(CardEnteredZone(), card=card)
-
-class Library(OutPlayMixin, AddingCardsMixin, OrderedZone):
+class Library(OutPlayMixin, OrderedZone):
     def __init__(self):
         super(Library, self).__init__()
         self.needs_shuffle = False
-        self.ordering = True
-    def enable_ordering(self):
-        self.ordering = True
-    def disable_ordering(self):
-        self.ordering = False
-    def _insert_card(self, card, position):
-        if self.ordering:
-            super(Library, self)._insert_card(card, position)
-        else:
-            card.zone._remove_card(card)
-            self._insert_card_unordered(card, position)
+    def add_new_card(self, card, position="top"):
+        self.send(CardEnteringZone(), card=card)
+        self._insert_card(card, position)
+    def get_card_order(self, cardlist, pos):
+        # we're gonna shuffle anyway, no need to order the cards
+        if self.needs_shuffle: return cardlist
+        else: return super(Library, self).get_card_order(cardlist, pos)
     def shuffle(self):
-        if not self.pending: random.shuffle(self.cards)
+        if not self.pending:
+            random.shuffle(self.cards)
+            self.send(ShuffleEvent())
         else: self.needs_shuffle = True
-    def pre_commit(self):
+    def post_commit(self):
         if self.needs_shuffle:
             self.needs_shuffle = False
             random.shuffle(self.cards)

@@ -62,10 +62,14 @@ class GameKeeper(MtGObject):
         if not self.ready_to_start: raise Exception("Players not added - not ready to start")
         # XXX This is hacky - need a better way to signal end of game
         self.send(GameStartEvent())
+        self.send(TimestepEvent())
         for player in self.game_phases.players:
             for i in range(7): player.draw()
+        self.send(TimestepEvent())
         for player in self.game_phases.players:
-            player.mulligan()
+            for did_mulligan in player.mulligan():
+                self.send(TimestepEvent())
+                if not did_mulligan: break
         try:
             while True:
                 self.singleTurn()
