@@ -64,7 +64,7 @@ class OrderedZone(Zone):
     def get_card_order(self, cardlist, pos):
         if len(cardlist) > 1:
             player = cardlist[0].owner
-            reorder = player.getCardSelection(cardlist, len(cardlist), from_zone=str(self), from_player=player, required=False, prompt="Order cards entering %s of %s"%(pos, self))
+            reorder = player.getCardSelection(cardlist, number=len(cardlist), zone=str(self), player=player, required=False, prompt="Order cards entering %s of %s"%(pos, self))
             if reorder: cardlist = reorder[::-1]
         return cardlist
     def pre_commit(self): pass
@@ -169,7 +169,7 @@ class Play(OrderedZone):
             for player in self.game.players:
                 cards = player_cards[player]
                 if len(cards) > 1:
-                    cards = player.getCardSelection(cards, len(cards), from_zone=str(self), from_player=player, prompt="Order cards entering %s"%(self))
+                    cards = player.getCardSelection(cards, number=len(cards), zone=str(self), player=player, prompt="Order cards entering %s"%(self))
                     cards.reverse()
                 cardlist.extend(cards)
         return cardlist

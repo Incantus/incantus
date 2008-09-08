@@ -83,20 +83,28 @@ class Player(MtGObject):
         for n in range(number):
             token = Token(info, owner=self)
             token.move_to(self.play)
-    def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action=''):
-        a = 's' if number > 1 else ''
-        cards = []; total = number
-        prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
-        while number > 0:
-            card = self.getTarget(cardtype, zone=zone, controller=self, required=True, prompt=prompt)
-            if card == False: break
-            if card in cards:
-                prompt = "Card already selected - select again"
-                self.send(InvalidTargetEvent(), target=card)
-            else:
-                cards.append(card)
-                number -= 1
-                prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
+    def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action='', required=True):
+        cards = []
+        if zone == "play" or zone == "hand":
+            a = 's' if number > 1 else ''
+            total = number
+            prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
+            while number > 0:
+                card = self.getTarget(cardtype, zone=zone, controller=self, required=required, prompt=prompt)
+                if card == False: break
+                if card in cards:
+                    prompt = "Card already selected - select again"
+                    self.send(InvalidTargetEvent(), target=card)
+                else:
+                    cards.append(card)
+                    number -= 1
+                    prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
+        else:
+            selection = getattr(self, zone).get()
+            if number > 0:
+                if number == 1: a = 'a'
+                else: a = str(number)
+                cards = self.getCardSelection(selection, number=number, zone=zone, player=self, cardtype=cardtype, required=required, prompt="Search your %s for %s %s."%(zone, a, action))
         return cards
     def draw(self):
         card = self.library.top()
@@ -348,22 +356,22 @@ class Player(MtGObject):
             elif numselections == -1: return [sellist[i][0] for i in sel]
             else: return [sellist[i][0] for i in sel][:numselections]
         else: return sel
-    def getCardSelection(self, sellist, numselections, from_zone, from_player, card_types=isGameObject, required=True, prompt=''):
+    def getCardSelection(self, selection, number, zone, player, cardtype=isGameObject, required=True, prompt=''):
         def filter(action):
             if isinstance(action, CancelAction):
                 if not required: return action
                 else: return False
             if not isinstance(action, PassPriority): return action.selection
             else: return False
-        if not (type(card_types) == list or type(card_types) == tuple): card_types = [card_types]
+        if not (type(cardtype) == list or type(cardtype) == tuple): cardtype = [card_type]
         def check_card(card):
             valid = True
-            for ctype in card_types:
+            for ctype in card_type:
                 if ctype(card): break
             else: valid = False
             return valid
-        if numselections > len(sellist): numselections = len(sellist)
-        context = {'get_cards': True, 'list':sellist, 'numselections': numselections, 'required': required, 'process': filter, 'from_zone': from_zone, 'from_player': from_player, 'check_card': check_card}
+        if number > len(selection): number = len(selection)
+        context = {'get_cards': True, 'list':selection, 'numselections': number, 'required': required, 'process': filter, 'from_zone': zone, 'from_player': player, 'check_card': check_card}
         sel = self.input(context, "%s: %s"%(self.name,prompt))
         if isinstance(sel, CancelAction): return False
         else: return sel
