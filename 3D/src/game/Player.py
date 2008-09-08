@@ -104,7 +104,7 @@ class Player(MtGObject):
             if number > 0:
                 if number == 1: a = 'a'
                 else: a = str(number)
-                cards = self.getCardSelection(selection, number=number, zone=zone, player=self, cardtype=cardtype, required=required, prompt="Search your %s for %s %s."%(zone, a, action))
+                cards = self.getCardSelection(selection, number=number, cardtype=cardtype, required=required, prompt="Search your %s for %s %s."%(zone, a, action))
         return cards
     def draw(self):
         card = self.library.top()
@@ -356,21 +356,23 @@ class Player(MtGObject):
             elif numselections == -1: return [sellist[i][0] for i in sel]
             else: return [sellist[i][0] for i in sel][:numselections]
         else: return sel
-    def getCardSelection(self, selection, number, zone, player, cardtype=isGameObject, required=True, prompt=''):
+    def getCardSelection(self, selection, number, cardtype=isGameObject, zone=None, player=None, required=True, prompt=''):
         def filter(action):
             if isinstance(action, CancelAction):
                 if not required: return action
                 else: return False
             if not isinstance(action, PassPriority): return action.selection
             else: return False
-        if not (type(cardtype) == list or type(cardtype) == tuple): cardtype = [card_type]
+        if not (type(cardtype) == list or type(cardtype) == tuple): cardtype = [cardtype]
         def check_card(card):
             valid = True
-            for ctype in card_type:
+            for ctype in cardtype:
                 if ctype(card): break
             else: valid = False
             return valid
         if number > len(selection): number = len(selection)
+        if not zone: zone = str(selection[0].zone)
+        if not player: player = selection[0].controller
         context = {'get_cards': True, 'list':selection, 'numselections': number, 'required': required, 'process': filter, 'from_zone': zone, 'from_player': player, 'check_card': check_card}
         sel = self.input(context, "%s: %s"%(self.name,prompt))
         if isinstance(sel, CancelAction): return False
