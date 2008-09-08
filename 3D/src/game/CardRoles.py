@@ -27,6 +27,7 @@ class GameRole(MtGObject):
     def __init__(self, card):
         self.card = card
         self._counters = []
+        self.attachments = []
         self.is_LKI = False
     # the damage stuff seems kind of hacky
     def send(self, *args, **named):
@@ -43,7 +44,9 @@ class GameRole(MtGObject):
     def isTargetedBy(self, targeter):
         self.send(TargetedByEvent(), targeter=targeter)
     def enteringZone(self, zone): self.abilities.enteringZone(zone)
-    def leavingZone(self, zone): self.abilities.leavingZone(zone)
+    def leavingZone(self, zone):
+        self.abilities.leavingZone(zone)
+        for attached in self.attachments: attached.attachedLeavingPlay()
     def match_role(self, matchrole):
         return matchrole == self.__class__
     def move_to(self, zone, position="top"):
@@ -128,7 +131,6 @@ class Permanent(GameRole):
         self.tapped = False
         self.flipped = False
         self.facedown = False
-        self.attachments = []
         self._continuously_in_play = False
     def get_subrole(self, matchrole):
         for role in self.subroles:
@@ -228,7 +230,6 @@ class Permanent(GameRole):
         super(Permanent, self).enteringZone(zone)
     def leavingZone(self, zone):
         for role in self.subroles: role.leavingPlay()
-        for attached in self.attachments: attached.attachedLeavingPlay()
         super(Permanent, self).leavingZone(zone)
     def __deepcopy__(self, memo):
         newcopy = super(Permanent, self).__deepcopy__(memo)
