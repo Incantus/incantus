@@ -1,6 +1,6 @@
 import copy
 from pydispatch import dispatcher
-from GameEvent import TokenLeavingPlay, ColorModifiedEvent, SubtypeModifiedEvent, SupertypeModifiedEvent
+from GameEvent import TokenLeavingPlay, ColorModifiedEvent, TypeModifiedEvent, SubtypeModifiedEvent, SupertypeModifiedEvent
 from abilities import abilities, stacked_abilities
 from characteristics import stacked_characteristic
 import CardDatabase
@@ -70,7 +70,7 @@ class GameObject(MtGObject):
             role.cost = self.base_cost
             role.text = self.base_text
             role.color = stacked_characteristic(self, self.base_color, ColorModifiedEvent())
-            role.type = self.base_type
+            role.type = stacked_characteristic(self, self.base_type, TypeModifiedEvent())
             role.subtypes = stacked_characteristic(self, self.base_subtypes, SubtypeModifiedEvent())
             role.supertype = stacked_characteristic(self, self.base_supertype, SupertypeModifiedEvent)
             role.abilities = stacked_abilities(self, self.base_abilities)
