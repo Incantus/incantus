@@ -9,7 +9,7 @@ class CostAbility(Ability):
         if limit: self.limit = limit
         else: self.limit = self.limit_type()
         if zone: self.zone = zone
-        if keyword: self.txt = keyword.title()
+        if keyword: self.txt = keyword.capitalize()
         self.keyword = keyword
     def playable(self, source):
         return (self.zone == "all" or str(source.zone) == self.zone) and self.limit(source)

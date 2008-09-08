@@ -10,7 +10,7 @@ class StaticAbility(object):
     def __init__(self, effects, zone="play", txt='', keyword=''):
         self.effect_generator = effects
         self.zone = zone
-        if keyword: self.txt = keyword.title()
+        if keyword: self.txt = keyword.capitalize()
         else: self.txt = txt
         self.keyword = keyword
         self.effect_tracking = None
@@ -113,6 +113,17 @@ class AttachedAbility(StaticAbility):
         super(AttachedAbility, self)._disable()
         for remove in self.effect_tracking: remove()
         self.effect_tracking = None
+
+class ControllerChange(MtGObject):
+    def _enable(self):
+        self.register(self.new_controller, event=ControllerChanged(), sender=self.source)
+        super(ControllerChange, self)._enable()
+    def _disable(self):
+        self.unregister(self.new_controller, event=ControllerChanged(), sender=self.source)
+        super(ControllerChange, self)._disable()
+    def new_controller(self, original):
+        super(ControllerChange, self)._disable()
+        super(ControllerChange, self)._enable()
 
 # The condition is checked every timestep
 class Conditional(MtGObject):

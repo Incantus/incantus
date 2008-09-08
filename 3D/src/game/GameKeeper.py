@@ -255,8 +255,8 @@ class GameKeeper(MtGObject):
 
         tramplers = []
         def check_strike(card):
-            return ((first_strike and ("first-strike" in card.abilities or "double-strike" in card.abilities)) or
-               (not first_strike and not ("first-strike" in card.abilities)))
+            return ((first_strike and ("first strike" in card.abilities or "double strike" in card.abilities)) or
+               (not first_strike and not ("first strike" in card.abilities)))
         for attacker, blockers in new_combat_list:
             if check_strike(attacker):
                 if not attacker.blocked:

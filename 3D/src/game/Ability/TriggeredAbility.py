@@ -19,7 +19,7 @@ class TriggeredAbility(object):
         self.effects = effects
         self.expiry = expiry
         self.zone = zone
-        if keyword: self.txt = keyword.title()
+        if keyword: self.txt = keyword.capitalize()
         else: self.txt = txt
         self.keyword = keyword
         self._status_count = 0

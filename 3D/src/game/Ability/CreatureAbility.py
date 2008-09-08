@@ -80,10 +80,10 @@ def reach():
     keyword = "reach"
     return CardStaticAbility(effects=keyword_effect, keyword=keyword)
 def double_strike():
-    keyword = "double-strike"
+    keyword = "double strike"
     return CardStaticAbility(effects=keyword_effect, keyword=keyword)
 def first_strike():
-    keyword = "first-strike"
+    keyword = "first strike"
     return CardStaticAbility(effects=keyword_effect, keyword=keyword)
 def trample():
     keyword = "trample"
