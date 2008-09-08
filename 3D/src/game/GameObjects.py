@@ -48,7 +48,7 @@ class GameObject(MtGObject):
         self._overrides = set()
 
         # characteristics
-        self.name = self.base_name = None
+        self.base_name = None
         self.base_cost = None
         self.base_text = None
         self.base_color = None
@@ -62,8 +62,8 @@ class GameObject(MtGObject):
     def current_role():
         doc = '''The current role for this card. Either a Card (when in hand, library, graveyard or removed from game), Spell, (stack) or Permanent (in play)'''
         def fget(self): return self._current_role
-        def fset(self, role):
-            role = copy.deepcopy(role)
+        def fset(self, newrole):
+            role = copy.deepcopy(newrole)
             # Set up base characteristics
             role.name = self.base_name
             role.owner = self.owner
@@ -82,10 +82,10 @@ class GameObject(MtGObject):
         self._last_known_info.is_LKI = True
     def move_to(self, zone, position="top"):
         zone.move_card(self, position)
+    # XXX These two are just temporary
+    controller = property(fget=lambda self: self._current_role.controller, fset=lambda self, c: setattr(self._current_role, "controller", c))
     # I should probably get rid of the getattr call, and make everybody refer to current_role directly
     # But that makes the code so much uglier
-    # XXX This is just temporary
-    controller = property(fget=lambda self: self._current_role.controller, fset=lambda self, c: setattr(self._current_role, "controller", c))
     def __getattr__(self, attr):
         if hasattr(self.current_role, attr):
             return getattr(self._current_role,attr)
@@ -95,6 +95,8 @@ class GameObject(MtGObject):
             return getattr(self._last_known_info, attr)
     def __repr__(self):
         return "%s at %s"%(str(self),str(id(self)))
+    def __str__(self):
+        return self.name
 
     # Class attributes for mapping the cards
     _counter = 0
@@ -118,8 +120,6 @@ class Card(GameObject):
         if (self.base_type == "Instant" or self.base_type == "Sorcery"):
             self.in_play_role = NoRole(self)
         self._add_to_map()
-    def __str__(self):
-        return self.name
 
 class Token(GameObject):
     def __init__(self, info, owner):
