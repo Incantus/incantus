@@ -98,7 +98,7 @@ class HandView(CardView):
         self.render_after_transform = self.render_unfocused
         self.unfocused_size = (0.05, 0.30)
         self.unfocused_spacing = 1.025
-        self.hidden = False
+        self.hidden = True
     def set_hidden(self, value=True):
         self.hidden = value
         for card in self.cards: card.hidden = value

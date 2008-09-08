@@ -264,14 +264,17 @@ class GameWindow(window.Window):
             if symbol == key.N:
                 self.status_controller.set_solitaire()
                 self.player_hand.set_hidden(False)
+                self.otherplayer_hand.set_hidden(False)
                 self.action_new_game()
             elif symbol == key.F7:
                 self.status_controller.set_solitaire()
                 self.player_hand.set_hidden(False)
+                self.otherplayer_hand.set_hidden(False)
                 self.action_new_game(True)
             elif symbol == key.F8:
                 self.status_controller.set_solitaire()
                 self.player_hand.set_hidden(False)
+                self.otherplayer_hand.set_hidden(False)
                 self.action_new_game(False)
             elif symbol == key.C and modifiers & key.MOD_SHIFT: # client
                 self.player_hand.set_hidden(False)
