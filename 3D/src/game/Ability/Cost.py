@@ -7,7 +7,7 @@ class Cost(object):
     def is_mana_cost(self): return False
     def precompute(self, card, player): return True
     def compute(self, card, player): return True
-    def pay(self, card, player): pass
+    def pay(self, card, player): self.payment = None
     def __add__(self, other):
         if isinstance(other, str): return MultipleCosts([self,ManaCost(other)])
         elif isinstance(other, MultipleCosts): return MultipleCosts([self]+other.costs)
