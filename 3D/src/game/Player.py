@@ -103,6 +103,7 @@ class Player(MtGObject):
                 if number == 1: a = 'a'
                 else: a = str(number)
                 cards = self.getCardSelection(selection, number=number, cardtype=cardtype, required=required, prompt="Search your %s for %s %s."%(zone, a, action))
+                if zone == "library": self.shuffle_library()
         return cards
     def draw(self):
         card = self.library.top()
