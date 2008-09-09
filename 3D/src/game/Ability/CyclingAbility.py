@@ -19,7 +19,7 @@ def typecycling(subtype, cost):
     def effects(controller, source):
         yield cost + DiscardCost()
         yield NoTarget()
-        for card in controller.choose_from_zone(number=1, cardtype=isCard.with_condition(lambda c: c.subtypes == subtype), zone="library", action=subtype, required=False)
+        for card in controller.choose_from_zone(number=1, cardtype=isCard.with_condition(lambda c: c.subtypes == subtype), zone="library", action=subtype, required=False):
             card.move_to(card.owner.hand)
             source.send(CardCycledEvent())
         yield
