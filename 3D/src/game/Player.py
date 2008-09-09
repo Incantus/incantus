@@ -4,7 +4,7 @@ from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntap
 from Mana import ManaPool
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
-from Match import isCreature, isPermanent, isPlayer, isGameObject, isCard, isLandType
+from Match import isCreature, isPermanent, isPlayer, isGameObject, isCard, isLandCard
 
 class Player(MtGObject):
     def life():
@@ -36,8 +36,6 @@ class Player(MtGObject):
         self.draw_empty = False
         self.opponent = None
         self.decklist = []
-        self.current_role = self    # XXX This is an ugly hack to get targetting to work uniformly
-    def match_role(self, role): return False    # XXX This is an ugly hack to get targetting to work uniformly
     def init(self, play, stack):
         self.library = Library()
         self.hand = Hand()
@@ -302,7 +300,7 @@ class Player(MtGObject):
             if isinstance(action, PassPriority) or isinstance(action, CancelAction): return action
             sel = action.selection
             if isGameObject(sel) and sel.controller == self:
-                if isLandType(sel) and not str(sel.zone) == "play": return PlayLand(sel)
+                if isLandCard(sel) and not str(sel.zone) == "play": return PlayLand(sel)
                 else: return PlayAbility(sel)
             else: return False
         if not process: process = convert_gui_action

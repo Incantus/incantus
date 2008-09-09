@@ -1,5 +1,3 @@
-import CardRoles
-import Planeswalker
 
 class Match(object):
     def __init__(self, condition=None):
@@ -11,10 +9,6 @@ class Match(object):
         newmatch = copy.copy(self)
         newmatch.condition = condition
         return newmatch
-    #def match(self, **kargs):
-    #    return self.condition(**kargs)
-    #def __call__(self, **kargs):
-    #    return self.match(**kargs)
 
 class ObjMatch(Match):
     def __init__(self, condition=None):
@@ -25,52 +19,25 @@ class ObjMatch(Match):
     def __call__(self, obj):
         return self.match(obj)
 
-class AbilityMatch(ObjMatch):
-    # This is for targetting abilities on the stack
-    def __init__(self, ability_type, txt='', condition=None):
-        super(AbilityMatch, self).__init__(condition)
-        self.ability_type = ability_type
-        self.txt = txt
-    def match(self, ability):
-        return isinstance(ability, self.ability_type) and self.condition(ability)
-    def __str__(self):
-        if self.txt: return self.txt
-        else: return str(self.ability_type.__name__)
-
-class RoleMatch(ObjMatch):
-    # Can match against power, toughness, anything
-    # condition should be a boolean function
-    def __init__(self, cardrole, condition=None, use_in_play=False):
-        super(RoleMatch,self).__init__(condition)
-        self.cardrole = cardrole
-        self.use_in_play = use_in_play
-    def match(self, obj=None, use_in_play=False):
-        role = obj.current_role
-        if (use_in_play or self.use_in_play): role=obj.in_play_role
-        return role.match_role(self.cardrole) and super(RoleMatch,self).match(obj)
-        #return isinstance(role, self.cardrole) and super(RoleMatch,self).match(obj)
-    def __str__(self):
-        matchname = self.cardrole.__name__
-        if self.use_in_play: matchname += " card"
-        return matchname
-
 class PlayerMatch(ObjMatch):
     def match(self, player=None):
-        import Player # To avoid circular imports
+        import Player
         return isinstance(player, Player.Player) and self.condition(player)
     def __str__(self):
         return "Player"
-
 class OpponentMatch(ObjMatch):
     def __init__(self, card, condition=None):
         super(OpponentMatch,self).__init__(condition)
         self.card = card
     def match(self, player=None):
-        import Player # To avoid circular imports
         return isinstance(player, Player.Player) and not self.card.controller == player and self.condition(player)
     def __str__(self):
         return "Opponent"
 
+isPlayer = PlayerMatch()
+
+
+# Matching any type of game object (cards or tokens)
 
 class GameObjectMatch(ObjMatch):
     def match(self, obj=None):
@@ -93,69 +60,82 @@ class CardMatch(ObjMatch):
     def __str__(self):
         return "Card"
 
-class SelfMatch(ObjMatch):
-    # Matches against the same card
-    def __init__(self, card, condition=None):
-        super(SelfMatch,self).__init__(condition)
-        self.card = card
-    def match(self, card=None):
-        return card == self.card and super(SelfMatch,self).match(card)
-    def __str__(self):
-        return str(self.card)
+isGameObject = GameObjectMatch()
+isCard = CardMatch()
+isToken = TokenMatch()
 
-isPlayer = PlayerMatch()
+class ZoneMatch(ObjMatch):
+    def __init__(self, zone, condition=None, txt=''):
+        super(ZoneMatch, self).__init__(condition)
+        self.zone = zone
+        if not txt: txt = "Card in %s"%zone
+        self.txt = txt
+    def match(self, obj):
+        return isGameObject(obj) and str(obj.zone) == self.zone
+    def __str__(self): return self.txt
 
-isSpell = RoleMatch(CardRoles.SpellRole)
-isPermanent = RoleMatch(CardRoles.Permanent)
+isSpell = ZoneMatch("stack", "spell")
+isPermanent = ZoneMatch("play", "permanent")
 isLegendaryPermanent = isPermanent.with_condition(lambda c: c.supertype == "Legendary")
-isCreature = RoleMatch(CardRoles.Creature)
-isLand = RoleMatch(CardRoles.Land)
+isPermanentCard = isCard.with_condition(lambda c: c.type == "Artifact" or c.type == "Enchantment" or c.type == "Creature" or c.type == "Land" or c.type == "Planeswalker")
+
+# Type specific matching
+class TypeMatch(ObjMatch):
+    # Can match against power, toughness, anything
+    # condition should be a boolean function
+    def __init__(self, cardtype, in_play=False):
+        super(TypeMatch,self).__init__()
+        self.cardtype = cardtype
+        self.in_play = in_play
+    def match(self, obj):
+        if self.in_play:
+            return isPermanent(obj) and obj.type == self.cardtype and super(TypeMatch,self).match(obj)
+        else:
+            return isGameObject(obj) and obj.type == self.cardtype and super(TypeMatch,self).match(obj)
+    def __str__(self):
+        name = str(self.cardtype)
+        if not self.in_play: name += " card"
+        return name
+
+isCreature = TypeMatch("Creature", in_play=True)
+isLand = TypeMatch("Land", in_play=True)
 isBasicLand = isLand.with_condition(lambda l: l.supertype == "Basic")
 isNonBasicLand = isLand.with_condition(lambda l: not l.supertype == "Basic")
 isNonLand = isPermanent.with_condition(lambda p: not p.type == "Land")
-isArtifact = RoleMatch(CardRoles.Artifact)
-isEnchantment = RoleMatch(CardRoles.Enchantment)
-isEquipment = RoleMatch(CardRoles.Equipment)
-isAura = RoleMatch(CardRoles.Aura)
-isAttachment = RoleMatch(CardRoles.Attachment)
-isPlaneswalker = RoleMatch(Planeswalker.Planeswalker)
+isArtifact = TypeMatch("Artifact", in_play=True)
+isEnchantment = TypeMatch("Enchantment", in_play=True)
+isEquipment = isArtifact.with_condition(lambda a: a.subtypes == "Equipment")
+isAura = isEnchantment.with_condition(lambda e: e.subtypes == "Aura")
+isPlaneswalker = TypeMatch("Planeswalker", in_play=True)
 
-class ArtifactCreatureMatch(ObjMatch):
-    def match(self, obj):
-        return (isArtifact(obj) and isCreature(obj)) and super(ArtifactCreatureMatch,self).match(obj)
-    def __str__(self):
-        return "Artifact Creature"
-isArtifactCreature = ArtifactCreatureMatch()
+isSorceryCard = TypeMatch("Sorcery")
+isInstantCard = TypeMatch("Instant")
+isCreatureCard = TypeMatch("Creature")
+isLandCard = TypeMatch("Land")
+isArtifactCard = TypeMatch("Artifact")
+isEnchantmentCard = TypeMatch("Enchantment")
+isEquipmentCard = isArtifactCard.with_condition(lambda a: a.subtypes == "Equipment")
+isAuraCard = isEnchantmentCard.with_condition(lambda e: e.subtypes == "Aura")
 
 class PlayerOrCreatureMatch(ObjMatch):
     def match(self, obj):
         return (isPlayer(obj) or isCreature(obj)) and super(PlayerOrCreatureMatch,self).match(obj)
     def __str__(self):
         return "Player or Creature"
-isPlayerOrCreature = PlayerOrCreatureMatch()
-isCreatureOrPlayer = isPlayerOrCreature
+isCreatureOrPlayer = isPlayerOrCreature = PlayerOrCreatureMatch()
 
-isSorceryType = RoleMatch(CardRoles.SpellRole, condition=lambda s: s.type == "Sorcery")
-isInstantType = RoleMatch(CardRoles.SpellRole, condition=lambda s: s.type == "Instant")
-isPermanentType = RoleMatch(CardRoles.Permanent, use_in_play=True)
-isCreatureType = RoleMatch(CardRoles.Creature, use_in_play=True)
-isLandType = RoleMatch(CardRoles.Land, use_in_play=True)
-isArtifactType = RoleMatch(CardRoles.Artifact, use_in_play=True)
-isEnchantmentType = RoleMatch(CardRoles.Enchantment, use_in_play=True)
-isEquipmentType = RoleMatch(CardRoles.Equipment, use_in_play=True)
-isAuraType = RoleMatch(CardRoles.Aura, use_in_play=True)
-
-class nonLandType(CardMatch):
-    def match(self, card=None):
-        return not isLandType(card) and super(nonLandType,self).match(card)
+# For targeting and matching objects on the stack
+class AbilityMatch(ObjMatch):
+    # This is for targetting abilities on the stack
+    def __init__(self, ability_type, txt='', condition=None):
+        super(AbilityMatch, self).__init__(condition)
+        self.ability_type = ability_type
+        self.txt = txt
+    def match(self, ability):
+        return isinstance(ability, self.ability_type) and self.condition(ability)
     def __str__(self):
-        return "non Land"
-
-isNonLandType = nonLandType()
-
-isCard = CardMatch()
-isGameObject = GameObjectMatch()
-isToken = TokenMatch()
+        if self.txt: return self.txt
+        else: return str(self.ability_type.__name__)
 
 from Ability.Ability import Ability
 from Ability.CastingAbility import CastSpell, CastSorcerySpell, CastInstantSpell

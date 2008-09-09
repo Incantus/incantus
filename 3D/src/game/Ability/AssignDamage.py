@@ -28,7 +28,8 @@ class AssignDamage(Ability):
         for damager, damage_assn in damages:
             damaging = {}
             for damagee, amt in damage_assn.iteritems():
-                damaging[damagee.current_role] = amt
+                if isPlayer(damagee): damaging[damagee] = amt
+                else: damaging[damagee.current_role] = amt
             self.damages.append((damager.current_role, damaging))
 
         self.txt = txt

@@ -49,8 +49,8 @@ class GameRole(MtGObject):
     def leavingZone(self, zone):
         self.abilities.leavingZone(zone)
         for attached in self.attachments: attached.attachedLeavingPlay()
-    def match_role(self, matchrole):
-        return matchrole == self.__class__
+    #def match_role(self, matchrole):
+    #    return matchrole == self.__class__
     def move_to(self, zone, position="top"):
         self.card.move_to(zone, position)
     def add_counters(self, counter_type, number=1):
@@ -80,10 +80,8 @@ class GameRole(MtGObject):
     def __str__(self):
         return self.__class__.__name__
 
-class NoRole(GameRole):
-    # For token objects out of play
-    def match_role(self, matchrole):
-        return False
+# For token objects out of play
+class NoRole(GameRole): pass
 
 class CardRole(GameRole):  # Cards out of play
     def __init__(self, card):
@@ -129,15 +127,15 @@ class Permanent(GameRole):
             role.leavingPlay()
             self.subroles.remove(role)
             self.send(SubRoleRemovedEvent(), subrole=role)
-    def match_role(self, matchrole):
-        success = False
-        if matchrole == self.__class__: success = True
-        else:
-            for role in self.subroles:
-                if isinstance(role, matchrole):
-                    success = True
-                    break
-        return success
+    #def match_role(self, matchrole):
+    #    success = False
+    #    if matchrole == self.__class__: success = True
+    #    else:
+    #        for role in self.subroles:
+    #            if isinstance(role, matchrole):
+    #                success = True
+    #                break
+    #    return success
     def __getattr__(self, attr):
         for role in self.subroles:
             if hasattr(role, attr): return getattr(role, attr)
