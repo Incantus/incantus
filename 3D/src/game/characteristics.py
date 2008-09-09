@@ -5,6 +5,10 @@ class stacked_variable(object):
     def __init__(self, initial):
         self._characteristics = [(initial,)]
     def get(self): return self._characteristics[-1][0]
+    def cda(self, var):
+        new = (var,)
+        self._characteristics.insert(1, new)
+        return lambda: self._characteristics.remove(new)
     def set_copy(self, var):
         new = (var,)
         self._characteristics.append(new)
@@ -123,6 +127,9 @@ class stacked_characteristic(object):
                 self._stacking.remove(char)
                 self.card.send(self.change_event)
         return remove
+    def cda(self, char):
+        # Stick this after the card defined one
+        return self._insert_into_stacking(characterstic(char), 1)
     def set_copy(self, copy_char):
         # find last copy effect
         copy_char._copy_effect = True
