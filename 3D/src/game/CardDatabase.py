@@ -69,6 +69,8 @@ def execCode(card, code):
     card.base_type = card.type
     card.base_subtypes = card.subtypes
     card.base_supertype = card.supertype
+    if hasattr(card, "power"): card.base_power = card.power
+    if hasattr(card, "toughness"): card.base_toughness = card.toughness
 
     # Get rid of non-standard attributes
     for k in card.__dict__.keys():
@@ -95,6 +97,7 @@ supertype = %(supertype)s
 subtypes = %(subtypes)s
 color = %(color)s
 cost = NoCost()
+%(P/T)s
 
 in_play_role = Permanent(card, %(subrole)s)
 
@@ -106,6 +109,11 @@ in_play_role = Permanent(card, %(subrole)s)
         else:
             if not (type(char) == list or type(char) == tuple): char = (char,)
             fields[attr] = "characteristic(%s)"%', '.join(map(repr,char))
+
+    if "P/T" in card_dict:
+        power, toughness = card_dict["P/T"]
+        fields["P/T"] = "power = %d\ntoughness = %d"%(power, toughness)
+
     name = card_dict.get("name", None)
     if not name:
         subtypes = card_dict["subtypes"]
@@ -113,9 +121,7 @@ in_play_role = Permanent(card, %(subrole)s)
         name = " ".join(subtypes)
     fields["name"] = repr(name)
 
-    if card_dict["type"] == "Creature":
-        fields["subrole"] = "Creature(%d, %d)"%(card_dict["power"], card_dict["toughness"])
-    else: fields["subrole"] = "%s()"%fields["type"]
+    fields["subrole"] = "%s()"%card_dict["type"]
 
     # Now process abilities (should only be simple keyword abilities)
     abilities = card_dict.get("abilities", '')

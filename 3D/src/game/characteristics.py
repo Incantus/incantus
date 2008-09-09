@@ -12,6 +12,7 @@ class stacked_variable(object):
     def __getattr__(self, attr): return getattr(self.get(), attr)
     def __str__(self): return str(self.get())
     def __repr__(self): return repr(self.get())
+    def __int__(self): return int(self.get())
 
 class stacked_controller(object):
     def __init__(self, perm, initial):

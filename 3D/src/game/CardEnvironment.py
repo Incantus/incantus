@@ -30,6 +30,7 @@ from Ability.EventideAbility import *
 
 damage_tracker = DamageTrackingVariable()
 graveyard_tracker = ZoneMoveVariable(from_zone="play", to_zone="graveyard")
+nan = float("nan")
 
 def play_permanent(cost):
     if type(cost) == str: cost = ManaCost(cost)

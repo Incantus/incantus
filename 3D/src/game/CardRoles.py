@@ -263,7 +263,7 @@ class Creature(SubRole):
     toughness = property(**toughness())
     def _calculate_power_toughness(self):
         # Calculate layering rules
-        power, toughness = self.base_power, self.base_toughness # layer 6a
+        power, toughness = int(self.perm.base_power), int(self.perm.base_toughness) # layer 6a
         power, toughness = self.PT_other_modifiers.calculate(power, toughness) # layer 6b
         power += sum([c.power for c in self.perm.counters if hasattr(c,"power")]) # layer 6c
         toughness += sum([c.toughness for c in self.perm.counters if hasattr(c,"toughness")]) # layer 6c
@@ -271,11 +271,10 @@ class Creature(SubRole):
         power, toughness = self.PT_switch_modifiers.calculate(power, toughness) # layer 6e
         self.cached_PT_dirty = False
         self.curr_power, self.curr_toughness = power, toughness
-    def __init__(self, power, toughness):
+    def __init__(self):
         super(Creature,self).__init__()
         # These are immutable and come from the card
-        self.base_power = self.curr_power = power
-        self.base_toughness = self.curr_toughness = toughness
+        self.curr_power = self.curr_toughness = None
         self.cached_PT_dirty = False
 
         # Only accessed internally
@@ -289,7 +288,7 @@ class Creature(SubRole):
         self.blocking = False
         self.blocked = False
     def subrole_info(self):
-        txt = ["%d/%d"%(self.base_power, self.base_toughness)]
+        txt = ["%d/%d"%(self.perm.base_power, self.perm.base_toughness)]
         txt.append(str(self.PT_other_modifiers))
         txt.append(', '.join([str(c) for c in self.perm.counters if hasattr(c,"power")]))
         txt.append(str(self.PT_static_modifiers))

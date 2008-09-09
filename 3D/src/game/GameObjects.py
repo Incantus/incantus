@@ -58,6 +58,9 @@ class GameObject(MtGObject):
         self.base_abilities = abilities()
         self.play_spell = None
 
+        self.base_power = None
+        self.base_toughness = None
+
     owner = property(fget=lambda self: self._owner)
     def current_role():
         doc = '''The current role for this card. Either a Card (when in hand, library, graveyard or removed from game), Spell, (stack) or Permanent (in play)'''
@@ -74,6 +77,9 @@ class GameObject(MtGObject):
             role.subtypes = stacked_characteristic(self, self.base_subtypes, SubtypeModifiedEvent())
             role.supertype = stacked_characteristic(self, self.base_supertype, SupertypeModifiedEvent)
             role.abilities = stacked_abilities(self, self.base_abilities)
+
+            if self.base_power: role.base_power = stacked_variable(self.base_power)
+            if self.base_toughness: role.base_toughness = stacked_variable(self.base_toughness)
             self._current_role = role
         return locals()
     current_role = property(**current_role())
