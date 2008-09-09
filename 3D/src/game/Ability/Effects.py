@@ -10,7 +10,9 @@ def delay(source, delayed_trigger):
     return expire
 
 def until_end_of_turn(*restores):
-    for restore in restores: dispatcher.connect(restore, signal=CleanupEvent(), weak=False, expiry=1)
+    def expire():
+        for restore in restores: restore()
+    dispatcher.connect(expire, signal=CleanupEvent(), weak=False, expiry=1)
 
 def clone(card, cloned):
     # XXX This is ugly,
@@ -45,8 +47,8 @@ def CiP_as_cloned(card, cloned):
 
 def add_mana(player, amount):
     if not isPlayer(player): raise Exception()
-    # XXX fix this to make a selection
-    if type(amount) == tuple: amount = amount[0]
+    if type(amount) == tuple:
+        amount = player.getSelection(amount, 1, prompt="Select mana to add")
     player.manapool.add(amount)
 
 def augment_power_toughness(target, power, toughness):
