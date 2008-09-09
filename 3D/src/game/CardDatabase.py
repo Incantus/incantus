@@ -47,7 +47,7 @@ def execCode(card, code):
     card.card = card
     card.abilities = card.base_abilities
     try:
-        exec code in vars(CardEnvironment), vars(card)
+        exec str(code) in vars(CardEnvironment), vars(card)
     except Exception:
         code = code.split("\n")
         print ''

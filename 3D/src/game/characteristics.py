@@ -9,7 +9,7 @@ class stacked_variable(object):
         new = (var,)
         self._characteristics.append(new)
         return lambda: self._characteristics.remove(new)
-    #def __getattr__(self, attr): return getattr(self.get(), attr)
+    def __getattr__(self, attr): return getattr(self.get(), attr)
     def __str__(self): return str(self.get())
     def __repr__(self): return repr(self.get())
 
