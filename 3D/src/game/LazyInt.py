@@ -26,12 +26,3 @@ class LazyInt:
     def __str__(self):
         return str(self.value())
 
-
-class X(LazyInt):
-    def __init__(self, card):
-        self.card = card
-        func = lambda: card.controller.getX()
-        LazyInt.__init__(self, func, finalize=False)
-    def value(self):
-        if not self._final_value: self._final_value = self._func()
-        else: return self._final_value

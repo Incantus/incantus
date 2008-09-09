@@ -2,10 +2,9 @@ from characteristics import characteristic, all_characteristics, no_characterist
 from stacked_function import override, replace, logical_or, logical_and, do_all
 from Player import Player
 from GameKeeper import Keeper
-from CardRoles import *
-from Planeswalker import Planeswalker
+#from Planeswalker import Planeswalker
 from Match import *
-from LazyInt import LazyInt, X
+from LazyInt import LazyInt
 from GameEvent import *
 
 from Ability.ActivatedAbility import ActivatedAbility, ManaAbility
