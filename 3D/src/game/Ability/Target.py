@@ -114,7 +114,7 @@ class Target(object):
     def check_target(self, card):
         # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
         if not isPlayer(self.target):
-            return (str(self.target.zone) == self.target_zone) and self.match_role == self.target.current_role and self.match_types(self.target) and (self.untargeted or self.target.canBeTargetedBy(card))
+            return (str(self.target.zone) == self.target_zone) and self.current_role == self.target.current_role and self.match_types(self.target) and (self.untargeted or self.target.canBeTargetedBy(card))
         else: return self.untargeted or self.target.canBeTargetedBy(card)
     def get(self, card):
         if self.msg: prompt=self.msg
@@ -169,7 +169,7 @@ class Target(object):
         # Save the zone if we are targetting a permanent (not a player)
         if not isPlayer(self.target):
             self.target_zone = str(self.target.zone)
-            self.match_role = self.target.current_role
+            self.current_role = self.target.current_role
         if self.target.canBeTargetedBy(card):
             self.target.isTargetedBy(card)
             return True
