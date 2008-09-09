@@ -119,21 +119,24 @@ class Card(GameObject):
         self.expansion = None
         self.hidden = False
 
-        from CardRoles import SpellRole, CardRole, NoRole
+        from CardRoles import Permanent, SpellRole, CardRole, NoRole
         CardDatabase.loadCardFromDB(self, cardname)
         self.stack_role = SpellRole(self)
         self.current_role = self.out_play_role = CardRole(self)
         if (self.base_type == "Instant" or self.base_type == "Sorcery"):
             self.in_play_role = NoRole(self)
+        else:
+            self.in_play_role = Permanent(self)
         self._add_to_map()
 
 class Token(GameObject):
     def __init__(self, info, owner):
         super(Token, self).__init__(owner)
-        from CardRoles import NoRole
+        from CardRoles import NoRole, Permanent
         if type(info) == dict: info = CardDatabase.convertToTxt(info)
         CardDatabase.execCode(self, info)
         self.current_role = self.out_play_role = self.stack_role = NoRole(self)
+        self.in_play_role = Permanent(self)
         self._add_to_map()
     def move_to(self, zone, position="top"):
         super(Token, self).move_to(zone, position)

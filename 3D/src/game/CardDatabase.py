@@ -99,8 +99,6 @@ color = %(color)s
 cost = NoCost()
 %(P/T)s
 
-in_play_role = Permanent(card, %(subrole)s)
-
 %(abilities)s'''
     fields = {}
     for attr in ["type", "supertype", "subtypes", "color"]:
@@ -121,8 +119,6 @@ in_play_role = Permanent(card, %(subrole)s)
         name = " ".join(subtypes)
     fields["name"] = repr(name)
 
-    fields["subrole"] = "%s()"%card_dict["type"]
-
     # Now process abilities (should only be simple keyword abilities)
     abilities = card_dict.get("abilities", '')
     if abilities:
@@ -140,6 +136,4 @@ color = no_characteristic()
 cost = ManaCost("0")
 
 play_spell = play_permanent(cost)
-
-in_play_role = Permanent(card, Artifact())
 '''

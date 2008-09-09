@@ -101,11 +101,10 @@ class Permanent(GameRole):
         self._controller = stacked_controller(self, controller)
     def change_controller(self, new_controller):
         return self._controller.set(new_controller)
-    def __init__(self, card, subroles):
+    def __init__(self, card):
         super(Permanent, self).__init__(card)
         self._controller = None
-        if not (type(subroles) == list or type(subroles) == tuple): subroles = [subroles]
-        self.subroles = subroles
+        self.subroles = []
         self.tapped = False
         self.flipped = False
         self.facedown = False
@@ -131,14 +130,14 @@ class Permanent(GameRole):
         return getattr(super(Permanent, self), attr)
     def canBeTargetedBy(self, targeter):
         result = True
-        for role in self.subroles: 
+        for role in self.subroles:
             if not role.canBeTargetedBy(targeter):
                 result = False
                 break
         return result
     def canBeAttachedBy(self, targeter):
         result = True
-        for role in self.subroles: 
+        for role in self.subroles:
             if not role.canBeAttachedBy(targeter):
                 result = False
                 break
@@ -195,10 +194,13 @@ class Permanent(GameRole):
         self._continuously_in_play = False
         self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
     def enteringZone(self, zone):
+        # Create the necessary subroles, depending on our type
+        self.subroles = [subrole_map[t]() for t in self.type]
         for role in self.subroles: role.enteringPlay(self)
         super(Permanent, self).enteringZone(zone)
     def leavingZone(self, zone):
         for role in self.subroles: role.leavingPlay()
+        #self.subroles = []
         super(Permanent, self).leavingZone(zone)
     def __deepcopy__(self, memo):
         newcopy = super(Permanent, self).__deepcopy__(memo)
@@ -438,3 +440,6 @@ class Aura(Attachment, Enchantment):
     def isValidAttachment(self):
         attachment = self.attached_to
         return (attachment and str(attachment.zone) == "play" and self.target_types.match(attachment) and attachment.canBeAttachedBy(self.card))
+
+subrole_map = {"Artifact": Artifact, "Creature": Creature, "Land": Land, "Enchantment": Enchantment, "Aura": Aura, "Equipment": Equipment}
+

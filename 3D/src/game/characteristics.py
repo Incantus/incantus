@@ -158,6 +158,10 @@ class stacked_characteristic(object):
         fields = []
         for char in self._stacking: char.make_text_line(fields)
         return len(set(fields))
+    def __iter__(self):
+        fields = []
+        for char in self._stacking: char.make_text_line(fields)
+        return iter(set(fields))
     def __repr__(self):
         return "stacked: %s"%repr(self._stacking)
 
