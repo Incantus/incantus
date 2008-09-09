@@ -122,8 +122,8 @@ class Card(anim.Animable):
             if result: return result
         else: return False
     def copy(self): return Card(self.gamecard, self.front, self.back)
-    def __str__(self): return self.gamecard.name
-    def __repr__(self): return self.gamecard.name
+    def __str__(self): return str(self.gamecard)
+    def __repr__(self): return repr(self.gamecard)
 
 class HandCard(Card):
     zooming = anim.Animatable()

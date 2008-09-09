@@ -1,4 +1,54 @@
 
+from GameEvent import ControllerChanged
+
+class stacked_variable(object):
+    def __init__(self, initial):
+        self._characteristics = [(initial,)]
+    def get(self): return self._characteristics[-1][0]
+    def set_copy(self, var):
+        new = (var,)
+        self._characteristics.append(new)
+        return lambda: self._characteristics.remove(new)
+    #def __getattr__(self, attr): return getattr(self.get(), attr)
+    def __str__(self): return str(self.get())
+    def __repr__(self): return repr(self.get())
+
+class stacked_controller(object):
+    def __init__(self, perm, initial):
+        self.perm = perm
+        self._controllers = [(initial,)]
+        self.perm.summoningSickness()
+    def get(self): return self._controllers[-1][0]
+    def set(self, new_controller):
+        old_controller = self.get()
+        contr = (new_controller,)
+        self._controllers.append(contr)
+        if not new_controller == old_controller: self.controller_change(old_controller)
+        def remove():
+            orig = self.get()
+            self._controllers.remove(contr)
+            if orig != self.get(): self.controller_change(orig)
+        return remove
+    def controller_change(self, old_controller):
+        self.perm.summoningSickness()
+        self.perm.send(ControllerChanged(), original=old_controller)
+
+# PowerToughnessChanged isn't needed, because the power/toughness is invalidated every timestep (and the gui calculates it)
+class PTModifiers(object):
+    def __init__(self):
+        self._modifiers = []
+    def add(self, PT):
+        self._modifiers.append(PT)
+        #self.subrole.send(PowerToughnessChangedEvent())
+        def remove():
+            self._modifiers.remove(PT)
+            #self.subrole.send(PowerToughnessChangedEvent())
+        return remove
+    def calculate(self, power, toughness):
+        return reduce(lambda PT, modifier: modifier.calculate(PT[0], PT[1]), self._modifiers, (power, toughness))
+    def __str__(self):
+        return ', '.join([str(modifier) for modifier in self._modifiers])
+
 class _base_characteristic(object): pass
 
 class characteristic(_base_characteristic):

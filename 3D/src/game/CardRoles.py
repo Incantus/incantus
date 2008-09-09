@@ -1,6 +1,7 @@
 import copy, itertools
+from characteristics import stacked_controller, PTModifiers
 from GameObjects import MtGObject
-from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, ControllerChanged
+from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
 from Ability.Counters import Counter, PowerToughnessCounter
 
 class GameRole(MtGObject):
@@ -96,26 +97,6 @@ class SpellRole(GameRole):  # Spells on the stack
         self.facedown = True
     def faceUp(self):
         self.facedown = False
-
-class stacked_controller(object):
-    def __init__(self, perm, initial):
-        self.perm = perm
-        self._controllers = [(initial,)]
-        self.perm.summoningSickness()
-    def get(self): return self._controllers[-1][0]
-    def set(self, new_controller):
-        old_controller = self.get()
-        contr = (new_controller,)
-        self._controllers.append(contr)
-        if not new_controller == old_controller: self.controller_change(old_controller)
-        def remove():
-            orig = self.get()
-            self._controllers.remove(contr)
-            if orig != self.get(): self.controller_change(orig)
-        return remove
-    def controller_change(self, old_controller):
-        self.perm.summoningSickness()
-        self.perm.send(ControllerChanged(), original=old_controller)
 
 class Permanent(GameRole):
     controller = property(fget=lambda self: self._controller.get())
@@ -266,24 +247,6 @@ class SubRole(object):
         return newcopy
     def __str__(self):
         return self.__class__.__name__
-
-class Land(SubRole): pass
-
-# PowerToughnessChanged isn't needed, because the power/toughness is invalidated every timestep (and the gui calculates it)
-class PTModifiers(object):
-    def __init__(self):
-        self._modifiers = []
-    def add(self, PT):
-        self._modifiers.append(PT)
-        #self.subrole.send(PowerToughnessChangedEvent())
-        def remove():
-            self._modifiers.remove(PT)
-            #self.subrole.send(PowerToughnessChangedEvent())
-        return remove
-    def calculate(self, power, toughness):
-        return reduce(lambda PT, modifier: modifier.calculate(PT[0], PT[1]), self._modifiers, (power, toughness))
-    def __str__(self):
-        return ', '.join([str(modifier) for modifier in self._modifiers])
 
 class Creature(SubRole):
     def power():
@@ -441,6 +404,7 @@ class Creature(SubRole):
     def shouldDestroy(self):
         return self.__damage >= self.toughness
 
+class Land(SubRole): pass
 class Artifact(SubRole): pass
 class Enchantment(SubRole): pass
 

@@ -2,7 +2,7 @@ import copy
 from pydispatch import dispatcher
 from GameEvent import TokenLeavingPlay, ColorModifiedEvent, TypeModifiedEvent, SubtypeModifiedEvent, SupertypeModifiedEvent
 from abilities import abilities, stacked_abilities
-from characteristics import stacked_characteristic
+from characteristics import stacked_variable, stacked_characteristic
 import CardDatabase
 
 class MtGObject(object):
@@ -65,10 +65,10 @@ class GameObject(MtGObject):
         def fset(self, newrole):
             role = copy.deepcopy(newrole)
             # Set up base characteristics
-            role.name = self.base_name
             role.owner = self.owner
+            role.name = stacked_variable(self.base_name)
             role.cost = self.base_cost
-            role.text = self.base_text
+            role.text = stacked_variable(self.base_text)
             role.color = stacked_characteristic(self, self.base_color, ColorModifiedEvent())
             role.type = stacked_characteristic(self, self.base_type, TypeModifiedEvent())
             role.subtypes = stacked_characteristic(self, self.base_subtypes, SubtypeModifiedEvent())
@@ -96,13 +96,13 @@ class GameObject(MtGObject):
     def __repr__(self):
         return "%s at %s"%(str(self),str(id(self)))
     def __str__(self):
-        return self.name
+        return str(self.name)
 
     # Class attributes for mapping the cards
     _counter = 0
     _cardmap = {}
     def _add_to_map(self):
-        self.key = (self._counter, self.name)
+        self.key = (self._counter, self.base_name)
         self._cardmap[self.key] = self
         self.__class__._counter += 1
 
