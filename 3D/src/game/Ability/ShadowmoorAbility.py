@@ -27,7 +27,7 @@ def persist():
             effects = persist_effect,
             keyword="persist")
 
-def wither(): return CardStaticAbility(effects=keyword_effect, keyword="wither")
+def wither(): return CardStaticAbility(effects=keyword_effect, zone="all", keyword="wither")
 
 # XXX
 from game.GameEvent import CounterAddedEvent, ReceivesDamageEvent
