@@ -431,22 +431,24 @@ class Attachment(object):
         self.unattach()
         super(Attachment,self).leavingPlay()
     def isValidAttachment(self): return False
+    def set_target_type(self, target_types):
+        # This is set by the aura playing ability, or the equip ability
+        self.target_types = target_types
 
 class Equipment(Attachment, Artifact):
     def __init__(self):
-        from Match import isCreature
         super(Equipment,self).__init__()
         self.attached_to = None
-        self.target_types = isCreature
+        self.target_types = None
     def isValidAttachment(self):
         attachment = self.attached_to
         return (str(attachment.zone) == "play" and self.target_types.match(attachment) and attachment.canBeAttachedBy(self.card))
 
 class Aura(Attachment, Enchantment):
-    def __init__(self, target_types=None):
+    def __init__(self):
         super(Aura,self).__init__()
         self.attached_to = None
-        self.target_types = target_types
+        self.target_types = None
     def isValidAttachment(self):
         attachment = self.attached_to
         return (attachment and str(attachment.zone) == "play" and self.target_types.match(attachment) and attachment.canBeAttachedBy(self.card))
