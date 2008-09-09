@@ -195,7 +195,7 @@ class Permanent(GameRole):
         self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
     def enteringZone(self, zone):
         # Create the necessary subroles, depending on our type
-        self.subroles = [subrole_map[t]() for t in self.type]
+        self.subroles = get_subroles(self)
         for role in self.subroles: role.enteringPlay(self)
         super(Permanent, self).enteringZone(zone)
     def leavingZone(self, zone):
@@ -392,11 +392,7 @@ class Creature(SubRole):
     def shouldDestroy(self):
         return self.__damage >= self.toughness
 
-class Land(SubRole): pass
-class Artifact(SubRole): pass
-class Enchantment(SubRole): pass
-
-class Attachment(object):
+class Attachment(SubRole):
     attached_abilities = property(fget=lambda self: self.perm.abilities.attached())
     def attach(self, target):
         if self.attached_to != None: self.unattach()
@@ -415,31 +411,23 @@ class Attachment(object):
         for ability in self.attached_abilities: ability.disable()
         self.send(UnAttachedEvent(), unattached=self.attached_to)
         self.attached_to = None
+    def enteringPlay(self, perm):
+        super(Attachment, self).enteringPlay(perm)
+        self.attached_to = None
+        self.target_types = None
     def leavingPlay(self):
         self.unattach()
         super(Attachment,self).leavingPlay()
-    def isValidAttachment(self): return False
-    def set_target_type(self, target_types):
+    def isValidAttachment(self):
+        attachment = self.attached_to
+        return (attachment and str(attachment.zone) == "play" and self.target_type.match(attachment) and attachment.canBeAttachedBy(self.card))
+    def set_target_type(self, target_type):
         # This is set by the aura playing ability, or the equip ability
-        self.target_types = target_types
+        self.target_type = target_type
 
-class Equipment(Attachment, Artifact):
-    def __init__(self):
-        super(Equipment,self).__init__()
-        self.attached_to = None
-        self.target_types = None
-    def isValidAttachment(self):
-        attachment = self.attached_to
-        return (str(attachment.zone) == "play" and self.target_types.match(attachment) and attachment.canBeAttachedBy(self.card))
-
-class Aura(Attachment, Enchantment):
-    def __init__(self):
-        super(Aura,self).__init__()
-        self.attached_to = None
-        self.target_types = None
-    def isValidAttachment(self):
-        attachment = self.attached_to
-        return (attachment and str(attachment.zone) == "play" and self.target_types.match(attachment) and attachment.canBeAttachedBy(self.card))
-
-subrole_map = {"Artifact": Artifact, "Creature": Creature, "Land": Land, "Enchantment": Enchantment, "Aura": Aura, "Equipment": Equipment}
-
+def get_subroles(perm):
+    subroles = []
+    for t in perm.type:
+        if t == "Creature": subroles.append(Creature())
+        elif perm.subtypes == "Aura" or perm.subtypes == "Equipment": subroles.append(Attachment())
+    return subroles

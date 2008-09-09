@@ -201,7 +201,7 @@ class GameKeeper(MtGObject):
                 equipment.unattach()
             return SBE
         for equipment in self.play.get(Match.isEquipment):
-            if equipment.attached_to and not equipment.isValidAttachment():
+            if not equipment.isValidAttachment():
                 actions.append(Unattach(equipment))
         # 420.5m A permanent that's neither an Aura, an Equipment, nor a Fortification, but is attached to another permanent, becomes unattached from that permanent. It remains in play.
         # 420.5n If a permanent has both a +1/+1 counter and a -1/-1 counter on it, N +1/+1 and N -1/-1 counters are removed from it, where N is the smaller of the number of +1/+1 and -1/-1 counters on it.
