@@ -23,17 +23,20 @@ class TriggeredAbility(object):
         else: self.txt = txt
         self.keyword = keyword
         self._status_count = 0
-    def enable(self, source):
-        self._status_count += 1
-        if self._status_count == 1:
-            self.source = source
+    def toggle(self, val):
+        if val:
             for trigger in self.triggers:
-                trigger.setup_trigger(source,self.playAbility,self.condition,self.expiry)
-    def disable(self):
-        self._status_count -= 1
-        if self._status_count == 0:
+                trigger.setup_trigger(self.source,self.playAbility,self.condition,self.expiry)
+        else:
             for trigger in self.triggers:
                 trigger.clear_trigger()
+    def enable(self, source):
+        self.source = source
+        self._status_count += 1
+        if self._status_count == 1: self.toggle(True)
+    def disable(self):
+        self._status_count -= 1
+        if self._status_count == 0: self.toggle(False)
     def playAbility(self, **trigger_keys):
         player = self.source.controller
         trigger_keys["controller"] = player

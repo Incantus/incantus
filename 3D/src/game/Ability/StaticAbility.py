@@ -22,6 +22,9 @@ class StaticAbility(object):
     def disable(self):
         self._status_count -= 1
         if self._status_count == 0: self._disable()
+    def toggle(self, val):
+        if val: self._enable()
+        else: self._disable()
     def _enable(self): pass
     def _disable(self): pass
     def copy(self): return copy.copy(self)

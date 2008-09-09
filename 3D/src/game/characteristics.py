@@ -60,16 +60,25 @@ class stacked_characteristic(object):
     stacked = True
     def __init__(self, card, orig, change_event):
         self._stacking = [orig]
+        orig._copy_effect = True
         self.card = card
         self.change_event = change_event
-    def _insert_into_stacking(self, char):
-        self._stacking.append(char)
+    def _insert_into_stacking(self, char, pos=-1):
+        if pos == -1: self._stacking.append(char)
+        else: self._stacking.insert(pos, char)
         self.card.send(self.change_event)
         def remove():
             if char in self._stacking:
                 self._stacking.remove(char)
                 self.card.send(self.change_event)
         return remove
+    def set_copy(self, copy_char):
+        # find last copy effect
+        copy_char._copy_effect = True
+        for i, char in enumerate(self._stacking):
+            if not hasattr(char, "_copy_effect"): break
+        else: i += 1
+        return self._insert_into_stacking(copy_char, pos=i)
     def set(self, new_char):
         return self._insert_into_stacking(characteristic(new_char))
     def add(self, new_char):
