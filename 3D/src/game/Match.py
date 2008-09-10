@@ -71,7 +71,7 @@ class ZoneMatch(ObjMatch):
         if not txt: txt = "Card in %s"%zone
         self.txt = txt
     def match(self, obj):
-        return isGameObject(obj) and str(obj.zone) == self.zone
+        return isGameObject(obj) and str(obj.zone) == self.zone and self.condition(obj)
     def __str__(self): return self.txt
 
 isSpell = ZoneMatch("stack", "spell")
