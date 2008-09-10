@@ -68,6 +68,7 @@ class characteristic(_base_characteristic):
     def __str__(self): return str(' '.join(self.characteristics))
     def __repr__(self): return "characteristic([%s])"%', '.join(map(repr, self.characteristics))
     def __len__(self): return len(self.characteristics)
+    def __iter__(self): return iter(self.characteristics)
     def make_text_line(self, fields): fields[:] = self.characteristics
 
 # These are only used internally
@@ -127,9 +128,9 @@ class stacked_characteristic(object):
                 self._stacking.remove(char)
                 self.card.send(self.change_event)
         return remove
-    def cda(self, char):
+    def cda(self, *char):
         # Stick this after the card defined one
-        return self._insert_into_stacking(characterstic(char), 1)
+        return self._insert_into_stacking(characterstic(*char), 1)
     def set_copy(self, copy_char):
         # find last copy effect
         copy_char._copy_effect = True
@@ -137,10 +138,10 @@ class stacked_characteristic(object):
             if not hasattr(char, "_copy_effect"): break
         else: i += 1
         return self._insert_into_stacking(copy_char, pos=i)
-    def set(self, new_char):
-        return self._insert_into_stacking(characteristic(new_char))
-    def add(self, new_char):
-        return self._insert_into_stacking(additional_characteristic(new_char))
+    def set(self, *new_char):
+        return self._insert_into_stacking(characteristic(*new_char))
+    def add(self, *new_char):
+        return self._insert_into_stacking(additional_characteristic(*new_char))
     def add_all(self):
         return self._insert_into_stacking(all_characteristics())
     def remove_all(self):
