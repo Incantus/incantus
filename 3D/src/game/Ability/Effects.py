@@ -1,8 +1,8 @@
 from game.pydispatch import dispatcher
-from game.CardEnvironment import *
-from game.abilities import stacked_abilities
+from game.GameEvent import CleanupEvent
 from game.GameObjects import GameObject
 from game import CardDatabase
+from Counters import *
 
 def delay(source, delayed_trigger):
     delayed_trigger.enable(source)
@@ -44,7 +44,6 @@ def CiP_as_cloned(card, cloned):
     return reversal
 
 def add_mana(player, amount):
-    if not isPlayer(player): raise Exception()
     if type(amount) == tuple:
         amount = player.getSelection(amount, 1, prompt="Select mana to add")
     player.manapool.add(amount)
