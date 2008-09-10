@@ -2,7 +2,9 @@ import new, copy, itertools
 from characteristics import stacked_controller, PTModifiers
 from GameObjects import MtGObject
 from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
+from Subtypes import all_basic_lands
 from Ability.Counters import Counter, PowerToughnessCounter
+from Ability.PermanentAbility import basic_mana_ability
 
 class GameRole(MtGObject):
     def info():
@@ -173,13 +175,17 @@ class Permanent(GameRole):
         if (self.subtypes == "Aura" or self.subtypes == "Equipment") and not Attachment in orig_bases:
             cls.__bases__ = (Attachment,)+orig_bases
             self.activateAttachment()
-    #def add_basecls(self):
-    #    base_classes = set()
-    #    if self.type == "Creature": base_classes.append(Creature)
-    #    if self.subtypes == "Aura" or self.subtypes == "Equipment": base_classes.append(Attachment)
-    #    if base_classes:
-    #        self.__class__ = new.classobj("_Permanent", tuple(base_classes)+(Permanent,), {})
-    #        self.activateRole()
+        if self.subtypes.intersects(all_basic_lands) and not BasicLand in orig_bases:
+            cls.__bases__ = (BasicLand,)+orig_bases
+            self.activateBasicLand()
+
+class BasicLand(object):
+    def activateBasicLand(self):
+        for subtype in all_basic_lands:
+            if self.subtypes == subtype:
+                self.abilities.add(basic_mana_ability(subtype))
+    def deactivateRole(self):
+        super(BasicLand,self).deactivateRole()
 
 class Creature(object):
     def power():
