@@ -159,3 +159,11 @@ class ConditionalAttachedAbility(Conditional, AttachedAbility):
     def __init__(self, effects, condition, zone="play", txt=''):
         super(ConditionalAttachedAbility, self).__init__(effects, zone, txt)
         self.init_condition(condition)
+    def check_condition(self):
+        pass_condition = self.condition(self.source, self.source.attached_to)
+        if not self.__enabled and pass_condition:
+            super(Conditional, self)._enable()
+            self.__enabled = True
+        elif self.__enabled and not pass_condition:
+            super(Conditional, self)._disable()
+            self.__enabled = False
