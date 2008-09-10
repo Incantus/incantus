@@ -3,8 +3,8 @@ from game.GameEvent import InvalidTargetEvent
 
 class NoTarget(object):
     def __init__(self): pass
-    def get(self, card): return True
-    def check_target(self, card): return True
+    def get(self, source): return True
+    def check_target(self, source): return True
     def get_targeted(self): return None
 
 class MultipleTargets(object):
@@ -33,44 +33,44 @@ class MultipleTargets(object):
         if self.distribute == 0: return self.target
         else: return [(target, self.distribution[target]) for target in self.target] # only return valid targets
     #def get_targeted(self): return [target.current_role if not isPlayer(target) else target for target in self.target]
-    def check_target(self, card):
+    def check_target(self, source):
         # Remove any targets no longer in the correct zone, or no longer matching the original condition
         final_targets = []
         for target, zone in zip(self.target, self.zones):
             if not isPlayer(target):
-                if str(target.zone) == zone and self.match_type(target) and target.canBeTargetedBy(card): final_targets.append(target)
+                if str(target.zone) == zone and self.match_type(target) and target.canBeTargetedBy(source): final_targets.append(target)
             else:
-                if target.canBeTargetedBy(card): final_targets.append(target)
+                if target.canBeTargetedBy(source): final_targets.append(target)
         self.target = final_targets
         self.zone = []
         return True
-    def get_prompt(self, curr, card):
+    def get_prompt(self, curr, source):
         number = self.number-curr
         if curr > 0: another = "another "
         else: another = "" 
         if self.up_to: another = "up to "+another
 
         if self.msg: prompt=self.msg
-        elif self.target_types: prompt="Target %s%d %s(s) for %s"%(another,number, ' or '.join([str(t) for t in self.target_types]), card)
-        else: prompt = "Select %s%d target(s) for %s"%(another,number,card)
+        elif self.target_types: prompt="Target %s%d %s(s) for %s"%(another,number, ' or '.join([str(t) for t in self.target_types]), source)
+        else: prompt = "Select %s%d target(s) for %s"%(another,number,source)
         return prompt
-    def get(self, card): 
-        if self.selector == "opponent": selector = card.controller.opponent
+    def get(self, source): 
+        if self.selector == "opponent": selector = source.controller.opponent
         elif self.selector == "current_player":
             import game.GameKeeper
             selector = game.GameKeeper.Keeper.curr_player
-        else: selector = card.controller
+        else: selector = source.controller
         if self.player == None: controller=None
         elif self.player == "you": controller=selector
         else: controller=selector.opponent
         i = 0
         targets = []
         while i < self.number:
-            target = selector.getTarget(self.target_types,zone="play",controller=controller,required=False,prompt=self.get_prompt(i, card.name))
+            target = selector.getTarget(self.target_types,zone="play",controller=controller,required=False,prompt=self.get_prompt(i, source.name))
             if target == False:
                 if not self.up_to or len(targets) == 0: return False
                 else: break
-            elif target.canBeTargetedBy(card) and not target in targets:
+            elif target.canBeTargetedBy(source) and not target in targets:
                 targets.append(target)
                 i += 1
             else: selector.send(InvalidTargetEvent(), target=target)
@@ -84,7 +84,7 @@ class MultipleTargets(object):
             # The zone
             if not isPlayer(target): self.zones.append(str(target.zone))
             else: self.zones.append(None)
-            target.isTargetedBy(card)
+            target.isTargetedBy(source)
         self.target = targets
         return True
 
@@ -111,12 +111,12 @@ class Target(object):
         self.required = True
     def get_targeted(self): return self.target
     #def get_targeted(self): return self.target.current_role if not isPlayer(self.target) else self.target
-    def check_target(self, card):
+    def check_target(self, source):
         # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
         if not isPlayer(self.target):
-            return (str(self.target.zone) == self.target_zone) and self.current_role == self.target.current_role and self.match_types(self.target) and (self.untargeted or self.target.canBeTargetedBy(card))
-        else: return self.untargeted or self.target.canBeTargetedBy(card)
-    def get(self, card):
+            return (str(self.target.zone) == self.target_zone) and self.current_role == self.target.current_role and self.match_types(self.target) and (self.untargeted or self.target.canBeTargetedBy(source))
+        else: return self.untargeted or self.target.canBeTargetedBy(source)
+    def get(self, source):
         if self.msg: prompt=self.msg
         else:
             if self.zone != "play":
@@ -127,12 +127,12 @@ class Target(object):
                 if self.player == None: zl = ""
                 elif self.player == "you": zl = " you control"
                 else: zl = " opponent controls"
-            prompt="Target %s%s for %s"%(' or '.join([str(t) for t in self.target_types]), zl, card)
-        if self.selector == "opponent": selector = card.controller.opponent
+            prompt="Target %s%s for %s"%(' or '.join([str(t) for t in self.target_types]), zl, source)
+        if self.selector == "opponent": selector = source.controller.opponent
         elif self.selector == "current_player":
             from game.GameKeeper import Keeper
             selector = Keeper.curr_player
-        else: selector = card.controller
+        else: selector = source.controller
         if self.player == None: controller=None
         elif self.player == "you": controller=selector
         else: controller=selector.opponent
@@ -147,14 +147,14 @@ class Target(object):
                     elif self.player == "you": zones = [sel_zone]
                     else: zones = [opponent_zone]
                     for zone in zones:
-                        perm.extend([p for p in zone.get(ttype) if p.canBeTargetedBy(card)])
+                        perm.extend([p for p in zone.get(ttype) if p.canBeTargetedBy(source)])
                 else:
                     if self.player == None:
-                        perm.extend([p for p in selector.play.get(ttype, all=True) if p.canBeTargetedBy(card)])
+                        perm.extend([p for p in selector.play.get(ttype, all=True) if p.canBeTargetedBy(source)])
                     elif self.player == "you":
-                        perm.extend([p for p in selector.play.get(ttype) if p.canBeTargetedBy(card)])
+                        perm.extend([p for p in selector.play.get(ttype) if p.canBeTargetedBy(source)])
                     else:
-                        perm.extend([p for p in selector.opponent.play.get(ttype) if p.canBeTargetedBy(card)])
+                        perm.extend([p for p in selector.opponent.play.get(ttype) if p.canBeTargetedBy(source)])
 
             numtargets = len(perm)
             if numtargets == 0: return False
@@ -162,7 +162,7 @@ class Target(object):
             else:
                 while True:
                     self.target = selector.getTarget(self.target_types,zone=self.zone,controller=controller,required=self.required,prompt=prompt)
-                    if self.target.canBeTargetedBy(card): break
+                    if self.target.canBeTargetedBy(source): break
         else:
             self.target = selector.getTarget(self.target_types,zone=self.zone,controller=controller,required=False,prompt=prompt)
             if self.target == False: return False
@@ -170,8 +170,8 @@ class Target(object):
         if not isPlayer(self.target):
             self.target_zone = str(self.target.zone)
             self.current_role = self.target.current_role
-        if self.target.canBeTargetedBy(card):
-            self.target.isTargetedBy(card)
+        if self.target.canBeTargetedBy(source):
+            self.target.isTargetedBy(source)
             return True
         else:
             selector.send(InvalidTargetEvent(), target=self.target)
@@ -185,12 +185,12 @@ class StackTarget(object):
         else: self.target_types = target_types
         self.msg = msg
     def get_targeted(self): return self.target
-    def check_target(self, card):
-        return self.target in card.controller.stack
-    def get(self, card):
+    def check_target(self, source):
+        return self.target in source.controller.stack
+    def get(self, source):
         if self.msg: prompt=self.msg
-        elif self.target_types: prompt="Target %s for %s"%(' or '.join([str(t) for t in self.target_types]), card)
-        else: prompt = "Select target for %s"%(card)
-        self.target = card.controller.getTarget(self.target_types,required=False,prompt=prompt)
+        elif self.target_types: prompt="Target %s for %s"%(' or '.join([str(t) for t in self.target_types]), source)
+        else: prompt = "Select target for %s"%(source)
+        self.target = source.controller.getTarget(self.target_types,required=False,prompt=prompt)
         if self.target == False: return False
         return self.target.can_be_countered()
