@@ -1,4 +1,4 @@
-import copy
+import copy, weakref
 from pydispatch import dispatcher
 from GameEvent import TokenLeavingPlay, ColorModifiedEvent, TypeModifiedEvent, SubtypeModifiedEvent, SupertypeModifiedEvent
 from abilities import abilities, stacked_abilities
@@ -66,7 +66,8 @@ class GameObject(MtGObject):
         doc = '''The current role for this card. Either a Card (when in hand, library, graveyard or removed from game), Spell, (stack) or Permanent (in play)'''
         def fget(self): return self._current_role
         def fset(self, newrole):
-            role = copy.deepcopy(newrole)
+            self._current_role = copy.deepcopy(newrole)
+            role = weakref.proxy(self._current_role)
             # Set up base characteristics
             role.owner = self.owner
             role.name = stacked_variable(self.base_name)
@@ -80,7 +81,6 @@ class GameObject(MtGObject):
 
             role.base_power = stacked_variable(self.base_power)
             role.base_toughness = stacked_variable(self.base_toughness)
-            self._current_role = role
         return locals()
     current_role = property(**current_role())
     def save_lki(self):
