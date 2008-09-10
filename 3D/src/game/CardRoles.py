@@ -1,7 +1,7 @@
-import copy, itertools
+import new, copy, itertools
 from characteristics import stacked_controller, PTModifiers
 from GameObjects import MtGObject
-from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, SubRoleAddedEvent, SubRoleRemovedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
+from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
 from Ability.Counters import Counter, PowerToughnessCounter
 
 class GameRole(MtGObject):
@@ -20,18 +20,20 @@ class GameRole(MtGObject):
             abilities = str(self.abilities)
             if abilities: txt.append('\n\n%s'%abilities)
             if self.counters: txt.append('\n\nCounters: %s'%', '.join(map(str,self.counters)))
-            subrole_info = self.subrole_info()
-            if subrole_info: txt.append('\n\n'+subrole_info)
+            #subrole_info = self.subrole_info()
+            #if subrole_info: txt.append('\n\n'+subrole_info)
             return ''.join(txt)
         return locals()
     info = property(**info())
-    controller = property(fget=lambda self: self.card.owner)
+    controller = property(fget=lambda self: self.owner)
+    power = property(fget=lambda self: self.base_power)
+    toughness = property(fget=lambda self: self.base_toughness)
+
     def __init__(self, card):
         self.card = card
         self._counters = []
         self.attachments = []
         self.is_LKI = False
-    # the damage stuff seems kind of hacky
     def send(self, *args, **named):
         self.card.send(*args, **named)
     def dealDamage(self, to, amount, combat=False):
@@ -45,7 +47,8 @@ class GameRole(MtGObject):
     def canBeAttachedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
         self.send(TargetedByEvent(), targeter=targeter)
-    def enteringZone(self, zone): self.abilities.enteringZone(zone)
+    def enteringZone(self, zone):
+        self.abilities.enteringZone(zone)
     def leavingZone(self, zone):
         self.abilities.leavingZone(zone)
         for attached in self.attachments: attached.attachedLeavingPlay()
@@ -71,8 +74,6 @@ class GameRole(MtGObject):
         newcopy = copy.copy(self)
         for attr, value in self.__dict__.iteritems():
             if type(value) in mutable: setattr(newcopy,attr,copy.copy(value))
-            #elif callable(value): setattr(newcopy,attr, value)
-            #else: setattr(newcopy,attr,copy.deepcopy(value,memo))
             else: setattr(newcopy,attr, value)
         return newcopy
     def __str__(self):
@@ -81,11 +82,11 @@ class GameRole(MtGObject):
 # For token objects out of play
 class NoRole(GameRole): pass
 
-class CardRole(GameRole):  # Cards out of play
-    def __init__(self, card):
-        super(CardRole, self).__init__(card)
+# Cards out of play
+class CardRole(GameRole): pass
 
-class SpellRole(GameRole):  # Spells on the stack
+# Cards on the stack
+class SpellRole(GameRole):
     def __init__(self, card):
         super(SpellRole, self).__init__(card)
         self.facedown = False
@@ -104,44 +105,10 @@ class Permanent(GameRole):
     def __init__(self, card):
         super(Permanent, self).__init__(card)
         self._controller = None
-        self.subroles = []
         self.tapped = False
         self.flipped = False
         self.facedown = False
         self._continuously_in_play = False
-    def get_subrole(self, matchrole):
-        for role in self.subroles:
-            if isinstance(role, matchrole): return role
-        return None
-    def add_subrole(self, role):
-        role.enteringPlay(self)
-        self.subroles.append(role)
-        self.send(SubRoleAddedEvent(), subrole=role)
-    def remove_subrole(self, role):
-        # XXX Is this correct - the role is only missing when card enters play, gains role for the turn,
-        # and then is blinked back
-        if role in self.subroles:
-            role.leavingPlay()
-            self.subroles.remove(role)
-            self.send(SubRoleRemovedEvent(), subrole=role)
-    def __getattr__(self, attr):
-        for role in self.subroles:
-            if hasattr(role, attr): return getattr(role, attr)
-        return getattr(super(Permanent, self), attr)
-    def canBeTargetedBy(self, targeter):
-        result = True
-        for role in self.subroles:
-            if not role.canBeTargetedBy(targeter):
-                result = False
-                break
-        return result
-    def canBeAttachedBy(self, targeter):
-        result = True
-        for role in self.subroles:
-            if not role.canBeAttachedBy(targeter):
-                result = False
-                break
-        return result
     def faceDown(self):
         self.facedown = True
     def faceUp(self):
@@ -149,9 +116,7 @@ class Permanent(GameRole):
     def canBeTapped(self): # Called by game action (such as an effect)
         return not self.tapped
     def canTap(self): # Called as a result of user action
-        for role in self.subroles:
-            if not role.canTap(): return False
-        else: return not self.tapped
+        return not self.tapped
     def tap(self):
         # Don't tap if already tapped:
         if self.canBeTapped():
@@ -160,9 +125,7 @@ class Permanent(GameRole):
             return True
         else: return False
     def canUntap(self):
-        for role in self.subroles:
-            if not role.canUntap(): return False
-        else: return self.tapped
+        return self.tapped
     def untap(self):
         if self.tapped:
             self.tapped = False
@@ -171,12 +134,7 @@ class Permanent(GameRole):
         else: return False
     def shouldDestroy(self):
         # This is called to check whether the permanent should be destroyed (by SBE)
-        result = False
-        for role in self.subroles:
-            if role.shouldDestroy():
-                result = True
-                break
-        return result
+        return True
     def canDestroy(self):
         # this can be replaced by regeneration for creatures - what about artifacts and enchantments?
         return True
@@ -193,77 +151,66 @@ class Permanent(GameRole):
                 self._continuously_in_play = True
         self._continuously_in_play = False
         self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
+
     def enteringZone(self, zone):
-        # Create the necessary subroles, depending on our type
-        self.subroles = get_subroles(self)
-        for role in self.subroles: role.enteringPlay(self)
+        # Add the necessary superclasses, depending on our type/subtypes
+        self.__class__ = new.classobj("_Permanent", (Permanent,), {})
+        self.add_basecls()
         super(Permanent, self).enteringZone(zone)
     def leavingZone(self, zone):
-        for role in self.subroles: role.leavingPlay()
-        #self.subroles = []
+        # Add the necessary superclasses, depending on our type/subtypes
+        # Don't remove the superclasses, because of LKI
+        self.deactivateRole()
         super(Permanent, self).leavingZone(zone)
-    def __deepcopy__(self, memo):
-        newcopy = super(Permanent, self).__deepcopy__(memo)
-        newcopy.subroles = [copy.deepcopy(role, memo) for role in self.subroles]
-        return newcopy
+    def activateRole(self): pass
+    def deactivateRole(self): pass
+    def add_basecls(self):
+        cls = self.__class__
+        orig_bases = cls.__bases__
+        if self.type == "Creature" and not Creature in orig_bases:
+            cls.__bases__ = (Creature,)+orig_bases
+            self.activateCreature()
+        if (self.subtypes == "Aura" or self.subtypes == "Equipment") and not Attachment in orig_bases:
+            cls.__bases__ = (Attachment,)+orig_bases
+            self.activateAttachment()
+    #def add_basecls(self):
+    #    base_classes = set()
+    #    if self.type == "Creature": base_classes.append(Creature)
+    #    if self.subtypes == "Aura" or self.subtypes == "Equipment": base_classes.append(Attachment)
+    #    if base_classes:
+    #        self.__class__ = new.classobj("_Permanent", tuple(base_classes)+(Permanent,), {})
+    #        self.activateRole()
 
-class SubRole(object):
-    def subrole_info(self): return ''
-    def send(self, *args, **named):
-        self.perm.send(*args, **named)
-    def register(self, *args, **named):
-        self.perm.card.register(*args, **named)
-    def unregister(self, *args, **named):
-        self.perm.card.unregister(*args, **named)
-    def enteringPlay(self, perm):
-        self.perm = perm
-        self.card = perm.card
-    def leavingPlay(self): pass
-    def shouldDestroy(self): return False
-    def canBeTargetedBy(self, targeter): return True
-    def canBeAttachedBy(self, targeter): return True
-    def canTap(self): return True
-    def canUntap(self): return True
-    def __deepcopy__(self,memo,mutable=set([list,set,dict])):
-        # This only copies one level deep
-        # So the subrole(s) are always the pristine one specified in the card definition
-        newcopy = copy.copy(self)
-        for attr, value in self.__dict__.iteritems():
-            if attr == "card" or attr == "perm": continue
-            if type(value) in mutable: setattr(newcopy,attr,copy.copy(value))
-            elif callable(value): setattr(newcopy,attr, value)
-            else: setattr(newcopy,attr,copy.deepcopy(value, memo))
-        return newcopy
-    def __str__(self):
-        return self.__class__.__name__
-
-class Creature(SubRole):
+class Creature(object):
     def power():
         def fget(self):
             if self.cached_PT_dirty: self._calculate_power_toughness()
             return self.curr_power
+        def fset(self, power):
+            self.base_power.cda(power)
         return locals()
     power = property(**power())
     def toughness():
         def fget(self):
             if self.cached_PT_dirty: self._calculate_power_toughness()
             return self.curr_toughness
+        def fset(self, toughness):
+            self.base_toughness.cda(toughness)
         return locals()
     toughness = property(**toughness())
     def _calculate_power_toughness(self):
         # Calculate layering rules
-        power, toughness = int(self.perm.base_power), int(self.perm.base_toughness) # layer 6a
+        power, toughness = int(self.base_power), int(self.base_toughness) # layer 6a
         power, toughness = self.PT_other_modifiers.calculate(power, toughness) # layer 6b
-        power += sum([c.power for c in self.perm.counters if hasattr(c,"power")]) # layer 6c
-        toughness += sum([c.toughness for c in self.perm.counters if hasattr(c,"toughness")]) # layer 6c
+        power += sum([c.power for c in self.counters if hasattr(c,"power")]) # layer 6c
+        toughness += sum([c.toughness for c in self.counters if hasattr(c,"toughness")]) # layer 6c
         power, toughness = self.PT_static_modifiers.calculate(power, toughness) # layer 6d
         power, toughness = self.PT_switch_modifiers.calculate(power, toughness) # layer 6e
         self.cached_PT_dirty = False
         self.curr_power, self.curr_toughness = power, toughness
-    def __init__(self):
-        super(Creature,self).__init__()
-        # These are immutable and come from the card
-        self.curr_power = self.curr_toughness = None
+    def _PT_changed(self, sender): self.cached_PT_dirty=True
+    def activateCreature(self):
+        self.curr_power = self.curr_toughness = 0
         self.cached_PT_dirty = False
 
         # Only accessed internally
@@ -276,25 +223,15 @@ class Creature(SubRole):
         self.attacking = False
         self.blocking = False
         self.blocked = False
-    def subrole_info(self):
-        txt = ["%d/%d"%(self.perm.base_power, self.perm.base_toughness)]
-        txt.append(str(self.PT_other_modifiers))
-        txt.append(', '.join([str(c) for c in self.perm.counters if hasattr(c,"power")]))
-        txt.append(str(self.PT_static_modifiers))
-        txt.append(str(self.PT_switch_modifiers))
-        return '' #'P/T:\n'+'\n'.join(["6%s: %s"%(layer, mod) for layer, mod in zip("ABCDE", txt) if mod])
-    def _PT_changed(self, sender): self.cached_PT_dirty=True
-    def enteringPlay(self, perm):
-        super(Creature,self).enteringPlay(perm)
         self.cached_PT_dirty = True
+
         self.register(self._PT_changed, TimestepEvent())
-        #self.register(self._PT_changed, PowerToughnessChangedEvent(), sender=self.card)
-    def leavingPlay(self):
-        super(Creature,self).leavingPlay()
+        #super(Creature,self).activateRole()
+    def deactivateRole(self):
         self.unregister(self._PT_changed, TimestepEvent())
-        #self.unregister(PowerToughnessChangedEvent(), sender=self.card)
+        super(Creature,self).deactivateRole()
     def canBeDamagedBy(self, damager):
-        return not self.perm.is_LKI
+        return not self.is_LKI
     def combatDamage(self):
         return self.power
     def clearDamage(self):
@@ -303,12 +240,10 @@ class Creature(SubRole):
         return self.__damage
     def assignDamage(self, amt, source, combat=False):
         if amt > 0:
-            if "wither" in source.abilities: self.perm.add_counters(PowerToughnessCounter(-1, -1), amt)
+            if "wither" in source.abilities: self.add_counters(PowerToughnessCounter(-1, -1), amt)
             else: self.__damage += amt
             self.send(ReceivesDamageEvent(), source=source, amount=amt, combat=combat)
         return amt
-    def removeDamage(self, amt):
-        self.__damage -= amt
     def trample(self, damage_assn):
         from Match import isCreature
         total_damage = self.combatDamage()
@@ -330,7 +265,7 @@ class Creature(SubRole):
     def checkAttack(self, attackers, not_attacking):
         return True
     def canAttack(self):
-        return (not self.perm.tapped) and (not self.in_combat) and self.perm.continuouslyInPlay()
+        return (not self.tapped) and (not self.in_combat) and self.continuouslyInPlay()
     def checkBlock(self, combat_assignment, not_blocking):
         return True
     def canBeBlocked(self):
@@ -338,7 +273,7 @@ class Creature(SubRole):
     def canBeBlockedBy(self, blocker):
         return True
     def canBlock(self):
-        return not (self.perm.tapped or self.in_combat)
+        return not (self.tapped or self.in_combat)
     def canBlockAttacker(self, attacker):
         return True
     def clearCombatState(self):
@@ -352,7 +287,7 @@ class Creature(SubRole):
             self.send(BlockerClearedEvent())
     def setAttacking(self):
         self.setCombat(True)
-        self.perm.tap()
+        self.tap()
         self.attacking = True
         self.send(AttackerDeclaredEvent())
     def setBlocked(self, blockers):
@@ -372,7 +307,7 @@ class Creature(SubRole):
         return True
     def payBlockCost(self):
         from Ability.Cost import MultipleCosts
-        player = self.card.controller
+        player = self.controller
         cost = MultipleCosts(self.block_cost)
         if cost.precompute(self.card, player) and cost.compute(self.card, player):
             cost.pay(self.card, player)
@@ -381,53 +316,49 @@ class Creature(SubRole):
         return True
     def payAttackCost(self):
         from Ability.Cost import MultipleCosts
-        player = self.card.controller
+        player = self.controller
         cost = MultipleCosts(self.attack_cost)
         if cost.precompute(self.card, player) and cost.compute(self.card, player):
             cost.pay(self.card, player)
-
-    # These two override the functions in the Permanent
-    def canTap(self): return self.perm.continuouslyInPlay()
-    def canUntap(self): return self.perm.continuouslyInPlay()
     def shouldDestroy(self):
-        return self.__damage >= self.toughness
+        return self.__damage >= self.toughness and super(Creature, self).shouldDestroy()
+    #def subrole_info(self):
+    #    txt = ["%d/%d"%(self.base_power, self.base_toughness)]
+    #    txt.append(str(self.PT_other_modifiers))
+    #    txt.append(', '.join([str(c) for c in self.counters if hasattr(c,"power")]))
+    #    txt.append(str(self.PT_static_modifiers))
+    #    txt.append(str(self.PT_switch_modifiers))
+    #    return '' #'P/T:\n'+'\n'.join(["6%s: %s"%(layer, mod) for layer, mod in zip("ABCDE", txt) if mod])
 
-class Attachment(SubRole):
-    attached_abilities = property(fget=lambda self: self.perm.abilities.attached())
+class Attachment(object):
+    attached_abilities = property(fget=lambda self: self.abilities.attached())
+    def activateAttachment(self):
+        self.attached_to = None
+        self.target_types = None
+        #super(Attachment, self).activateRole()
+    def deactivateRole(self):
+        self.unattach()
+        super(Attachment,self).deactivateRole()
+    def set_target_type(self, target_type):
+        # This is set by the aura playing ability, or the equip ability
+        self.target_type = target_type
     def attach(self, target):
         if self.attached_to != None: self.unattach()
         self.attached_to = target
-        self.attached_to.attachments.append(self.perm.card)
-        for ability in self.attached_abilities: ability.enable(self.perm.card)
+        self.attached_to.attachments.append(self.card)
+        for ability in self.attached_abilities: ability.enable(self.card)
         self.send(AttachedEvent(), attached=self.attached_to)
         return True
     def unattach(self):
         if self.attached_to:
             for ability in self.attached_abilities: ability.disable()
-            self.attached_to.attachments.remove(self.perm.card)
+            self.attached_to.attachments.remove(self.card)
             self.send(UnAttachedEvent(), unattached=self.attached_to)
         self.attached_to = None
     def attachedLeavingPlay(self):
         for ability in self.attached_abilities: ability.disable()
         self.send(UnAttachedEvent(), unattached=self.attached_to)
         self.attached_to = None
-    def enteringPlay(self, perm):
-        super(Attachment, self).enteringPlay(perm)
-        self.attached_to = None
-        self.target_types = None
-    def leavingPlay(self):
-        self.unattach()
-        super(Attachment,self).leavingPlay()
     def isValidAttachment(self):
         attachment = self.attached_to
         return (attachment and str(attachment.zone) == "play" and self.target_type.match(attachment) and attachment.canBeAttachedBy(self.card))
-    def set_target_type(self, target_type):
-        # This is set by the aura playing ability, or the equip ability
-        self.target_type = target_type
-
-def get_subroles(perm):
-    subroles = []
-    for t in perm.type:
-        if t == "Creature": subroles.append(Creature())
-        elif perm.subtypes == "Aura" or perm.subtypes == "Equipment": subroles.append(Attachment())
-    return subroles

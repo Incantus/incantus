@@ -172,6 +172,21 @@ class stacked_characteristic(object):
     def __repr__(self):
         return "stacked: %s"%repr(self._stacking)
 
+class stacked_type(stacked_characteristic):
+    def __init__(self, card, orig, change_event):
+        super(stacked_type, self).__init__(card, orig, change_event)
+    def _insert_into_stacking(self, char, pos=-1):
+        if pos == -1: self._stacking.append(char)
+        else: self._stacking.insert(pos, char)
+        # Make sure the type isn't already that type
+        self.card.add_basecls()
+        self.card.send(self.change_event)
+        def remove():
+            if char in self._stacking:
+                self._stacking.remove(char)
+                self.card.send(self.change_event)
+        return remove
+
 if __name__ == "__main__":
 
     class Creature(object):

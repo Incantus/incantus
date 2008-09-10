@@ -237,7 +237,7 @@ class StackCard(Card):
 # until the card is back in play this should be fine
 # XXX This is no longer the case - the card unregisters the events it listens to
 from game.Match import isCreature
-from game.GameEvent import HasPriorityEvent, PowerToughnessChangedEvent, CounterAddedEvent, CounterRemovedEvent, SubRoleAddedEvent, SubRoleRemovedEvent
+from game.GameEvent import TypeModifiedEvent, HasPriorityEvent, PowerToughnessChangedEvent, CounterAddedEvent, CounterRemovedEvent
 from game.pydispatch import dispatcher
 class PlayCard(Card):
     tapping = anim.Animatable()
@@ -258,11 +258,10 @@ class PlayCard(Card):
         self.info_box._pos.set_transition(dt=0.4, method="sine")
         self.info_box.pos = euclid.Vector3(self.width/2+self.info_box.border, self.height/2-self.info_box.border, 0.005)
         self.info_box.visible = False
-    def add_role(self, sender):
+    def type_modified(self, sender):
         if isCreature(self.gamecard):
             self.setup_creature_subrole()
-    def remove_role(self, sender):
-        if not isCreature(self.gamecard) and self.is_creature:
+        elif not isCreature(self.gamecard) and self.is_creature:
             self.remove_creature_subrole()
     def setup_creature_subrole(self):
         self.is_creature = True
@@ -310,8 +309,7 @@ class PlayCard(Card):
         # Check for counters
         dispatcher.connect(self.add_counter, signal=CounterAddedEvent(), sender=self.gamecard)
         dispatcher.connect(self.remove_counter, signal=CounterRemovedEvent(), sender=self.gamecard)
-        dispatcher.connect(self.add_role, signal=SubRoleAddedEvent(), sender=self.gamecard)
-        dispatcher.connect(self.remove_role, signal=SubRoleRemovedEvent(), sender=self.gamecard)
+        dispatcher.connect(self.type_modified, signal=TypeModifiedEvent(), sender=self.gamecard)
         self.counters = [Counter(counter.ctype) for counter in self.gamecard.counters]
         self.layout_counters()
     def leaving_play(self):
@@ -319,8 +317,7 @@ class PlayCard(Card):
             self.remove_creature_subrole()
         dispatcher.disconnect(self.add_counter, signal=CounterAddedEvent(), sender=self.gamecard)
         dispatcher.disconnect(self.remove_counter, signal=CounterRemovedEvent(), sender=self.gamecard)
-        dispatcher.disconnect(self.add_role, signal=SubRoleAddedEvent(), sender=self.gamecard)
-        dispatcher.disconnect(self.remove_role, signal=SubRoleRemovedEvent(), sender=self.gamecard)
+        dispatcher.disconnect(self.type_modified, signal=TypeModifiedEvent(), sender=self.gamecard)
     def layout_counters(self):
         numc = len(self.counters)
         if numc > 0:

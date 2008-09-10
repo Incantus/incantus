@@ -2,7 +2,7 @@ import copy
 from pydispatch import dispatcher
 from GameEvent import TokenLeavingPlay, ColorModifiedEvent, TypeModifiedEvent, SubtypeModifiedEvent, SupertypeModifiedEvent
 from abilities import abilities, stacked_abilities
-from characteristics import stacked_variable, stacked_characteristic
+from characteristics import stacked_variable, stacked_characteristic, stacked_type
 import CardDatabase
 
 class MtGObject(object):
@@ -72,14 +72,14 @@ class GameObject(MtGObject):
             role.name = stacked_variable(self.base_name)
             role.cost = self.base_cost
             role.text = stacked_variable(self.base_text)
-            role.color = stacked_characteristic(self, self.base_color, ColorModifiedEvent())
-            role.type = stacked_characteristic(self, self.base_type, TypeModifiedEvent())
-            role.subtypes = stacked_characteristic(self, self.base_subtypes, SubtypeModifiedEvent())
-            role.supertype = stacked_characteristic(self, self.base_supertype, SupertypeModifiedEvent)
+            role.color = stacked_characteristic(role, self.base_color, ColorModifiedEvent())
+            role.type = stacked_type(role, self.base_type, TypeModifiedEvent())
+            role.subtypes = stacked_characteristic(role, self.base_subtypes, SubtypeModifiedEvent())
+            role.supertype = stacked_characteristic(role, self.base_supertype, SupertypeModifiedEvent)
             role.abilities = stacked_abilities(self, self.base_abilities)
 
-            if self.base_power: role.base_power = stacked_variable(self.base_power)
-            if self.base_toughness: role.base_toughness = stacked_variable(self.base_toughness)
+            role.base_power = stacked_variable(self.base_power)
+            role.base_toughness = stacked_variable(self.base_toughness)
             self._current_role = role
         return locals()
     current_role = property(**current_role())

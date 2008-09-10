@@ -1,5 +1,4 @@
 from functools import partial
-from game.CardRoles import Creature
 from game.Match import isPlayer, isCreature, isLand, isArtifact
 from game.stacked_function import override, replace, logical_and, logical_or
 from Limit import Unlimited, SorceryLimit, MultipleLimits
@@ -17,11 +16,10 @@ from Trigger import DealDamageTrigger
 #            if isinstance(limit, SorceryLimit): break
 #        casting_ability.limit.limits.pop(i)
 
-def do_override(func_name, func, combiner=logical_and, attr="creature"):
+def do_override(func_name, func, combiner=logical_and):
     def effects(target):
         if isPlayer(target): obj = target
-        elif attr == "permanent": obj = target.current_role
-        elif attr == "creature": obj = target.get_subrole(Creature)
+        else: obj = target.current_role
         yield override(obj, func_name, func, combiner)
     return effects
 
@@ -64,7 +62,7 @@ def flying():
 def haste():
     keyword = "haste"
     def continuouslyInPlay(self): return True
-    return CardStaticAbility(effects=do_override("continuouslyInPlay", continuouslyInPlay, combiner=logical_or, attr="permanent"), keyword=keyword)
+    return CardStaticAbility(effects=do_override("continuouslyInPlay", continuouslyInPlay, combiner=logical_or), keyword=keyword)
 
 def defender():
     keyword = "defender"
@@ -165,13 +163,12 @@ def indestructible():
     def destroy(self, skip=False): return False
     func1 = lambda permanent: override(permanent, "shouldDestroy", shouldDestroy)
     func2 = lambda permanent: override(permanent, "destroy", destroy)
-    return CardStaticAbility(effects=[Override(func1, attr="permanent"), Override(func2, attr="permanent")], txt="indestructible")
+    return CardStaticAbility(effects=[Override(func1), Override(func2)], txt="indestructible")
 
 # Replacement effects for damage
-def _replace(target, func_name, func, msg, condition, attr="creature"):
+def _replace(target, func_name, func, msg, condition):
     if isPlayer(target): obj = target
-    elif attr == "permanent": obj = target.current_role
-    elif attr == "creature": obj = target.get_subrole(Creature)
+    else: obj = target.current_role
     return replace(obj, func_name, func, msg, condition=condition)
 
 def prevent_damage(target, amt, next=True, txt=None, condition=None):
@@ -211,7 +208,7 @@ def regenerate(target, txt="Regenerate", condition=None):
         canDestroy.expire()
         #self.send(RegenerationEvent())
         return False
-    return _replace(target, "canDestroy", canDestroy, msg=txt, condition=condition, attr="permanent")
+    return _replace(target, "canDestroy", canDestroy, msg=txt, condition=condition)
 def redirect_damage(from_target, to_target, amt, next=True, txt=None, condition=None):
     if txt == None:
         if amt == -1: amtstr = 'all'
