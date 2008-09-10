@@ -69,7 +69,7 @@ class GameKeeper(MtGObject):
         for player in self.game_phases.players:
             for did_mulligan in player.mulligan():
                 self.send(TimestepEvent())
-                if not did_mulligan: break
+                if did_mulligan == False: break
         try:
             while True:
                 self.singleTurn()

@@ -145,6 +145,7 @@ class Player(MtGObject):
                 self.send(LogEvent(), msg="%s mulligans"%self)
                 for card in self.hand: card.move_to(zone=self.library)
                 self.shuffle_library()
+                yield
                 for i in range(number): self.draw()
                 yield True
             else: break
