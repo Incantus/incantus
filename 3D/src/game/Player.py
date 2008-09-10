@@ -336,7 +336,7 @@ class Player(MtGObject):
         if not msg: msg = prompt
         result = self.input(context, "%s: %s"%(self.name,prompt))
         return isinstance(result, OKAction)
-    def getSelection(self, sellist, numselections, required=True, idx=True, msg='', prompt=''):
+    def getSelection(self, sellist, numselections=1, required=True, idx=True, msg='', prompt=''):
         def filter(action):
             if isinstance(action, CancelAction) and not required: return action
             if not isinstance(action, PassPriority): return action.selection
