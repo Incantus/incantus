@@ -108,15 +108,6 @@ class CardStaticAbility(StaticAbility):
         for remove in self.effect_tracking: remove()
         self.effect_tracking = None
 
-class AttachedAbility(StaticAbility):
-    def _enable(self):
-        super(AttachedAbility, self)._enable()
-        self.effect_tracking = [removal_func for removal_func in self.effect_generator(self.source, self.source.attached_to)]
-    def _disable(self):
-        super(AttachedAbility, self)._disable()
-        for remove in self.effect_tracking: remove()
-        self.effect_tracking = None
-
 class ControllerChange(MtGObject):
     def _enable(self):
         self.register(self.new_controller, event=ControllerChanged(), sender=self.source)
@@ -154,16 +145,3 @@ class ConditionalStaticAbility(Conditional, CardStaticAbility):
     def __init__(self, effects, condition, zone="play", txt=''):
         super(ConditionalStaticAbility, self).__init__(effects, zone, txt)
         self.init_condition(condition)
-
-class ConditionalAttachedAbility(Conditional, AttachedAbility):
-    def __init__(self, effects, condition, zone="play", txt=''):
-        super(ConditionalAttachedAbility, self).__init__(effects, zone, txt)
-        self.init_condition(condition)
-    def check_condition(self):
-        pass_condition = self.condition(self.source, self.source.attached_to)
-        if not self.__enabled and pass_condition:
-            super(Conditional, self)._enable()
-            self.__enabled = True
-        elif self.__enabled and not pass_condition:
-            super(Conditional, self)._disable()
-            self.__enabled = False

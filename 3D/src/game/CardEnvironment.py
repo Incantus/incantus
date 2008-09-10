@@ -142,11 +142,7 @@ def static(zone="play", txt=''):
     return make_ability
 
 def attached(zone="attached", txt=''):
-    def make_ability(ability):
-        condition, effects = ability()
-        if condition: return ConditionalAttachedAbility(effects, condition, zone, txt)
-        else: return AttachedAbility(effects, zone, txt)
-    return make_ability
+    return static(zone, txt)
 
 no_before = lambda source: None
 def comes_into_play(txt=''):
