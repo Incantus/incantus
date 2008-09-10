@@ -3,7 +3,7 @@ from characteristics import stacked_controller, PTModifiers
 from GameObjects import MtGObject
 from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
 from Subtypes import all_basic_lands
-from Ability.Counters import Counter, PowerToughnessCounter
+from Ability.Counters import *
 from Ability.PermanentAbility import basic_mana_ability
 
 class GameRole(MtGObject):
@@ -328,6 +328,26 @@ class Creature(object):
             cost.pay(self.card, player)
     def shouldDestroy(self):
         return self.__damage >= self.toughness and super(Creature, self).shouldDestroy()
+
+    def set_power_toughness(self, power, toughness):
+        PT = PowerToughnessSetter(power, toughness)
+        return self.PT_other_modifiers.add(PT)
+    def set_power(self, power):
+        PT = PowerSetter(power, None)
+        return self.PT_other_modifiers.add(PT)
+    def set_toughness(self, toughness):
+        PT = ToughnessSetter(None, toughness)
+        return self.PT_other_modifiers.add(PT)
+    def augment_power_toughness(self, power, toughness):
+        PT = PowerToughnessModifier(power, toughness)
+        return self.PT_other_modifiers.add(PT)
+    def augment_power_toughness_static(self, power, toughness):
+        PT = PowerToughnessModifier(power, toughness)
+        return self.PT_static_modifiers.add(PT)
+    def switch_power_toughness(self):
+        PT = PowerToughnessSwitcher()
+        return self.PT_switch_modifiers.add(PT)
+
     #def subrole_info(self):
     #    txt = ["%d/%d"%(self.base_power, self.base_toughness)]
     #    txt.append(str(self.PT_other_modifiers))
