@@ -1,4 +1,4 @@
-from characteristics import characteristic, all_characteristics, no_characteristic, additional_characteristic
+from characteristics import characteristic, no_characteristic
 from stacked_function import override, replace, logical_or, logical_and, do_all
 from Decorators import *
 from Subtypes import *
