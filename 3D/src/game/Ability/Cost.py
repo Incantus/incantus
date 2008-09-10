@@ -5,9 +5,9 @@ from game.Match import isCard
 
 class Cost(object):
     def is_mana_cost(self): return False
-    def precompute(self, card, player): return True
-    def compute(self, card, player): return True
-    def pay(self, card, player): self.payment = None
+    def precompute(self, source, player): return True
+    def compute(self, source, player): return True
+    def pay(self, source, player): self.payment = None
     def __add__(self, other):
         if isinstance(other, str): return MultipleCosts([self,ManaCost(other)])
         elif isinstance(other, MultipleCosts): return MultipleCosts([self]+other.costs)
@@ -18,8 +18,8 @@ class Cost(object):
         return ''
 
 class NoCost(Cost):
-    def precompute(self, card, player): return False
-    def compute(self, card, player): return False
+    def precompute(self, source, player): return False
+    def compute(self, source, player): return False
     def __eq__(self, other): return isinstance(other, NoCost)
     def __str__(self): return ''
     def converted_mana_cost(self): return 0
@@ -42,19 +42,19 @@ class MultipleCosts(Cost):
             for mc in manacost[1:]: cost += mc
             return [cost]+othercost
         else: return othercost
-    def precompute(self, card, player):
+    def precompute(self, source, player):
         for cost in self.costs:
-            if not cost.precompute(card, player): return False
+            if not cost.precompute(source, player): return False
         self.final_costs = self.consolidate(self.costs)
         return True
-    def compute(self, card, player):
+    def compute(self, source, player):
         for cost in self.final_costs:
-            if not cost.compute(card, player): return False
+            if not cost.compute(source, player): return False
         return True
-    def pay(self, card, player):
+    def pay(self, source, player):
         self.payment = []
         for cost in self.final_costs:
-            cost.pay(card, player)
+            cost.pay(source, player)
             self.payment.append(cost.payment)
     def __iter__(self): return iter(self.final_costs)
     def __getitem__(self, i): return self.final_costs[i]
@@ -84,7 +84,7 @@ class ManaCost(Cost):
     def _get_X(self): return self._X
     def is_mana_cost(self): return True
     def __iter__(self): return iter(self.cost)
-    def precompute(self, card, player):
+    def precompute(self, source, player):
         mp = player.manapool
         self._X = 0
         if self.hasX(): self._X = player.getX()
@@ -94,7 +94,7 @@ class ManaCost(Cost):
         self.final_cost[-1] += self._X
         self.payment = "0"
         return self._X >= 0
-    def compute(self, card, player):
+    def compute(self, source, player):
         # XXX This is where I should check if the player has enough mana and the player should be
         # able to generate more mana
         mp = player.manapool
@@ -105,7 +105,7 @@ class ManaCost(Cost):
             required = mp.enoughInPool(cost)
             if required == '0': return True
             if not player.getMoreMana(required): return False
-    def pay(self, card, player):
+    def pay(self, source, player):
         mp = player.manapool
         # Now I have enough mana - how do I distribute it?
         payment = mp.distribute(self.final_cost)
@@ -148,14 +148,14 @@ class TapCost(Cost):
         super(TapCost,self).__init__()
         self.cardtype = cardtype
         self.number = number
-    def precompute(self, card, player):
-        if self.cardtype == None: return card.canTap()
+    def precompute(self, source, player):
+        if self.cardtype == None: return source.canTap()
         else: return len(player.play.get(self.cardtype)) >= self.number
-    def compute(self, card, player):
+    def compute(self, source, player):
         self.targets = []
         # Tap myself
         if self.cardtype == None:
-            if card.canTap(): self.targets.append(card)
+            if source.canTap(): self.targets.append(source)
             else: return False
         # otherwise see if there are enough targets for tapping
         else:
@@ -177,7 +177,7 @@ class TapCost(Cost):
                     prompt = "Select %d %s(s) for tapping"%(self.number-len(self.targets), self.cardtype)
                 if len(self.targets) == self.number: break
         return True
-    def pay(self, card, player):
+    def pay(self, source, player):
         for target in self.targets: target.tap()
         self.payment = self.targets
     def __str__(self):
@@ -190,14 +190,14 @@ class UntapCost(Cost):
         super(UntapCost,self).__init__()
         self.cardtype = cardtype
         self.number = number
-    def precompute(self, card, player):
+    def precompute(self, source, player):
         if self.cardtype == None: return card.canUntap()
         else: return len(player.play.get(self.cardtype)) >= self.number
-    def compute(self, card, player):
+    def compute(self, source, player):
         self.targets = []
         # Untap myself
         if self.cardtype == None:
-            if card.canUntap(): self.targets.append(card)
+            if source.canUntap(): self.targets.append(source)
             else: return False
         # otherwise see if there are enough targets for untapping
         else:
@@ -219,7 +219,7 @@ class UntapCost(Cost):
                     prompt = "Select %d %s(s) for untapping"%(self.number-len(self.targets), self.cardtype)
                 if len(self.targets) == self.number: break
         return True
-    def pay(self, card, player):
+    def pay(self, source, player):
         for target in self.targets: target.untap()
         self.payment = self.targets
     def __str__(self):
@@ -232,14 +232,14 @@ class SacrificeCost(Cost):
         super(SacrificeCost,self).__init__()
         self.cardtype = cardtype
         self.number = number
-    def precompute(self, card, player):
+    def precompute(self, source, player):
         if self.cardtype == None: return True
         else: return len(player.play.get(self.cardtype)) >= self.number
-    def compute(self, card, player):
+    def compute(self, source, player):
         self.targets = []
         if self.cardtype == None:
             # Sacrifice myself
-            if str(card.zone) == "play": self.targets.append(card)
+            if str(source.zone) == "play": self.targets.append(source)
             else: return False
         else:
             prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
@@ -254,7 +254,7 @@ class SacrificeCost(Cost):
                     prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
                 if len(self.targets) == self.number: break
         return True
-    def pay(self, card, player):
+    def pay(self, source, player):
         for target in self.targets:
             player.sacrifice(target)
         self.payment = self.targets
@@ -268,14 +268,14 @@ class ChangeZoneCost(Cost):
         self.number = number
         self.from_zone = from_zone
         self.to_zone = to_zone
-    def precompute(self, card, player):
+    def precompute(self, source, player):
         from_zone = getattr(player, self.from_zone)
         if self.cardtype == None: return True
         else: return len(from_zone.get(self.cardtype)) >= self.number
-    def compute(self, card, player):
+    def compute(self, source, player):
         self.targets = []
         if self.cardtype == None:
-            if str(card.zone) == self.from_zone: self.targets.append(card)
+            if str(source.zone) == self.from_zone: self.targets.append(source)
             else: return False
         else:
             prompt = "Select %d %s(s) to %s"%(self.number-len(self.targets), self.cardtype, self.action_txt%'')
@@ -290,7 +290,7 @@ class ChangeZoneCost(Cost):
                     prompt = "Select %d %s(s) to %s"%(self.number-len(self.targets), self.cardtype, self.action_txt%'')
                 if len(self.targets) == self.number: break
         return True
-    def pay(self, card, player):
+    def pay(self, source, player):
         for target in self.targets:
             target.move_to(getattr(target.owner, self.to_zone))
         self.payment = self.targets
@@ -327,13 +327,13 @@ class RemoveCounterCost(Cost):
         self.cardtype = cardtype
     def enough_counters(self, perm):
         return perm.num_counters(self.counter_type) >= self.number
-    def precompute(self, card, player):
+    def precompute(self, source, player):
         if self.cardtype == None: return True
         else: return any((True for perm in player.play.get(self.cardtype) if self.enough_counters(perm)))
-    def compute(self, card, player):
+    def compute(self, source, player):
         if self.cardtype == None:
             # Target myself
-            if self.enough_counters(card): self.target = card
+            if self.enough_counters(source): self.target = source
             else: return False
         else:
             prompt = "Select %s from which to remove %d %s counter(s)"%(self.cardtype, self.number, self.counter_type)
@@ -347,7 +347,7 @@ class RemoveCounterCost(Cost):
                     self.target = target
                     break
         return True
-    def pay(self, card, player):
+    def pay(self, source, player):
         self.payment = self.target.remove_counters(self.counter_type, self.number)
     def __str__(self):
         return "Remove %d %s counter(s)"%(self.number, self.counter_type)
@@ -357,13 +357,13 @@ class AddCounterCost(Cost):
         self.counter_type = counter_type
         self.number = number
         self.cardtype = cardtype
-    def precompute(self, card, player):
+    def precompute(self, source, player):
         if self.cardtype == None: return True
         else: return len(player.play.get(self.cardtype)) >= self.number
-    def compute(self, card, player):
+    def compute(self, source, player):
         if self.cardtype == None:
             # Target myself
-            if str(card.zone) == "play": self.target = card
+            if str(source.zone) == "play": self.target = source
             else: return False
         else:
             prompt = "Select %s on which to place %d %s counter(s)"%(self.cardtype, self.number, self.counter_type)
@@ -374,7 +374,7 @@ class AddCounterCost(Cost):
                     self.target = target
                     break
         return True
-    def pay(self, card, player):
+    def pay(self, source, player):
         self.target.add_counters(self.counter_type, self.number)
         self.payment = self.number
     def __str__(self):
@@ -388,13 +388,13 @@ class ConditionalCost(Cost):
         self.new_cost = new_cost
         self.cost = self.orig_cost
         self.func = func
-    def precompute(self, card, player):
-        if self.func(card, player): self.cost = self.new_cost
-        return self.cost.precompute(card, player)
-    def compute(self, card, player):
-        return self.cost.compute(card, player)
-    def pay(self, card, player):
-        self.cost.pay(card, player)
+    def precompute(self, source, player):
+        if self.func(source, player): self.cost = self.new_cost
+        return self.cost.precompute(source, player)
+    def compute(self, source, player):
+        return self.cost.compute(source, player)
+    def pay(self, source, player):
+        self.cost.pay(source, player)
     def __str__(self):
         return str(self.cost)
     payment = property(fget=lambda self: self.cost.payment)
@@ -402,9 +402,9 @@ class ConditionalCost(Cost):
 class LifeCost(Cost):
     def __init__(self, amt):
         self.amt = amt
-    def compute(self, card, player):
+    def compute(self, source, player):
         return player.life - self.amt > 0
-    def pay(self, card, player):
+    def pay(self, source, player):
         player.life -= self.amt
         self.payment = self.amt
     def __str__(self):
@@ -414,25 +414,25 @@ class RevealCost(Cost):
     def __init__(self, number=1, cardtype=isCard):
         self.number = number
         self.cardtype = cardtype
-    def precompute(self, card, player):
+    def precompute(self, source, player):
         return len(player.hand.get(self.cardtype)) >= self.number
-    def compute(self, card, player):
+    def compute(self, source, player):
         self.reveals = []
         if self.number > 1: a='s'
         else: a = ''
         num = 0
         prompt = "Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
         while num < self.number:
-            card = player.getTarget(self.cardtype, zone="hand", controller=player, required=False,prompt=prompt)
-            if not card: return False
-            if not card in self.reveals:
-                self.reveals.append(card)
+            target = player.getTarget(self.cardtype, zone="hand", controller=player, required=False,prompt=prompt)
+            if not target: return False
+            if not target in self.reveals:
+                self.reveals.append(target)
                 num += 1
                 prompt = "Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
             else:
                 prompt = "Card already selected. Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
         return True
-    def pay(self, card, player):
+    def pay(self, source, player):
         player.opponent.revealCard(self.reveals)
         self.payment = self.reveals
     def __str__(self):
@@ -444,17 +444,17 @@ class DiscardCost(Cost):
     def __init__(self, number=1, cardtype=None):
         self.number = number
         self.cardtype = cardtype
-    def precompute(self, card, player):
+    def precompute(self, source, player):
         if self.cardtype: return len(player.hand.get(self.cardtype)) >= self.number
         else: return True
-    def compute(self, card, player):
+    def compute(self, source, player):
         self.discards = []
         if self.number == -1:
             # Discard entire hand
             self.discards.extend([c for c in player.hand])
         elif not self.cardtype:
             # Discard this card
-            if str(card.zone) == "hand": self.discards = [card]
+            if str(source.zone) == "hand": self.discards = [source]
             else: return False
         else:
             if self.number > 1: a='s'
@@ -462,16 +462,16 @@ class DiscardCost(Cost):
             num = 0
             prompt = "Select %s card%s to discard: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
             while num < self.number:
-                card = player.getTarget(self.cardtype, zone="hand", controller=player,required=False,prompt=prompt)
-                if not card: return False
-                if not card in self.discards:
-                    self.discards.append(card)
+                target = player.getTarget(self.cardtype, zone="hand", controller=player,required=False,prompt=prompt)
+                if not target: return False
+                if not target in self.discards:
+                    self.discards.append(target)
                     num += 1
                     prompt = "Select %s card%s to discard: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
                 else:
                     prompt = "Card already selected. Select %s card%s to discard: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
         return True
-    def pay(self, card, player):
+    def pay(self, source, player):
         for c in self.discards:
             player.discard(c)
         self.payment = self.discards
@@ -485,24 +485,24 @@ class DiscardCost(Cost):
 class LoyaltyCost(Cost):
     def __init__(self, number=0):
         self.number = number
-    def compute(self, card, player):
-        if self.number < 0: return card.num_counters("loyalty") >= -self.number
+    def compute(self, source, player):
+        if self.number < 0: return source.num_counters("loyalty") >= -self.number
         else: return True
-    def pay(self, card, player):
-        if self.number < 0: card.remove_counters("loyalty", -self.number)
-        else: card.add_counters("loyalty", self.number)
+    def pay(self, source, player):
+        if self.number < 0: source.remove_counters("loyalty", -self.number)
+        else: source.add_counters("loyalty", self.number)
         self.payment = self.number
     def __str__(self):
         return "%d loyalty"%(self.number)
 
 class SpecialCost(Cost):
     def is_mana_cost(self): return self.cost.is_mana_cost()
-    def precompute(self, card, player):
-        return self.cost.precompute(card, player)
-    def compute(self, card, player):
-        return self.cost.compute(card, player)
-    def pay(self, card, player):
-        self.cost.pay(card, player)
+    def precompute(self, source, player):
+        return self.cost.precompute(source, player)
+    def compute(self, source, player):
+        return self.cost.compute(source, player)
+    def pay(self, source, player):
+        self.cost.pay(source, player)
     def __getattr__(self, attr):
         return getattr(self.cost, attr)
     def __str__(self):
@@ -515,9 +515,9 @@ class ChoiceCost(SpecialCost):
         self.choice_costs = costs
         self.reset()
     def reset(self): self.cost = None
-    def precompute(self, card, player):
+    def precompute(self, source, player):
         self.cost = player.getSelection(self.choice_costs, 1, prompt="Select additional cost")
-        return super(ChoiceCost, self).precompute(card, player)
+        return super(ChoiceCost, self).precompute(source, player)
     def __str__(self):
         return "Choose between %s"%' or '.join([str(c) for c in self.choice_costs])
 
@@ -531,7 +531,7 @@ class EvokeCost(SpecialCost):
     def reset(self):
         self.evoked = False
         self.cost = self.orig_cost
-    def precompute(self, card, player):
+    def precompute(self, source, player):
         self.evoked = player.getIntention("Pay evoke cost?", "...pay evoke cost?")
         if self.evoked: self.cost = self.evoke_cost
-        return super(EvokeCost, self).precompute(card, player)
+        return super(EvokeCost, self).precompute(source, player)
