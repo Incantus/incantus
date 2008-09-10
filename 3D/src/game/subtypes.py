@@ -9,5 +9,6 @@ enchantments = characteristic('Aura','Shrine')
 spells = characteristic('Arcane')
 
 lands = characteristic('Desert','Forest','Island','Lair','Locus','Mine','Mountain','Plains','Power-Plant','Swamp','Tower','Urza\'s')
+basic_lands = characteristic('Forest','Island','Mountain','Plains','Swamp')
 
 planeswalkers = characteristic('Ajani','Chandra','Garruk','Jace','Liliana')
