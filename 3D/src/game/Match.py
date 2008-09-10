@@ -65,8 +65,8 @@ isCard = CardMatch()
 isToken = TokenMatch()
 
 class ZoneMatch(ObjMatch):
-    def __init__(self, zone, condition=None, txt=''):
-        super(ZoneMatch, self).__init__(condition)
+    def __init__(self, zone, txt=''):
+        super(ZoneMatch, self).__init__()
         self.zone = zone
         if not txt: txt = "Card in %s"%zone
         self.txt = txt
