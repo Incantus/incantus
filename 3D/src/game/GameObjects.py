@@ -35,7 +35,7 @@ class MtGObject(object):
     #    for func in MtGObject._holding: func()
 
 class GameObject(MtGObject):
-    #__slots__ = ["name", "base_name", "base_cost", "base_text", "base_color", "base_type", "base_subtypes", "base_supertypes", "_owner", "zone", "out_play_role", "in_play_role", "stack_role", "_current_role", "key"]
+    #__slots__ = ["name", "base_name", "base_cost", "base_text", "base_color", "base_types", "base_subtypes", "base_supertypes", "_owner", "zone", "out_play_role", "in_play_role", "stack_role", "_current_role", "key"]
     def __init__(self, owner):
         self._owner = owner
         self.zone = None
@@ -52,9 +52,9 @@ class GameObject(MtGObject):
         self.base_cost = None
         self.base_text = None
         self.base_color = None
-        self.base_type = None
+        self.base_types = None
         self.base_subtypes = None
-        self.base_supertype = None
+        self.base_supertypes = None
         self.base_abilities = abilities()
         self.play_spell = None
 
@@ -73,9 +73,9 @@ class GameObject(MtGObject):
             role.cost = self.base_cost
             role.text = stacked_variable(self.base_text)
             role.color = stacked_characteristic(role, self.base_color, ColorModifiedEvent())
-            role.type = stacked_type(role, self.base_type, TypeModifiedEvent())
+            role.types = stacked_type(role, self.base_types, TypeModifiedEvent())
             role.subtypes = stacked_characteristic(role, self.base_subtypes, SubtypeModifiedEvent())
-            role.supertype = stacked_characteristic(role, self.base_supertype, SupertypeModifiedEvent)
+            role.supertypes = stacked_characteristic(role, self.base_supertypes, SupertypeModifiedEvent)
             role.abilities = stacked_abilities(self, self.base_abilities)
 
             role.base_power = stacked_variable(self.base_power)
@@ -123,7 +123,7 @@ class Card(GameObject):
         CardDatabase.loadCardFromDB(self, cardname)
         self.stack_role = SpellRole(self)
         self.current_role = self.out_play_role = CardRole(self)
-        if (self.base_type == "Instant" or self.base_type == "Sorcery"):
+        if (self.base_types == "Instant" or self.base_types == "Sorcery"):
             self.in_play_role = NoRole(self)
         else:
             self.in_play_role = Permanent(self)

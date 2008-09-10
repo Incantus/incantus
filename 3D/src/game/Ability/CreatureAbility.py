@@ -43,14 +43,14 @@ def legendary_landwalk():
     keyword = "legendary landwalk"
     def canBeBlocked(self):
         other_play = self.controller.opponent.play
-        return (len(other_play.get(isLand.with_condition(lambda land: land.supertype == "Legendary"))) == 0)
+        return (len(other_play.get(isLand.with_condition(lambda land: land.supertypes == "Legendary"))) == 0)
     return CardStaticAbility(effects=do_override("canBeBlocked", canBeBlocked), keyword=keyword)
 
 def nonbasic_landwalk():
     keyword = "Nonbasic landwalk"
     def canBeBlocked(self):
         other_play = self.controller.opponent.play
-        return (len(other_play.get(isLand.with_condition(lambda land: not land.supertype == "Basic"))) == 0)
+        return (len(other_play.get(isLand.with_condition(lambda land: not land.supertypes == "Basic"))) == 0)
     return CardStaticAbility(effects=do_override("canBeBlocked", canBeBlocked), keyword=keyword)
 
 def flying():
@@ -100,7 +100,7 @@ def vigilance():
 def fear():
     keyword = "fear"
     def canBeBlockedBy(self, blocker):
-        return (blocker.color == "B" or (blocker.type == "Artifact" and blocker.type=="Creature"))
+        return (blocker.color == "B" or (blocker.types == "Artifact" and blocker.types =="Creature"))
     return CardStaticAbility(effects=do_override("canBeBlockedBy", canBeBlockedBy), keyword=keyword)
 
 # Not sure how to do this one yet

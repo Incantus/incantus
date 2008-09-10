@@ -65,9 +65,9 @@ def execCode(card, code):
     card.base_name = card.name
     card.base_text = code
     card.base_color = card.color
-    card.base_type = card.type
+    card.base_types = card.types
     card.base_subtypes = card.subtypes
-    card.base_supertype = card.supertype
+    card.base_supertypes = card.supertypes
     if hasattr(card, "power"): card.base_power = card.power
     if hasattr(card, "toughness"): card.base_toughness = card.toughness
 
@@ -91,8 +91,8 @@ def loadCardFromDB(card, name):
 def convertToTxt(card_dict):
     tmpl = '''\
 name = %(name)s
-type = %(type)s
-supertype = %(supertype)s
+types = %(types)s
+supertypes = %(supertypes)s
 subtypes = %(subtypes)s
 color = %(color)s
 cost = NoCost()
@@ -100,7 +100,7 @@ cost = NoCost()
 
 %(abilities)s'''
     fields = {}
-    for attr in ["type", "supertype", "subtypes", "color"]:
+    for attr in ["types", "supertypes", "subtypes", "color"]:
         char = card_dict.get(attr, None)
         if not char: fields[attr] = "no_characteristic()"
         else:
@@ -128,8 +128,8 @@ cost = NoCost()
 
 default_tmpl = '''
 name = %s
-type = characteristic("Artifact")
-supertype = no_characteristic()
+types = characteristic("Artifact")
+supertypes = no_characteristic()
 subtypes = no_characteristic()
 color = no_characteristic()
 cost = ManaCost("0")

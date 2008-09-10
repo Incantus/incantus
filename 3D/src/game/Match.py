@@ -76,8 +76,8 @@ class ZoneMatch(ObjMatch):
 
 isSpell = ZoneMatch("stack", "spell")
 isPermanent = ZoneMatch("play", "permanent")
-isLegendaryPermanent = isPermanent.with_condition(lambda c: c.supertype == "Legendary")
-isPermanentCard = isCard.with_condition(lambda c: c.type == "Artifact" or c.type == "Enchantment" or c.type == "Creature" or c.type == "Land" or c.type == "Planeswalker")
+isLegendaryPermanent = isPermanent.with_condition(lambda c: c.supertypes == "Legendary")
+isPermanentCard = isCard.with_condition(lambda c: c.types == "Artifact" or c.types == "Enchantment" or c.types == "Creature" or c.types == "Land" or c.types == "Planeswalker")
 
 # Type specific matching
 class TypeMatch(ObjMatch):
@@ -89,9 +89,9 @@ class TypeMatch(ObjMatch):
         self.in_play = in_play
     def match(self, obj):
         if self.in_play:
-            return isPermanent(obj) and obj.type == self.cardtype and super(TypeMatch,self).match(obj)
+            return isPermanent(obj) and obj.types == self.cardtype and super(TypeMatch,self).match(obj)
         else:
-            return isGameObject(obj) and obj.type == self.cardtype and super(TypeMatch,self).match(obj)
+            return isGameObject(obj) and obj.types == self.cardtype and super(TypeMatch,self).match(obj)
     def __str__(self):
         name = str(self.cardtype)
         if not self.in_play: name += " card"
@@ -99,9 +99,9 @@ class TypeMatch(ObjMatch):
 
 isCreature = TypeMatch("Creature", in_play=True)
 isLand = TypeMatch("Land", in_play=True)
-isBasicLand = isLand.with_condition(lambda l: l.supertype == "Basic")
-isNonBasicLand = isLand.with_condition(lambda l: not l.supertype == "Basic")
-isNonLand = isPermanent.with_condition(lambda p: not p.type == "Land")
+isBasicLand = isLand.with_condition(lambda l: l.supertypes == "Basic")
+isNonBasicLand = isLand.with_condition(lambda l: not l.supertypes == "Basic")
+isNonLand = isPermanent.with_condition(lambda p: not p.types == "Land")
 isArtifact = TypeMatch("Artifact", in_play=True)
 isEnchantment = TypeMatch("Enchantment", in_play=True)
 isEquipment = isArtifact.with_condition(lambda a: a.subtypes == "Equipment")

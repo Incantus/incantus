@@ -79,14 +79,14 @@ class Player(MtGObject):
         for n in range(number):
             token = Token(info, owner=self)
             token.move_to(self.play)
-    def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action='', required=True, all=False):
+    def choose_from_zone(self, number=1, cardtypes=isCard, zone="play", action='', required=True, all=False):
         cards = []
         if zone == "play" or zone == "hand":
             a = 's' if number > 1 else ''
             total = number
-            prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
+            prompt = "Select %s%s to %s: %d left of %d"%(cardtypes, a, action, number, total)
             while number > 0:
-                card = self.getTarget(cardtype, zone=zone, controller=None if all else self, required=required, prompt=prompt)
+                card = self.getTarget(cardtypes, zone=zone, controller=None if all else self, required=required, prompt=prompt)
                 if card == False: break
                 if card in cards:
                     prompt = "Card already selected - select again"

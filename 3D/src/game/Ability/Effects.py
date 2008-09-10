@@ -31,7 +31,7 @@ def CiP_as_cloned(card, cloned):
     obj = CardDatabase.execCode(GameObject(card.controller), text)
     role = card.current_role
     role.cost = obj.base_cost
-    reverse = [getattr(role, attr).set_copy(getattr(obj, "base_"+attr)) for attr in ("name", "text", "color", "type", "subtypes", "supertype", "abilities")]
+    reverse = [getattr(role, attr).set_copy(getattr(obj, "base_"+attr)) for attr in ("name", "text", "color", "types", "subtypes", "supertypes", "abilities")]
     # XXX Instead of this, i should reset the power/toughness value that the creature subrole will refer to
     # That way i keep the same subrole
     role.subroles = obj.in_play_role.subroles
@@ -70,7 +70,7 @@ def switch_power_toughness(target):
 def add_creature_type(target, power, toughness):
     target.current_role.base_power.cda(0)
     target.current_role.base_toughness.cda(0)
-    reverse = [target.type.add("Creature"), set_power_toughness(target, power, toughness)]
+    reverse = [target.types.add("Creature"), set_power_toughness(target, power, toughness)]
     def restore():
         for r in reverse: r()
     return restore

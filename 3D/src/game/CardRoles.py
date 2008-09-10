@@ -13,10 +13,10 @@ class GameRole(MtGObject):
             color = str(self.color)
             if color: txt.append("\n%s"%color)
             txt.append("\n") 
-            supertype = str(self.supertype)
-            if supertype: txt.append(supertype+" ")
-            cardtype = str(self.type)
-            if cardtype: txt.append(cardtype)
+            supertypes = str(self.supertypes)
+            if supertypes: txt.append(supertypes+" ")
+            cardtypes = str(self.types)
+            if cardtypes: txt.append(cardtypes)
             subtypes = str(self.subtypes)
             if subtypes: txt.append(" - %s"%subtypes)
             abilities = str(self.abilities)
@@ -169,7 +169,7 @@ class Permanent(GameRole):
     def add_basecls(self):
         cls = self.__class__
         orig_bases = cls.__bases__
-        if self.type == "Creature" and not Creature in orig_bases:
+        if self.types == "Creature" and not Creature in orig_bases:
             cls.__bases__ = (Creature,)+orig_bases
             self.activateCreature()
         if (self.subtypes == "Aura" or self.subtypes == "Equipment") and not Attachment in orig_bases:
