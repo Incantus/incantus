@@ -43,8 +43,7 @@ def execCode(card, code):
     acceptable_keys = set(card.__dict__.keys())
 
     # Now set up the card
-    # This is a bit of a hack to get everything to load properly
-    card.card = card
+    # This is a bit of a hack to get the abilities loaded properly
     card.abilities = card.base_abilities
     try:
         exec str(code) in vars(CardEnvironment), vars(card)
