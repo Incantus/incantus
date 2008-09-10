@@ -42,11 +42,6 @@ def CiP_as_cloned(card, cloned):
         role.subroles = card.in_play_role.subroles
     return reversal
 
-def add_mana(player, amount):
-    if type(amount) == tuple:
-        amount = player.getSelection(amount, 1, prompt="Select mana to add")
-    player.manapool.add(amount)
-
 def add_creature_type(target, power, toughness):
     target.current_role.base_power.cda(0)
     target.current_role.base_toughness.cda(0)

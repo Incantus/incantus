@@ -3,7 +3,6 @@ from ActivatedAbility import ManaAbility
 #from StaticAbility import GlobalStaticAbility
 from Target import NoTarget
 from Cost import TapCost
-from Effects import add_mana
 #from TriggeredAbility import TriggeredAbility
 #from Trigger import PlayerTrigger, Trigger
 #from Counters import Counter
@@ -16,7 +15,7 @@ def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plain
     def effects(controller, source):
         payment = yield TapCost()
         yield NoTarget()
-        add_mana(controller, color)
+        controller.add_mana(color)
         yield
     return ManaAbility(effects, txt="T: Add %s"%color)
 

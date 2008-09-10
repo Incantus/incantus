@@ -66,6 +66,11 @@ class Player(MtGObject):
                 self.library.add_new_card(Card(name, owner=self))
 
     # The following functions are part of the card code DSL
+    def add_mana(self, *amount):
+        if len(amount) > 1:
+            amount = self.getSelection(amount, 1, prompt="Select mana to add")
+        else: amount = amount[0]
+        self.manapool.add(amount)
     def shuffle_library(self):
         self.library.shuffle()
     def you_may(self, msg): return self.getIntention(prompt="You may %s"%msg,msg="Would you like to %s?"%msg)
