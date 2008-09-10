@@ -17,14 +17,16 @@ class StaticAbility(object):
         self._status_count = 0
     def enable(self, source):
         self.source = source
-        self._status_count += 1
-        if self._status_count == 1: self._enable()
+        self.toggle(True)
     def disable(self):
-        self._status_count -= 1
-        if self._status_count == 0: self._disable()
+        self.toggle(False)
     def toggle(self, val):
-        if val: self._enable()
-        else: self._disable()
+        if val:
+            self._status_count += 1
+            if self._status_count == 1: self._enable()
+        else:
+            self._status_count -= 1
+            if self._status_count == 0: self._disable()
     def _enable(self): pass
     def _disable(self): pass
     def copy(self): return copy.copy(self)
