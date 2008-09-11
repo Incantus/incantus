@@ -191,7 +191,7 @@ class UntapCost(Cost):
         self.cardtype = cardtype
         self.number = number
     def precompute(self, source, player):
-        if self.cardtype == None: return card.canUntap()
+        if self.cardtype == None: return source.canUntap()
         else: return len(player.play.get(self.cardtype)) >= self.number
     def compute(self, source, player):
         self.targets = []
