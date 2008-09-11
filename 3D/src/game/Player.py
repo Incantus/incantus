@@ -105,6 +105,7 @@ class Player(MtGObject):
             if number > 0:
                 if number == 1: a = 'a'
                 else: a = str(number)
+                if zone == "library" and not cardtype == isCard: required = False
                 cards = self.getCardSelection(selection, number=number, cardtype=cardtype, required=required, prompt="Search your %s for %s %s."%(zone, a, action))
                 if zone == "library": self.shuffle()
         return cards
