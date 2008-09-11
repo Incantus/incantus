@@ -164,7 +164,6 @@ class Permanent(GameRole):
         # Don't remove the superclasses, because of LKI
         self.deactivateRole()
         super(Permanent, self).leavingZone(zone)
-    def activateRole(self): pass
     def deactivateRole(self): pass
     def add_basecls(self):
         cls = self.__class__
@@ -232,7 +231,6 @@ class Creature(object):
         self.cached_PT_dirty = True
 
         self.register(self._PT_changed, TimestepEvent())
-        #super(Creature,self).activateRole()
     def deactivateRole(self):
         self.unregister(self._PT_changed, TimestepEvent())
         super(Creature,self).deactivateRole()
@@ -361,7 +359,6 @@ class Attachment(object):
     def activateAttachment(self):
         self.attached_to = None
         self.target_types = None
-        #super(Attachment, self).activateRole()
     def deactivateRole(self):
         self.unattach()
         super(Attachment,self).deactivateRole()
