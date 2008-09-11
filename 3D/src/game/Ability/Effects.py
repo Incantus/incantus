@@ -1,6 +1,7 @@
 from game.pydispatch import dispatcher
-from game.GameEvent import CleanupEvent
+from game.GameEvent import CleanupEvent, TimestepEvent
 from game.GameObjects import GameObject
+from game.stacked_function import override, replace, do_all
 from game import CardDatabase
 
 def delay(source, delayed_trigger):
@@ -16,6 +17,29 @@ def combine(*restores):
 def until_end_of_turn(*restores):
     dispatcher.connect(combine(*restores), signal=CleanupEvent(), weak=False, expiry=1)
 
+def enter_play_tapped(self):
+    '''Card comes into play tapped'''
+    self.tapped = True
+
+no_before = lambda source: None
+def CiP(obj, during, before=no_before, condition=None, txt=''):
+    if not txt and hasattr(during, "__doc__"): msg = during.__doc__
+    else: msg = txt
+    def move_to(self, zone, position="top"):
+        # Add the entering function to the in_play_role
+        remove_entering = override(self.in_play_role, "enteringZone", lambda self, zone: during(self), combiner=do_all)
+        # Now move to play
+        before(self)
+        print "Moving %s with %s"%(self, msg)
+        self.move_to(zone, position)
+        # Remove the entering function from the in_play_role
+        # XXX There might be timing issue, since we want to remove the override after the card is put into play
+        dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False)
+    play_condition = lambda self, zone, position="top": str(zone) == "play"
+    if condition: cond = lambda self, zone, position="top": play_condition(self,zone,position) and condition(self,zone,position)
+    else: cond = play_condition
+
+    return replace(obj, "move_to", move_to, msg=msg, condition=cond)
 
 def clone(card, cloned):
     # XXX This is ugly,

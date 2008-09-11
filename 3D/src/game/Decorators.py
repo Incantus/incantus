@@ -1,6 +1,3 @@
-from pydispatch import dispatcher
-from stacked_function import override, replace, do_all
-
 from Ability.ActivatedAbility import ActivatedAbility, ManaAbility
 from Ability.TriggeredAbility import TriggeredAbility
 from Ability.StaticAbility import CardStaticAbility, ConditionalStaticAbility, CardTrackingAbility
@@ -8,8 +5,8 @@ from Ability.CastingAbility import CastPermanentSpell, CastInstantSpell, CastSor
 from Ability.Target import NoTarget, Target
 from Ability.Cost import ManaCost
 from Ability.Limit import SorceryLimit
+from Ability.Effects import CiP
 from Match import isCreature
-from GameEvent import TimestepEvent
 
 def play_permanent(cost):
     if type(cost) == str: cost = ManaCost(cost)
@@ -124,30 +121,10 @@ def static(zone="play", txt=''):
 def attached(zone="attached", txt=''):
     return static(zone, txt)
 
-no_before = lambda source: None
 def comes_into_play(txt=''):
     def make_ability(ability):
+        before, during = ability()
         def effects(source):
-            yield CiP(source, ability, txt=txt)
+            yield CiP(source, during, before, txt=txt)
         return CardStaticAbility(effects, zone="all", txt=txt)
     return make_ability
-
-def CiP(obj, ability, condition=None, txt=''):
-    before, during = ability()
-    if not txt and hasattr(during, "__doc__"): msg = during.__doc__
-    else: msg = txt
-    def move_to(self, zone, position="top"):
-        # Add the entering function to the in_play_role
-        remove_entering = override(self.in_play_role, "enteringZone", lambda self, zone: during(self), combiner=do_all)
-        # Now move to play
-        before(self)
-        print "Moving %s with %s"%(self, msg)
-        self.move_to(zone, position)
-        # Remove the entering function from the in_play_role
-        # XXX There might be timing issue, since we want to remove the override after the card is put into play
-        dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False)
-    play_condition = lambda self, zone, position="top": str(zone) == "play"
-    if condition: cond = lambda self, zone, position="top": play_condition(self,zone,position) and condition(self,zone,position)
-    else: cond = play_condition
-
-    return replace(obj, "move_to", move_to, msg=msg, condition=cond)
