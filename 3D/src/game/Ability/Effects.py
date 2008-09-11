@@ -8,10 +8,14 @@ def delay(source, delayed_trigger):
     def expire(): delayed_trigger.disable()
     return expire
 
-def until_end_of_turn(*restores):
+def combine(*restores):
     def expire():
         for restore in restores: restore()
-    dispatcher.connect(expire, signal=CleanupEvent(), weak=False, expiry=1)
+    return expire
+
+def until_end_of_turn(*restores):
+    dispatcher.connect(combine(*restores), signal=CleanupEvent(), weak=False, expiry=1)
+
 
 def clone(card, cloned):
     # XXX This is ugly,
