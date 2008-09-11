@@ -186,6 +186,9 @@ class CombatZone(object):
             for blocker, pos in positions:
                 blocker.pos = pos - euclid.Vector3(halfx, 0, 0)
 
+
+landtypes = ['Forest', 'Mountain', 'Swamp', 'Plains', 'Island', 'Other']
+
 class PlayView(Widget):
     def cards():
         def fget(self):
@@ -202,17 +205,16 @@ class PlayView(Widget):
         #self._pos.set_transition(dt=0.5, method="ease_out_circ")
         self.is_opponent_view = is_opponent_view
 
-        self.lands = dict([(land,[]) for land in ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest', 'Other']])
-        self.creatures = []
-        self.attached = []
-        self.other_perms = []
+        self.clear()
     def clear(self):
+        self._card_map = {}
         self.creatures = []
         self.other_perms = []
         self.attached = []
-        self.lands = dict([(land,[]) for land in ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest', 'Other']])
+        self.lands = dict([(land,[]) for land in landtypes])
     def add_card(self, card, startt):
         guicard = CardLibrary.CardLibrary.getPlayCard(card)
+        self._card_map[card.key] = guicard
         guicard.entering_play()
         guicard._pos.set(euclid.Vector3(0,0,0))
         if Match.isCreature(card): self.creatures.insert(0, guicard)
@@ -353,7 +355,7 @@ class PlayView(Widget):
         x = 0.
         max_row_height = 0
         positions = []
-        for landtype in ['Forest', 'Mountain', 'Swamp', 'Plains', 'Island']:
+        for landtype in landtypes[:-1]:
             lands = self.lands[landtype]
             z = 0
             i = 0
@@ -373,7 +375,7 @@ class PlayView(Widget):
             if len(lands): x += size*card.spacing
         i = 0
         if positions: avgx = sum([p.x for p in positions])/len(positions)
-        for landtype in ['Forest', 'Mountain', 'Swamp', 'Plains', 'Island']:
+        for landtype in landtypes[:-1]:
             lands = self.lands[landtype]
             for card in lands:
                 if not card.can_layout: continue
@@ -382,10 +384,7 @@ class PlayView(Widget):
         #lands = self.lands["Other"]
         #row += max_row_height
         #y, max_row_height = self.layout_subset(lands, size, y, y_incr, row, compare)
-    def get_card(self, gamecard):
-        for card in self.cards:
-            if card.gamecard == gamecard: return card
-        else: return None
+    def get_card(self, gamecard): return self._card_map.get(gamecard.key, None)
     def get_card_from_hit(self, select_ray):
         hits = []
         m = euclid.Matrix4()

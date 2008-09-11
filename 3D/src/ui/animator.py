@@ -226,7 +226,7 @@ class ZoneAnimator(object):
     def leave_stack(self, sender, ability):
         guicard = self.stack.get_card(ability)
         pos = self.stack.pos + guicard.pos
-        if isinstance(ability, CastSpell): self.tracker[ability.source] = pos, self.stack
+        if isinstance(ability, CastSpell): self.tracker[ability.source.key] = pos, self.stack
         elif not ability.source == "Assign Damage": self.sparks.add_sparkle_star(pos, pos, dt=0.5, color=str(ability.source.color))
         self.stack.remove_ability(ability)
     def controller_changed(self, sender, original):
@@ -241,8 +241,8 @@ class ZoneAnimator(object):
     def enter_zone(self, sender, card):
         if sender in self.status_zones:
             pstatus, symbol = self.status_zones[sender]
-            if card in self.tracker:
-                start_pos, from_zone = self.tracker[card]
+            if card.key in self.tracker:
+                start_pos, from_zone = self.tracker[card.key]
                 end_pos = pstatus.pos + symbol.pos
                 if from_zone in self.play_zones.values():
                     from_zone.remove_card(card, clock)
@@ -254,35 +254,35 @@ class ZoneAnimator(object):
                     dt = 1.0
                     self.sparks.add_spark(start_pos, end_pos, dt=dt, color="")
                     clock.schedule_once(lambda t: pstatus.update_zone(sender), dt)
-                del self.tracker[card]
+                del self.tracker[card.key]
             else: pstatus.update_zone(sender)
         elif str(sender) == "play":
             dt = 0.5
-            if card in self.tracker:
+            if card.key in self.tracker:
                 guicard = self.play_zones[card.controller].add_card(card,startt=dt)
                 zone = self.play_zones[card.controller]
-                start_pos, from_zone = self.tracker[card]
+                start_pos, from_zone = self.tracker[card.key]
                 end_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))
                 self.sparks.add_spark(start_pos, end_pos, grow=True, dt=dt, color=str(card.color))
-                del self.tracker[card]
+                del self.tracker[card.key]
             else: self.play_zones[card.controller].add_card(card,startt=0)
         else:
-            if card in self.tracker:
-                start_pos, from_zone = self.tracker[card]
+            if card.key in self.tracker:
+                start_pos, from_zone = self.tracker[card.key]
                 if from_zone in self.play_zones.values():
                     from_zone.remove_card(card, clock)
-                del self.tracker[card]
+                del self.tracker[card.key]
     def leave_zone(self, sender, card):
         if sender in self.status_zones:
             pstatus, symbol = self.status_zones[sender]
-            if pstatus.visible == 1 and not card in self.tracker: # already here because it was in the stack
-                self.tracker[card] = (pstatus.pos + symbol.pos, pstatus)
+            if pstatus.visible == 1 and not card.key in self.tracker: # already here because it was in the stack
+                self.tracker[card.key] = (pstatus.pos + symbol.pos, pstatus)
             pstatus.update_zone(sender)
             #pstatus.update_cards()
         elif str(sender) == "play":
             zone = self.play_zones[card.controller]
             guicard = zone.get_card(card)
-            self.tracker[card] = (self.window.project_to_window(*tuple(zone.pos+guicard.pos)), zone)
+            self.tracker[card.key] = (self.window.project_to_window(*tuple(zone.pos+guicard.pos)), zone)
     def render2d(self):
         self.sparks.render2d()
     def render3d(self):
