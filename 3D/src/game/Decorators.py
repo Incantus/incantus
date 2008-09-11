@@ -24,19 +24,6 @@ def play_aura(cost, target_type):
         yield
     return EnchantAbility(effects, target_type, txt="Enchant %s"%target_type)
 
-def equip(cost, target_type=isCreature, limit=None, txt=''):
-    if type(cost) == str: cost = ManaCost(cost)
-    def effects(controller, source):
-        yield cost
-        target = yield Target(target_type)
-        source.set_target_type(target_type)
-        source.attach(target)
-        yield
-    if not txt: txt="Equip creature"
-    if not limit: limit = SorceryLimit()
-    else: limit += SorceryLimit()
-    return ActivatedAbility(effects, limit=limit, txt=txt)
-
 # Decorators for effects of cards
 def play_sorcery():
     def make_spell(effects):

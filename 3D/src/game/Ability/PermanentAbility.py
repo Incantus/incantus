@@ -19,6 +19,19 @@ def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plain
         yield
     return ManaAbility(effects, txt="T: Add %s"%color)
 
+def equip(cost, target_type=isCreature, limit=None, txt=''):
+    if type(cost) == str: cost = ManaCost(cost)
+    def effects(controller, source):
+        yield cost
+        target = yield Target(target_type)
+        source.set_target_type(target_type)
+        source.attach(target)
+        yield
+    if not txt: txt="Equip creature"
+    if not limit: limit = SorceryLimit()
+    else: limit += SorceryLimit()
+    return ActivatedAbility(effects, limit=limit, txt=txt)
+
 #class ThresholdAbility(ActivatedAbility):
 #    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="play"):
 #        if limit: limit += ThresholdLimit(card)
