@@ -4,7 +4,7 @@ from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntap
 from Mana import ManaPool
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
-from Match import isCreature, isPermanent, isPlayer, isGameObject, isCard, isLandCard
+from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isCardRole
 
 class Player(MtGObject):
     def life():
@@ -305,7 +305,7 @@ class Player(MtGObject):
         def convert_gui_action(action):
             if isinstance(action, PassPriority) or isinstance(action, CancelAction): return action
             sel = action.selection
-            if isGameObject(sel) and sel.controller == self:
+            if not isPlayer(sel) and sel.controller == self:
                 if isLandCard(sel) and not str(sel.zone) == "play": return PlayLand(sel)
                 else: return PlayAbility(sel)
             else: return False
@@ -357,7 +357,7 @@ class Player(MtGObject):
             elif numselections == -1: return [sellist[i][0] for i in sel]
             else: return [sellist[i][0] for i in sel][:numselections]
         else: return sel
-    def getCardSelection(self, selection, number, cardtype=isGameObject, zone=None, player=None, required=True, prompt=''):
+    def getCardSelection(self, selection, number, cardtype=isCardRole, zone=None, player=None, required=True, prompt=''):
         def filter(action):
             if isinstance(action, CancelAction):
                 if not required: return action
@@ -423,7 +423,7 @@ class Player(MtGObject):
             if isinstance(action, PassPriority): return False
             if isinstance(action, CancelAction): return action
             sel = action.selection
-            if isGameObject(sel) and sel.controller == self and str(sel.zone) == "play":
+            if not isPlayer(sel) and sel.controller == self and str(sel.zone) == "play":
                 return ActivateForMana(sel)
             else: return False
         self.allowable_actions.extend([CancelAction, ActivateForMana])
