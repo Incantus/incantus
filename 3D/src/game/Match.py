@@ -60,6 +60,15 @@ class CardMatch(ObjMatch):
     def __str__(self):
         return "Card"
 
+class CardRoleMatch(ObjMatch):
+    def match(self, card=None):
+        import CardRoles
+        return isinstance(card, CardRoles.GameRole) and self.condition(card)
+    def __str__(self):
+        return "Card"
+
+isCardRole = CardRoleMatch()
+
 isGameObject = GameObjectMatch()
 isCard = CardMatch()
 isToken = TokenMatch()
