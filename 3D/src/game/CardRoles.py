@@ -5,6 +5,7 @@ from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent,
 from Subtypes import all_basic_lands
 from Ability.Counters import *
 from Ability.PermanentAbility import basic_mana_ability
+from Ability.Effects import combine
 
 class GameRole(MtGObject):
     def info():
@@ -171,20 +172,40 @@ class Permanent(GameRole):
         if self.types == "Creature" and not Creature in orig_bases:
             cls.__bases__ = (Creature,)+orig_bases
             self.activateCreature()
+        if self.types == "Land" and not Land in orig_bases:
+            cls.__bases__ = (Land,)+orig_bases
+            self.activateLand()
         if (self.subtypes == "Aura" or self.subtypes == "Equipment") and not Attachment in orig_bases:
             cls.__bases__ = (Attachment,)+orig_bases
             self.activateAttachment()
-        if self.subtypes.intersects(all_basic_lands) and not BasicLand in orig_bases:
-            cls.__bases__ = (BasicLand,)+orig_bases
-            self.activateBasicLand()
 
-class BasicLand(object):
-    def activateBasicLand(self):
+class Land(object):
+    _track_basic = dict([(subtype, {}) for subtype in all_basic_lands])
+    def activateLand(self):
+        self._add_basic_abilities()
+    #def deactivateRole(self):
+    #    super(Land,self).deactivateRole()
+    def _add_basic_abilities(self):
         for subtype in all_basic_lands:
-            if self.subtypes == subtype:
-                self.abilities.add(basic_mana_ability(subtype))
-    def deactivateRole(self):
-        super(BasicLand,self).deactivateRole()
+            if self.subtypes == subtype and not self in self._track_basic[subtype]:
+                self._track_basic[subtype][self] = self.abilities.add(basic_mana_ability(subtype))
+    def _remove_basic_abilities(self):
+        for subtype in all_basic_lands:
+            if not self.subtypes == subtype:
+                # Don't have basic subtype anymore, remove ability if it was added
+                expire = self._track_basic[subtype].pop(self, None)
+                if expire: expire()
+
+    def set_basic_land_subtypes(self, *subtypes):
+        expire1 = self.subtypes.set(*subtypes)
+        self._remove_basic_abilities()
+        expire2 = self.abilities.remove_all()
+        self._add_basic_abilities()
+        return combine(expire1, expire2, self._remove_basic_abilities, self._add_basic_abilities)
+    def add_basic_land_subtypes(self, *subtypes):
+        expire = self.subtypes.add(*subtypes)
+        self._add_basic_abilities()
+        return combine(expire, self._remove_basic_abilities)
 
 class Creature(object):
     def power():

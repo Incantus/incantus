@@ -19,23 +19,6 @@ def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plain
         yield
     return ManaAbility(effects, txt="T: Add %s"%color)
 
-def set_basic_land_subtypes(target, *subtypes):
-    rem1 = target.subtypes.set(*subtypes)
-    # Remove all previous abilities
-    rem2 = target.abilities.remove_all()
-    abilities = [basic_mana_ability(subtype) for subtype in subtypes]
-    rem3 = target.abilities.add(abilities)
-    def restore(): rem1(); rem2(); rem3()
-    return restore
-
-def add_basic_land_subtypes(target, *subtypes):
-    rem1 = target.subtypes.add(*subtypes)
-    # Remove all previous abilities
-    abilities = [basic_mana_ability(subtype) for subtype in subtypes]
-    rem2 = target.abilities.add(abilities)
-    def restore(): rem1(); rem2();
-    return restore
-
 #class ThresholdAbility(ActivatedAbility):
 #    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="play"):
 #        if limit: limit += ThresholdLimit(card)
