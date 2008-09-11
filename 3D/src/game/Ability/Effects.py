@@ -41,11 +41,3 @@ def CiP_as_cloned(card, cloned):
         for r in reverse: r()
         role.subroles = card.in_play_role.subroles
     return reversal
-
-def add_creature_type(target, power, toughness):
-    target.current_role.base_power.cda(0)
-    target.current_role.base_toughness.cda(0)
-    reverse = [target.types.add("Creature"), set_power_toughness(target, power, toughness)]
-    def restore():
-        for r in reverse: r()
-    return restore
