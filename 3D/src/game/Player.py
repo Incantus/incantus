@@ -46,7 +46,7 @@ class Player(MtGObject):
         self.manapool = ManaPool()
 
         self.loadDeck()
-        self.shuffle_library()
+        self.shuffle()
     def setOpponent(self, opponent):
         self.opponent = opponent
     def setDeck(self, decklist):
@@ -71,7 +71,7 @@ class Player(MtGObject):
             amount = self.getSelection(amount, 1, prompt="Select mana to add")
         else: amount = amount[0]
         self.manapool.add(amount)
-    def shuffle_library(self):
+    def shuffle(self):
         self.library.shuffle()
     def you_may(self, msg): return self.getIntention(prompt="You may %s"%msg,msg="Would you like to %s?"%msg)
     def you_may_pay(self, source, cost):
@@ -106,7 +106,7 @@ class Player(MtGObject):
                 if number == 1: a = 'a'
                 else: a = str(number)
                 cards = self.getCardSelection(selection, number=number, cardtype=cardtype, required=required, prompt="Search your %s for %s %s."%(zone, a, action))
-                if zone == "library": self.shuffle_library()
+                if zone == "library": self.shuffle()
         return cards
     def draw(self):
         card = self.library.top()
@@ -144,7 +144,7 @@ class Player(MtGObject):
             if self.getIntention("", "Would you like to mulligan?"): #, "Would you like to mulligan?"):
                 self.send(LogEvent(), msg="%s mulligans"%self)
                 for card in self.hand: card.move_to(zone=self.library)
-                self.shuffle_library()
+                self.shuffle()
                 yield
                 for i in range(number): self.draw()
                 yield True
