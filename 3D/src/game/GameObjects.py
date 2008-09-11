@@ -108,9 +108,9 @@ class GameObject(MtGObject):
     _counter = 0
     _cardmap = {}
     def _add_to_map(self):
-        self.key = (self._counter, self.base_name)
+        self.key = (GameObject._counter, self.base_name)
         self._cardmap[self.key] = self
-        self.__class__._counter += 1
+        GameObject._counter += 1
 
 class Card(GameObject):
     def __init__(self, cardname, owner):
