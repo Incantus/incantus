@@ -77,8 +77,8 @@ class GameRole(MtGObject):
         if power: expire.append(self.base_power.cda(power))
         if toughness: expire.append(self.base_toughness.cda(toughness))
         return combine(*expire)
-    power = property(fget=lambda self: self.base_power)
-    toughness = property(fget=lambda self: self.base_toughness)
+    power = property(fget=lambda self: int(self.base_power))
+    toughness = property(fget=lambda self: int(self.base_toughness))
     def __deepcopy__(self,memo,mutable=set([list,set,dict])):
         newcopy = copy.copy(self)
         for attr, value in self.__dict__.iteritems():
