@@ -87,8 +87,10 @@ class GameRole(MtGObject):
             if type(value) in mutable: setattr(newcopy,attr,copy.copy(value))
             else: setattr(newcopy,attr, value)
         return newcopy
-    def __str__(self):
-        return self.__class__.__name__
+    def __str__(self): return str(self.name)
+    def __del__(self):
+        pass
+        #print "Deleting %s role for %s"%(self.__class__.__name__, self.name)
 
 # For token objects out of play
 class NoRole(GameRole): pass
