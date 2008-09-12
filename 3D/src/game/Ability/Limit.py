@@ -23,6 +23,8 @@ class MultipleLimits(Limit):
         return all((limit(card) for limit in self.limits))
     def played(self, card):
         for l in self.limits: l.played(card)
+    def resolved(self, card):
+        for l in self.limits: l.resolved(card)
     def __add__(self, other):
         if isinstance(other, Limit): return MultipleLimits(other, self.limits)
         elif isinstance(other, MultipleLimits): return MultipleLimits(*(self.limits+other.limits))
