@@ -1,5 +1,5 @@
 from Ability import Ability
-from Trigger import robustApply
+from Effects import robustApply
 
 class TriggeredStackAbility(Ability):
     triggered = True

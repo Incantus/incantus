@@ -2,20 +2,7 @@ import copy
 from game.GameObjects import MtGObject
 from game.GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZone, CardLeavingZone, TimestepEvent
 from game.pydispatch.dispatcher import Any
-from game.pydispatch.robustapply import function
-
-def robustApply(receiver, **named):
-    """Call receiver with arguments and an appropriate subset of named
-    """
-    receiver, codeObject, startIndex = function(receiver)
-    acceptable = codeObject.co_varnames[startIndex:codeObject.co_argcount]
-    if not (codeObject.co_flags & 8):
-        # fc does not have a **kwds type parameter, therefore
-        # remove unacceptable arguments.
-        for arg in named.keys():
-            if arg not in acceptable:
-                del named[arg]
-    return receiver(**named)
+from Effects import robustApply
 
 class Trigger(MtGObject):
     def __init__(self, event=None, sender=None):
