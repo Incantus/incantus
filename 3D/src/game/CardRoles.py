@@ -321,6 +321,8 @@ class Creature(object):
         elif self.blocking:
             self.blocking = False
             self.send(BlockerClearedEvent())
+    def setOpponent(self, opponent):
+        self.opponent = opponent
     def setAttacking(self):
         self.setCombat(True)
         self.tap()

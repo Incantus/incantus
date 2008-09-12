@@ -265,7 +265,7 @@ class GameKeeper(MtGObject):
             if check_strike(attacker):
                 if not attacker.blocked:
                     # XXX I should check that the attacker can damage the player
-                    damage = {self.other_player: attacker.combatDamage()}
+                    damage = {attacker.opponent: attacker.combatDamage()}
                 else:
                     if "trample" in attacker.abilities:
                         trampling = True
@@ -293,7 +293,7 @@ class GameKeeper(MtGObject):
     def handle_trample(self, tramplers, damage_assn):
         for attacker in tramplers:
             if not damage_assn.get(attacker,None) == None:
-                damage_assn[attacker][self.other_player] = attacker.trample(damage_assn[attacker])
+                damage_assn[attacker][attacker.opponent] = attacker.trample(damage_assn[attacker])
     def combatDamageStep(self, combat_assignment):
         from Ability.AssignDamage import AssignDamage
         self.setState("Damage")
@@ -324,7 +324,9 @@ class GameKeeper(MtGObject):
             # Attacking
             self.setState("Attack")
             # Get all the players/planeswalkers
-            attackers = self.curr_player.declareAttackers()
+            opponents = [player for player in self.players if not player == self.curr_player]
+            opponents = sum([player.play.get(Match.isPlaneswalker) for player in opponents], opponents)
+            attackers = self.curr_player.declareAttackers(opponents)
             if attackers: self.send(DeclareAttackersEvent(), attackers=attackers)
             self.playInstantaneous()
             # After playing instants, the list of attackers could be modified (if a creature was put into play "attacking", so we regenerate the list

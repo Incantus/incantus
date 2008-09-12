@@ -4,7 +4,7 @@ from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntap
 from Mana import ManaPool
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
-from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isCardRole, isGameObject
+from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isCardRole, isGameObject, isPlaneswalker
 
 class Player(MtGObject):
     def life():
@@ -185,7 +185,8 @@ class Player(MtGObject):
                 has_creature = True
         if not has_creature: return False
         else: return True #self.getIntention("Declare intention to attack", msg="...attack this turn?")
-    def declareAttackers(self, players):
+    def declareAttackers(self, opponents):
+        multiple_opponents = len(opponents) > 1
         all_on_attacking_side = self.play.get(isCreature)
         invalid_attack = True
         prompt = "Declare attackers (Enter to accept, Escape to reset)"
@@ -204,6 +205,17 @@ class Player(MtGObject):
                     if not creature in attackers and creature.canAttack():
                         attackers.add(creature)
                         self.send(AttackerSelectedEvent(), attacker=creature)
+
+                        # Now select who to attack
+                        if multiple_opponents:
+                            while True:
+                                target = self.getTarget(target_types=(isPlayer, isPlaneswalker), zone="play", prompt="Select opponent to attack")
+                                if target in opponents:
+                                    creature.setOpponent(target)
+                                    target.send(TargetedByEvent(), targeter=creature)
+                                    break
+                                else: prompt = "Can't attack %s. Select again"%target
+                        else: creature.setOpponent(opponents[0])
                         prompt = "%s selected - select another"%creature
                     elif creature in attackers:
                         self.send(InvalidTargetEvent(), target=creature)

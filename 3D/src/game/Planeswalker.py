@@ -44,3 +44,4 @@ class Planeswalker(object):
         return amt
     def shouldDestroy(self):
         return self.num_counters("loyalty") <= 0
+    def canBeDamagedBy(self, damager): return True
