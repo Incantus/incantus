@@ -8,10 +8,13 @@ class Limit(MtGObject):
     def __add__(self, other):
         if isinstance(other, Limit): return MultipleLimits(self, other)
         elif isinstance(other, MultipleLimits): return MultipleLimits(self, *other.limits)
+        elif isinstance(other, Unlimited): return other
 
 class Unlimited(Limit):
     def __call__(self, card):
         return True
+    def __add__(self, other):
+        return other
 
 class MultipleLimits(Limit):
     def __init__(self, *limits):
@@ -23,6 +26,7 @@ class MultipleLimits(Limit):
     def __add__(self, other):
         if isinstance(other, Limit): return MultipleLimits(other, self.limits)
         elif isinstance(other, MultipleLimits): return MultipleLimits(*(self.limits+other.limits))
+        elif isinstance(other, Unlimited): return other
 
 class ConditionalLimit(Limit):
     def __init__(self, condition):
