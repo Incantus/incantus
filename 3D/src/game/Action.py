@@ -25,6 +25,12 @@ class CardSelected(Action):
     def __str__(self):
         return "%s - %s"%(repr(self), self.selection)
 
+class MultipleCardsSelected(Action):
+    def __init__(self, selected):
+        self.selection = selected
+    def __str__(self):
+        return "%s - %s"%(repr(self), self.selection)
+
 class PlayerSelected(Action):
     def __init__(self, player):
         self.selection = player

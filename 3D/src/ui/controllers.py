@@ -195,11 +195,11 @@ class CardSelector(object):
         if symbol == key.ENTER:
             selection = [card.gamecard for card in self.zone_view.selected]
             if len(selection) == 0 and len(self.zone_view.cards) == self.number:
-                self.window.user_action = Action.MultipleSelected([card.gamecard for card in self.zone_view.cards])
+                self.window.user_action = Action.MultipleCardsSelected([card.gamecard for card in self.zone_view.cards])
                 self.deactivate()
             else:
                 if (len(selection) == self.number) or (len(self.zone_view.cards) == 0 and len(selection) < self.number):
-                    self.window.user_action = Action.MultipleSelected(selection)
+                    self.window.user_action = Action.MultipleCardsSelected(selection)
                     self.deactivate()
             return True
         elif symbol == key.ESCAPE:
