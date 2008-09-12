@@ -1,17 +1,10 @@
 from functools import partial
-from game.Match import isPlayer, isCreature, isLand, isArtifact
-from game.stacked_function import override, replace, logical_and, logical_or
+from game.Match import isCreature, isLand, isArtifact
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from TriggeredAbility import TriggeredAbility
 from Trigger import DealDamageTrigger
-
-def do_override(func_name, func, combiner=logical_and):
-    def effects(target):
-        if isPlayer(target): obj = target
-        else: obj = target.current_role
-        yield override(obj, func_name, func, combiner)
-    return effects
+from Effects import do_override, do_replace, logical_or
 
 def keyword_effect(target):
     yield lambda: None
@@ -155,12 +148,6 @@ def indestructible():
     func2 = lambda permanent: override(permanent, "destroy", destroy)
     return CardStaticAbility(effects=[Override(func1), Override(func2)], txt="indestructible")
 
-# Replacement effects for damage
-def _replace(target, func_name, func, msg, condition):
-    if isPlayer(target): obj = target
-    else: obj = target.current_role
-    return replace(obj, func_name, func, msg, condition=condition)
-
 def prevent_damage(target, amt, next=True, txt=None, condition=None):
     if txt == None:
         if amt == -1: amtstr = 'all'
@@ -186,7 +173,7 @@ def prevent_damage(target, amt, next=True, txt=None, condition=None):
         #self.send(DamagePreventedEvent(),amt=shielded)
         return dmg
     shieldDamage.curr_amt = amt
-    return _replace(target, "assignDamage", shieldDamage, msg=txt, condition=condition)
+    return do_replace(target, "assignDamage", shieldDamage, msg=txt, condition=condition)
 def regenerate(target, txt="Regenerate", condition=None):
     def canDestroy(self):
         if self.canBeTapped(): self.tap()
@@ -198,7 +185,7 @@ def regenerate(target, txt="Regenerate", condition=None):
         canDestroy.expire()
         #self.send(RegenerationEvent())
         return False
-    return _replace(target, "canDestroy", canDestroy, msg=txt, condition=condition)
+    return do_replace(target, "canDestroy", canDestroy, msg=txt, condition=condition)
 def redirect_damage(from_target, to_target, amt, next=True, txt=None, condition=None):
     if txt == None:
         if amt == -1: amtstr = 'all'
@@ -227,7 +214,7 @@ def redirect_damage(from_target, to_target, amt, next=True, txt=None, condition=
         #self.send(DamageRedirectedEvent(),amt=redirected)
         return dmg
     redirectDamage.curr_amt = amt
-    return _replace(from_target, "assignDamage", redirectDamage, msg=txt, condition=condition)
+    return do_replace(from_target, "assignDamage", redirectDamage, msg=txt, condition=condition)
 
 # XXX This works with blockers blocking multiple attackers, but not with the current damage calculation
 # since we don't compute a total combat_damage array

@@ -4,7 +4,7 @@ from Ability.StaticAbility import CardStaticAbility, ConditionalStaticAbility, C
 from Ability.CastingAbility import CastPermanentSpell, CastInstantSpell, CastSorcerySpell, EnchantAbility
 from Ability.Target import NoTarget, Target
 from Ability.Cost import ManaCost
-from Ability.Effects import CiP
+from Ability.PermanentAbility import CiP
 
 def play_permanent(cost):
     if type(cost) == str: cost = ManaCost(cost)

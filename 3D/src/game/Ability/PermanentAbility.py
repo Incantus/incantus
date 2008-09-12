@@ -1,14 +1,11 @@
-#from Ability import Ability
+from game.pydispatch import dispatcher
+from game.stacked_function import override, replace, do_all
+from game.Match import isCreature
+from game.GameEvent import TimestepEvent
 from ActivatedAbility import ManaAbility
-#from StaticAbility import GlobalStaticAbility
 from Target import NoTarget
 from Cost import TapCost
-#from TriggeredAbility import TriggeredAbility
-#from Trigger import PlayerTrigger, Trigger
-#from Counters import Counter
-#from Limit import ThresholdLimit, sorcery
-#from game.GameEvent import UpkeepStepEvent, CounterRemovedEvent, EndTurnEvent
-from game.Match import isCreature
+from Effects import do_override
 
 #def flash(card):
 #    casting_ability = card.play_spell
@@ -40,6 +37,64 @@ def equip(cost, target_type=isCreature, limit=None, txt=''):
     if not limit: limit = SorceryLimit()
     else: limit += SorceryLimit()
     return ActivatedAbility(effects, limit=limit, txt=txt)
+
+
+# Comes into play functionality
+def enter_play_tapped(self):
+    '''Card comes into play tapped'''
+    self.tapped = True
+
+no_before = lambda source: None
+def CiP(obj, during, before=no_before, condition=None, txt=''):
+    if not txt and hasattr(during, "__doc__"): msg = during.__doc__
+    else: msg = txt
+    def move_to(self, zone, position="top"):
+        # Add the entering function to the in_play_role
+        remove_entering = override(self.in_play_role, "enteringZone", lambda self, zone: during(self), combiner=do_all)
+        # Now move to play
+        before(self)
+        print "Moving %s with %s"%(self, msg)
+        self.move_to(zone, position)
+        # Remove the entering function from the in_play_role
+        # XXX There might be timing issue, since we want to remove the override after the card is put into play
+        dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False)
+    play_condition = lambda self, zone, position="top": str(zone) == "play"
+    if condition: cond = lambda self, zone, position="top": play_condition(self,zone,position) and condition(self,zone,position)
+    else: cond = play_condition
+
+    return replace(obj, "move_to", move_to, msg=msg, condition=cond)
+
+# Cloning
+#def clone(card, cloned):
+#    # XXX This is ugly,
+#    role = card.current_role
+#    for subrole in role.subroles: subrole.leavingPlay()
+#    reverse = CiP_as_cloned(card, cloned)
+#    for subrole in role.subroles: subrole.enteringPlay(role)
+#    def reversal():
+#        for subrole in role.subroles: subrole.leavingPlay()
+#        reverse()
+#        for subrole in role.subroles: subrole.enteringPlay(role)
+#    return reversal
+#
+#def CiP_as_cloned(card, cloned):
+#    text = cloned.text
+#    obj = CardDatabase.execCode(GameObject(card.controller), text)
+#    role = card.current_role
+#    role.cost = obj.base_cost
+#    reverse = [getattr(role, attr).set_copy(getattr(obj, "base_"+attr)) for attr in ("name", "text", "color", "types", "subtypes", "supertypes", "abilities")]
+#    # XXX Instead of this, i should reset the power/toughness value that the creature subrole will refer to
+#    # That way i keep the same subrole
+#    role.subroles = obj.in_play_role.subroles
+#    def reversal():
+#        role.name = card.base_name
+#        role.cost = card.base_cost
+#        role.text = card.base_text
+#        for r in reverse: r()
+#        role.subroles = card.in_play_role.subroles
+#    return reversal
+
+
 
 #class ThresholdAbility(ActivatedAbility):
 #    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="play"):
