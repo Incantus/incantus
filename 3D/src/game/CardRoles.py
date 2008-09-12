@@ -29,8 +29,6 @@ class GameRole(MtGObject):
         return locals()
     info = property(**info())
     controller = property(fget=lambda self: self.owner)
-    power = property(fget=lambda self: self.base_power)
-    toughness = property(fget=lambda self: self.base_toughness)
 
     def __init__(self, card):
         self.card = card
@@ -73,6 +71,13 @@ class GameRole(MtGObject):
         if counter: return len([c for c in self._counters if c == counter])
         else: return len(self._counters)
     counters = property(fget=lambda self: self._counters)
+    def cda_power_toughness(self, power, toughness):
+        expire = []
+        if power: expire.append(self.base_power.cda(power))
+        if toughness: expire.append(self.base_toughness.cda(toughness))
+        return combine(*expire)
+    power = property(fget=lambda self: self.base_power)
+    toughness = property(fget=lambda self: self.base_toughness)
     def __deepcopy__(self,memo,mutable=set([list,set,dict])):
         newcopy = copy.copy(self)
         for attr, value in self.__dict__.iteritems():
