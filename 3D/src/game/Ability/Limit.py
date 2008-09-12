@@ -77,3 +77,16 @@ class SorceryLimit(Limit):
 class ThresholdLimit(Limit):
     def __call__(self, card):
         return len(card.controller.graveyard) >= 7
+
+class PlaneswalkerLimit(SorceryLimit):
+    def __init__(self):
+        self.original_count = self.count = 1
+        # Setup the limit to reset every turn
+        self.register(self.reset, event=TurnFinishedEvent())
+        super(PlaneswalkerLimit, self).__init__()
+    def reset(self):
+        self.count = self.original_count
+    def __call__(self, card):
+        self.count -= 1
+        return self.count >= 0 and super(PlaneswalkerLimit, self).__call__(card)
+

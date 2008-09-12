@@ -60,6 +60,7 @@ class GameObject(MtGObject):
 
         self.base_power = 0 #None  It should really be None for CDAs
         self.base_toughness = 0 #None
+        self.base_loyalty = None
 
     owner = property(fget=lambda self: self._owner)
     def current_role():
@@ -81,6 +82,7 @@ class GameObject(MtGObject):
 
             role.base_power = stacked_variable(self.base_power)
             role.base_toughness = stacked_variable(self.base_toughness)
+            role.base_loyalty = stacked_variable(self.base_loyalty)
         return locals()
     current_role = property(**current_role())
     def save_lki(self):

@@ -70,6 +70,7 @@ def execCode(card, code):
     card.base_supertypes = card.supertypes
     if hasattr(card, "power"): card.base_power = card.power
     if hasattr(card, "toughness"): card.base_toughness = card.toughness
+    if hasattr(card, "loyalty"): card.base_loyalty = card.loyalty
 
     # Get rid of non-standard attributes
     for k in card.__dict__.keys():

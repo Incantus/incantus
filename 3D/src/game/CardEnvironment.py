@@ -4,7 +4,6 @@ from Decorators import *
 from Subtypes import *
 from Player import Player
 from GameKeeper import Keeper
-#from Planeswalker import Planeswalker
 from Match import *
 from LazyInt import LazyInt
 from GameEvent import *

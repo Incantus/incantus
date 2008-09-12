@@ -3,6 +3,7 @@ from characteristics import stacked_controller, PTModifiers
 from GameObjects import MtGObject
 from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
 from Subtypes import all_basic_lands
+from Planeswalker import Planeswalker
 from Ability.Counters import *
 from Ability.PermanentAbility import basic_mana_ability
 from Ability.Effects import combine
@@ -79,6 +80,7 @@ class GameRole(MtGObject):
         return combine(*expire)
     power = property(fget=lambda self: int(self.base_power))
     toughness = property(fget=lambda self: int(self.base_toughness))
+    loyalty = property(fget=lambda self: int(self.base_loyalty))
     def __deepcopy__(self,memo,mutable=set([list,set,dict])):
         newcopy = copy.copy(self)
         for attr, value in self.__dict__.iteritems():
@@ -181,6 +183,9 @@ class Permanent(GameRole):
         if self.types == "Land" and not Land in orig_bases:
             cls.__bases__ = (Land,)+orig_bases
             self.activateLand()
+        if self.types == "Planeswalker" and not Planeswalker in orig_bases:
+            cls.__bases__ = (Planeswalker,)+orig_bases
+            self.activatePlaneswalker()
         if (self.subtypes == "Aura" or self.subtypes == "Equipment") and not Attachment in orig_bases:
             cls.__bases__ = (Attachment,)+orig_bases
             self.activateAttachment()
