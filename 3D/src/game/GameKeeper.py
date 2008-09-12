@@ -63,10 +63,10 @@ class GameKeeper(MtGObject):
         # XXX This is hacky - need a better way to signal end of game
         self.send(GameStartEvent())
         self.send(TimestepEvent())
-        for player in self.game_phases.players:
+        for player in self.players:
             for i in range(7): player.draw()
         self.send(TimestepEvent())
-        for player in self.game_phases.players:
+        for player in self.players:
             for did_mulligan in player.mulligan():
                 self.send(TimestepEvent())
                 if did_mulligan == False: break
@@ -78,7 +78,7 @@ class GameKeeper(MtGObject):
             # Return all cards to library
             for card in self.play:
                 card.move_to(card.owner.library)
-            for player in self.game_phases.players:
+            for player in self.players:
                 player.reset()
             self.ready_to_start = False
             return g.msg
@@ -112,14 +112,14 @@ class GameKeeper(MtGObject):
         self.send(GameStepEvent(), state=state)
         self.send(state_map[state](), player=self.curr_player)
     def manaBurn(self):
-        for player in self.game_phases.players:
+        for player in self.players:
             while not player.manaBurn():
                 self.playInstantaneous()
     def checkSBE(self):
         #State-Based Effects - rule 420.5
         # check every time someone gets priority (rule 408.1b)
         # Also during cleanup step - if there is an effect, player gets priority
-        players = self.game_phases.players
+        players = self.players
         actions = []
         # 420.5a A player with 0 or less life loses the game.
         def EndGame(player, msg):
@@ -324,6 +324,7 @@ class GameKeeper(MtGObject):
         if self.curr_player.attackingIntention():
             # Attacking
             self.setState("Attack")
+            # Get all the players/planeswalkers
             attackers = self.curr_player.declareAttackers()
             if attackers: self.send(DeclareAttackersEvent(), attackers=attackers)
             self.playInstantaneous()
