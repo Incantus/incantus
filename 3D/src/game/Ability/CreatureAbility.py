@@ -4,7 +4,12 @@ from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from TriggeredAbility import TriggeredAbility
 from Trigger import DealDamageTrigger
-from Effects import do_override, do_replace, logical_or
+from Effects import do_override, do_replace, logical_or, logical_and
+
+def override_effect(func_name, func, combiner=logical_and):
+    def effects(target):
+        yield do_override(target, func_name, func, combiner=combiner)
+    return effects
 
 def keyword_effect(target):
     yield lambda: None
@@ -14,7 +19,7 @@ def landwalk(landtype):
     def canBeBlocked(self):
         other_play = self.controller.opponent.play
         return (len(other_play.get(isLand.with_condition(lambda land: land.subtypes == landtype))) == 0)
-    return CardStaticAbility(effects=do_override("canBeBlocked", canBeBlocked), keyword=keyword)
+    return CardStaticAbility(effects=override_effect("canBeBlocked", canBeBlocked), keyword=keyword)
 
 plainswalk = partial(landwalk, "Plains")
 swampwalk = partial(landwalk, "Swamp")
@@ -27,35 +32,35 @@ def legendary_landwalk():
     def canBeBlocked(self):
         other_play = self.controller.opponent.play
         return (len(other_play.get(isLand.with_condition(lambda land: land.supertypes == "Legendary"))) == 0)
-    return CardStaticAbility(effects=do_override("canBeBlocked", canBeBlocked), keyword=keyword)
+    return CardStaticAbility(effects=override_effect("canBeBlocked", canBeBlocked), keyword=keyword)
 
 def nonbasic_landwalk():
     keyword = "Nonbasic landwalk"
     def canBeBlocked(self):
         other_play = self.controller.opponent.play
         return (len(other_play.get(isLand.with_condition(lambda land: not land.supertypes == "Basic"))) == 0)
-    return CardStaticAbility(effects=do_override("canBeBlocked", canBeBlocked), keyword=keyword)
+    return CardStaticAbility(effects=override_effect("canBeBlocked", canBeBlocked), keyword=keyword)
 
 def flying():
     keyword = "flying"
     def canBeBlockedBy(self, blocker):
         return ("flying" in blocker.abilities or "reach" in blocker.abilities)
-    return CardStaticAbility(effects=do_override("canBeBlockedBy", canBeBlockedBy), keyword=keyword)
+    return CardStaticAbility(effects=override_effect("canBeBlockedBy", canBeBlockedBy), keyword=keyword)
 
 def haste():
     keyword = "haste"
     def continuouslyInPlay(self): return True
-    return CardStaticAbility(effects=do_override("continuouslyInPlay", continuouslyInPlay, combiner=logical_or), keyword=keyword)
+    return CardStaticAbility(effects=override_effect("continuouslyInPlay", continuouslyInPlay, combiner=logical_or), keyword=keyword)
 
 def defender():
     keyword = "defender"
     def canAttack(self): return False
-    return CardStaticAbility(effects=do_override("canAttack", canAttack), keyword=keyword)
+    return CardStaticAbility(effects=override_effect("canAttack", canAttack), keyword=keyword)
 
 def shroud():
     keyword = "shroud"
     def canBeTargetedBy(self, targetter): return False
-    return CardStaticAbility(effects=do_override("canBeTargetedBy", canBeTargetedBy), keyword=keyword)
+    return CardStaticAbility(effects=override_effect("canBeTargetedBy", canBeTargetedBy), keyword=keyword)
 
 def reach():
     keyword = "reach"
@@ -78,13 +83,13 @@ def vigilance():
         self.attacking = True
         self.send(AttackerDeclaredEvent())
         return False
-    return CardStaticAbility(effects=do_override("setAttacking", setAttacking), keyword=keyword)
+    return CardStaticAbility(effects=override_effect("setAttacking", setAttacking), keyword=keyword)
 
 def fear():
     keyword = "fear"
     def canBeBlockedBy(self, blocker):
         return (blocker.color == "B" or (blocker.types == "Artifact" and blocker.types =="Creature"))
-    return CardStaticAbility(effects=do_override("canBeBlockedBy", canBeBlockedBy), keyword=keyword)
+    return CardStaticAbility(effects=override_effect("canBeBlockedBy", canBeBlockedBy), keyword=keyword)
 
 # Not sure how to do this one yet
 def protection(attribute_match):
@@ -130,16 +135,16 @@ def must_attack():
     def checkAttack(self, attackers, not_attacking):
         # XXX LKI fix
         return self.card in attackers or not self.canAttack()
-    return CardStaticAbility(effects=do_override("checkAttack", checkAttack), txt="must attack")
+    return CardStaticAbility(effects=override_effect("checkAttack", checkAttack), txt="must attack")
 
 def only_block(keyword):
     def canBlockAttacker(self, attacker):
         return keyword in attacker.abilities
-    return CardStaticAbility(effects=do_override("canBlockAttacker", canBlockAttacker), txt="only block %s"%keyword)
+    return CardStaticAbility(effects=override_effect("canBlockAttacker", canBlockAttacker), txt="only block %s"%keyword)
 
 def unblockable():
     def canBeBlocked(self): return False
-    return CardStaticAbility(effects=do_override("canBeBlocked", canBeBlocked), txt="unblockable")
+    return CardStaticAbility(effects=override_effect("canBeBlocked", canBeBlocked), txt="unblockable")
 
 def indestructible():
     def shouldDestroy(self): return False
