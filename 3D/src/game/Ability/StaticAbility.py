@@ -40,6 +40,7 @@ class CardTrackingAbility(StaticAbility):
         self.control_changed = Trigger(ControllerChanged(), sender="source")
         if not type(events) == list: events = [events]
         self.other_triggers = [Trigger(event) for event in [SubroleModifiedEvent(), ControllerChanged()] + events]
+        if not condition: condition = lambda *args: True
         self.condition = condition
         self.tracking = tracking
     def get_current(self):
