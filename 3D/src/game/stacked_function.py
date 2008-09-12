@@ -62,16 +62,12 @@ class stacked_function(object):
             else: setattr(self.f_class, self.f_name, self.original)
     def _add(self, stacked_list, func, obj):
         stacked_list.append(func)
-        if obj:  # If we are targeting a particular object
-            if not hasattr(obj, "_overrides"): obj._overrides = set([func])
-            else: obj._overrides.add(func)
+        if obj: obj._overrides.add(func)
         else: func.all = True
         def restore():
             if func in stacked_list: # avoid being called twice
                 stacked_list.remove(func)
-                if obj:
-                    obj._overrides.remove(func)
-                    if len(obj._overrides) == 0: delattr(obj, '_overrides')
+                if obj: obj._overrides.remove(func)
                 self.revert()
         return restore
     def add_replacement(self, func, obj=None, msg='', condition=None):

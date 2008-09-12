@@ -35,6 +35,7 @@ class GameRole(MtGObject):
         self._counters = []
         self.attachments = []
         self.is_LKI = False
+        self._overrides = set()
     def send(self, *args, **named):
         self.card.send(*args, **named)
     def dealDamage(self, to, amount, combat=False):
