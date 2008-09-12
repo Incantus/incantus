@@ -1,6 +1,6 @@
 from Ability.ActivatedAbility import ActivatedAbility, ManaAbility
 from Ability.TriggeredAbility import TriggeredAbility
-from Ability.StaticAbility import CardStaticAbility, ConditionalStaticAbility, CardTrackingAbility
+from Ability.StaticAbility import CardStaticAbility, ConditionalStaticAbility, CardTrackingAbility, CiPAbility
 from Ability.CastingAbility import CastPermanentSpell, CastInstantSpell, CastSorcerySpell, EnchantAbility
 from Ability.Target import NoTarget, Target
 from Ability.Cost import ManaCost
@@ -112,5 +112,5 @@ def comes_into_play(txt=''):
         before, during = ability()
         def effects(source):
             yield CiP(source, during, before, txt=txt)
-        return CardStaticAbility(effects, zone="all", txt=txt)
+        return CiPAbility(effects, txt=txt)
     return make_ability

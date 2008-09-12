@@ -111,6 +111,19 @@ class CardStaticAbility(StaticAbility):
         for remove in self.effect_tracking: remove()
         self.effect_tracking = None
 
+class CiPAbility(CardStaticAbility):
+    def __init__(self, effects, txt=''):
+        super(CiPAbility, self).__init__(effects, zone="all", txt=txt)
+        self.__activated = False
+    def toggle(self, val):
+        if val:
+            self._status_count += 1
+            if not self.__activated:
+                self._enable()
+                self.__activated = True
+        else:
+            self._status_count -= 1
+
 class ControllerChange(MtGObject):
     def _enable(self):
         self.register(self.new_controller, event=ControllerChanged(), sender=self.source)
