@@ -88,6 +88,7 @@ disconnected = set()
 recurse = 0
 
 def reset():
+    return # XXX Fix this when setting up enabling game resetting
     global connections, senders, sendersBack
     connections = {}
     senders = {}

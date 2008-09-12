@@ -1,13 +1,13 @@
 from Ability import Ability
-from Limit import Unlimited
+from Limit import no_limit
 
 class CostAbility(Ability):
     zone = "play"
-    limit_type = Unlimited   # This is because if instantiate when the class is created, all the signalling is cleared
+    limit_type = no_limit   # This is because if instantiate when the class is created, all the signalling is cleared
     def __init__(self, effects, limit=None, zone=None, txt='', keyword=''):
         super(CostAbility,self).__init__(effects, txt=txt)
         if limit: self.limit = limit
-        else: self.limit = self.limit_type()
+        else: self.limit = self.limit_type
         if zone: self.zone = zone
         if keyword: self.txt = keyword.capitalize()
         self.keyword = keyword
@@ -25,6 +25,12 @@ class CostAbility(Ability):
                return True
         else:
             return False
+    def played(self):
+        self.limit.played(self.source)
+        super(CostAbility, self).played()
+    def resolved(self):
+        self.limit.resolved(self.source)
+        super(CostAbility, self).resolved()
     def _get_targets_from_effects(self):
         return self.effects.send(self.cost)
     def __str__(self):
@@ -45,7 +51,12 @@ class ManaAbility(ActivatedAbility):
     mana_ability = True
     def preannounce(self): pass
     def canceled(self): pass
-    def played(self): self.resolve()
+    def played(self):
+        self.limit.played(self.source)
+        self.resolve()
+    def resolved(self):
+        self.limit.resolved(self.source)
+        super(ManaAbility, self).resolved()
 
 #class MultipleAbilities(ActivatedAbility):
     # XXX This doesn't override all the functions it should

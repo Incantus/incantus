@@ -3,6 +3,8 @@ from game.GameEvent import TurnFinishedEvent, UpkeepStepEvent, MainPhaseEvent, E
 
 class Limit(MtGObject):
     def __call__(self, card): raise Exception()
+    def played(self, card): pass
+    def resolved(self, card): pass
     def __add__(self, other):
         if isinstance(other, Limit): return MultipleLimits(self, other)
         elif isinstance(other, MultipleLimits): return MultipleLimits(self, *other.limits)
@@ -13,14 +15,11 @@ class Unlimited(Limit):
 
 class MultipleLimits(Limit):
     def __init__(self, *limits):
-        counts = []
-        other = []
-        for l in limits:
-            if isinstance(l, CountLimit): counts.append(l)
-            else: other.append(l)
-        self.limits = other+counts
+        self.limits = limits
     def __call__(self, card):
         return all((limit(card) for limit in self.limits))
+    def played(self, card):
+        for l in self.limits: l.played(card)
     def __add__(self, other):
         if isinstance(other, Limit): return MultipleLimits(other, self.limits)
         elif isinstance(other, MultipleLimits): return MultipleLimits(*(self.limits+other.limits))
@@ -36,12 +35,13 @@ class CountLimit(Limit):
         self.original_count = count
         self.count = count
         # Setup the limit to reset every turn
-        self.register(self.reset, event=TurnFinishedEvent())
-    def reset(self):
+        self.register(self.reset_count, event=TurnFinishedEvent())
+    def played(self, card):
+        self.count -= 1
+    def reset_count(self):
         self.count = self.original_count
     def __call__(self, card):
-        self.count -= 1
-        return self.count >= 0
+        return self.count > 0
 
 class TurnLimit(Limit):
     def __init__(self):
@@ -78,15 +78,5 @@ class ThresholdLimit(Limit):
     def __call__(self, card):
         return len(card.controller.graveyard) >= 7
 
-class PlaneswalkerLimit(SorceryLimit):
-    def __init__(self):
-        self.original_count = self.count = 1
-        # Setup the limit to reset every turn
-        self.register(self.reset, event=TurnFinishedEvent())
-        super(PlaneswalkerLimit, self).__init__()
-    def reset(self):
-        self.count = self.original_count
-    def __call__(self, card):
-        self.count -= 1
-        return self.count >= 0 and super(PlaneswalkerLimit, self).__call__(card)
-
+no_limit = Unlimited()
+sorcery = SorceryLimit()

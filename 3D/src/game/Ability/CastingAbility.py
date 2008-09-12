@@ -1,6 +1,6 @@
 from game.GameEvent import SpellPlayedEvent, TimestepEvent
 from ActivatedAbility import CostAbility
-from Limit import SorceryLimit, MultipleLimits
+from Limit import sorcery
 
 class CastSpell(CostAbility):
     zone = "hand"
@@ -21,14 +21,14 @@ class CastSpell(CostAbility):
         super(CastSpell,self).countered()
 
 class CastPermanentSpell(CastSpell):
-    limit_type = SorceryLimit
+    limit_type = sorcery
     def resolved(self):
         self.source.move_to(self.controller.play)
         self.source.send(TimestepEvent())
         super(CastPermanentSpell, self).resolved()
 
 class EnchantAbility(CastSpell):
-    limit_type = SorceryLimit
+    limit_type = sorcery
     def __init__(self, effects, target_type, txt=''):
         self.target_type = target_type
         super(EnchantAbility, self).__init__(effects, txt=txt, keyword='enchant')
@@ -46,7 +46,7 @@ class CastNonPermanentSpell(CastSpell):
         super(CastNonPermanentSpell, self).resolved()
 
 class CastInstantSpell(CastNonPermanentSpell): pass
-class CastSorcerySpell(CastNonPermanentSpell): limit_type = SorceryLimit
+class CastSorcerySpell(CastNonPermanentSpell): limit_type = sorcery
 
 #class CastBuybackSpell(CastSpell):
 #    def __str__(self):

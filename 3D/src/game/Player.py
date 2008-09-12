@@ -185,7 +185,7 @@ class Player(MtGObject):
                 has_creature = True
         if not has_creature: return False
         else: return True #self.getIntention("Declare intention to attack", msg="...attack this turn?")
-    def declareAttackers(self):
+    def declareAttackers(self, players):
         all_on_attacking_side = self.play.get(isCreature)
         invalid_attack = True
         prompt = "Declare attackers (Enter to accept, Escape to reset)"

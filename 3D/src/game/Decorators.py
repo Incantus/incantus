@@ -4,7 +4,6 @@ from Ability.StaticAbility import CardStaticAbility, ConditionalStaticAbility, C
 from Ability.CastingAbility import CastPermanentSpell, CastInstantSpell, CastSorcerySpell, EnchantAbility
 from Ability.Target import NoTarget, Target
 from Ability.Cost import ManaCost
-from Ability.Limit import SorceryLimit
 from Ability.Effects import CiP
 
 def play_permanent(cost):

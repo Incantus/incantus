@@ -3,16 +3,19 @@ from abilities import stacked_abilities
 from Player import Player
 from GameEvent import ReceivesDamageEvent
 from Ability.Counters import Counter
-from Ability.Limit import PlaneswalkerLimit
+from Ability.Limit import sorcery, CountLimit
 
 class planeswalker_abilities(stacked_abilities):
     def __init__(self, source, abilities):
         super(planeswalker_abilities, self).__init__(source, abilities._stacking[0])
-        self.limit = PlaneswalkerLimit()
-    def activated(self):
-        if self.limit(self.source): activated = self.process_stacked("activated", [], self.source)
-        else: activated = []
-        return activated
+        self.walker_limit = sorcery+CountLimit(1)
+        self.change_limit(abilities._stacking[0]._abilities)
+    def add(self, abilities):
+        self.change_limit(abilities)
+        super(planeswalker_abilities, self).add(abilities)
+    def change_limit(self, abilities):
+        for a in abilities:
+            if hasattr(a, "activated"): a.limit += self.walker_limit
 
 def redirect_to(planeswalker):
     def condition(self, amt, source, combat):
