@@ -1,20 +1,10 @@
 from functools import partial
 from game.Match import isPlayer, isCreature, isLand, isArtifact
 from game.stacked_function import override, replace, logical_and, logical_or
-from Limit import Unlimited, SorceryLimit, MultipleLimits
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from TriggeredAbility import TriggeredAbility
 from Trigger import DealDamageTrigger
-
-#def flash(card):
-#    casting_ability = card.play_spell
-#    if isinstance(casting_ability.limit, SorceryLimit):
-#        casting_ability.limit = Unlimited(card)
-#    elif isinstance(casting_ability.limit, MultipleLimits):
-#        for i, limit in enumerate(casting_ability.limit):
-#            if isinstance(limit, SorceryLimit): break
-#        casting_ability.limit.limits.pop(i)
 
 def do_override(func_name, func, combiner=logical_and):
     def effects(target):

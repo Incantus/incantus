@@ -6,9 +6,18 @@ from Cost import TapCost
 #from TriggeredAbility import TriggeredAbility
 #from Trigger import PlayerTrigger, Trigger
 #from Counters import Counter
-#from Limit import ThresholdLimit, SorceryLimit
+#from Limit import ThresholdLimit, sorcery
 #from game.GameEvent import UpkeepStepEvent, CounterRemovedEvent, EndTurnEvent
 from game.Match import isCreature
+
+#def flash(card):
+#    casting_ability = card.play_spell
+#    if isinstance(casting_ability.limit, SorceryLimit):
+#        casting_ability.limit = Unlimited(card)
+#    elif isinstance(casting_ability.limit, MultipleLimits):
+#        for i, limit in enumerate(casting_ability.limit):
+#            if isinstance(limit, SorceryLimit): break
+#        casting_ability.limit.limits.pop(i)
 
 def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plains='W',Mountain='R',Swamp='B')):
     color = subtype_to_mana[subtype]
