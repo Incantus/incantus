@@ -290,14 +290,13 @@ class GameKeeper(MtGObject):
                 else: damage_assignment[blocker] = damage
 
         return tramplers, damage_assignment
+    def handle_trample(self, tramplers, damage_assn):
+        for attacker in tramplers:
+            if not damage_assn.get(attacker,None) == None:
+                damage_assn[attacker][self.other_player] = attacker.trample(damage_assn[attacker])
     def combatDamageStep(self, combat_assignment):
         from Ability.AssignDamage import AssignDamage
         self.setState("Damage")
-
-        def handle_trample(tramplers, damage_assn):
-            for t in tramplers:
-                if not damage_assn.get(t,None) == None:
-                    damage_assn[t][self.other_player] = t.trample(damage_assn[t])
 
         tramplers, first_strike_damage = self.calculateDamage(combat_assignment, first_strike=True)
         if first_strike_damage:
