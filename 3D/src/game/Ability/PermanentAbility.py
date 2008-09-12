@@ -8,7 +8,7 @@ from Cost import TapCost
 #from Counters import Counter
 #from Limit import ThresholdLimit, SorceryLimit
 #from game.GameEvent import UpkeepStepEvent, CounterRemovedEvent, EndTurnEvent
-#from game.Match import SelfMatch, isCreature
+from game.Match import isCreature
 
 def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plains='W',Mountain='R',Swamp='B')):
     color = subtype_to_mana[subtype]

@@ -6,7 +6,6 @@ from Ability.Target import NoTarget, Target
 from Ability.Cost import ManaCost
 from Ability.Limit import SorceryLimit
 from Ability.Effects import CiP
-from Match import isCreature
 
 def play_permanent(cost):
     if type(cost) == str: cost = ManaCost(cost)
