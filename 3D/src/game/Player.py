@@ -155,7 +155,7 @@ class Player(MtGObject):
     def untapCards(self):
         for card in self.play.get():
             # XXX The player should be able to select with cards to Untap (possibly?)
-            if card.canUntap(): card.untap()
+            if card.untapDuringUntapStep(): card.untap()
     def canBeDamagedBy(self, damager):
         return True
     def assignDamage(self, amt, source, combat=False):

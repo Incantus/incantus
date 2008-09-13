@@ -139,6 +139,7 @@ class Permanent(GameRole):
         else: return False
     def canUntap(self):
         return self.tapped
+    untapDuringUntapStep = canUntap
     def untap(self):
         if self.tapped:
             self.tapped = False

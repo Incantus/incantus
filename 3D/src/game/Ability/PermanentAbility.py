@@ -1,11 +1,10 @@
 from game.pydispatch import dispatcher
-from game.stacked_function import override, replace, do_all
 from game.Match import isCreature
 from game.GameEvent import TimestepEvent
 from ActivatedAbility import ManaAbility
 from Target import NoTarget
 from Cost import TapCost
-from Effects import do_override
+from Effects import do_override, override, replace, do_all
 
 #def flash(card):
 #    casting_ability = card.play_spell
@@ -63,6 +62,13 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
     else: cond = play_condition
 
     return replace(obj, "move_to", move_to, msg=msg, condition=cond)
+
+# Optionally untapping during untap step
+def untapDuringUntapStep(self):
+    msg = "Untap %s"%self
+    return self.canUntap() and self.controller.getIntention(msg, msg)
+def optionally_untap(target):
+    return do_override(target, "untapDuringUntapStep", untapDuringUntapStep)
 
 # Cloning
 #def clone(card, cloned):
