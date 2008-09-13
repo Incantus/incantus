@@ -45,7 +45,6 @@ class GameObject(MtGObject):
         self.in_play_role = None
         self.stack_role = None
         self._last_known_info = None
-        self._overrides = set()
 
         # characteristics
         self.base_name = None

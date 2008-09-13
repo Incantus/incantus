@@ -8,6 +8,8 @@ def logical_and(funcs, *args, **kw):
     return reduce(lambda x, y: x and y(*args, **kw), funcs, True)
 def do_all(funcs, *args, **kw):
     for f in funcs: f(*args, **kw)
+def most_recent(funcs, *args, **kw):
+    return funcs[0](*args, **kw)
 
 def find_stacked(target, name):
     if type(target) == types.TypeType:
@@ -62,7 +64,9 @@ class stacked_function(object):
             else: setattr(self.f_class, self.f_name, self.original)
     def _add(self, stacked_list, func, obj):
         stacked_list.append(func)
-        if obj: obj._overrides.add(func)
+        if obj:
+            if not hasattr(obj, "_overrides"): obj._overrides = set([func])
+            else: obj._overrides.add(func)
         else: func.all = True
         def restore():
             if func in stacked_list: # avoid being called twice
