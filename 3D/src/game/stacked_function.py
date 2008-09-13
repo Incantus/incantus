@@ -77,7 +77,8 @@ class stacked_function(object):
         func.expire = self._add(self.replacements, func, obj)
         return func.expire
     def add_override(self, func, obj=None):
-        return self._add(self.overrides, func, obj)
+        func.expire = self._add(self.overrides, func, obj)
+        return func.expire
     def mark(self):
         self._first_call = False
         self.__current_replacements = set()
