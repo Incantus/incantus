@@ -4,12 +4,12 @@ from game.GameEvent import CleanupEvent
 from game.stacked_function import override, replace, logical_and, logical_or, do_all
 from game.Match import isPlayer
 
-def expire_when(expire, event, condition):
-    def wrap_expire(**kw):
+def do_when(func, event, condition):
+    def wrap_(**kw):
         if robustApply(condition, **kw):
-            expire()
-            dispatcher.disconnect(wrap_expire, signal=event, weak=False)
-    dispatcher.connect(wrap_expire, signal=event, weak=False)
+            func()
+            dispatcher.disconnect(wrap_, signal=event, weak=False)
+    dispatcher.connect(wrap_, signal=event, weak=False)
 
 def delay(source, delayed_trigger):
     delayed_trigger.enable(source)
