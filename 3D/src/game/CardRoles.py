@@ -247,10 +247,10 @@ class Creature(object):
         self.curr_power, self.curr_toughness = power, toughness
     def _new_timestep(self, sender):
         self.cached_PT_dirty=True
-        amt, combat = self.__instant_damage
-        if amt:
-            self.send(ReceivesDamageEvent(), amount=amt, combat=combat)
-            self.__instant_damage[:] = (0, False)
+        #amt, combat = self.__instant_damage
+        #if amt:
+        #    self.send(ReceivesDamageEvent(), amount=amt, combat=combat)
+        #    self.__instant_damage[:] = (0, False)
     def activateCreature(self):
         self.curr_power = self.curr_toughness = 0
         self.cached_PT_dirty = False
@@ -284,8 +284,8 @@ class Creature(object):
         if amt > 0:
             if "wither" in source.abilities: self.add_counters(PowerToughnessCounter(-1, -1), amt)
             else: self.__damage += amt
-            self.__instant_damage[0] += amt
-            self.__instant_damage[1] = combat
+            #self.__instant_damage[0] += amt
+            #self.__instant_damage[1] = combat
             self.send(ReceivesDamageFromEvent(), source=source, amount=amt, combat=combat)
         return amt
     def trample(self, damage_assn):
