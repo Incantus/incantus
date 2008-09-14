@@ -36,6 +36,7 @@ class GameRole(MtGObject):
         self._counters = []
         self.attachments = []
         self.is_LKI = False
+        self.facedown = False
     def send(self, *args, **named):
         self.card.send(*args, **named)
     def dealDamage(self, to, amount, combat=False):
@@ -80,6 +81,10 @@ class GameRole(MtGObject):
     power = property(fget=lambda self: int(self.base_power))
     toughness = property(fget=lambda self: int(self.base_toughness))
     loyalty = property(fget=lambda self: int(self.base_loyalty))
+    def faceDown(self):
+        self.facedown = True
+    def faceUp(self):
+        self.facedown = False
     def __deepcopy__(self,memo,mutable=set([list,set,dict])):
         newcopy = copy.copy(self)
         for attr, value in self.__dict__.iteritems():
@@ -98,14 +103,7 @@ class NoRole(GameRole): pass
 class CardRole(GameRole): pass
 
 # Cards on the stack
-class SpellRole(GameRole):
-    def __init__(self, card):
-        super(SpellRole, self).__init__(card)
-        self.facedown = False
-    def faceDown(self):
-        self.facedown = True
-    def faceUp(self):
-        self.facedown = False
+class SpellRole(GameRole): pass
 
 class Permanent(GameRole):
     controller = property(fget=lambda self: self._controller.get())
