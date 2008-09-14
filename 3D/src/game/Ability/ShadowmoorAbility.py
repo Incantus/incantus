@@ -1,4 +1,4 @@
-from TriggeredAbility import TriggeredAbility
+from TriggeredAbility import TriggeredAbility, self_condition
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from Trigger import EnterFromTrigger
@@ -10,7 +10,7 @@ from game.GameEvent import TimestepEvent
 
 def persist():
     def condition(source, card):
-        return card==source and card.num_counters("-1-1") == 0
+        return self_condition(source, card) and card.num_counters("-1-1") == 0
     def persist_effect(controller, source, card):
         yield NoTarget()
         if condition(source, card):
