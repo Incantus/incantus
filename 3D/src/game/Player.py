@@ -1,6 +1,6 @@
 
 from GameObjects import MtGObject, Card, Token
-from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent, TimestepEvent
+from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent
 from Mana import ManaPool
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
@@ -80,6 +80,13 @@ class Player(MtGObject):
             cost.pay(source, self)
             return True
         else: return False
+    def play_card(self, card):
+        ability = card.play_spell
+        if ability.announce(card, self):
+            self.send(AbilityPlayedEvent(), ability=ability)
+            return True
+        else:
+            return False
     def play_token(self, info, number=1):
         for n in range(number):
             token = Token(info, owner=self)
@@ -91,7 +98,7 @@ class Player(MtGObject):
             raise NotImplementedError()
     def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action='', required=True, all=False):
         cards_in_zone = getattr(self, zone).get(cardtype)
-        if number >= len(cards_in_zone): cards = cards_in_zone
+        if number >= len(cards_in_zone) and required: cards = cards_in_zone
         else:
             cards = []
             if zone == "play" or zone == "hand":
