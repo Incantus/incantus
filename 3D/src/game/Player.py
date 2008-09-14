@@ -91,7 +91,7 @@ class Player(MtGObject):
             raise NotImplementedError()
     def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action='', required=True, all=False):
         cards_in_zone = getattr(self, zone).get(cardtype)
-        if len(cards_in_zone) >= number: cards = cards_in_zone
+        if number >= len(cards_in_zone): cards = cards_in_zone
         else:
             cards = []
             if zone == "play" or zone == "hand":
