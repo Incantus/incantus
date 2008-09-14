@@ -90,29 +90,32 @@ class Player(MtGObject):
         else:
             raise NotImplementedError()
     def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action='', required=True, all=False):
-        cards = []
-        if zone == "play" or zone == "hand":
-            a = 's' if number > 1 else ''
-            total = number
-            prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
-            while number > 0:
-                card = self.getTarget(cardtype, zone=zone, controller=None if all else self, required=required, prompt=prompt)
-                if card == False: break
-                if card in cards:
-                    prompt = "Card already selected - select again"
-                    self.send(InvalidTargetEvent(), target=card)
-                else:
-                    cards.append(card)
-                    number -= 1
-                    prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
+        cards_in_zone = getattr(self, zone).get(cardtype)
+        if len(cards_in_zone) >= number: cards = cards_in_zone
         else:
-            selection = getattr(self, zone).get()
-            if number > 0:
-                if number == 1: a = 'a'
-                else: a = str(number)
-                if zone == "library" and not cardtype == isCard: required = False
-                cards = self.getCardSelection(selection, number=number, cardtype=cardtype, required=required, prompt="Search your %s for %s %s to %s."%(zone, a, cardtype, action))
-                if zone == "library": self.shuffle()
+            cards = []
+            if zone == "play" or zone == "hand":
+                a = 's' if number > 1 else ''
+                total = number
+                prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
+                while number > 0:
+                    card = self.getTarget(cardtype, zone=zone, controller=None if all else self, required=required, prompt=prompt)
+                    if card == False: break
+                    if card in cards:
+                        prompt = "Card already selected - select again"
+                        self.send(InvalidTargetEvent(), target=card)
+                    else:
+                        cards.append(card)
+                        number -= 1
+                        prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
+            else:
+                selection = getattr(self, zone).get()
+                if number > 0:
+                    if number == 1: a = 'a'
+                    else: a = str(number)
+                    if zone == "library" and not cardtype == isCard: required = False
+                    cards = self.getCardSelection(selection, number=number, cardtype=cardtype, required=required, prompt="Search your %s for %s %s to %s."%(zone, a, cardtype, action))
+                    if zone == "library": self.shuffle()
         return cards
     def draw(self):
         card = self.library.top()
@@ -127,6 +130,7 @@ class Player(MtGObject):
             return True
         else: return False
     def force_discard(self, number=1, cardtype=isCard):
+        for number == -1: number = len(self.hand)
         cards = self.choose_from_zone(number, cardtype, "hand", "discard")
         for card in cards: self.discard(card)
         return len(cards)
