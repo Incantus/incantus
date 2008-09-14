@@ -56,7 +56,7 @@ class GameRole(MtGObject):
         self.abilities.leavingZone(zone)
         for attached in self.attachments: attached.attachedLeavingPlay()
     def move_to(self, zone, position="top"):
-        self.card.move_to(zone, position)
+        if not self.is_LKI: self.card.move_to(zone, position)
     def add_counters(self, counter_type, number=1):
         if type(counter_type) == str: counter_type = Counter(counter_type)
         for counter in [counter_type.copy() for i in range(number)]:
