@@ -10,8 +10,8 @@ class MemoryVariable(MtGObject):
         return int(self.value())
     def __long__(self):
         return long(self.value())
-    def __str__(self):
-        return str(self.value())
+    #def __str__(self):
+    #    return str(self.value())
 
 class ZoneMoveVariable(MemoryVariable):
     def __init__(self, from_zone, to_zone):

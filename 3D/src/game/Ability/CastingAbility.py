@@ -7,10 +7,15 @@ class CastSpell(CostAbility):
     def do_announce(self):
         # Move the card to the stack zone - this is never called from play
         player = self.controller
+        old_zone = self.source.zone
+        player.stack.put_card(self.source)
         if super(CastSpell, self).do_announce():
-            player.stack.put_card(self.source)
             return True
-        else: return False
+        else:
+            # XXX This is incorrect - what i really need to do is rewind
+            # XXX Rewind
+            self.source.move_to(old_zone)
+            return False
     def played(self):
         # Don't change this order, otherwise abilities triggering on playing the spell
         # will be put on the stack before the played spell

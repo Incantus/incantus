@@ -1,86 +1,81 @@
-from CastingAbility import CastPermanentSpell
+from game.GameEvent import UpkeepStepEvent, ReceivesDamageEvent
+from game.Match import isCreature, isPlayer
 from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
-from Target import Target
-from Trigger import Trigger, EnterTrigger, PlayerTrigger
-from Effect import AddPowerToughnessCounter
+from StaticAbility import CardStaticAbility
+from Target import NoTarget, Target
+from Cost import ManaCost, DiscardCost
+from Trigger import Trigger, EnterTrigger, PhaseTrigger
+from Counters import PowerToughnessCounter
 from MemoryVariable import MemoryVariable
-from Cost import ManaCost, DiscardCost, SpecialCost
-from game.GameEvent import UpkeepStepEvent, ReceivesDamageEvent
-from game.Match import isCreature, SelfMatch, isPlayer
 
-class Reinforce(ActivatedAbility):
-    def __init__(self, card, cost, number=1):
-        self.reinforce_cost = cost
-        self.number = number
-        if type(cost) == str: cost = ManaCost(cost)
-        super(Reinforce, self).__init__(card, cost=cost+DiscardCost(), target=Target(target_types=isCreature), effects=AddPowerToughnessCounter(number=number), zone="hand")
-    def __str__(self):
-        return "%s: Reinforce %d"%(self.reinforce_cost, self.number)
-
-def reinforce(card, cost, number=1):
-    card.abilities.add(Reinforce(out_play_role.card, cost, number))
-
-class KinshipAbility(ActivatedAbility):
-    def __init__(self, card, cost="0", target=Target(targeting="you"), effects=[]):
-        super(KinshipAbility, self).__init__(card, cost=cost, target=target, effects=effects)
-    def resolve(self):
-        success = False
-        controller = self.card.controller
-        topcard = controller.library.top()
-        msg = "Top card of library"
-        controller.revealCard(topcard, title=msg, prompt=msg)
-        if self.card.subtypes.intersects(topcard.subtypes):
-            reveal = controller.getIntention("Reveal card to %s?"%controller.opponent, "reveal card to %s?"%controller.opponent)
-            if reveal:
-                controller.opponent.revealCard(topcard, title=msg, prompt=msg)
-                success = super(KinshipAbility,self).resolve()
-        return success
-    def __str__(self):
-        return "Kinship: %s"%super(KinshipAbility,self).__str__()
-
-def kinship(card, kinship_ability):
-    kinship = TriggeredAbility(card, trigger = PlayerTrigger(event=UpkeepStepEvent()),
-            match_condition = lambda player, card=card: player == card.controller,
-            ability=kinship_ability)
-
-    return card.abilities.add(kinship)
+def reinforce(cost, number=1):
+    if type(cost) == str: cost = ManaCost(cost)
+    def effects(controller, source):
+        payment = yield cost+DiscardCost()
+        target = yield Target(isCreature)
+        target.add_counters(PowerToughnessCounter(1, 1), number)
+        yield
+    return ActivatedAbility(effects, zone="hand", keyword="Reinforce %d")
 
 class ProwlVariable(MemoryVariable):
-    def __init__(self, card):
-        self.card = card
-        self.can_prowl = False
-        self.register(self.dealt_damage, event=ReceivesDamageEvent())
-        super(ProwlVariable, self).__init__()
-    def dealt_damage(self, sender, source, amount, combat):
-        if combat and isPlayer(sender) and not sender == self.card.controller and source.subtypes.intersects(self.card.subtypes):
-            self.can_prowl = True
-    def value(self): return self.can_prowl
-    def reset(self): self.can_prowl = False
-
-class ProwlCost(SpecialCost):
-    def __init__(self, orig_cost, prowl_cost, can_prowl):
-        if type(orig_cost) == str: orig_cost = ManaCost(orig_cost)
-        if type(prowl_cost) == str: prowl_cost = ManaCost(prowl_cost)
-        self.orig_cost = orig_cost
-        self.prowl_cost = prowl_cost
-        self.can_prowl = can_prowl
+    def __init__(self):
         self.reset()
-    def reset(self):
-        self.prowled = False
-        self.cost = self.orig_cost
-    def precompute(self, card, player):
-        if self.can_prowl.value():
-            self.prowled = player.getIntention("pay prowl cost?", "Play for prowl cost?")
-            if self.prowled: self.cost = self.prowl_cost
-        return super(ProwlCost, self).precompute(card, player)
+        self.register(self.dealt, event=ReceivesDamageEvent())
+        super(ProwlVariable, self).__init__()
+    def dealt(self, sender, source, amount, combat):
+        if combat and isPlayer(sender):
+            self.prowl_damage.add((source.controller, set(source.subtypes)))
+    def check(self, card):
+        for controller, subtypes in self.prowl_damage:
+            if controller == card.controller and card.subtypes.intersects(subtypes):
+                return True
+        else: return False
+    def reset(self): self.prowl_damage = set()
 
-def prowl(card, cost, ability=None):
+prowl_tracker = ProwlVariable()
+
+# XXX This doesn't work, since by the time it's installed, I'm already running the original play_spell
+# Need to redo alternative costs
+def prowl(prowl_cost):
+    if type(prowl_cost) == str: prowl_cost = ManaCost(prowl_cost)
     # You may play this for its prowl cost if you dealt combat damage to a player this turn with a [card subtypes]
-    prowl_cost = ProwlCost(orig_cost=card.cost, prowl_cost=cost, can_prowl=ProwlVariable(card))
-    card.play_spell.cost = prowl_cost
-    if ability:
-        prowl = TriggeredAbility(card, trigger = EnterTrigger("play"),
-                match_condition=SelfMatch(card, lambda card: prowl_cost.prowled),
-                ability=ability)
-        card.abilities.add(prowl)
+    def prowl_effect(card):
+        orig_spell = card.play_spell
+        def play_prowl(controller, source):
+            play = orig_spell.effect_generator(controller, source)
+            cost = play.next()
+            prowl_payed = False
+            if prowl_tracker.check(source) and controller.you_may("play this spell for it's prowl cost (%s)"%prowl_cost):
+                cost = prowl_cost
+                prowl_payed = True
+            payment = yield cost
+            target = yield play.send(payment[:-1])
+            play.send(target)
+            if prowl_played:
+                print "Prowl played!"
+            yield
+        # Set up a different way to play
+        card.play_spell = orig_spell.__class__(play_prowl, limit=orig_spell.limit, txt=orig_spell.txt, keyword=orig_spell.keyword)
+        def restore(): card.play_spell = orig_spell
+        yield restore
+
+    return CardStaticAbility(effects=prowl_effect, zone="stack", keyword="prowl %s"%prowl_cost)
+
+# Kinship is a decorator for kinship abilities
+def kinship(txt=''):
+    def wrap(ability):
+        effects = ability()
+        def condition(source, player):
+            controller = source.controller
+            if controller == player and controller.you_may("look at the top card of your library"):
+                topcard = controller.library.top()
+                msg = "Top card of library"
+                controller.peek(topcard, title=msg, prompt=msg)
+                if source.subtypes.intersects(topcard.subtypes) and controller.getIntention("Reveal card?", "reveal card?"):
+                    controller.revealCard(topcard, title=msg, prompt=msg)
+                    return True
+            return False
+        #if not txt: txt = effects.__doc__
+        return TriggeredAbility(PhaseTrigger(UpkeepStepEvent()), condition=condition, effects=effects, txt="Kinship - %s"%txt)
+    return wrap

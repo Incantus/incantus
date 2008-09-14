@@ -494,3 +494,4 @@ class Player(MtGObject):
         if not prompt: prompt = "reveals card(s) "+', '.join(map(str,cards))
         context = {'reveal_card': True, 'cards': cards, 'msgs':msgs, 'process': lambda x: True}
         return self.input(context, "%s: %s"%(self.name,prompt))
+    peek = revealCard # XXX Eventually, redo revealCard to reveal to all players at once
