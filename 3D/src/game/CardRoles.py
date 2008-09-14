@@ -2,11 +2,11 @@ import new, copy, itertools
 from characteristics import stacked_controller, PTModifiers
 from GameObjects import MtGObject
 from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
-from Subtypes import all_basic_lands
 from Planeswalker import Planeswalker
 from Ability.Counters import *
 from Ability.PermanentAbility import basic_mana_ability
 from Ability.Effects import combine
+from Ability.Subtypes import all_basic_lands
 
 class GameRole(MtGObject):
     def info():
