@@ -28,6 +28,4 @@ from Ability.PermanentAbility import *
 from Ability.ShadowmoorAbility import *
 from Ability.EventideAbility import *
 
-damage_tracker = DamageTrackingVariable()
-graveyard_tracker = ZoneMoveVariable(from_zone="play", to_zone="graveyard")
 nan = None

@@ -97,3 +97,8 @@ class PlaySpellVariable(MemoryVariable):
             self.was_played = True
     def value(self): return self.was_played
     def reset(self): self.was_played = False
+
+
+# Predefined memory variables
+damage_tracker = DamageTrackingVariable()
+graveyard_tracker = ZoneMoveVariable(from_zone="play", to_zone="graveyard")
