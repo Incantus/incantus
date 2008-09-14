@@ -3,7 +3,9 @@ from abilities import stacked_abilities
 from Player import Player
 from GameEvent import ReceivesDamageEvent
 from Ability.Counters import Counter
-from Ability.Limit import sorcery, CountLimit
+from Ability.Limit import SorceryLimit, CountLimit
+
+sorcery = SorceryLimit()
 
 class planeswalker_abilities(stacked_abilities):
     def __init__(self, source, abilities):

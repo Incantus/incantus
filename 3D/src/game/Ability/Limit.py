@@ -86,3 +86,4 @@ class ThresholdLimit(Limit):
 
 no_limit = Unlimited()
 sorcery = SorceryLimit()
+as_though_sorcery = SorceryLimit()
