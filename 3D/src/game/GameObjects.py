@@ -138,6 +138,7 @@ class Token(GameObject):
         CardDatabase.execCode(self, info)
         self.current_role = self.out_play_role = self.stack_role = NoRole(self)
         self.in_play_role = Permanent(self)
+        self.base_name = "%s Token"%self.base_name
         self._add_to_map()
     def move_to(self, zone, position="top"):
         super(Token, self).move_to(zone, position)
