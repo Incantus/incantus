@@ -1,3 +1,4 @@
+from math import *
 from characteristics import characteristic, no_characteristic
 from stacked_function import override, replace, logical_or, logical_and, do_all, most_recent
 from Decorators import *
