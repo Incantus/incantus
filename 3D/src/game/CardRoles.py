@@ -1,7 +1,7 @@
 import new, copy, itertools
 from characteristics import stacked_controller, PTModifiers
 from GameObjects import MtGObject
-from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesFromDamageEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
+from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageFromEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
 from Planeswalker import Planeswalker
 from Ability.Counters import *
 from Ability.PermanentAbility import basic_mana_ability
@@ -257,7 +257,7 @@ class Creature(object):
 
         # Only accessed internally
         self.__damage = 0
-        self.__instant_damage = 0
+        self.__instant_damage = [0, False]
 
         self.PT_other_modifiers = PTModifiers() # layer 6b - other modifiers
         self.PT_static_modifiers = PTModifiers() # layer 6d - static modifiers
