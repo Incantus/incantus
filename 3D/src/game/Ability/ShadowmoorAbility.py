@@ -30,18 +30,18 @@ def persist():
 def wither(): return CardStaticAbility(effects=keyword_effect, zone="all", keyword="wither")
 
 # XXX
-from game.GameEvent import CounterAddedEvent, ReceivesDamageEvent
-from game.CardRoles import Creature
-from game.stacked_function import logical_and
-def wither_as_override(card):
-    # This doesn't let me return the amount of damage done, since the override code uses the return value
-    # to indicate whether to process further overrides
-    def assignWither(self, amt, source, combat=False):
-        continue_chain = True
-        if source == card:
-            self.perm.add_counters(PowerToughnessCounter(-1, -1), amt)
-            self.send(ReceivesDamageEvent(), source=source, amount=amt)
-            continue_chain = False
-        return continue_chain
-    return GlobalStaticAbility(card,
-            effects=OverrideGlobal(assignWither, "assignDamage", Creature, combiner=logical_and, expire=False), txt="wither")
+#from game.GameEvent import CounterAddedEvent, ReceivesDamageFromEvent
+#from game.CardRoles import Creature
+#from game.stacked_function import logical_and
+#def wither_as_override(card):
+#    # This doesn't let me return the amount of damage done, since the override code uses the return value
+#    # to indicate whether to process further overrides
+#    def assignWither(self, amt, source, combat=False):
+#        continue_chain = True
+#        if source == card:
+#            self.perm.add_counters(PowerToughnessCounter(-1, -1), amt)
+#            self.send(ReceivesDamageEvent(), source=source, amount=amt)
+#            continue_chain = False
+#        return continue_chain
+#    return GlobalStaticAbility(card,
+#            effects=OverrideGlobal(assignWither, "assignDamage", Creature, combiner=logical_and, expire=False), txt="wither")
