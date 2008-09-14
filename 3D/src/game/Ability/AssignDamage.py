@@ -22,15 +22,9 @@ class AssignDamage(Ability):
 
 
     def __init__(self, damages, txt = "Combat Damages"):
-        #self.damages = damages
-        # XXX Fix for LKI
         self.damages = []
         for damager, damage_assn in damages:
-            damaging = {}
-            for damagee, amt in damage_assn.iteritems():
-                if isPlayer(damagee): damaging[damagee] = amt
-                else: damaging[damagee.current_role] = amt
-            self.damages.append((damager.current_role, damaging))
+            self.damages.append((damager.current_role, damage_assn)) # XXX Fix for LKI
 
         self.txt = txt
     def resolve(self):
