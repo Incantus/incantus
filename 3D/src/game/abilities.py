@@ -20,8 +20,8 @@ class abilities(object):
     def toggle(self, zone, val):
         for ability in self._abilities:
             if (ability.zone == "all" or ability.zone == zone): ability.toggle(val)
-    def __repr__(self): return ','.join([str(a) for a in self._abilities])
-    def __str__(self): return '\n'.join([str(a) for a in self._abilities if a.enabled])
+    def __repr__(self): return ','.join([repr(a) for a in self._abilities])
+    def __str__(self): return '\n'.join([str(a) for a in self._abilities if a.enabled if str(a)])
     def __len__(self): return len([a for a in self._abilities if a.enabled])
     def __contains__(self, keyword): # This is to match keyword abilities
         return keyword in self._keywords and self._keywords[keyword].enabled
