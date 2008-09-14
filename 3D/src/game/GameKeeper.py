@@ -324,8 +324,7 @@ class GameKeeper(MtGObject):
             # Attacking
             self.setState("Attack")
             # Get all the players/planeswalkers
-            opponents = [player for player in self.players if not player == self.curr_player]
-            opponents = sum([player.play.get(Match.isPlaneswalker) for player in opponents], opponents)
+            opponents = sum([player.play.get(Match.isPlaneswalker) for player in self.player.opponents], self.player.opponents)
             attackers = self.curr_player.declareAttackers(opponents)
             if attackers: self.send(DeclareAttackersEvent(), attackers=attackers)
             self.playInstantaneous()

@@ -66,7 +66,7 @@ class MoveTrigger(Trigger):
         else: player_cmp = card.owner
 
         if self.player == "controller" and player_cmp == self.source.controller: return True
-        elif self.player == "opponent" and not player_cmp == self.source.controller: return True
+        elif self.player == "opponent" and player_cmp in self.source.controller.opponents: return True
         elif self.player == "any": return True
         else: return False
     def filter(self, sender, card):
@@ -123,7 +123,7 @@ class EnterFromTrigger(Trigger):
         else: player_cmp = card.owner
 
         if self.player == "controller" and player_cmp == self.source.controller: return True
-        elif self.player == "opponent" and not player_cmp == self.source.controller: return True
+        elif self.player == "opponent" and player_cmp in self.source.controller.opponents: return True
         elif self.player == "any": return True
         else: return False
     def filter_entering(self, sender, card):

@@ -44,14 +44,16 @@ class CardTrackingAbility(StaticAbility):
         self.condition = condition
         self.tracking = tracking
     def get_current(self):
+        controller = self.source.controller
         zone_condition = partial(self.condition, self.source)
         if self.tracking == "play":
-            zone = getattr(self.source.controller, self.tracking)
-            cards = zone.get(zone_condition, all=True)
+            cards = controller.play.get(zone_condition, all=True)
         else:
-            zone = getattr(self.source.controller, self.tracking)
-            opp_zone = getattr(self.source.controller.opponent, self.tracking)
-            cards = zone.get(zone_condition) + opp_zone.get(zone_condition)
+            zone = getattr(controller, self.tracking)
+            cards = zone.get(zone_condition)
+            for opponent in controller.opponents:
+                opp_zone = getattr(opponent, self.tracking)
+                cards.extend(opp_zone.get(zone_condition))
         return cards
     def _enable(self):
         super(CardTrackingAbility, self)._enable()

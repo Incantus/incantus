@@ -34,7 +34,6 @@ class Player(MtGObject):
         self.land_actions = -1
         self.hand_limit = 7
         self.draw_empty = False
-        self.opponent = None
         self.decklist = []
     def init(self, play, stack):
         self.library = Library()
@@ -47,8 +46,9 @@ class Player(MtGObject):
 
         self.loadDeck()
         self.shuffle()
-    def setOpponent(self, opponent):
-        self.opponent = opponent
+    def setOpponents(self, *opponents):
+        self.opponent = opponents[0] # XXX Get rid of this
+        self.opponents = set(opponents)
     def setDeck(self, decklist):
         #XXX Check to make sure the deck is valid
         self.decklist = decklist
@@ -84,6 +84,11 @@ class Player(MtGObject):
         for n in range(number):
             token = Token(info, owner=self)
             token.move_to(self.play)
+    def choose_opponent(self):
+        if len(self.opponents) == 1:
+            return self.opponents[0]
+        else:
+            raise NotImplementedError()
     def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action='', required=True, all=False):
         cards = []
         if zone == "play" or zone == "hand":
@@ -399,7 +404,7 @@ class Player(MtGObject):
 
             target = action.selection
             if isCreature(target) and ((mine and target.controller == self) or
-                (not mine and target.controller == self.opponent)): return target
+                (not mine and target.controller in self.opponents)): return target
             else:
                 self.send(InvalidTargetEvent(), target=target)
                 return False

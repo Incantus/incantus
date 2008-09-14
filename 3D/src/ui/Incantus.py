@@ -381,8 +381,8 @@ class GameWindow(window.Window):
         self.player2 = player2
 
         # These need to be set here so that abilities can target the opponent
-        player1.setOpponent(player2)
-        player2.setOpponent(player1)
+        player1.setOpponents(player2)
+        player2.setOpponents(player1)
 
         # Choose starting player
         random.seed(seed)
@@ -473,8 +473,8 @@ class GameWindow(window.Window):
         player2.setDeck(other_deck)
 
         # These need to be set here so that abilities can target the opponent
-        player1.setOpponent(player2)
-        player2.setOpponent(player1)
+        player1.setOpponents(player2)
+        player2.setOpponents(player1)
 
         # Choose starting player
         random.seed(seed)
@@ -533,8 +533,8 @@ class GameWindow(window.Window):
         self.player2 = player2
 
         # These need to be set here so that abilities can target the opponent
-        player1.setOpponent(player2)
-        player2.setOpponent(player1)
+        player1.setOpponents(player2)
+        player2.setOpponents(player1)
 
         player1.setDeck(my_deck)
         player2.setDeck(other_deck)

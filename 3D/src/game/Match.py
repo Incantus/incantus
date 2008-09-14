@@ -30,7 +30,7 @@ class OpponentMatch(ObjMatch):
         super(OpponentMatch,self).__init__(condition)
         self.card = card
     def match(self, player=None):
-        return isinstance(player, Player.Player) and not self.card.controller == player and self.condition(player)
+        return isinstance(player, Player.Player) and player in self.card.controller.opponents and self.condition(player)
     def __str__(self):
         return "Opponent"
 

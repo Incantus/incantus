@@ -23,8 +23,7 @@ def redirect_to(planeswalker):
     def condition(self, amt, source, combat):
         return not (combat or source.controller == planeswalker.controller)
     def redirectDamage(self, amt, source, combat=False):
-        opponent = source.controller
-        redirect = opponent.getIntention("", "Redirect %d damage to %s?"%(amt, planeswalker))
+        redirect = source.controller.getIntention("", "Redirect %d damage to %s?"%(amt, planeswalker))
         if redirect: dmg = planeswalker.assignDamage(amt, source, combat)
         else: dmg = self.assignDamage(amt, source, combat)
         return dmg

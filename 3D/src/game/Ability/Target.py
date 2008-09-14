@@ -1,6 +1,8 @@
 from game.Match import isPermanent, isPlayer, PlayerMatch, OpponentMatch, PlayerOrCreatureMatch
 from game.GameEvent import InvalidTargetEvent
 
+# XXX Fix the targeting code when i do multiplayer
+
 class NoTarget(object):
     def __init__(self): pass
     def get(self, source): return True
@@ -55,6 +57,7 @@ class MultipleTargets(object):
         else: prompt = "Select %s%d target(s) for %s"%(another,number,source)
         return prompt
     def get(self, source): 
+        # XXX Fix the selector if it is an opponent
         if self.selector == "opponent": selector = source.controller.opponent
         elif self.selector == "current_player":
             import game.GameKeeper
