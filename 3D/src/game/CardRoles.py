@@ -188,7 +188,7 @@ class Permanent(GameRole):
         if self.types == "Planeswalker" and not Planeswalker in orig_bases:
             cls.__bases__ = (Planeswalker,)+orig_bases
             self.activatePlaneswalker()
-        if (self.subtypes == "Aura" or self.subtypes == "Equipment") and not Attachment in orig_bases:
+        if (self.subtypes.intersects(set(["Aura", "Equipment", "Fortification"]))) and not Attachment in orig_bases:
             cls.__bases__ = (Attachment,)+orig_bases
             self.activateAttachment()
 

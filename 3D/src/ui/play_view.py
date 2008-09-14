@@ -268,7 +268,7 @@ class PlayView(Widget):
             self.attached.append(attachment)
             self.other_perms.remove(attachment)
             if Match.isBasicLand(attached.gamecard):
-                self.lands["Other"].remove(attached)
+                #self.lands["Other"].remove(attached)
                 for landtype in self.lands.values():
                     if attached in landtype: break
                 landtype.remove(attached)
@@ -282,9 +282,10 @@ class PlayView(Widget):
             self.other_perms.append(attachment)
             if Match.isBasicLand(unattached.gamecard):
                 self.lands["Other"].remove(unattached)
-                for landtype in self.lands.values():
-                    if attached in landtype:
-                        landtype.append(unattached)
+                for subtype, landlist in self.lands.items():
+                    if unattached.gamecard.subtypes == subtype:
+                        landlist.append(unattached)
+                        break
             self.layout()
     def card_tapped(self, sender):
         card = CardLibrary.CardLibrary.getPlayCard(sender)

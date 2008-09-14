@@ -1,10 +1,11 @@
 from game.pydispatch import dispatcher
-from game.Match import isCreature
+from game.Match import isCreature, isLand
 from game.GameEvent import TimestepEvent
-from ActivatedAbility import ManaAbility
-from Target import NoTarget
-from Cost import TapCost
+from ActivatedAbility import ActivatedAbility, ManaAbility
+from Target import NoTarget, Target
+from Cost import ManaCost, TapCost
 from Effects import do_override, override, replace, do_all
+from Limit import no_limit, sorcery
 
 #def flash(card):
 #    casting_ability = card.play_spell
@@ -24,7 +25,7 @@ def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plain
         yield
     return ManaAbility(effects, txt="T: Add %s"%color)
 
-def equip(cost, target_type=isCreature, limit=None, txt=''):
+def equip(cost, target_type=isCreature, limit=no_limit):
     if type(cost) == str: cost = ManaCost(cost)
     def effects(controller, source):
         yield cost
@@ -32,11 +33,17 @@ def equip(cost, target_type=isCreature, limit=None, txt=''):
         source.set_target_type(target_type)
         source.attach(target)
         yield
-    if not txt: txt="Equip creature"
-    if not limit: limit = SorceryLimit()
-    else: limit += SorceryLimit()
-    return ActivatedAbility(effects, limit=limit, txt=txt)
+    return ActivatedAbility(effects, limit=limit+sorcery, txt='Equip %s'%target_type)
 
+def fortify(cost, target_type=isLand, limit=no_limit):
+    if type(cost) == str: cost = ManaCost(cost)
+    def effects(controller, source):
+        yield cost
+        target = yield Target(target_type)
+        source.set_target_type(target_type)
+        source.attach(target)
+        yield
+    return ActivatedAbility(effects, limit=limit+sorcery, txt='Fortify %s'%target_type)
 
 # Comes into play functionality
 def enter_play_tapped(self):
