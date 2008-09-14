@@ -4,7 +4,7 @@ from game.GameEvent import CleanupEvent
 from game.stacked_function import override, replace, logical_and, logical_or, do_all
 from game.Match import isPlayer
 
-def do_when(func, event, condition):
+def do_when(func, event, condition=lambda *args: True):
     def wrap_(**kw):
         if robustApply(condition, **kw):
             func()
