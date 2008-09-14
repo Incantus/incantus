@@ -1,5 +1,5 @@
 from functools import partial
-from game.Match import isCreature, isLand, isArtifact
+from game.Match import isPlayer, isCreature, isLand, isArtifact
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from TriggeredAbility import TriggeredAbility
@@ -14,32 +14,32 @@ def override_effect(func_name, func, combiner=logical_and):
 def keyword_effect(target):
     yield lambda: None
 
-def landwalk(landtype):
-    keyword = landtype.lower()+"walk"
+def landwalk(condition, keyword):
     def canBeBlocked(self):
-        other_play = self.controller.opponent.play
-        return (len(other_play.get(isLand.with_condition(lambda land: land.subtypes == landtype))) == 0)
+        if isPlayer(self.opponent): other_play = self.opponent.play
+        else: other_play = self.opponent.controller.play # planeswalker
+        return len(other_play.get(isLand.with_condition(condition))) == 0
     return CardStaticAbility(effects=override_effect("canBeBlocked", canBeBlocked), keyword=keyword)
 
-plainswalk = partial(landwalk, "Plains")
-swampwalk = partial(landwalk, "Swamp")
-forestwalk = partial(landwalk, "Forest")
-islandwalk = partial(landwalk, "Island")
-mountainwalk = partial(landwalk, "Mountain")
+def basic_landwalk(landtype):
+    condition = lambda land: land.subtypes == landtype
+    return landwalk(condition, keyword=landtype.lower()+"walk")
+
+plainswalk = partial(basic_landwalk, "Plains")
+swampwalk = partial(basic_landwalk, "Swamp")
+forestwalk = partial(basic_landwalk, "Forest")
+islandwalk = partial(basic_landwalk, "Island")
+mountainwalk = partial(basic_landwalk, "Mountain")
 
 def legendary_landwalk():
     keyword = "legendary landwalk"
-    def canBeBlocked(self):
-        other_play = self.controller.opponent.play
-        return (len(other_play.get(isLand.with_condition(lambda land: land.supertypes == "Legendary"))) == 0)
-    return CardStaticAbility(effects=override_effect("canBeBlocked", canBeBlocked), keyword=keyword)
+    condition = lambda land: land.supertypes == "Legendary"
+    return landwalk(condition, keyword)
 
 def nonbasic_landwalk():
     keyword = "Nonbasic landwalk"
-    def canBeBlocked(self):
-        other_play = self.controller.opponent.play
-        return (len(other_play.get(isLand.with_condition(lambda land: not land.supertypes == "Basic"))) == 0)
-    return CardStaticAbility(effects=override_effect("canBeBlocked", canBeBlocked), keyword=keyword)
+    condition = lambda land: not land.supertypes == "Basic"
+    return landwalk(condition, keyword)
 
 def flying():
     keyword = "flying"
