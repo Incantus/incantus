@@ -93,7 +93,7 @@ class Player(MtGObject):
             token.move_to(self.play)
     def choose_opponent(self):
         if len(self.opponents) == 1:
-            return self.opponents[0]
+            return tuple(self.opponents)[0]
         else:
             raise NotImplementedError()
     def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action='', required=True, all=False):
