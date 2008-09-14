@@ -4,8 +4,11 @@ class abilities(object):
         self._abilities = []
         self._keywords = {}
     def add(self, ability):
-        self._abilities.append(ability)
-        if ability.keyword: self._keywords[ability.keyword] = ability
+        if type(ability) == tuple:
+            self._abilities.extend(ability)
+        else:
+            self._abilities.append(ability)
+            if ability.keyword: self._keywords[ability.keyword] = ability
     def attached(self): return [ability for ability in self._abilities if ability.zone == "attached"]
     def activated(self, source): return [ability for ability in self._abilities if hasattr(ability, "activated") and ability.playable(source)]
     def enable(self, zone, source):
