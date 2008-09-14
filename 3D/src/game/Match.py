@@ -7,7 +7,8 @@ class Match(object):
         # Creates a duplicate match with a condition
         import copy
         newmatch = copy.copy(self)
-        newmatch.condition = condition
+        old_condition = newmatch.condition
+        newmatch.condition = lambda obj: old_condition(obj) and condition(obj)
         return newmatch
 
 class ObjMatch(Match):
@@ -20,17 +21,17 @@ class ObjMatch(Match):
         return self.match(obj)
 
 class PlayerMatch(ObjMatch):
-    def match(self, player=None):
+    def match(self, player):
         import Player
-        return isinstance(player, Player.Player) and self.condition(player)
+        return isinstance(player, Player.Player) and super(PlayerMatch,self).match(player)
     def __str__(self):
         return "Player"
 class OpponentMatch(ObjMatch):
     def __init__(self, card, condition=None):
         super(OpponentMatch,self).__init__(condition)
         self.card = card
-    def match(self, player=None):
-        return isinstance(player, Player.Player) and player in self.card.controller.opponents and self.condition(player)
+    def match(self, player):
+        return isinstance(player, Player.Player) and player in self.card.controller.opponents and super(OpponentMatch,self).match(player)
     def __str__(self):
         return "Opponent"
 
@@ -42,28 +43,28 @@ isPlayer = PlayerMatch()
 class GameObjectMatch(ObjMatch):
     def match(self, obj=None):
         import GameObjects
-        return isinstance(obj, GameObjects.GameObject) and self.condition(obj)
+        return isinstance(obj, GameObjects.GameObject) and super(GameObjectMatch,self).match(obj)
     def __str__(self):
         return "GameObject"
 
 class TokenMatch(ObjMatch):
     def match(self, obj=None):
         import GameObjects
-        return isinstance(obj, GameObjects.Token) and self.condition(obj)
+        return isinstance(obj, GameObjects.Token) and super(TokenMatch,self).match(obj)
     def __str__(self):
         return "GameObject"
 
 class CardMatch(ObjMatch):
     def match(self, card=None):
         import GameObjects
-        return isinstance(card, GameObjects.Card) and self.condition(card)
+        return isinstance(card, GameObjects.Card) and super(CardMatch,self).match(card)
     def __str__(self):
         return "Card"
 
 class CardRoleMatch(ObjMatch):
     def match(self, card=None):
         import CardRoles
-        return isinstance(card, CardRoles.GameRole) and self.condition(card)
+        return isinstance(card, CardRoles.GameRole) and super(CardRoleMatch,self).match(card)
     def __str__(self):
         return "Card"
 
@@ -80,7 +81,7 @@ class ZoneMatch(ObjMatch):
         if not txt: txt = "Card in %s"%zone
         self.txt = txt
     def match(self, obj):
-        return isGameObject(obj) and str(obj.zone) == self.zone and self.condition(obj)
+        return isGameObject(obj) and str(obj.zone) == self.zone and super(ZoneMatch,self).match(obj)
     def __str__(self): return self.txt
 
 isSpell = ZoneMatch("stack", "spell")
@@ -144,7 +145,7 @@ class AbilityMatch(ObjMatch):
         self.ability_type = ability_type
         self.txt = txt
     def match(self, ability):
-        return isinstance(ability, self.ability_type) and self.condition(ability)
+        return isinstance(ability, self.ability_type) and super(AbilityMatch,self).match(ability)
     def __str__(self):
         if self.txt: return self.txt
         else: return str(self.ability_type.__name__)
