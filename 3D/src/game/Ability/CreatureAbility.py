@@ -91,18 +91,23 @@ def fear():
         return (blocker.color == "B" or (blocker.types == "Artifact" and blocker.types =="Creature"))
     return CardStaticAbility(effects=override_effect("canBeBlockedBy", canBeBlockedBy), keyword=keyword)
 
-# Not sure how to do this one yet
 def protection(condition, attribute):
     keyword = "protection from %s"%attribute
     # DEBT is an acronym. It stands for Damage, Enchantments/Equipment, Blocking, and Targeting
-    def canBeBy(self, by):
-        return not condition(by)
+    def canBeDamagedBy(self, damager):
+        return not condition(damager)
+    def canBeAttachedBy(self, targeter):
+        return not condition(targeter)
+    def canBeBlockedBy(self, blocker):
+        return not condition(blocker)
+    def canBeTargetedBy(self, targeter):
+        return not condition(targeter)
 
     def protection_effect(target):
-        yield combine(do_override(target, "canBeDamagedBy", canBeBy),
-                      do_override(target, "canBeAttachedBy", canBeBy),
-                      do_override(target, "canBeBlockedBy", canBeBy),
-                      do_override(target, "canBeTargetedBy", canBeBy))
+        yield combine(do_override(target, "canBeDamagedBy", canBeDamagedBy),
+                      do_override(target, "canBeAttachedBy", canBeAttachedBy),
+                      do_override(target, "canBeBlockedBy", canBeBlockedBy),
+                      do_override(target, "canBeTargetedBy", canBeTargetedBy))
 
     return CardStaticAbility(effects=protection_effect, txt=keyword)
 
