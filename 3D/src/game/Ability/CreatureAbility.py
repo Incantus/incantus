@@ -4,7 +4,7 @@ from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from TriggeredAbility import TriggeredAbility
 from Trigger import DealDamageTrigger
-from Effects import do_override, do_replace, logical_or, logical_and
+from Effects import do_override, do_replace, logical_or, logical_and, combine
 
 def override_effect(func_name, func, combiner=logical_and):
     def effects(target):
@@ -92,31 +92,30 @@ def fear():
     return CardStaticAbility(effects=override_effect("canBeBlockedBy", canBeBlockedBy), keyword=keyword)
 
 # Not sure how to do this one yet
-def protection(attribute_match):
-    keyword = "protection"
+def protection(condition, attribute):
+    keyword = "protection from %s"%attribute
     # DEBT is an acronym. It stands for Damage, Enchantments/Equipment, Blocking, and Targeting
-    def canBeDamagedBy(self, damager):
-        return not attribute_match(damager)
-    def canBeAttachedBy(self, attachment):
-        return not attribute_match(attachment)
-    def canBeBlockedBy(self, blocker):
-        return not attribute_match(blocker)
-    def canBeTargetedBy(self, targeter):
-        return not attribute_match(targeter)
-    func1 = lambda subrole: override(subrole, "canBeDamagedBy", canBeDamagedBy)
-    func2 = lambda subrole: override(subrole, "canBeAttachedBy", canBeAttachedBy)
-    func3 = lambda subrole: override(subrole, "canBeBlockedBy", canBeBlockedBy)
-    func4 = lambda subrole: override(subrole, "canBeTargetedBy", canBeTargetedBy)
-    return CardStaticAbility(effects=[give_keyword(keyword), Override(func1), Override(func2), Override(func3), Override(func4)], txt=keyword)
+    def canBeBy(self, by):
+        return not condition(by)
 
-protection_from_black = partial(protection, attribute_match = lambda other: other.color == "B")
-protection_from_blue = partial(protection, attribute_match = lambda other: other.color == "U")
-protection_from_white = partial(protection, attribute_match = lambda other: other.color == "W")
-protection_from_red = partial(protection, attribute_match = lambda other: other.color == "R")
-protection_from_green = partial(protection, attribute_match = lambda other: other.color == "G")
-protection_from_ge_cmc = lambda n: protection(attribute_match = lambda other: other.cost >= n)
-protection_from_le_cmc = lambda n: protection(attribute_match = lambda other: other.cost <= n)
-protection_from_artifacts = partial(protection, attribute_match = lambda other: isArtifact(other))
+    def protection_effect(target):
+        yield combine(do_override(target, "canBeDamagedBy", canBeBy),
+                      do_override(target, "canBeAttachedBy", canBeBy),
+                      do_override(target, "canBeBlockedBy", canBeBy),
+                      do_override(target, "canBeTargetedBy", canBeBy))
+
+    return CardStaticAbility(effects=protection_effect, txt=keyword)
+
+protection_from_black = partial(protection, condition = lambda other: other.color == "B", attribute="black")
+protection_from_blue = partial(protection, condition = lambda other: other.color == "U", attribute="blue")
+protection_from_white = partial(protection, condition = lambda other: other.color == "W", attribute="white")
+protection_from_red = partial(protection, condition = lambda other: other.color == "R", attribute="red")
+protection_from_green = partial(protection, condition = lambda other: other.color == "G", attribute="green")
+protection_from_ge_cmc = lambda n: protection(condition = lambda other: other.cost >= n, attribute="converted mana cost %d or greater"%n)
+protection_from_le_cmc = lambda n: protection(condition = lambda other: other.cost <= n, attribute="converted mana cost %d or less"%n)
+protection_from_artifacts = partial(protection, condition = lambda other: isArtifact(other), attribute="artifacts")
+protection_from_monocolored = partial(protection, condition = lambda other: len(other.color) == 1, attribute="monocolored")
+protection_from_multicolored = partial(protection, condition = lambda other: len(other.color) > 1, attribute="multicolored")
 
 # 502.68b If a permanent has multiple instances of lifelink, each triggers separately.
 def lifelink():
@@ -146,12 +145,15 @@ def unblockable():
     def canBeBlocked(self): return False
     return CardStaticAbility(effects=override_effect("canBeBlocked", canBeBlocked), txt="unblockable")
 
-def indestructible():
+def make_indestructible(target):
     def shouldDestroy(self): return False
     def destroy(self, skip=False): return False
-    func1 = lambda permanent: override(permanent, "shouldDestroy", shouldDestroy)
-    func2 = lambda permanent: override(permanent, "destroy", destroy)
-    return CardStaticAbility(effects=[Override(func1), Override(func2)], txt="indestructible")
+    return combine(do_override(target, "shouldDestroy", shouldDestroy), do_override(target, "destroy", destroy))
+
+def indestructible():
+    def indestructible_effect(target):
+        yield make_indestructible(target)
+    return CardStaticAbility(effects=indestructible_effect, keyword="Indestructible")
 
 def prevent_damage(target, amt, next=True, txt=None, condition=None):
     if txt == None:
