@@ -130,7 +130,7 @@ class Player(MtGObject):
             return True
         else: return False
     def force_discard(self, number=1, cardtype=isCard):
-        for number == -1: number = len(self.hand)
+        if number == -1: number = len(self.hand)
         cards = self.choose_from_zone(number, cardtype, "hand", "discard")
         for card in cards: self.discard(card)
         return len(cards)
