@@ -300,6 +300,10 @@ class Creature(object):
             total_applied += damage_assn[b]
         if not_enough: return 0
         else: return total_damage - total_applied
+    def canTap(self):
+        return self.continuouslyInPlay() and super(Creature, self).canTap()
+    def canUntap(self):
+        return self.continuouslyInPlay() and super(Creature, self).canUntap()
     def checkAttack(self, attackers, not_attacking):
         return True
     def canAttack(self):
