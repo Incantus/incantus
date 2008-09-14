@@ -1,6 +1,8 @@
 from Ability import Ability
 from Effects import robustApply
 
+self_condition = lambda source, card: source == card
+
 class TriggeredStackAbility(Ability):
     triggered = True
     def __init__(self, effects, trigger_keys, txt=''):
@@ -12,7 +14,7 @@ class TriggeredStackAbility(Ability):
 
 class TriggeredAbility(object):
     enabled = property(fget=lambda self: self._status_count > 0)
-    def __init__(self, triggers, condition, effects, expiry=-1, zone="play", txt='Triggered Ability', keyword=''):
+    def __init__(self, triggers, condition, effects, expiry=-1, zone="play", txt='', keyword=''):
         if not (type(triggers) == list or type(triggers) == tuple): triggers=[triggers]
         self.triggers = triggers
         self.condition = condition
