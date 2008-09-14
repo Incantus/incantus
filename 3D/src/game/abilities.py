@@ -24,9 +24,8 @@ class abilities(object):
         return keyword in self._keywords and self._keywords[keyword].enabled
 
 class additional_abilities(abilities):
-    def __init__(self, abilities):
+    def __init__(self, *abilities):
         super(additional_abilities, self).__init__()
-        if not type(abilities) == list: abilities = [abilities]
         self._abilities.extend(abilities)
         for ability in abilities:
             if ability.keyword: self._keywords[ability.keyword] = ability
@@ -40,8 +39,8 @@ class stacked_abilities(object):
         self.source = source
         self.zone = None
     def __repr__(self): return "stacked: [%s]"%','.join(map(repr, self._stacking))
-    def add(self, abilities):
-        abilities = additional_abilities(abilities)
+    def add(self, *abilities):
+        abilities = additional_abilities(*abilities)
         self._stacking.insert(0, abilities)
         abilities.enable(self.zone, self.source)
         def restore():
