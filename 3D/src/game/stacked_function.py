@@ -97,12 +97,12 @@ class stacked_function(object):
             if self.f_name in cls.__dict__:
                 func = getattr(cls, self.f_name)
                 if hasattr(func, "stacked"):
-                    rpls = [f for f in func.replacements if not f in func._seen and (hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty))]
+                    rpls = [f for f in func.replacements if not f in func._seen and (hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)) and f.cond(*args, **kw)]
                     replacements.update(rpls)
                     func.mark_as_seen(rpls)
         return replacements
 
-    def do_replacement(self, *args, **kw):
+    def _do_call(self, *args, **kw):
         obj = args[0]
         self.__current_replacements.extend(self.build_replacements(obj, *args, **kw))
         funcs = self.__current_replacements
@@ -126,8 +126,7 @@ class stacked_function(object):
             return self.combiner(overrides, *args, **kw)
 
     def __call__(self, *args, **kw):
-        if self._first_call: self.__current_replacements = []
         # This is the start of the recursive calls
-        return self.do_replacement(*args, **kw)
+        return self._do_call(*args, **kw)
     def __get__(self, obj, objtype=None):
         return types.MethodType(self, obj, objtype)
