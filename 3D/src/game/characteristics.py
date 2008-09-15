@@ -72,8 +72,8 @@ class characteristic(_base_characteristic):
     def intersects(self, other): return len(self.characteristics.intersection(other)) > 0
     def __eq__(self, other): return other in self.characteristics
     def __contains__(self, val): return self == val
-    def __str__(self): return str(' '.join(self.characteristics))
-    def __repr__(self): return "characteristic([%s])"%', '.join(map(repr, self.characteristics))
+    def __str__(self): return str(' '.join(sorted(self.characteristics)))
+    def __repr__(self): return "characteristic(%s)"%', '.join(map(repr, self.characteristics))
     def __len__(self): return len(self.characteristics)
     def __iter__(self): return iter(self.characteristics)
     def evaluate(self, fields):
@@ -81,6 +81,15 @@ class characteristic(_base_characteristic):
         fields.update(self.characteristics)
 
 # These are only used internally
+class all_characteristic(characteristic):
+    def __init__(self, *init_val):
+        super(all_characteristic, self).__init__(*init_val)
+        self.text = 'all'
+    def set_text(self, text):
+        self.text = text
+    def __str__(self): return self.text
+    def __repr__(self): return "characteristic(%s)"%self.txt
+
 class additional_characteristics(characteristic):
     def __eq__(self, other):
         if super(additional_characteristics, self).__eq__(other): return True
@@ -129,6 +138,10 @@ class stacked_characteristic(object):
         return self._insert_into_stacking(characteristic(*new_char))
     def add(self, *new_char):
         return self._insert_into_stacking(additional_characteristics(*new_char))
+    def add_all(self, all_char, text):
+        char = all_characteristic(*all_char)
+        char.set_text(text)
+        return self._insert_into_stacking(char)
     def remove(self, *old_char):
         return self._insert_into_stacking(remove_characteristics(*old_char))
     def remove_all(self):
@@ -139,7 +152,10 @@ class stacked_characteristic(object):
     def intersects(self, other):
         if isinstance(other, _base_characteristic): return other.intersects(self.current)
         else: return len(self.current.intersection(other)) > 0
-    def __str__(self): return ' '.join(self.current)
+    def __str__(self):
+        curr = sorted(self.current)
+        if len(curr) > 10: return '%s...'%' '.join(curr[:10])
+        else: return ' '.join(curr)
     def __len__(self): return len(self.current)
     def __iter__(self): return iter(self.current)
     def __repr__(self):

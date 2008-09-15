@@ -110,7 +110,7 @@ def deathtouch():
 
 def changeling():
     def effects(card):
-        yield card.subtypes.add(*all_creatures)
+        yield card.subtypes.add_all(all_creatures, "Every creature type")
     return CardStaticAbility(effects=effects, zone="all", keyword="changeling")
 
 #def evoke(card, cost):
