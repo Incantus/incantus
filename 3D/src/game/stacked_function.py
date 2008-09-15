@@ -33,6 +33,9 @@ def override(target, name, func, combiner=logical_and):
 def replace(target, name, func, msg='', condition=None):
     stacked, obj = find_stacked(target, name)
     return stacked.add_replacement(func, obj, msg, condition)
+def global_override(target, name, func):
+    stacked, obj = find_stacked(target, name)
+    return stacked.add_global_override(func, obj)
 
 class stacked_function(object):
     stacked = True
@@ -42,6 +45,7 @@ class stacked_function(object):
         self.f_name = f_name
         self.f_class = f_class
         self.combiner = combiner
+        self.global_overrides = []
         self.overrides = []
         self.replacements = []
         self.unmark()
@@ -83,6 +87,9 @@ class stacked_function(object):
     def add_override(self, func, obj=None):
         func.expire = self._add(self.overrides, func, obj)
         return func.expire
+    def add_global_override(self, func, obj=None):
+        func.expire = self._add(self.global_overrides, func, obj)
+        return func.expire
     def mark_as_seen(self, rpls):
         self._first_call = False
         self._seen.update(rpls)
@@ -102,31 +109,31 @@ class stacked_function(object):
                     func.mark_as_seen(rpls)
         return replacements
 
-    def _do_call(self, *args, **kw):
-        obj = args[0]
-        self.__current_replacements.extend(self.build_replacements(obj, *args, **kw))
-        funcs = self.__current_replacements
-        if funcs:
-            if len(funcs) > 1:
-                if isPlayer(obj): player = affected = obj
-                elif hasattr(obj, "keeper"): player = affected = obj.current_player
-                # In this case it is either a Permanent or a subrole
-                # XXX I've only seen the subrole case for Creatures, not sure if anything else can be replaced
-                else: player, affected = obj.card.controller, obj.card
-                i = player.getSelection([(f.msg, i) for i, f in enumerate(funcs)], numselections=1, required=True, idx=False, prompt="Choose replacement effect to affect %s"%(affected))
-            else: i = 0
-            # Remove the selected replacement function
-            func = funcs.pop(i)
-            # *** This where we could potentially recurse
-            return func(*args, **kw)
-        else:
-            # No more replacements - unmark this stacked_function
-            self.unmark()
-            overrides = [f for f in self.overrides[::-1] if hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)]+[self.original]
-            return self.combiner(overrides, *args, **kw)
-
     def __call__(self, *args, **kw):
-        # This is the start of the recursive calls
-        return self._do_call(*args, **kw)
+        obj = args[0]
+        if self.global_overrides:
+            return self.global_overrides[-1](*args, **kw)
+        else:
+            self.__current_replacements.extend(self.build_replacements(obj, *args, **kw))
+            funcs = self.__current_replacements
+            if funcs:
+                if len(funcs) > 1:
+                    if isPlayer(obj): player = affected = obj
+                    elif hasattr(obj, "keeper"): player = affected = obj.current_player
+                    # In this case it is either a Permanent or a subrole
+                    # XXX I've only seen the subrole case for Creatures, not sure if anything else can be replaced
+                    else: player, affected = obj.card.controller, obj.card
+                    i = player.getSelection([(f.msg, i) for i, f in enumerate(funcs)], numselections=1, required=True, idx=False, prompt="Choose replacement effect to affect %s"%(affected))
+                else: i = 0
+                # Remove the selected replacement function
+                func = funcs.pop(i)
+                # *** This where we could potentially recurse
+                return func(*args, **kw)
+            else:
+                # No more replacements - unmark this stacked_function
+                self.unmark()
+                overrides = [f for f in self.overrides[::-1] if hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)]+[self.original]
+                return self.combiner(overrides, *args, **kw)
+
     def __get__(self, obj, objtype=None):
         return types.MethodType(self, obj, objtype)
