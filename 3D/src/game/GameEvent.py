@@ -88,7 +88,6 @@ class PowerToughnessChangedEvent(Event): pass
 class NewTurnEvent(Event): pass
 class TurnFinishedEvent(Event): pass
 class GameStepEvent(Event): pass
-class BeginTurnEvent(GameStepEvent): pass
 class UntapStepEvent(GameStepEvent): pass
 class UpkeepStepEvent(GameStepEvent): pass
 class DrawStepEvent(GameStepEvent): pass
