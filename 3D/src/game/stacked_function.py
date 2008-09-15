@@ -97,7 +97,8 @@ class stacked_function(object):
         self._first_call = True
         self._seen = set()
         self.__current_replacements = []
-    def build_replacements(self, obj, *args, **kw):
+    def build_replacements(self, *args, **kw):
+        obj = args[0]
         replacements = set()
         # Walk up the inheritance hierarchy
         for cls in self.f_class.mro():
@@ -111,10 +112,10 @@ class stacked_function(object):
 
     def __call__(self, *args, **kw):
         obj = args[0]
-        if self.global_overrides:
-            return self.global_overrides[-1](*args, **kw)
+        global_overrides = [f for f in self.global_overrides[::-1] if hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)]
+        if global_overrides: return global_overrides[0](*args, **kw)
         else:
-            self.__current_replacements.extend(self.build_replacements(obj, *args, **kw))
+            self.__current_replacements.extend(self.build_replacements(*args, **kw))
             funcs = self.__current_replacements
             if funcs:
                 if len(funcs) > 1:
