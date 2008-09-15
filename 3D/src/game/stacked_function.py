@@ -44,7 +44,7 @@ class stacked_function(object):
         self.combiner = combiner
         self.overrides = []
         self.replacements = []
-        self._first_call = True
+        self.unmark()
         self.setup_overrides(f_name, f_class)
     def set_combiner(self, combiner):
         self.combiner = combiner
@@ -83,24 +83,29 @@ class stacked_function(object):
     def add_override(self, func, obj=None):
         func.expire = self._add(self.overrides, func, obj)
         return func.expire
-    def mark(self):
+    def mark_as_seen(self, rpls):
         self._first_call = False
-        self.__current_replacements = set()
-    def build_replacements(self, obj):
+        self._seen.update(rpls)
+    def unmark(self):
+        self._first_call = True
+        self._seen = set()
+        self.__current_replacements = []
+    def build_replacements(self, obj, *args, **kw):
         replacements = set()
         # Walk up the inheritance hierarchy
         for cls in self.f_class.mro():
             if self.f_name in cls.__dict__:
                 func = getattr(cls, self.f_name)
                 if hasattr(func, "stacked"):
-                    func.mark()
-                    replacements.update([f for f in func.replacements if hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)])
-        self.__current_replacements = replacements
+                    rpls = [f for f in func.replacements if not f in func._seen and (hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty))]
+                    replacements.update(rpls)
+                    func.mark_as_seen(rpls)
+        return replacements
 
     def do_replacement(self, *args, **kw):
         obj = args[0]
-        replacements = self.__current_replacements
-        funcs = [func for func in replacements if func.cond(*args, **kw)]
+        self.__current_replacements.extend(self.build_replacements(obj, *args, **kw))
+        funcs = self.__current_replacements
         if funcs:
             if len(funcs) > 1:
                 if isPlayer(obj): player = affected = obj
@@ -110,20 +115,18 @@ class stacked_function(object):
                 else: player, affected = obj.card.controller, obj.card
                 i = player.getSelection([(f.msg, i) for i, f in enumerate(funcs)], numselections=1, required=True, idx=False, prompt="Choose replacement effect to affect %s"%(affected))
             else: i = 0
-            func = funcs[i]
             # Remove the selected replacement function
-            replacements.remove(func)
+            func = funcs.pop(i)
             # *** This where we could potentially recurse
             return func(*args, **kw)
         else:
             # No more replacements - unmark this stacked_function
-            self._first_call = True
-            del self.__current_replacements
+            self.unmark()
             overrides = [f for f in self.overrides[::-1] if hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)]+[self.original]
             return self.combiner(overrides, *args, **kw)
 
     def __call__(self, *args, **kw):
-        if self._first_call: self.build_replacements(args[0])
+        if self._first_call: self.__current_replacements = []
         # This is the start of the recursive calls
         return self.do_replacement(*args, **kw)
     def __get__(self, obj, objtype=None):
