@@ -122,6 +122,17 @@ protection_from_artifacts = partial(protection, condition = lambda other: isArti
 protection_from_monocolored = partial(protection, condition = lambda other: len(other.color) == 1, attribute="monocolored")
 protection_from_multicolored = partial(protection, condition = lambda other: len(other.color) > 1, attribute="multicolored")
 
+def aura_protection(aura, condition, attribute):
+    keyword = "protection from %s"%attribute
+    # DEBT is an acronym. It stands for Damage, Enchantments/Equipment, Blocking, and Targeting
+    def mk_override(cond):
+        return lambda self, by: not cond(by)
+
+    def effects(target):
+        yield combine(*[do_override(target, func_name, mk_override(cond)) for func_name, cond in [("canBeDamagedBy", condition), ("canBeAttachedBy", lambda o: not o==aura and condition(o)), ("canBeBlockedBy", condition), ("canBeTargetedBy", condition)]])
+
+    return CardStaticAbility(effects=effects, txt=keyword)
+
 # 502.68b If a permanent has multiple instances of lifelink, each triggers separately.
 def lifelink():
     def lifelink_effect(controller, source, amount):
