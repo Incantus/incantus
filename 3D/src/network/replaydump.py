@@ -85,7 +85,7 @@ class ReplayDump(object):
             return obj
         except Exception: #(EOFError, TypeError, KeyError):
             self.app.replay = False
-            if self.prompt_continue: start_dumping = GameKeeper.Keeper.curr_player.getIntention(self.app.game_status.prompt.value, "...continue recording?")
+            if self.prompt_continue: start_dumping = GameKeeper.Keeper.current_player.getIntention(self.app.game_status.prompt.value, "...continue recording?")
             else: start_dumping = True
             if start_dumping:
                 self.save = True

@@ -52,11 +52,11 @@ class CountLimit(Limit):
 class TurnLimit(Limit):
     def __init__(self):
         self.register(self.state, event=NewTurnEvent())
-        self.curr_player = None
+        self.current_player = None
     def state(self, sender, player):
-        self.curr_player = player
+        self.current_player = player
     def __call__(self, card):
-        return self.curr_player == card.controller
+        return self.current_player == card.controller
 
 class UpkeepLimit(Limit):
     def __init__(self):
@@ -64,10 +64,10 @@ class UpkeepLimit(Limit):
         self.register(self.state, event=MainPhaseEvent())
         self.correct_phase = False
     def state(self, signal, sender):
-        self.curr_player = sender.curr_player
+        self.current_player = sender.current_player
         self.correct_phase = signal == UpkeepStepEvent()
     def __call__(self, card):
-        return self.correct_phase and self.curr_player == card.controller
+        return self.correct_phase and self.current_player == card.controller
 
 class SorceryLimit(Limit):
     def __init__(self):
@@ -75,10 +75,10 @@ class SorceryLimit(Limit):
         self.register(self.state, event=EndMainPhaseEvent())
         self.correct_phase = False
     def state(self, signal, sender):
-        self.curr_player = sender.curr_player
+        self.current_player = sender.current_player
         self.correct_phase = signal == MainPhaseEvent()
     def __call__(self, card):
-        return self.correct_phase and self.curr_player == card.controller and card.controller.stack.empty()
+        return self.correct_phase and self.current_player == card.controller and card.controller.stack.empty()
 
 class ThresholdLimit(Limit):
     def __call__(self, card):

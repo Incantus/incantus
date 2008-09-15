@@ -61,7 +61,7 @@ class MultipleTargets(object):
         if self.selector == "opponent": selector = source.controller.opponent
         elif self.selector == "current_player":
             import game.GameKeeper
-            selector = game.GameKeeper.Keeper.curr_player
+            selector = game.GameKeeper.Keeper.current_player
         else: selector = source.controller
         if self.player == None: controller=None
         elif self.player == "you": controller=selector
@@ -134,7 +134,7 @@ class Target(object):
         if self.selector == "opponent": selector = source.controller.opponent
         elif self.selector == "current_player":
             from game.GameKeeper import Keeper
-            selector = Keeper.curr_player
+            selector = Keeper.current_player
         else: selector = source.controller
         if self.player == None: controller=None
         elif self.player == "you": controller=selector
