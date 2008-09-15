@@ -6,11 +6,19 @@ from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
 from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isCardRole, isGameObject, isPlaneswalker
 
+class life(int):
+    def __add__(self, other):
+        if other < 0: other = 0
+        return super(life,self).__add__(other)
+    def __sub__(self, other):
+        if other < 0: other = 0
+        return super(life,self).__sub__(other)
+
 class Player(MtGObject):
     def life():
         doc = "Player life property"
         def fget(self):
-            return self._life
+            return life(self._life)
         def fset(self, value):
             amount = value - self._life
             if amount > 0: self.gain_life(amount)
