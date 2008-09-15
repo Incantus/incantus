@@ -104,6 +104,7 @@ class stacked_function(object):
         if funcs:
             if len(funcs) > 1:
                 if isPlayer(obj): player = affected = obj
+                elif hasattr(obj, "keeper"): player = affected = obj.current_player
                 # In this case it is either a Permanent or a subrole
                 # XXX I've only seen the subrole case for Creatures, not sure if anything else can be replaced
                 else: player, affected = obj.card.controller, obj.card

@@ -14,15 +14,16 @@ state_map = {"Untap": UntapStepEvent, "Upkeep": UpkeepStepEvent, "Draw": DrawSte
              "EndTurn": EndTurnStepEvent, "Cleanup": CleanupPhase}
 
 class GameKeeper(MtGObject):
-    players = property(fget=lambda self: self._players)
-    other_player = property(fget=lambda self: self._players[1])
+    keeper = True
+    players = property(fget=lambda self: self._player_order)
+    other_player = property(fget=lambda self: self._player_order[1])
 
     def current_player():
-        def fget(self): return self._players[0]
+        def fget(self): return self._player_order[0]
         def fset(self, player):
-            players = list(self._players)
+            players = list(self._player_order)
             idx = players.index(player)
-            self._players = tuple(players[idx:]+players[:idx])
+            self._player_order = tuple(players[idx:]+players[:idx])
         return locals()
     current_player = property(**current_player())
 
@@ -30,8 +31,8 @@ class GameKeeper(MtGObject):
         self.ready_to_start = False
 
     def init(self, *players):
-        self._players = players
-        self.player_order = itertools.cycle(players)
+        self._player_order = players
+        self.player_cycle = itertools.cycle(players)
 
         self.stack = Stack(self)
         self.play = Play(self)
@@ -73,10 +74,7 @@ class GameKeeper(MtGObject):
         _phases = ("newTurn", ("untapStep", "upkeepStep", "drawStep"), "mainPhase1", "combatPhase", "mainPhase2", "endPhase")
         for phase in itertools.cycle(_phases):
             if type(phase) == tuple:
-                for step in phase:
-                    step = getattr(self, step)
-                    print step
-                    step()
+                for step in phase: getattr(self, step)()
             else: getattr(self, phase)()
             self.manaBurn()
 
@@ -197,7 +195,7 @@ class GameKeeper(MtGObject):
 
     def newTurn(self):
         # Next player is current player
-        self.current_player = self.player_order.next()
+        self.current_player = self.player_cycle.next()
         self.send(NewTurnEvent(), player=self.current_player)
         self.current_player.newTurn()
     def untapStep(self):
@@ -208,7 +206,6 @@ class GameKeeper(MtGObject):
         self.current_player.untapCards()
     def upkeepStep(self):
         self.setState("Upkeep")
-        print self.current_player, "Upkeep step"
         self.playInstantaneous()
     def drawStep(self):
         self.setState("Draw")
