@@ -256,7 +256,7 @@ class GameWindow(window.Window):
             self.finish_turn = True
             self.user_action = game.Action.PassPriority()
         #elif symbol == key.W:
-        #    if game.Keeper.curr_player == self.player1: self.p1_stop_next = True
+        #    if game.Keeper.current_player == self.player1: self.p1_stop_next = True
         #    else: self.p2_stop_next = True
         elif symbol == key.V and modifiers & key.MOD_SHIFT:
             self.camera.switch_viewpoint()
@@ -639,10 +639,10 @@ class GameWindow(window.Window):
         if game.Keeper.stack.empty():
             if (not self.p1_stop_next and
                ((player == game.Keeper.other_player and self.state in self.opponent_turn_stops) or 
-               (player == game.Keeper.curr_player and self.state in self.my_turn_stops))):
+               (player == game.Keeper.current_player and self.state in self.my_turn_stops))):
                 self.user_action = game.Action.PassPriority()
                 return
-            elif self.finish_turn: #player == game.Keeper.curr_player and self.finish_turn:
+            elif self.finish_turn:
                 self.user_action = game.Action.PassPriority()
                 return
         if (player == self.player1):
@@ -687,7 +687,7 @@ class GameWindow(window.Window):
             self.clock.tick()
             self.draw()
             if self.start_new_game:
-                msg = game.Keeper.run()
+                msg = game.Keeper.start()
                 self.msg_controller.notify(msg, action=False)
                 self.start_new_game = False
                 self.clear_game()

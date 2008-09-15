@@ -1,67 +1,49 @@
-
+import itertools
 from GameObjects import MtGObject
 from Action import PassPriority
 import Match
 from GameEvent import *
 from Zone import Play
 from Stack import Stack
+import stacked_function as stacked
 
-class GamePhases(object):
-    players = property(fget=lambda self: [self.curr_player, self.other_player])
-    def __init__(self, gamekeeper, players):
-        self.state_map = dict([(p,i) for i, p in enumerate(["BeginTurn", "Main1", "Combat", "Main2", "EndPhase"])])
-        self.game_phases = [self.makeBeginningPhase(gamekeeper), gamekeeper.mainPhase1, gamekeeper.combatPhase, gamekeeper.mainPhase2, gamekeeper.endPhase]
-        self.num_players = len(players)
-        self.curr_player, self.other_player = players[0], players[1]
-        GamePhases.newTurn = GamePhases.firstTurn
-    def makeBeginningPhase(self, gamekeeper):
-        return [gamekeeper.beginningPhase, gamekeeper.untapStep, gamekeeper.upkeepStep, gamekeeper.drawStep]
-    def copyPhases(self):
-        newphases = self.game_phases[:]
-        newphases[0] = self.game_phases[0][:]
-        return newphases
-    def __iter__(self):
-        for i, phase in enumerate(self.curr_phases):
-            self.current = i
-            yield phase
-    def nextTurn(self):
-        self.curr_player, self.other_player = self.other_player, self.curr_player
-        self.curr_phases = self.copyPhases()
-        return self.curr_player, self.other_player
-    def firstTurn(self):
-        GamePhases.newTurn = GamePhases.nextTurn
-        self.curr_phases = self.copyPhases()
-        del self.curr_phases[0][-1]
-        return self.curr_player, self.other_player
-    def addPhases(self, phases, after_phase=None):
-        if not (type(phases) == list or type(phases) == tuple): phases = [phases]
-        if after_phase == None: position = self.current+1
-        elif after_phase == "EndPhase": position=-1
-        else: position = self.state_map[after_phase]+1
-        for phase in phases[::-1]:
-            self.curr_phases.insert(position, self.game_phases[self.state_map[phase]])
-    def skipPhase(self, phase):
-        pass
+state_map = {"Untap": UntapStepEvent, "Upkeep": UpkeepStepEvent, "Draw": DrawStepEvent,
+             "Main1": MainPhaseEvent, "Main2": MainPhaseEvent, "EndMain": EndMainPhaseEvent,
+             "PreCombat": PreCombatEvent, "Attack": AttackStepEvent,
+             "Block": BlockStepEvent, "Damage": AssignDamageEvent, "EndCombat": EndCombatEvent,
+             "EndTurn": EndTurnStepEvent, "Cleanup": CleanupPhase}
 
 class GameKeeper(MtGObject):
-    players = property(fget=lambda self: self.game_phases.players)
+    players = property(fget=lambda self: self._players)
+    other_player = property(fget=lambda self: self._players[1])
+
+    def current_player():
+        def fget(self): return self._players[0]
+        def fset(self, player):
+            players = list(self._players)
+            idx = players.index(player)
+            self._players = tuple(players[idx:]+players[:idx])
+        return locals()
+    current_player = property(**current_player())
+
     def __init__(self):
         self.ready_to_start = False
 
-    def init(self, player1, player2):
-        self.game_phases = GamePhases(self, (player1, player2))
-        self.stack = Stack(self.game_phases)
-        self.play = Play(self.game_phases)
-        player1.init(self.play, self.stack)
-        player2.init(self.play, self.stack)
-        self.tokens_out_play = []
-        self.register(lambda sender: self.tokens_out_play.append(sender), TokenLeavingPlay(), weak=False)
+    def init(self, *players):
+        self._players = players
+        self.player_order = itertools.cycle(players)
+
+        self.stack = Stack(self)
+        self.play = Play(self)
+        for player in self.players: player.init(self.play, self.stack)
+
+        self._tokens_out_play = []
+        self.register(lambda sender: self._tokens_out_play.append(sender), TokenLeavingPlay(), weak=False)
         self.ready_to_start = True
 
-    def run(self):
+    def start(self):
         if not self.ready_to_start: raise Exception("Players not added - not ready to start")
         # XXX This is hacky - need a better way to signal end of game
-        self.send(GameStartEvent())
         self.send(TimestepEvent())
         for player in self.players:
             for i in range(7): player.draw()
@@ -71,46 +53,37 @@ class GameKeeper(MtGObject):
                 self.send(TimestepEvent())
                 if did_mulligan == False: break
         try:
-            while True:
-                self.singleTurn()
+            self.run()
         except GameOver, g:
             self.send(GameOverEvent())
-            # Return all cards to library
-            for card in self.play:
-                card.move_to(card.owner.library)
-            for player in self.players:
-                player.reset()
-            self.ready_to_start = False
+            self.cleanup()
             return g.msg
 
-    def singleTurn(self):
-        # See http://www.starcitygames.com/php/news/expandnews.php?Article=4367
-        # Phases - beginning
-        #          pre-combat main,
-        #          combat - combat declaration, fast effects, declaration of 
-        # attackers, fast effects, declaration of blockers, fast effects, first strike 
-        # damage on the stack, fast effects, first strike damage, fast effects,
-        # non-first strike damage on the stack, fast effects, regular damage
-        #          post combat main
-        #          end step
-        self.curr_player, self.other_player = self.game_phases.newTurn()
-        self.send(NewTurnEvent(), player=self.curr_player)
-        self.curr_player.resetLandActions()
-        for phase in self.game_phases:
-            if type(phase) == list:
-                for step in phase: step()
-            else: phase()
+    def cleanup(self):
+        for player in self.players: player.reset()
+        self.ready_to_start = False
+
+    def run(self):
+        self.send(GameStartEvent())
+
+        # skip the first draw step
+        def skipDraw(self): skipDraw.expire()
+        stacked.override(self, "drawStep", skipDraw, stacked.most_recent)
+
+        _phases = ("newTurn", ("untapStep", "upkeepStep", "drawStep"), "mainPhase1", "combatPhase", "mainPhase2", "endPhase")
+        for phase in itertools.cycle(_phases):
+            if type(phase) == tuple:
+                for step in phase:
+                    step = getattr(self, step)
+                    print step
+                    step()
+            else: getattr(self, phase)()
             self.manaBurn()
+
     def setState(self, state):
         # Send notice that state changed
-        #print "******\nGame state:", state
-        state_map = {"BeginTurn": BeginTurnEvent, "Untap": UntapStepEvent, "Upkeep": UpkeepStepEvent, "Draw": DrawStepEvent,
-                     "Main1": MainPhaseEvent, "Main2": MainPhaseEvent, "EndMain": EndMainPhaseEvent,
-                     "PreCombat": PreCombatEvent, "Attack": AttackStepEvent,
-                     "Block": BlockStepEvent, "Damage": AssignDamageEvent, "EndCombat": EndCombatEvent,
-                     "EndTurn": EndTurnStepEvent, "Cleanup": CleanupPhase}
         self.send(GameStepEvent(), state=state)
-        self.send(state_map[state](), player=self.curr_player)
+        self.send(state_map[state](), player=self.current_player)
     def manaBurn(self):
         for player in self.players:
             while not player.manaBurn():
@@ -178,11 +151,11 @@ class GameKeeper(MtGObject):
             actions.append(SBE)
 
         # 420.5f A token in a zone other than the in-play zone ceases to exist.
-        if len(self.tokens_out_play) > 0:
+        if len(self._tokens_out_play) > 0:
             def SBE():
-                for token in self.tokens_out_play: token.zone.cease_to_exist(token)
+                for token in self._tokens_out_play: token.zone.cease_to_exist(token)
                 # XXX Now only GameObjects.cardmap has a reference to the token - we need to delete it somehow
-                self.tokens_out_play[:] = []
+                self._tokens_out_play[:] = []
             actions.append(SBE)
         # 420.5g A player who attempted to draw a card from an empty library since the last time state-based effects were checked loses the game.
         for player in players:
@@ -221,22 +194,25 @@ class GameKeeper(MtGObject):
             for action in actions: action()
         self.send(TimestepEvent())
         return not len(actions) == 0
-    def beginningPhase(self):
-        self.setState("BeginTurn")
+
+    def newTurn(self):
+        # Next player is current player
+        self.current_player = self.player_order.next()
+        self.send(NewTurnEvent(), player=self.current_player)
+        self.current_player.newTurn()
     def untapStep(self):
         # untap all cards
         self.setState("Untap")
         # XXX Do phasing - nothing that phases in will trigger any "when ~this~ comes 
         # into play..." effect, though they will trigger "When ~this~ leaves play" effects
-        self.curr_player.untapCards()
+        self.current_player.untapCards()
     def upkeepStep(self):
         self.setState("Upkeep")
+        print self.current_player, "Upkeep step"
         self.playInstantaneous()
     def drawStep(self):
-        self.curr_player.draw()
-        # XXX If you have a card that let's you draw more than one card, you get priority
-        # before each draw
         self.setState("Draw")
+        self.current_player.draw()
         self.playInstantaneous()
     def mainPhase1(self):
         self.setState("Main1")
@@ -274,7 +250,7 @@ class GameKeeper(MtGObject):
                     if len(blockers) > 1 or trampling:
                         # Ask the player how to distribute damage
                         # XXX I should check whether the attacker can assign damage to blocker
-                        damage = self.curr_player.getDamageAssignment([(attacker, blockers)], trample=trampling)
+                        damage = self.current_player.getDamageAssignment([(attacker, blockers)], trample=trampling)
                     elif len(blockers) == 1:
                         # XXX I should check whether the attacker can assign damage to blocker
                         damage = {blockers[0]: attacker.combatDamage()}
@@ -320,12 +296,12 @@ class GameKeeper(MtGObject):
         self.setState("PreCombat")
         self.playInstantaneous()
         combat_assignment = []
-        if self.curr_player.attackingIntention():
+        if self.current_player.attackingIntention():
             # Attacking
             self.setState("Attack")
             # Get all the players/planeswalkers
-            opponents = sum([player.play.get(Match.isPlaneswalker) for player in self.curr_player.opponents], list(self.curr_player.opponents))
-            attackers = self.curr_player.declareAttackers(opponents)
+            opponents = sum([player.play.get(Match.isPlaneswalker) for player in self.current_player.opponents], list(self.current_player.opponents))
+            attackers = self.current_player.declareAttackers(opponents)
             if attackers: self.send(DeclareAttackersEvent(), attackers=attackers)
             self.playInstantaneous()
             # After playing instants, the list of attackers could be modified (if a creature was put into play "attacking", so we regenerate the list
@@ -367,7 +343,7 @@ class GameKeeper(MtGObject):
         # - clear non-lethal damage
         self.setState("Cleanup")
         while True:
-            self.curr_player.discard_down()
+            self.current_player.discard_down()
             # Clear all nonlethal damage
             self.send(CleanupEvent())
             self.send(TimestepEvent())
@@ -378,7 +354,7 @@ class GameKeeper(MtGObject):
             if self.stack.process_triggered(): triggered_once = True
             if triggered_once: self.playInstantaneous()
             else: break
-        self.send(TurnFinishedEvent(), player=self.curr_player)
+        self.send(TurnFinishedEvent(), player=self.current_player)
 
     # The next set of functions deals with the operation of the stack
     # It may seem recursive but it's not
@@ -396,10 +372,10 @@ class GameKeeper(MtGObject):
                 self.playStackInstant()
                 return False
         self.stack.process_triggered()
-        self.send(HasPriorityEvent(), player=self.curr_player)
-        action = self.curr_player.getMainAction()
+        self.send(HasPriorityEvent(), player=self.current_player)
+        action = self.current_player.getMainAction()
         if not isinstance(action, PassPriority):
-            action.perform(self.curr_player)
+            action.perform(self.current_player)
             if not self.stack.empty(): self.playStackInstant()
             else: return True
         else: self.playStackInstant(skip_first=True)
@@ -412,10 +388,10 @@ class GameKeeper(MtGObject):
             # Now it's the active player's turn to play something
             self.playStackInstant()
     def playStackInstant(self, skip_first=False):
-        if not skip_first: self.continuePlay(self.curr_player)
+        if not skip_first: self.continuePlay(self.current_player)
         response = self.continuePlay(self.other_player)
         while response:
-            response = self.continuePlay(self.curr_player)
+            response = self.continuePlay(self.current_player)
             if not response: break
             response = self.continuePlay(self.other_player)
     def continuePlay(self, player):

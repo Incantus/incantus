@@ -60,13 +60,12 @@ class Player(MtGObject):
     def setDeck(self, decklist):
         #XXX Check to make sure the deck is valid
         self.decklist = decklist
-    def resetLandActions(self):
+    def newTurn(self):
         self.land_actions = 1
     def reset(self):
-        library = self.library
-        for from_location in [self.hand, self.graveyard, self.removed]:
-            for card in from_location:
-                card.move_to(card.owner.library)
+        # return all cards to library
+        for from_location in [self.play, self.hand, self.graveyard, self.removed]:
+            for card in from_location: card.move_to(card.owner.library)
     def loadDeck(self):
         for num, name in self.decklist:
             num = int(num)
@@ -175,10 +174,10 @@ class Player(MtGObject):
                 yield True
             else: break
         yield False
-    # Who should handle these? Player or GameKeeper?
+
+    # Rule engine functions
     def untapCards(self):
         for card in self.play.get():
-            # XXX The player should be able to select with cards to Untap (possibly?)
             if card.untapDuringUntapStep(): card.untap()
     def canBeDamagedBy(self, damager):
         return True
@@ -330,6 +329,7 @@ class Player(MtGObject):
 
     def __str__(self): return self.name
     def __repr__(self): return "%s at %s"%(self.name, id(self))
+
     # The following functions interface with the GUI of the game, and as a result they are kind
     # of convoluted. All interaction with the GUI is carried out through the input function (which
     # is set to dirty_input from the Incantus app) with a context object which indicates the action to perform
