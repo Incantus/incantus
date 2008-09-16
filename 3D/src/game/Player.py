@@ -164,13 +164,15 @@ class Player(MtGObject):
         for perm in perms: self.sacrifice(perm)
         return len(perms)
     def skip_next_turn(self, msg):
-        def skipTurn(keeper):
+        def condition(keeper):
             if keeper.player_cycler.peek() == self:
-                keeper.player_cycler.next()
-                keeper.newTurn()
-                skipTurn.expire()
-            else: keeper.newTurn()
-        return replace(Keeper, "newTurn", skipTurn, msg=msg)
+                keeper.current_player = keeper.player_cycler.next()
+                return True
+            else: return False
+        def skipTurn(keeper):
+            keeper.newTurn()
+            skipTurn.expire()
+        return replace(Keeper, "newTurn", skipTurn, condition=condition, msg=msg)
     def take_extra_turn(self):
         Keeper.player_cycler.insert(self)
 
