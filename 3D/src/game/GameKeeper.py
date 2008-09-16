@@ -13,6 +13,24 @@ state_map = {"Untap": UntapStepEvent, "Upkeep": UpkeepStepEvent, "Draw": DrawSte
              "Block": BlockStepEvent, "Damage": AssignDamageEvent, "EndCombat": EndCombatEvent,
              "EndTurn": EndTurnStepEvent, "Cleanup": CleanupPhase}
 
+class player_cycler(object):
+    def __init__(self, players):
+        self._cyclers = itertools.cycle(players)
+        self._insertions = []
+        self._peek = None
+    def next(self):
+        if self._peek:
+            player, self._peek = self._peek, None
+            return player
+        else:
+            if not self._insertions: return self._cyclers.next()
+            else: return self._insertions.pop()
+    def insert(self, player):
+        self._insertions.append(player)
+    def peek(self):
+        self._peek = self.next()
+        return self._peek
+
 class GameKeeper(MtGObject):
     keeper = True
     players = property(fget=lambda self: self._player_order)
@@ -32,7 +50,7 @@ class GameKeeper(MtGObject):
 
     def init(self, *players):
         self._player_order = players
-        self.player_cycle = itertools.cycle(players)
+        self.player_cycler = player_cycler(players)
 
         self.stack = Stack(self)
         self.play = Play(self)
@@ -195,7 +213,7 @@ class GameKeeper(MtGObject):
 
     def newTurn(self):
         # Next player is current player
-        self.current_player = self.player_cycle.next()
+        self.current_player = self.player_cycler.next()
         self.send(NewTurnEvent(), player=self.current_player)
         self.current_player.newTurn()
     def untapStep(self):

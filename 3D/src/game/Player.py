@@ -1,10 +1,12 @@
 
 from GameObjects import MtGObject, Card, Token
+from GameKeeper import Keeper
 from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, PlayerDamageEvent, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent
 from Mana import ManaPool
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
 from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isCardRole, isGameObject, isPlaneswalker
+from stacked_function import replace
 
 class life(int):
     def __add__(self, other):
@@ -161,6 +163,18 @@ class Player(MtGObject):
         perms = self.choose_from_zone(number, cardtype, "play", "sacrifice")
         for perm in perms: self.sacrifice(perm)
         return len(perms)
+    def skip_next_turn(self, msg):
+        def skipTurn(keeper):
+            if keeper.player_cycler.peek() == self:
+                keeper.player_cycler.next()
+                keeper.newTurn()
+                skipTurn.expire()
+            else: keeper.newTurn()
+        return replace(Keeper, "newTurn", skipTurn, msg=msg)
+    def take_extra_turn(self):
+        Keeper.player_cycler.insert(self)
+
+    # Rule engine functions
     def mulligan(self):
         number = 7
         while number > 0:
@@ -174,8 +188,6 @@ class Player(MtGObject):
                 yield True
             else: break
         yield False
-
-    # Rule engine functions
     def untapCards(self):
         for card in self.play.get():
             if card.untapDuringUntapStep(): card.untap()
