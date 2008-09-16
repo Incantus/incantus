@@ -55,19 +55,19 @@ class stacked_abilities(object):
         for group in self._stacking:
             if keyword in group:
                 a = group._keywords[keyword]
-                a.toggle(self.zone, False)
+                a.toggle(False)
                 disabled.append(a)
         def restore():
-            for a in disabled: a.toggle(self.zone, True)
+            for a in disabled: a.toggle(True)
         return restore
     def remove_all(self):
         # first disable all previous abilities
         disabled = []
         for a in self._stacking:
             disabled.append(a)
-            a.toggle(self.zone, False)
+            a.toggle(False)
         def remove():
-            for a in disabled: a.toggle(self.zone, True)
+            for a in disabled: a.toggle(True)
         return remove
     def set_copy(self, abilities):
         abilities._copy_effect = True
