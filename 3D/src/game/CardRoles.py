@@ -1,4 +1,4 @@
-import new, copy, itertools
+import new, copy
 from characteristics import stacked_controller, PTModifiers
 from GameObjects import MtGObject
 from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageFromEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
@@ -64,7 +64,7 @@ class GameRole(MtGObject):
             self.send(CounterAddedEvent(), counter=counter)
     def remove_counters(self, counter_type, number=1):
         num = 0
-        for counter in itertools.islice((c for c in self._counters if c == counter_type), number):
+        for counter in [c for c in self._counters if c == counter_type][:number]:
             num += 1
             self._counters.remove(counter)
             self.send(CounterRemovedEvent(), counter=counter)
