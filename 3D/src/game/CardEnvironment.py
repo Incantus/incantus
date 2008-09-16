@@ -27,5 +27,6 @@ from Ability.LorwynAbility import *
 from Ability.MorningtideAbility import *
 from Ability.ShadowmoorAbility import *
 from Ability.EventideAbility import *
+from Ability.AlaraAbility import *
 
 nan = None
