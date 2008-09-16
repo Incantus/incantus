@@ -17,8 +17,10 @@ def delay(source, delayed_trigger):
     return expire
 
 def combine(*restores):
-    def expire():
-        for restore in restores: restore()
+    if len(restores) == 1: expire = restores[0]
+    else:
+        def expire():
+            for restore in restores: restore()
     return expire
 
 def until_end_of_turn(*restores):

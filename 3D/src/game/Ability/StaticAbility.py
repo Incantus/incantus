@@ -1,8 +1,9 @@
 import copy
 from functools import partial
+from game.GameEvent import ControllerChanged, SubroleModifiedEvent, TimestepEvent
 from game.GameObjects import MtGObject
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger
-from game.GameEvent import ControllerChanged, SubroleModifiedEvent, TimestepEvent
+from Effects import combine
 
 # Static abilities always function while the permanent is in the relevant zone
 class StaticAbility(object):
@@ -92,7 +93,7 @@ class CardTrackingAbility(StaticAbility):
         if card in self.effect_tracking: del self.effect_tracking[card]
     def add_effects(self, card):
         self.effect_tracking[card] = True  # this is to prevent recursion when the effect is called
-        self.effect_tracking[card] = [removal_func for removal_func in self.effect_generator(self.source, card)]
+        self.effect_tracking[card] = [combine(removal_func) for removal_func in self.effect_generator(self.source, card)]
     def remove_effects(self, card):
         for remove in self.effect_tracking[card]: remove()
         del self.effect_tracking[card]   # necessary to prevent recursion
@@ -107,7 +108,7 @@ class CardTrackingAbility(StaticAbility):
 class CardStaticAbility(StaticAbility):
     def _enable(self):
         super(CardStaticAbility, self)._enable()
-        self.effect_tracking = [removal_func for removal_func in self.effect_generator(self.source)]
+        self.effect_tracking = [combine(removal_func) for removal_func in self.effect_generator(self.source)]
     def _disable(self):
         super(CardStaticAbility, self)._disable()
         for remove in self.effect_tracking: remove()
