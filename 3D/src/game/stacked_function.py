@@ -63,7 +63,7 @@ class stacked_function(object):
         # Install the stacked function
         setattr(f_class, f_name, self)
     def revert(self):
-        if not (len(self.overrides) > 0 or len(self.replacements) > 0):
+        if not (len(self.global_overrides) > 0 or len(self.overrides) > 0 or len(self.replacements) > 0):
             if self.is_derived: delattr(self.f_class, self.f_name)
             else: setattr(self.f_class, self.f_name, self.original)
     def _add(self, stacked_list, func, obj):
