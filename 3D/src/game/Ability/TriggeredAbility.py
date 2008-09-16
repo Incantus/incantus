@@ -1,7 +1,8 @@
 from Ability import Ability
 from Effects import robustApply
 
-self_condition = lambda source, card: source == card
+source_match = lambda source, card: source == card
+sender_match = lambda source, sender: source == sender
 
 class TriggeredStackAbility(Ability):
     triggered = True

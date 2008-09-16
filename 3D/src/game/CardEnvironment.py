@@ -9,7 +9,7 @@ from LazyInt import LazyInt
 from GameEvent import *
 
 from Ability.ActivatedAbility import ActivatedAbility, ManaAbility
-from Ability.TriggeredAbility import TriggeredAbility, self_condition
+from Ability.TriggeredAbility import TriggeredAbility, source_match, sender_match
 from Ability.StaticAbility import *
 from Ability.CastingAbility import *
 from Ability.Target import *
