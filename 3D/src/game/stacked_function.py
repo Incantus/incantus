@@ -91,10 +91,12 @@ class stacked_function(object):
         func.expire = self._add(self.global_overrides, func, obj)
         return func.expire
     def mark_as_seen(self, rpls):
-        self._first_call = False
+        #print "Marking %s in %s"%(self.f_name, self.f_class)
+        self._first_call = True
         self._seen.update(rpls)
     def unmark(self):
-        self._first_call = True
+        #print "Unmarking %s in %s"%(self.f_name, self.f_class)
+        self._first_call = False
         self._seen = set()
         self.__current_replacements = []
     def build_replacements(self, *args, **kw):
@@ -117,6 +119,7 @@ class stacked_function(object):
         else:
             self.__current_replacements.extend(self.build_replacements(*args, **kw))
             funcs = self.__current_replacements
+            #print funcs
             if funcs:
                 if len(funcs) > 1:
                     if isPlayer(obj): player = affected = obj
@@ -129,11 +132,14 @@ class stacked_function(object):
                 # Remove the selected replacement function
                 func = funcs.pop(i)
                 # *** This where we could potentially recurse
-                return func(*args, **kw)
-            else:
+                result = func(*args, **kw)
                 # No more replacements - unmark this stacked_function
-                self.unmark()
+                #print func, self._first_call
+                if self._first_call: self.unmark()
+                return result
+            else:
                 overrides = [f for f in self.overrides[::-1] if hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)]+[self.original]
+                if self._first_call: self.unmark()
                 return self.combiner(overrides, *args, **kw)
 
     def __get__(self, obj, objtype=None):
