@@ -65,7 +65,7 @@ class GameKeeper(MtGObject):
         # XXX This is hacky - need a better way to signal end of game
         self.send(TimestepEvent())
         for player in self.players:
-            for i in range(7): player.draw()
+            player.do_draw(7)
         self.send(TimestepEvent())
         for player in self.players:
             for did_mulligan in player.mulligan():

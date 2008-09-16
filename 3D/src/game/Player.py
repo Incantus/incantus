@@ -133,6 +133,8 @@ class Player(MtGObject):
                     cards = self.getCardSelection(selection, number=number, cardtype=cardtype, required=required, prompt="Search your %s for %s %s to %s."%(zone, a, cardtype, action))
                     if zone == "library": self.shuffle()
         return cards
+    def do_draw(self, number=1):
+        for i in range(number): self.draw()
     def draw(self):
         card = self.library.top()
         if card == None: self.draw_empty = True
