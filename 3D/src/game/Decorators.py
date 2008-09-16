@@ -40,7 +40,7 @@ def modal(*modes, **kw):
         def modal_effects(controller, source):
             indices = controller.getSelection([(mode.__doc__,i) for i, mode in enumerate(modes)], choose, idx=False, msg='Select %d mode(s):'%choose)
             if hasattr(indices, "__len__"): chosen = tuple((modes[i](controller, source) for i in indices))
-            else: chosen = (modes[indices](source), )
+            else: chosen = (modes[indices](controller, source), )
             # get the costs
             costs = tuple((mode.next() for mode in chosen))
             payment = yield effects(controller, source).next()
@@ -59,7 +59,7 @@ def modal_triggered(*modes, **kw):
         def modal_effects(controller, source):
             indices = controller.getSelection([(mode.__doc__,i) for i, mode in enumerate(modes)], choose, idx=False, msg='Select %d mode(s):'%choose)
             if hasattr(indices, "__len__"): chosen = tuple((modes[i](controller, source) for i in indices))
-            else: chosen = (modes[indices](source), )
+            else: chosen = (modes[indices](controller, source), )
             # get the targets
             targets = yield tuple((mode.next() for mode in chosen))
             if not hasattr(targets, "__len__"): targets = (targets, )
