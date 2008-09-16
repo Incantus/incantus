@@ -93,7 +93,7 @@ class UpkeepStepEvent(GameStepEvent): pass
 class DrawStepEvent(GameStepEvent): pass
 class MainPhaseEvent(GameStepEvent): pass
 class EndMainPhaseEvent(GameStepEvent): pass
-class PreCombatEvent(GameStepEvent): pass
+class BeginCombatEvent(GameStepEvent): pass
 class AttackStepEvent(GameStepEvent): pass
 class BlockStepEvent(GameStepEvent): pass
 class AssignDamageEvent(GameStepEvent): pass

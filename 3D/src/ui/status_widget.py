@@ -633,7 +633,7 @@ class PhaseStatus(Widget):
             ('Upkeep','Upkeep'),
             ('Draw','Draw'),
             ('Main1','Main'),
-            ('PreCombat','Beginning of combat'),
+            ('BeginCombat','Beginning of combat'),
             ('Attack','Declare attackers'),
             ('Block','Declare blockers'),
             ('Damage','Combat damage'),

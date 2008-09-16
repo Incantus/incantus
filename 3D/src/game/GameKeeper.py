@@ -9,7 +9,7 @@ import stacked_function as stacked
 
 state_map = {"Untap": UntapStepEvent, "Upkeep": UpkeepStepEvent, "Draw": DrawStepEvent,
              "Main1": MainPhaseEvent, "Main2": MainPhaseEvent, "EndMain": EndMainPhaseEvent,
-             "PreCombat": PreCombatEvent, "Attack": AttackStepEvent,
+             "BeginCombat": BeginCombatEvent, "Attack": AttackStepEvent,
              "Block": BlockStepEvent, "Damage": AssignDamageEvent, "EndCombat": EndCombatEvent,
              "EndTurn": EndTurnStepEvent, "Cleanup": CleanupPhase}
 
@@ -308,7 +308,7 @@ class GameKeeper(MtGObject):
             self.playInstantaneous()
     def combatPhase(self):
         # Beginning of combat
-        self.setState("PreCombat")
+        self.setState("BeginCombat")
         self.playInstantaneous()
         combat_assignment = []
         if self.current_player.attackingIntention():

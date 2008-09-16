@@ -33,7 +33,7 @@ class ImageCache(object):
         status = ["removed", "graveyard", "library", "hand"]
         ImageCache._load_multi("status.png", status, 2, 2)
         ImageCache._load("life.png", "life")
-        status = ['Untap','Upkeep','Draw','Main1','PreCombat','Attack','Block','Damage','EndCombat','Main2','EndTurn','Cleanup']
+        status = ['Untap','Upkeep','Draw','Main1','BeginCombat','Attack','Block','Damage','EndCombat','Main2','EndTurn','Cleanup']
         ImageCache._load_multi("phases.png", status, 4, 3)
         fx = ["ring", "spiral", "targeting", "glow"]
         ImageCache._load_multi("fx.png", fx, 2, 2)
