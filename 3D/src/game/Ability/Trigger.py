@@ -75,7 +75,7 @@ class MoveTrigger(Trigger):
     def filter(self, sender, card):
         keys = {"sender": sender, "source": self.source, "card":card}
         if (self.zone == str(sender) and self.check_player(sender, card) and
-            robustApply(self.match_condition, **keys) and (self.expiry == -1 or self.count < self.expiry))
+            robustApply(self.match_condition, **keys) and (self.expiry == -1 or self.count < self.expiry)):
             robustApply(self.trigger_function, **keys)
             self.count += 1
 
