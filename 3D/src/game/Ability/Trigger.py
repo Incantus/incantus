@@ -29,7 +29,7 @@ class Trigger(MtGObject):
     def filter(self, sender, **keys):
         keys["source"] = self.source
         keys["sender"] = sender
-        if robustApply(self.match_condition, **keys) and (self.expiry == -1 or self.count < self.expiry):
+        if (self.expiry == -1 or self.count < self.expiry) and robustApply(self.match_condition, **keys):
             robustApply(self.trigger_function, **keys)
             self.count += 1
     def __str__(self): return self.__class__.__name__
@@ -39,7 +39,7 @@ class Trigger(MtGObject):
 class PhaseTrigger(Trigger):
     def filter(self, sender, player):
         keys = {'player': player, 'source': self.source}
-        if robustApply(self.match_condition, **keys) and (self.expiry == -1 or self.count < self.expiry):
+        if (self.expiry == -1 or self.count < self.expiry) and robustApply(self.match_condition, **keys):
             robustApply(self.trigger_function, **keys)
             self.count += 1
 
@@ -74,8 +74,8 @@ class MoveTrigger(Trigger):
         else: return False
     def filter(self, sender, card):
         keys = {"sender": sender, "source": self.source, "card":card}
-        if (robustApply(self.match_condition, **keys) and (self.expiry == -1 or self.count < self.expiry) and
-           self.zone == str(sender) and self.check_player(sender, card)):
+        if (self.zone == str(sender) and self.check_player(sender, card) and
+            robustApply(self.match_condition, **keys) and (self.expiry == -1 or self.count < self.expiry))
             robustApply(self.trigger_function, **keys)
             self.count += 1
 
