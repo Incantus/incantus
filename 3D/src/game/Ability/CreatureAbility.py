@@ -171,7 +171,7 @@ def indestructible():
         yield make_indestructible(target)
     return CardStaticAbility(effects=indestructible_effect, keyword="Indestructible")
 
-def prevent_damage(target, amt, next=True, txt=None, condition=None):
+def prevent_damage(target, amount, next=True, txt=None, condition=None):
     if txt == None:
         if amt == -1: amtstr = 'all'
         else: amtstr = str(amt)
@@ -185,9 +185,9 @@ def prevent_damage(target, amt, next=True, txt=None, condition=None):
                 shielded = min([amt,shieldDamage.curr_amt])
                 shieldDamage.curr_amt -= amt
                 if shieldDamage.curr_amt <= 0:
+                    shieldDamage.expire()
                     if not shieldDamage.curr_amt == 0:
                         dmg = self.assignDamage(-1*shieldDamage.curr_amt, source, combat)
-                    shieldDamage.expire()
             else:
                 shielded = shieldDamage.curr_amt
                 amt -= shieldDamage.curr_amt
@@ -195,7 +195,7 @@ def prevent_damage(target, amt, next=True, txt=None, condition=None):
         else: shielded = amt
         #self.send(DamagePreventedEvent(),amt=shielded)
         return dmg
-    shieldDamage.curr_amt = amt
+    shieldDamage.curr_amt = amount
     return do_replace(target, "assignDamage", shieldDamage, msg=txt, condition=condition)
 def regenerate(target, txt="Regenerate", condition=None):
     def canDestroy(self):
