@@ -1,7 +1,7 @@
 from game import Mana
 from game.GameEvent import CounterAddedEvent, CounterRemovedEvent, InvalidTargetEvent
 from game.LazyInt import LazyInt
-from game.Match import isCard
+from game.Match import isCard, isPermanent
 
 class Cost(object):
     def is_mana_cost(self): return False
@@ -144,7 +144,7 @@ class ManaCost(Cost):
         return cmp(self.converted_mana_cost(), value)
 
 class TapCost(Cost):
-    def __init__(self, number=1, cardtype=None):
+    def __init__(self, cardtype=None, number=1):
         super(TapCost,self).__init__()
         self.cardtype = cardtype
         self.number = number
@@ -186,7 +186,7 @@ class TapCost(Cost):
         return 'T%s'%who
 
 class UntapCost(Cost):
-    def __init__(self, number=1, cardtype=None):
+    def __init__(self, cardtype=None, number=1):
         super(UntapCost,self).__init__()
         self.cardtype = cardtype
         self.number = number
@@ -262,7 +262,7 @@ class SacrificeCost(Cost):
         return 'Sacrifice'
 
 class ChangeZoneCost(Cost):
-    def __init__(self, from_zone, to_zone, number=1, cardtype=None):
+    def __init__(self, from_zone, to_zone, cardtype=None, number=1):
         super(ChangeZoneCost,self).__init__()
         self.cardtype = cardtype
         self.number = number
@@ -301,27 +301,27 @@ class ChangeZoneCost(Cost):
 
 
 class ReturnToHandCost(ChangeZoneCost):
-    def __init__(self, number=1, cardtype=None):
+    def __init__(self, cardtype=None, number=1):
         super(ReturnToHandCost,self).__init__(from_zone="play", to_zone="hand", number=number, cardtype=cardtype)
         self.action_txt = "return%s to hand"
 
 class RemoveFromPlayCost(ChangeZoneCost):
-    def __init__(self, number=1, cardtype=None):
+    def __init__(self, cardtype=None, number=1):
         super(RemoveFromPlayCost,self).__init__(from_zone="play", to_zone="removed", number=number, cardtype=cardtype)
         self.action_txt = "remove%s from play"
 
 class RemoveFromHandCost(ChangeZoneCost):
-    def __init__(self, number=1, cardtype=None):
+    def __init__(self, cardtype=None, number=1):
         super(RemoveFromHandCost,self).__init__(from_zone="hand", to_zone="removed", number=number, cardtype=cardtype)
         self.action_txt = "remove%s from hand"
 
 class RemoveFromGraveyardCost(ChangeZoneCost):
-    def __init__(self, number=1, cardtype=None):
+    def __init__(self, cardtype=None, number=1):
         super(RemoveFromGraveyardCost,self).__init__(from_zone="graveyard", to_zone="removed", number=number, cardtype=cardtype)
         self.action_txt = "remove%s from graveyard"
 
 class RemoveCounterCost(Cost):
-    def __init__(self, counter_type, number=1, cardtype=None):
+    def __init__(self, counter_type, cardtype=None, number=1):
         self.counter_type = counter_type
         self.number = number
         self.cardtype = cardtype
@@ -353,7 +353,7 @@ class RemoveCounterCost(Cost):
         return "Remove %d %s counter(s)"%(self.number, self.counter_type)
 
 class AddCounterCost(Cost):
-    def __init__(self, counter_type, number=1, cardtype=None):
+    def __init__(self, counter_type, cardtype=None, number=1):
         self.counter_type = counter_type
         self.number = number
         self.cardtype = cardtype
@@ -411,7 +411,7 @@ class LifeCost(Cost):
         return "Pay %d life"%self.amt
 
 class RevealCost(Cost):
-    def __init__(self, number=1, cardtype=isCard):
+    def __init__(self, cardtype=isCard, number=1):
         self.number = number
         self.cardtype = cardtype
     def precompute(self, source, player):
@@ -441,7 +441,7 @@ class RevealCost(Cost):
         return "Reveal %s"%txt
 
 class DiscardCost(Cost):
-    def __init__(self, number=1, cardtype=None):
+    def __init__(self, cardtype=None, number=1):
         self.number = number
         self.cardtype = cardtype
     def precompute(self, source, player):
