@@ -171,13 +171,9 @@ def indestructible():
         yield make_indestructible(target)
     return CardStaticAbility(effects=indestructible_effect, keyword="Indestructible")
 
-def prevent_damage(target, amount, next=True, txt=None, condition=None):
-    if txt == None:
-        if amt == -1: amtstr = 'all'
-        else: amtstr = str(amt)
-        if next == True: nextstr = "the next"
-        else: nextstr = ""
-        txt = 'Prevent %s %s damage'%(nextstr, amtstr)
+def prevent_damage(target, amount, next=True, txt='', condition=None):
+    if not txt:
+        txt = 'Prevent %s %s damage'%("the next" if next else '', str(amount) if amount == -1 else "all")
     def shieldDamage(self, amt, source, combat=False):
         dmg = 0
         if shieldDamage.curr_amt != -1:
@@ -209,13 +205,9 @@ def regenerate(target, txt="Regenerate", condition=None):
         #self.send(RegenerationEvent())
         return False
     return do_replace(target, "canDestroy", canDestroy, msg=txt, condition=condition)
-def redirect_damage(from_target, to_target, amt, next=True, txt=None, condition=None):
-    if txt == None:
-        if amt == -1: amtstr = 'all'
-        else: amtstr = str(amt)
-        if next == True: nextstr = "the next"
-        else: nextstr = ""
-        txt = 'Redirect %s %s damage from %s to %s'%(nextstr, amtstr, from_target, to_target)
+def redirect_damage(from_target, to_target, amount, next=True, txt='', condition=None):
+    if not txt:
+        txt = 'Redirect %s %s damage from %s to %s'%("the next" if next else '', str(amount) if amount == -1 else "all", from_target, to_target)
     def redirectDamage(self, amt, source, combat=False):
         dmg = 0
         if redirectDamage.curr_amt != -1:
@@ -236,7 +228,7 @@ def redirect_damage(from_target, to_target, amt, next=True, txt=None, condition=
         dmg += to_target.assignDamage(redirected, source, combat)
         #self.send(DamageRedirectedEvent(),amt=redirected)
         return dmg
-    redirectDamage.curr_amt = amt
+    redirectDamage.curr_amt = amount
     return do_replace(from_target, "assignDamage", redirectDamage, msg=txt, condition=condition)
 
 # XXX This works with blockers blocking multiple attackers, but not with the current damage calculation
