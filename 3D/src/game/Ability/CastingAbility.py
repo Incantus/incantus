@@ -8,13 +8,13 @@ class CastSpell(CostAbility):
         # Move the card to the stack zone - this is never called from play
         player = self.controller
         old_zone = self.source.zone
-        player.stack.put_card(self.source)
+        self.source = player.stack.put_card(self.source)
         if super(CastSpell, self).do_announce():
             return True
         else:
             # XXX This is incorrect - what i really need to do is rewind
             # XXX Rewind
-            self.source.move_to(old_zone)
+            self.source = self.source.move_to(old_zone)
             return False
     def played(self):
         # Don't change this order, otherwise abilities triggering on playing the spell
@@ -38,10 +38,10 @@ class EnchantAbility(CastSpell):
         self.target_type = target_type
         super(EnchantAbility, self).__init__(effects, txt=txt, keyword='enchant')
     def resolved(self):
-        self.source.move_to(self.controller.play)
-        self.source.send(TimestepEvent())
-        self.source.set_target_type(self.target_type)
-        self.source.attach(self.targets[0].target)
+        source = self.source.move_to(self.controller.play)
+        source.send(TimestepEvent())
+        source.set_target_type(self.target_type)
+        source.attach(self.targets[0].target)
         super(EnchantAbility, self).resolved()
 
 class CastNonPermanentSpell(CastSpell):

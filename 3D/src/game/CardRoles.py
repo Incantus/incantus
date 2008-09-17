@@ -30,19 +30,18 @@ class GameRole(MtGObject):
         return locals()
     info = property(**info())
     controller = property(fget=lambda self: self.owner)
+    zone = property(fget=lambda self: self._cardtmpl.zone)
+    key = property(fget=lambda self: self._cardtmpl.key)
 
     def __init__(self, card):
-        self.card = card
+        self._cardtmpl = card
         self._counters = []
         self.attachments = []
-        self.is_LKI = False
         self.facedown = False
-    def send(self, *args, **named):
-        self.card.send(*args, **named)
     def dealDamage(self, to, amount, combat=False):
         final_dmg = 0
-        if to.canBeDamagedBy(self.card) and amount > 0:
-            final_dmg = to.assignDamage(amount, source=self.card, combat=combat)
+        if to.canBeDamagedBy(self) and amount > 0:
+            final_dmg = to.assignDamage(amount, source=self, combat=combat)
             if final_dmg > 0: self.send(DealsDamageToEvent(), to=to, amount=final_dmg, combat=combat)
         #self.send(DealsDamageEvent(), amount=final_dmg, combat=combat)
         return final_dmg
@@ -52,11 +51,14 @@ class GameRole(MtGObject):
         self.send(TargetedByEvent(), targeter=targeter)
     def enteringZone(self, zone):
         self.abilities.enteringZone(zone)
+        self.is_LKI = False
     def leavingZone(self, zone):
         self.abilities.leavingZone(zone)
         for attached in self.attachments: attached.attachedLeavingPlay()
+        self.is_LKI = True
     def move_to(self, zone, position="top"):
-        if not self.is_LKI: self.card.move_to(zone, position)
+        if not self.is_LKI:
+            return self._cardtmpl.move_to(zone, position)
     def add_counters(self, counter_type, number=1):
         if type(counter_type) == str: counter_type = Counter(counter_type)
         for counter in [counter_type.copy() for i in range(number)]:
@@ -92,6 +94,7 @@ class GameRole(MtGObject):
             else: setattr(newcopy,attr, value)
         return newcopy
     def __str__(self): return str(self.name)
+    def __repr__(self): return "%s %s at %d"%(self.name, self.__class__.__name__, id(self))
     def __del__(self):
         pass
         #print "Deleting %s role for %s"%(self.__class__.__name__, self.name)
@@ -359,8 +362,8 @@ class Creature(object):
         from Ability.Cost import MultipleCosts
         player = self.controller
         cost = MultipleCosts(self.block_cost)
-        if cost.precompute(self.card, player) and cost.compute(self.card, player):
-            cost.pay(self.card, player)
+        if cost.precompute(self, player) and cost.compute(self, player):
+            cost.pay(self, player)
     def computeAttackCost(self):
         self.attack_cost = ["0"]
         return True
@@ -368,8 +371,8 @@ class Creature(object):
         from Ability.Cost import MultipleCosts
         player = self.controller
         cost = MultipleCosts(self.attack_cost)
-        if cost.precompute(self.card, player) and cost.compute(self.card, player):
-            cost.pay(self.card, player)
+        if cost.precompute(self, player) and cost.compute(self, player):
+            cost.pay(self, player)
     def shouldDestroy(self):
         return self.__damage >= self.toughness and super(Creature, self).shouldDestroy()
 
@@ -414,14 +417,14 @@ class Attachment(object):
     def attach(self, target):
         if self.attached_to != None: self.unattach()
         self.attached_to = target
-        self.attached_to.attachments.append(self.card)
-        for ability in self.attached_abilities: ability.enable(self.card)
+        self.attached_to.attachments.append(self)
+        for ability in self.attached_abilities: ability.enable(self)
         self.send(AttachedEvent(), attached=self.attached_to)
         return True
     def unattach(self):
         if self.attached_to:
             for ability in self.attached_abilities: ability.disable()
-            self.attached_to.attachments.remove(self.card)
+            self.attached_to.attachments.remove(self)
             self.send(UnAttachedEvent(), unattached=self.attached_to)
         self.attached_to = None
     def attachedLeavingPlay(self):
@@ -430,4 +433,4 @@ class Attachment(object):
         self.attached_to = None
     def isValidAttachment(self):
         attachment = self.attached_to
-        return (attachment and str(attachment.zone) == "play" and self.target_type.match(attachment) and attachment.canBeAttachedBy(self.card))
+        return (attachment and str(attachment.zone) == "play" and self.target_type.match(attachment) and attachment.canBeAttachedBy(self))

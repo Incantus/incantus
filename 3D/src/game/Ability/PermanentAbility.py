@@ -1,5 +1,5 @@
 from game.pydispatch import dispatcher
-from game.Match import isCreature, isLand
+from game.Match import isCreature, isLand, isCardRole
 from game.GameEvent import TimestepEvent
 from ActivatedAbility import ActivatedAbility, ManaAbility
 from Target import NoTarget, Target
@@ -55,19 +55,21 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
     if not txt and hasattr(during, "__doc__"): msg = during.__doc__
     else: msg = txt
     def move_to(self, zone, position="top"):
-        # Add the entering function to the in_play_role
+        # Add the entering function to the in_play_role - XXX Fix for LKI
         remove_entering = override(self.in_play_role, "enteringZone", lambda self, zone: during(self), combiner=do_all)
         # Now move to play
         before(self)
-        print "Moving %s with %s"%(self, msg)
-        self.move_to(zone, position)
+        #print "Moving %s with %s"%(self, msg)
+        new_obj = self.move_to(zone, position)
         # Remove the entering function from the in_play_role
         # XXX There might be timing issue, since we want to remove the override after the card is put into play
         dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False)
+        return new_obj
     play_condition = lambda self, zone, position="top": str(zone) == "play"
     if condition: cond = lambda self, zone, position="top": play_condition(self,zone,position) and condition(self,zone,position)
     else: cond = play_condition
 
+    if isCardRole(obj): obj = obj._cardtmpl
     return replace(obj, "move_to", move_to, msg=msg, condition=cond)
 
 # Optionally untapping during untap step

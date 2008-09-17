@@ -11,7 +11,6 @@ class AssignDamage(Ability):
             targets = set()
             for damager, damage_assn in self.damages:
                 for d in damage_assn.keys():
-                    # XXX Fix for LKI
                     if not isPlayer(d) and not d.is_LKI: continue
                     targets.add(d)
             target = MultipleTargets(len(targets), None)
@@ -24,7 +23,7 @@ class AssignDamage(Ability):
     def __init__(self, damages, txt = "Combat Damages"):
         self.damages = []
         for damager, damage_assn in damages:
-            self.damages.append((damager.current_role, damage_assn)) # XXX Fix for LKI
+            self.damages.append((damager, damage_assn))
 
         self.txt = txt
     def resolve(self):

@@ -48,15 +48,14 @@ def champion(types=None, subtypes=None):
     elif subtypes:
         cardtype = isPermanent.with_condition(lambda p: p.subtypes.intersects(subtypes))
     def champion1(controller, source):
+        source.championed = None
         yield NoTarget()
         # Code for effect
         cards = controller.choose_from_zone(cardtype=cardtype.with_condition(lambda p: not p == source), required=False, action="champion")
         if cards:
             card = cards[0]
-            card.move_to(card.owner.removed)
-            source.championed = card
+            source.championed = card.move_to(card.owner.removed)
         else:
-            source.championed = None
             controller.sacrifice(source)
         yield
     champion_send = TriggeredAbility(EnterTrigger("play"),
@@ -81,6 +80,7 @@ def hideaway(cost="0"):
     cip = CiPAbility(effects, txt="~ comes into play tapped")
 
     def hideaway_effect(controller, source):
+        source.hidden = None
         yield NoTarget()
         topcards = controller.library.top(4)
         card = controller.getCardSelection(topcards, number=1, required=True, prompt="Choose 1 card to hideaway")[0]

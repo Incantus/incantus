@@ -17,7 +17,6 @@ class MultipleTargets(object):
         # When you can distribute N among any number of targets
         if self.distribute > 0 and self.number == -1:
             self.number = self.distribute
-        self.zones = []
         self.target = []
         self.up_to = up_to
         self.msg = msg
@@ -34,17 +33,15 @@ class MultipleTargets(object):
     def get_targeted(self):
         if self.distribute == 0: return self.target
         else: return [(target, self.distribution[target]) for target in self.target] # only return valid targets
-    #def get_targeted(self): return [target.current_role if not isPlayer(target) else target for target in self.target]
     def check_target(self, source):
         # Remove any targets no longer in the correct zone, or no longer matching the original condition
         final_targets = []
-        for target, zone in zip(self.target, self.zones):
+        for target in self.target:
             if not isPlayer(target):
-                if str(target.zone) == zone and self.match_type(target) and target.canBeTargetedBy(source): final_targets.append(target)
+                if not target.is_LKI and self.match_type(target) and target.canBeTargetedBy(source): final_targets.append(target)
             else:
                 if target.canBeTargetedBy(source): final_targets.append(target)
         self.target = final_targets
-        self.zone = []
         return True
     def get_prompt(self, curr, source):
         number = self.number-curr
@@ -84,9 +81,6 @@ class MultipleTargets(object):
 
         # Got our targets, now save info:
         for target in targets:
-            # The zone
-            if not isPlayer(target): self.zones.append(str(target.zone))
-            else: self.zones.append(None)
             target.isTargetedBy(source)
         self.target = targets
         return True
@@ -110,15 +104,13 @@ class Target(object):
         self.targeting_player = any(isinstance(ttype, match) for match in (PlayerMatch, OpponentMatch, PlayerOrCreatureMatch) for ttype in self.target_types)
         self.msg = msg
         self.selector = selector
-        self.untargeted = False
         self.required = True
     def get_targeted(self): return self.target
-    #def get_targeted(self): return self.target.current_role if not isPlayer(self.target) else self.target
     def check_target(self, source):
         # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
         if not isPlayer(self.target):
-            return (str(self.target.zone) == self.target_zone) and self.current_role == self.target.current_role and self.match_types(self.target) and (self.untargeted or self.target.canBeTargetedBy(source))
-        else: return self.untargeted or self.target.canBeTargetedBy(source)
+            return (not self.target.is_LKI and self.match_types(self.target) and self.target.canBeTargetedBy(source))
+        else: return self.target.canBeTargetedBy(source)
     def get(self, source):
         if self.msg: prompt=self.msg
         else:
@@ -169,10 +161,6 @@ class Target(object):
         else:
             self.target = selector.getTarget(self.target_types,zone=self.zone,controller=controller,required=False,prompt=prompt)
             if self.target == False: return False
-        # Save the zone if we are targetting a permanent (not a player)
-        if not isPlayer(self.target):
-            self.target_zone = str(self.target.zone)
-            self.current_role = self.target.current_role
         if self.target.canBeTargetedBy(source):
             self.target.isTargetedBy(source)
             return True

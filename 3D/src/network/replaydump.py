@@ -3,6 +3,7 @@ import cPickle as pickle
 from game import Player, GameKeeper
 from game.Ability.Ability import Ability
 from game.GameObjects import GameObject
+from game.CardRoles import GameRole
 
 # This whole thing is ugly - i should probably replace it with a global object store with weakrefs (for the abilities)
 # or find a better way to pass this data back and forth
@@ -10,7 +11,7 @@ players = {}
 stack = None
 def persistent_id(obj):
     persid = None
-    if isinstance(obj,GameObject):
+    if isinstance(obj,GameRole):
         persid = pickle.dumps(("Object", obj.key), 2)
     elif isinstance(obj,Player):
         persid = pickle.dumps(("Player", obj.name), 2)
@@ -21,7 +22,7 @@ def persistent_id(obj):
 def persistent_load(persid):
     id, val = pickle.loads(persid)
     if id == "Object":
-        return GameObject._cardmap[val]
+        return GameObject._cardmap[val].current_role
     elif id == "Player":
         return players[val]
     elif id == "Ability":

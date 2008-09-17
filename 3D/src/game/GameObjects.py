@@ -41,10 +41,10 @@ class GameObject(MtGObject):
         self.zone = None
 
         self._current_role = None
-        self.out_play_role = None
+        self._last_known_info = None
         self.in_play_role = None
         self.stack_role = None
-        self._last_known_info = None
+        self.out_play_role = None
 
         # characteristics
         self.base_name = None
@@ -66,6 +66,7 @@ class GameObject(MtGObject):
         doc = '''The current role for this card. Either a Card (when in hand, library, graveyard or removed from game), Spell, (stack) or Permanent (in play)'''
         def fget(self): return self._current_role
         def fset(self, newrole):
+            self._last_known_info = self._current_role
             self._current_role = copy.deepcopy(newrole)
             role = weakref.proxy(self._current_role)
             # Set up base characteristics
@@ -77,33 +78,21 @@ class GameObject(MtGObject):
             role.types = stacked_type(role, self.base_types, TypeModifiedEvent())
             role.subtypes = stacked_characteristic(role, self.base_subtypes, SubtypeModifiedEvent())
             role.supertypes = stacked_characteristic(role, self.base_supertypes, SupertypeModifiedEvent)
-            role.abilities = stacked_abilities(self, self.base_abilities)
+            role.abilities = stacked_abilities(weakref.ref(self._current_role), self.base_abilities)
+
+            role.play_spell = self.play_spell
 
             role.base_power = stacked_variable(self.base_power)
             role.base_toughness = stacked_variable(self.base_toughness)
             role.base_loyalty = stacked_variable(self.base_loyalty)
         return locals()
     current_role = property(**current_role())
-    def save_lki(self):
-        self._last_known_info = self._current_role
-        self._last_known_info.is_LKI = True
     def move_to(self, zone, position="top"):
-        zone.move_card(self, position)
-    # XXX These two are just temporary
-    controller = property(fget=lambda self: self._current_role.controller, fset=lambda self, c: setattr(self._current_role, "controller", c))
-    # I should probably get rid of the getattr call, and make everybody refer to current_role directly
-    # But that makes the code so much uglier
-    def __getattr__(self, attr):
-        if hasattr(self.current_role, attr):
-            return getattr(self._current_role,attr)
-        #else: raise Exception, "no attribute named %s"%attr
-        else:
-        # We are probably out of play - check the last known info
-            return getattr(self._last_known_info, attr)
+        return zone.move_card(self, position)
     def __repr__(self):
         return "%s at %s"%(str(self),str(id(self)))
     def __str__(self):
-        return str(self.name)
+        return str(self.base_name)
 
     # Class attributes for mapping the cards
     _counter = 0
@@ -144,4 +133,4 @@ class Token(GameObject):
         super(Token, self).move_to(zone, position)
         if not str(zone) == "play": self.send(TokenLeavingPlay())
     def __str__(self):
-        return "Token: %s"%self.name
+        return "Token: %s"%self.base_name

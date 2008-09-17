@@ -10,10 +10,10 @@ class abilities(object):
             self._abilities.append(ability)
             if ability.keyword: self._keywords[ability.keyword] = ability
     def attached(self): return [ability for ability in self._abilities if ability.zone == "attached"]
-    def activated(self, source): return [ability for ability in self._abilities if hasattr(ability, "activated") and ability.playable(source)]
+    def activated(self, source): return [ability for ability in self._abilities if hasattr(ability, "activated") and ability.playable(source())]
     def enable(self, zone, source):
         for ability in self._abilities:
-            if (ability.zone == "all" or ability.zone == zone): ability.enable(source)
+            if (ability.zone == "all" or ability.zone == zone): ability.enable(source())
     def disable(self, zone):
         for ability in self._abilities:
             if (ability.zone == "all" or ability.zone == zone): ability.disable()

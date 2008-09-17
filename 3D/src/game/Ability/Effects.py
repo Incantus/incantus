@@ -26,15 +26,18 @@ def combine(*restores):
 def until_end_of_turn(*restores):
     dispatcher.connect(combine(*restores), signal=CleanupEvent(), weak=False, expiry=1)
 
-def do_override(target, func_name, func, combiner=logical_and):
-    if isPlayer(target): obj = target
-    else: obj = target.current_role
-    return override(obj, func_name, func, combiner)
+#def do_override(target, func_name, func, combiner=logical_and):
+#    if isPlayer(target): obj = target
+#    else: obj = target.current_role
+#    return override(obj, func_name, func, combiner)
 
-def do_replace(target, func_name, func, msg, condition):
-    if isPlayer(target): obj = target
-    else: obj = target.current_role
-    return replace(obj, func_name, func, msg, condition=condition)
+#def do_replace(target, func_name, func, msg, condition):
+#    if isPlayer(target): obj = target
+#    else: obj = target.current_role
+#    return replace(obj, func_name, func, msg, condition=condition)
+
+do_override = override
+do_replace = replace
 
 def robustApply(receiver, **named):
     """Call receiver with arguments and an appropriate subset of named

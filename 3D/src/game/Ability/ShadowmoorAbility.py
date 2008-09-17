@@ -4,22 +4,24 @@ from Target import NoTarget
 from Trigger import EnterFromTrigger
 from Counters import PowerToughnessCounter
 from CreatureAbility import keyword_effect
-from game.stacked_function import override, do_all
-from game.pydispatch import dispatcher
-from game.GameEvent import TimestepEvent
+from PermanentAbility import CiP
 
 def persist():
     def condition(source, card):
         return source_match(source, card) and card.num_counters("-1-1") == 0
+    def enterWithCounters(self):
+        print repr(self)
+        self.add_counters(PowerToughnessCounter(-1, -1))
+        print self._counters
     def persist_effect(controller, source, card):
         yield NoTarget()
+        print repr(source), repr(card), condition(source, card), source.is_LKI
+        # XXX this is broken because the source/card is LKI and can't move
         if condition(source, card):
-
-            # XXX Fix for LKI
-            remove_entering = override(source.in_play_role, "enteringZone", lambda self, zone: self.add_counters(PowerToughnessCounter(-1, -1)), combiner=do_all)
+            expire = CiP(source, enterWithCounters, txt='%s - enter play with a -1/-1 counter')
             # Now move to play
-            source.move_to(source.owner.play)
-            dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False)
+            source._cardtmpl.move_to(source.owner.play)
+            expire()
         yield
 
     return TriggeredAbility(EnterFromTrigger(from_zone="play", to_zone="graveyard"),

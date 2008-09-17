@@ -1,5 +1,5 @@
 import new, types
-from Match import isPlayer
+from Match import isPlayer, isCardRole
 
 # this is probably where the static layering rules come into play
 def logical_or(funcs, *args, **kw):
@@ -124,9 +124,9 @@ class stacked_function(object):
                 if len(funcs) > 1:
                     if isPlayer(obj): player = affected = obj
                     elif hasattr(obj, "keeper"): player = affected = obj.current_player
-                    # In this case it is either a Permanent or a subrole
-                    # XXX I've only seen the subrole case for Creatures, not sure if anything else can be replaced
-                    else: player, affected = obj.card.controller, obj.card
+                    # In this case it is a role
+                    elif isCardRole(obj): player, affected = obj.controller, obj
+                    else: player, affected = obj.current_role.controller, obj.current_role
                     i = player.getSelection([(f.msg, i) for i, f in enumerate(funcs)], numselections=1, required=True, idx=False, prompt="Choose replacement effect to affect %s"%(affected))
                 else: i = 0
                 # Remove the selected replacement function

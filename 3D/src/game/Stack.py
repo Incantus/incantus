@@ -31,7 +31,7 @@ class Stack(MtGObject):
             return True
         else: return False
     def put_card(self, card):
-        card.move_to(self.card_stack)
+        return card.move_to(self.card_stack)
     def push(self, ability):
         self.abilities.append(ability)
         self.send(AbilityPlacedOnStack(), ability=ability)

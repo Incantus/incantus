@@ -69,10 +69,11 @@ class CardRoleMatch(ObjMatch):
         return "Card"
 
 isCardRole = CardRoleMatch()
+isCard = isCardRole
 
-isGameObject = GameObjectMatch()
-isCard = CardMatch()
-isToken = TokenMatch()
+#isGameObject = GameObjectMatch()
+#isCard = CardMatch()
+#isToken = TokenMatch()
 
 class ZoneMatch(ObjMatch):
     def __init__(self, zone, txt=''):
@@ -81,7 +82,7 @@ class ZoneMatch(ObjMatch):
         if not txt: txt = "Card in %s"%zone
         self.txt = txt
     def match(self, obj):
-        return isGameObject(obj) and str(obj.zone) == self.zone and super(ZoneMatch,self).match(obj)
+        return isCardRole(obj) and str(obj.zone) == self.zone and super(ZoneMatch,self).match(obj)
     def __str__(self): return self.txt
 
 isSpell = ZoneMatch("stack", "spell")
@@ -101,7 +102,7 @@ class TypeMatch(ObjMatch):
         if self.in_play:
             return isPermanent(obj) and obj.types == self.cardtype and super(TypeMatch,self).match(obj)
         else:
-            return isGameObject(obj) and obj.types == self.cardtype and super(TypeMatch,self).match(obj)
+            return isCardRole(obj) and obj.types == self.cardtype and super(TypeMatch,self).match(obj)
     def __str__(self):
         name = str(self.cardtype)
         if not self.in_play: name += " card"

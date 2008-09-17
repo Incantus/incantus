@@ -148,8 +148,7 @@ def lifelink():
 # These are additional ones that aren't actually keyword abilities, but the structure is the same
 def must_attack():
     def checkAttack(self, attackers, not_attacking):
-        # XXX LKI fix
-        return self.card in attackers or not self.canAttack()
+        return self in attackers or not self.canAttack()
     return CardStaticAbility(effects=override_effect("checkAttack", checkAttack), txt="must attack")
 
 def only_block(keyword):
@@ -196,8 +195,7 @@ def prevent_damage(target, amount, next=True, txt='', condition=None):
 def regenerate(target, txt="Regenerate", condition=None):
     def canDestroy(self):
         if self.canBeTapped(): self.tap()
-        # XXX LKI fix
-        if isCreature(self.card):
+        if isCreature(self):
             self.clearDamage()
             self.clearCombatState()
         # expire it

@@ -60,7 +60,7 @@ def unearth(cost):
 
         leave_play_condition = lambda self, zone, position="top": str(self.zone) == "play"
         def move_to(self, zone, position="top"):
-            self.move_to(self.owner.removed)
+            return self.move_to(self.owner.removed)
         until_end_of_turn(delay(source, d_trigger), replace(source, "move_to", move_to, msg="%s - remove from game"%source.name, condition=leave_play_condition))
         yield
     return ActivatedAbility(effects, limit=sorcery, zone="graveyard", keyword="Unearth %s"%str(cost))
