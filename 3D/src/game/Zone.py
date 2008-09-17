@@ -33,7 +33,6 @@ class Zone(MtGObject):
     def _insert_card(self, card, position):
         # Remove card from previous zone
         if card.zone: card.zone._remove_card(card)
-        #self.setup_new_role(card)
         self.before_card_added(card)
         if position == "top": self.cards.append(card)
         elif position == "bottom": self.cards.insert(0, card)
@@ -78,7 +77,6 @@ class OrderedZone(Zone):
             self.pre_commit()
             for card in self.pending_top+self.pending_bottom:
                 if card.zone: card.zone._remove_card(card)
-                #self.setup_new_role(card)
                 self.before_card_added(card)
             toplist = self.get_card_order([c for c in self.pending_top], "top")
             bottomlist = self.get_card_order([c for c in self.pending_bottom], "bottom")

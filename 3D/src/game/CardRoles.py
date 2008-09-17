@@ -87,12 +87,12 @@ class GameRole(MtGObject):
         self.facedown = True
     def faceUp(self):
         self.facedown = False
-    def __deepcopy__(self,memo,mutable=set([list,set,dict])):
-        newcopy = copy.copy(self)
-        for attr, value in self.__dict__.iteritems():
-            if type(value) in mutable: setattr(newcopy,attr,copy.copy(value))
-            else: setattr(newcopy,attr, value)
-        return newcopy
+    #def __deepcopy__(self,memo,mutable=set([list,set,dict])):
+    #    newcopy = copy.copy(self)
+    #    for attr, value in self.__dict__.iteritems():
+    #        if type(value) in mutable: setattr(newcopy,attr,copy.copy(value))
+    #        else: setattr(newcopy,attr, value)
+    #    return newcopy
     def __str__(self): return str(self.name)
     def __repr__(self): return "%s %s at %d"%(self.name, self.__class__.__name__, id(self))
     def __del__(self):

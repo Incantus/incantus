@@ -39,7 +39,6 @@ def global_override(target, name, func):
 
 class stacked_function(object):
     stacked = True
-    empty = set()
     def __init__(self, f_name, f_class, combiner=logical_and):
         self.__name__ = "stacked_"+f_name
         self.f_name = f_name
@@ -68,14 +67,11 @@ class stacked_function(object):
             else: setattr(self.f_class, self.f_name, self.original)
     def _add(self, stacked_list, func, obj):
         stacked_list.append(func)
-        if obj:
-            if not hasattr(obj, "_overrides"): obj._overrides = set([func])
-            else: obj._overrides.add(func)
-        else: func.all = True
+        if obj: func.obj = obj
+        else: func.obj = "all"
         def restore():
             if func in stacked_list: # avoid being called twice
                 stacked_list.remove(func)
-                if obj: obj._overrides.remove(func)
                 self.revert()
         return restore
     def add_replacement(self, func, obj=None, msg='', condition=None):
@@ -107,14 +103,14 @@ class stacked_function(object):
             if self.f_name in cls.__dict__:
                 func = getattr(cls, self.f_name)
                 if hasattr(func, "stacked"):
-                    rpls = [f for f in func.replacements if not f in func._seen and (hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)) and f.cond(*args, **kw)]
+                    rpls = [f for f in func.replacements if not f in func._seen and (f.obj == "all" or f.obj == obj) and f.cond(*args, **kw)]
                     replacements.update(rpls)
                     func.mark_as_seen(rpls)
         return replacements
 
     def __call__(self, *args, **kw):
         obj = args[0]
-        global_overrides = [f for f in self.global_overrides[::-1] if hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)]
+        global_overrides = [f for f in self.global_overrides[::-1] if f.obj == "all" or f.obj == obj]
         if global_overrides: return global_overrides[0](*args, **kw)
         else:
             self.__current_replacements.extend(self.build_replacements(*args, **kw))
@@ -138,7 +134,7 @@ class stacked_function(object):
                 if self._first_call: self.unmark()
                 return result
             else:
-                overrides = [f for f in self.overrides[::-1] if hasattr(f, "all") or f in getattr(obj, "_overrides", self.empty)]+[self.original]
+                overrides = [f for f in self.overrides[::-1] if f.obj == "all" or f.obj == obj]+[self.original]
                 if self._first_call: self.unmark()
                 return self.combiner(overrides, *args, **kw)
 

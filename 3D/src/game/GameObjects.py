@@ -1,4 +1,4 @@
-import copy, weakref
+import weakref
 from pydispatch import dispatcher
 from GameEvent import TokenLeavingPlay, ColorModifiedEvent, TypeModifiedEvent, SubtypeModifiedEvent, SupertypeModifiedEvent
 from abilities import abilities, stacked_abilities
@@ -67,7 +67,7 @@ class GameObject(MtGObject):
         def fget(self): return self._current_role
         def fset(self, newrole):
             self._last_known_info = self._current_role
-            self._current_role = copy.deepcopy(newrole)
+            self._current_role = newrole(weakref.proxy(self))
             role = weakref.proxy(self._current_role)
             # Set up base characteristics
             role.owner = self.owner
@@ -111,12 +111,12 @@ class Card(GameObject):
 
         from CardRoles import Permanent, SpellRole, CardRole, NoRole
         CardDatabase.loadCardFromDB(self, cardname)
-        self.stack_role = SpellRole(self)
-        self.current_role = self.out_play_role = CardRole(self)
+        self.stack_role = SpellRole
+        self.current_role = self.out_play_role = CardRole
         if (self.base_types == "Instant" or self.base_types == "Sorcery"):
-            self.in_play_role = NoRole(self)
+            self.in_play_role = NoRole
         else:
-            self.in_play_role = Permanent(self)
+            self.in_play_role = Permanent
         self._add_to_map()
 
 class Token(GameObject):
@@ -125,8 +125,8 @@ class Token(GameObject):
         from CardRoles import NoRole, Permanent
         if type(info) == dict: info = CardDatabase.convertToTxt(info)
         CardDatabase.execCode(self, info)
-        self.current_role = self.out_play_role = self.stack_role = NoRole(self)
-        self.in_play_role = Permanent(self)
+        self.current_role = self.out_play_role = self.stack_role = NoRole
+        self.in_play_role = Permanent
         self.base_name = "%s Token"%self.base_name
         self._add_to_map()
     def move_to(self, zone, position="top"):

@@ -18,9 +18,9 @@ def persist():
         print repr(source), repr(card), condition(source, card), source.is_LKI
         # XXX this is broken because the source/card is LKI and can't move
         if condition(source, card):
-            expire = CiP(source, enterWithCounters, txt='%s - enter play with a -1/-1 counter')
+            expire = CiP(source, enterWithCounters, txt='%s - enter play with a -1/-1 counter'%source)
             # Now move to play
-            source._cardtmpl.move_to(source.owner.play)
+            source._cardtmpl.current_role.move_to(source.owner.play)
             expire()
         yield
 
