@@ -6,6 +6,7 @@ from GameEvent import *
 from Zone import Play
 from Stack import Stack
 import stacked_function as stacked
+from Ability.AssignDamage import AssignDamage
 
 state_map = {"Untap": UntapStepEvent, "Upkeep": UpkeepStepEvent, "Draw": DrawStepEvent,
              "Main1": MainPhaseEvent, "Main2": MainPhaseEvent, "EndMain": EndMainPhaseEvent,
@@ -286,13 +287,12 @@ class GameKeeper(MtGObject):
             if not damage_assn.get(attacker,None) == None:
                 damage_assn[attacker][attacker.opponent] = attacker.trample(damage_assn[attacker])
     def combatDamageStep(self, combat_assignment):
-        from Ability.AssignDamage import AssignDamage
         self.setState("Damage")
 
         tramplers, first_strike_damage = self.calculateDamage(combat_assignment, first_strike=True)
         if first_strike_damage:
             # Handle trample
-            if tramplers: handle_trample(tramplers, first_strike_damage)
+            if tramplers: self.handle_trample(tramplers, first_strike_damage)
             damages = AssignDamage(first_strike_damage.items(),"First Strike Damage")
             self.stack.push(damages)
             # Send message about damage going on stack
@@ -301,7 +301,7 @@ class GameKeeper(MtGObject):
         tramplers, regular_combat_damage = self.calculateDamage(combat_assignment)
         # Handle trample
         if regular_combat_damage:
-            if tramplers: handle_trample(tramplers, regular_combat_damage)
+            if tramplers: self.handle_trample(tramplers, regular_combat_damage)
             damages = AssignDamage(regular_combat_damage.items(), "Regular Combat Damage")
             self.stack.push(damages)
             # Send message about damage going on stack
