@@ -85,6 +85,7 @@ class GameObject(MtGObject):
             role.base_power = stacked_variable(self.base_power)
             role.base_toughness = stacked_variable(self.base_toughness)
             role.base_loyalty = stacked_variable(self.base_loyalty)
+            self._cardmap[self.key] = self._current_role
         return locals()
     current_role = property(**current_role())
     def move_to(self, zone, position="top"):
@@ -99,7 +100,7 @@ class GameObject(MtGObject):
     _cardmap = {}
     def _add_to_map(self):
         self.key = (GameObject._counter, self.base_name)
-        self._cardmap[self.key] = self
+        #self._cardmap[self.key] = self
         GameObject._counter += 1
 
 class Card(GameObject):
@@ -112,7 +113,7 @@ class Card(GameObject):
         from CardRoles import Permanent, SpellRole, CardRole, NoRole
         CardDatabase.loadCardFromDB(self, cardname)
         self.stack_role = SpellRole
-        self.current_role = self.out_play_role = CardRole
+        self.out_play_role = CardRole
         if (self.base_types == "Instant" or self.base_types == "Sorcery"):
             self.in_play_role = NoRole
         else:
@@ -125,7 +126,7 @@ class Token(GameObject):
         from CardRoles import NoRole, Permanent
         if type(info) == dict: info = CardDatabase.convertToTxt(info)
         CardDatabase.execCode(self, info)
-        self.current_role = self.out_play_role = self.stack_role = NoRole
+        self.out_play_role = self.stack_role = NoRole
         self.in_play_role = Permanent
         self.base_name = "%s Token"%self.base_name
         self._add_to_map()

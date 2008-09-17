@@ -108,6 +108,7 @@ class Library(OutPlayMixin, OrderedZone):
         self.needs_shuffle = False
     def add_new_card(self, card, position="top"):
         self.send(CardEnteringZone(), card=card.current_role)
+        self.setup_new_role(card)
         return self._insert_card(card, position)
     def get_card_order(self, cardlist, pos):
         # we're gonna shuffle anyway, no need to order the cards

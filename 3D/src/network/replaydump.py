@@ -22,7 +22,7 @@ def persistent_id(obj):
 def persistent_load(persid):
     id, val = pickle.loads(persid)
     if id == "Object":
-        return GameObject._cardmap[val].current_role
+        return GameObject._cardmap[val]
     elif id == "Player":
         return players[val]
     elif id == "Ability":
