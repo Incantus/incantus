@@ -10,17 +10,14 @@ def persist():
     def condition(source, card):
         return source_match(source, card) and card.num_counters("-1-1") == 0
     def enterWithCounters(self):
-        print repr(self)
         self.add_counters(PowerToughnessCounter(-1, -1))
-        print self._counters
     def persist_effect(controller, source, card):
         yield NoTarget()
-        print repr(source), repr(card), condition(source, card), source.is_LKI
-        # XXX this is broken because the source/card is LKI and can't move
         if condition(source, card):
             expire = CiP(source, enterWithCounters, txt='%s - enter play with a -1/-1 counter'%source)
             # Now move to play
-            source._cardtmpl.current_role.move_to(source.owner.play)
+            # XXX Cheat and move the card since we don't have the new role object
+            source._cardtmpl.move_to(source.owner.play)
             expire()
         yield
 
