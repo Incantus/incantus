@@ -66,9 +66,9 @@ class Card(anim.Animable):
         self._orientation = AnimatedQuaternion()
         self.visible = anim.constant(1.0)
         self.alpha = anim.constant(1.0)
-        if not self.__class__.cardlist: self.build_displaylist()
+        if not Card.cardlist: self.build_displaylist()
     def build_displaylist(self):
-        cls = self.__class__
+        cls = Card
         width = self.width/2.0; height=self.height/2.0
         cls.vertlist = [euclid.Point3(-width, -height, 0), euclid.Point3(width, -height, 0), euclid.Point3(width, height, 0), euclid.Point3(-width, height, 0)]
         vertlist = cls.vertlist
@@ -121,7 +121,6 @@ class Card(anim.Animable):
             result = poly.intersect(selectRay)
             if result: return result
         else: return False
-    def copy(self): return Card(self.gamecard, self.front, self.back)
     def __str__(self): return str(self.gamecard)
     def __repr__(self): return repr(self.gamecard)
 
@@ -148,9 +147,9 @@ class StackCard(Card):
             self.draw = self.draw_multi
         self.bordered = bordered
         self.border = border
-        if bordered and not self.__class__.borderedlist: self.build_borderedlist()
+        if bordered and not StackCard.borderedlist: self.build_borderedlist()
     def build_borderedlist(self):
-        cls = self.__class__
+        cls = StackCard
         width = self.border.width/2.0; height=self.border.height/2.0
         vertlist = [euclid.Point3(-width, -height, 0), euclid.Point3(width, -height, 0), euclid.Point3(width, height, 0), euclid.Point3(-width, height, 0)]
         tc = self.border.tex_coords
@@ -230,14 +229,8 @@ class StackCard(Card):
             glDisable(self._texture.target)
             glPopMatrix()
 
-
-
-# Since visual cards are recycled once they are created (by CardLibrary) the event triggers below will still
-# be active when the card leaves play. However, since the actual gamecard won't be generating any of the events
-# until the card is back in play this should be fine
-# XXX This is no longer the case - the card unregisters the events it listens to
 from game.Match import isCreature
-from game.GameEvent import TypeModifiedEvent, HasPriorityEvent, PowerToughnessChangedEvent, CounterAddedEvent, CounterRemovedEvent
+from game.GameEvent import TypeModifiedEvent, TimestepEvent, PowerToughnessChangedEvent, CounterAddedEvent, CounterRemovedEvent
 from game.pydispatch import dispatcher
 class PlayCard(Card):
     tapping = anim.Animatable()
@@ -260,10 +253,10 @@ class PlayCard(Card):
         self.info_box.visible = False
     def type_modified(self, sender):
         if isCreature(self.gamecard):
-            self.setup_creature_subrole()
+            self.setup_creature_role()
         elif not isCreature(self.gamecard) and self.is_creature:
-            self.remove_creature_subrole()
-    def setup_creature_subrole(self):
+            self.remove_creature_role()
+    def setup_creature_role(self):
         self.is_creature = True
         gamecard = self.gamecard
         self.power = 0 #gamecard.power
@@ -289,11 +282,11 @@ class PlayCard(Card):
         self.damage_text.pos = self.damage_text.zoom_pos
         self.change_value()
         self.draw = self.draw_creature
-        dispatcher.connect(self.change_value, signal=HasPriorityEvent())
-    def remove_creature_subrole(self):
+        dispatcher.connect(self.change_value, signal=TimestepEvent())
+    def remove_creature_role(self):
         self.is_creature = False
         self.draw = self.draw_permanent
-        dispatcher.disconnect(self.change_value, signal=HasPriorityEvent())
+        dispatcher.disconnect(self.change_value, signal=TimestepEvent())
     def entering_play(self):
         self.is_tapped = False
         self.tapping = anim.animate(0, 0, dt=0.3)
@@ -304,8 +297,7 @@ class PlayCard(Card):
         #self._pos.y = anim.animate(guicard._pos.y, guicard._pos.y, dt=0.4, method="ease_out")
         self._orientation.set_transition(dt=0.3, method="sine")
         self.can_layout = True
-        if isCreature(self.gamecard):
-            self.setup_creature_subrole()
+        if isCreature(self.gamecard): self.setup_creature_role()
         # Check for counters
         dispatcher.connect(self.add_counter, signal=CounterAddedEvent(), sender=self.gamecard)
         dispatcher.connect(self.remove_counter, signal=CounterRemovedEvent(), sender=self.gamecard)
@@ -314,7 +306,7 @@ class PlayCard(Card):
         self.layout_counters()
     def leaving_play(self):
         if self.is_creature:
-            self.remove_creature_subrole()
+            self.remove_creature_role()
         dispatcher.disconnect(self.add_counter, signal=CounterAddedEvent(), sender=self.gamecard)
         dispatcher.disconnect(self.remove_counter, signal=CounterRemovedEvent(), sender=self.gamecard)
         dispatcher.disconnect(self.type_modified, signal=TypeModifiedEvent(), sender=self.gamecard)
@@ -479,4 +471,3 @@ class PlayCard(Card):
             glDisable(self._texture.target)
             for c in self.counters: c.draw()
             glPopMatrix()
-    def copy(self): return PlayCard(self.gamecard, self.front, self.back)

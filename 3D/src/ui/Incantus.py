@@ -577,14 +577,10 @@ class GameWindow(window.Window):
         dispatcher.connect(self.player_hand.add_card, signal=game.GameEvent.CardEnteredZone(), sender=self.player1.hand, priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.player_hand.remove_card, signal=game.GameEvent.CardLeftZone(), sender=self.player1.hand, priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.player_hand.remove_card, signal=game.GameEvent.CardCeasesToExist(), sender=self.player1.hand, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.player_hand.card_on_stack, signal=game.GameEvent.AbilityAnnounced())
-        dispatcher.connect(self.player_hand.card_off_stack, signal=game.GameEvent.AbilityCanceled())
 
         dispatcher.connect(self.otherplayer_hand.add_card, signal=game.GameEvent.CardEnteredZone(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.otherplayer_hand.remove_card, signal=game.GameEvent.CardLeftZone(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.otherplayer_hand.remove_card, signal=game.GameEvent.CardCeasesToExist(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplayer_hand.card_on_stack, signal=game.GameEvent.AbilityAnnounced(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplayer_hand.card_off_stack, signal=game.GameEvent.AbilityCanceled())
 
         dispatcher.connect(self.mainplayer_status.animate_life, signal=game.GameEvent.LifeGainedEvent(),sender=self.player1, priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.otherplayer_status.animate_life, signal=game.GameEvent.LifeGainedEvent(),sender=self.player2, priority=dispatcher.UI_PRIORITY)

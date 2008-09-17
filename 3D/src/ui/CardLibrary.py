@@ -19,9 +19,6 @@ for ed, names in token_img_info:
 
 class _CardLibrary:
     img_cache = LRUCache(size=50)
-    card_cache = {}
-    play_card_cache = {}
-    hand_card_cache = {}
 
     def __init__(self):
         self.cardfile = bsddb.hashopen("./data/card_images.db", "c")
@@ -72,19 +69,14 @@ class _CardLibrary:
                     else: self.cardfile[name] = data
         return pyglet.image.load(imagename, file=StringIO(data)).texture
 
-    def getCard(self, gamecard, card_cls=Card, cache=None):
+    def getCard(self, gamecard, card_cls=Card):
         key = gamecard.key
-        if cache == None: cache = self.card_cache
-        if key in cache: card = cache[key]
+        name = img_key = key[1]
+        if img_key in self.img_cache: cardImage = self.img_cache[img_key]
         else:
-            name = img_key = key[1]
-            if img_key in self.img_cache: cardImage = self.img_cache[img_key]
-            else:
-                cardImage = self.loadImage(name)
-                self.img_cache[img_key] = cardImage
-            card = card_cls(gamecard, cardImage, self.back)
-            cache[key] = card
-        return card
+            cardImage = self.loadImage(name)
+            self.img_cache[img_key] = cardImage
+        return card_cls(gamecard, cardImage, self.back)
 
     def getStackCard(self, gamecard, bordered=False, border=None):
         card = self.getCard(gamecard)
@@ -95,17 +87,14 @@ class _CardLibrary:
         return self.getStackCard(gamecard, bordered=True, border=self.triggered)
 
     def getHandCard(self, gamecard):
-        return self.getCard(gamecard,HandCard,self.hand_card_cache)
+        return self.getCard(gamecard,HandCard)
 
     def getPlayCard(self, gamecard):
-        card = self.getCard(gamecard,PlayCard,self.play_card_cache)
+        card = self.getCard(gamecard,PlayCard)
         return card
 
     def getCombatCard(self, ability):
         return Card(ability.source, self.combat, self.combat)
-
-    def getCardCopy(self, gamecard):
-        return self.getCard(gamecard).copy()
 
     def getCardBack(self, size="default"):
         return self.back

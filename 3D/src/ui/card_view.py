@@ -90,7 +90,6 @@ class HandView(CardView):
         self.hand_size = Label("0", size=30, halign=align, valign="center")
         self.is_opponent = is_opponent
         self.small_size = 0.6
-        self.played = []
         self.focus_idx = 0
         self.visible = 0.0
         self.zooming = 0
@@ -99,6 +98,7 @@ class HandView(CardView):
         self.unfocused_size = (0.05, 0.30)
         self.unfocused_spacing = 1.025
         self.hidden = True
+        self._card_map = {}
     def set_hidden(self, value=True):
         self.hidden = value
         for card in self.cards: card.hidden = value
@@ -129,6 +129,7 @@ class HandView(CardView):
         #super(HandView,self).hide()
     def add_card(self, card):
         newcard = CardLibrary.CardLibrary.getHandCard(card)
+        self._card_map[card.key] = newcard
         newcard.hidden = self.hidden
         newcard._pos.set_transition(dt=0.8, method="sine") #self.pos_transition)
         newcard._orientation.set_transition(dt=0.2, method=self.orientation_transition)
@@ -137,35 +138,12 @@ class HandView(CardView):
         self.cards.append(newcard)
         self.layout()
     def remove_card(self, card):
-        card = CardLibrary.CardLibrary.getHandCard(card)
-        # XXX This if statement is an ugly hack, I should remove it once I figure out
-        # how to place cards from hand to the stack
-        if card in self.played: self.played.remove(card)
-        if card in self.cards:
-            self.cards.remove(card)
-            if self.focus_dir < 0: self.focus_idx += self.focus_dir
-            if self.focus_idx > len(self)-1: self.focus_idx = len(self)-1
-            elif self.focus_idx < 0: self.focus_idx = 0
-            self.layout()
-    def card_on_stack(self, ability):
-        # XXX This is a big ugly hack
-        if isinstance(ability, CastSpell) and str(ability.source.zone) == "hand":
-            card = CardLibrary.CardLibrary.getHandCard(ability.source)
-            if card in self.cards:
-                self.cards.remove(card)
-                if self.focus_dir < 0: self.focus_idx += self.focus_dir
-                if self.focus_idx > len(self)-1: self.focus_idx = len(self)-1
-                elif self.focus_idx < 0: self.focus_idx = 0
-                self.played.append(card)
-                self.layout()
-    def card_off_stack(self, ability):
-        # XXX This is a big ugly hack
-        if not isinstance(ability, CastSpell): return
-        card = CardLibrary.CardLibrary.getHandCard(ability.source)
-        if card in self.played:
-            self.played.remove(card)
-            self.cards.append(card)
-            self.layout()
+        card = self._card_map.pop(card.key)
+        self.cards.remove(card)
+        if self.focus_dir < 0: self.focus_idx += self.focus_dir
+        if self.focus_idx > len(self)-1: self.focus_idx = len(self)-1
+        elif self.focus_idx < 0: self.focus_idx = 0
+        self.layout()
     def shift_right(self, card):
         idx = self.cards.index(card)
         if idx != 0:
@@ -524,7 +502,7 @@ class ZoneView(CardView):
             self.cards.sort(key=lambda c: str(c))
             self.layout()
     def add_card(self, card):
-        newcard = CardLibrary.CardLibrary.getCardCopy(card)
+        newcard = CardLibrary.CardLibrary.getCard(card)
         newcard._pos.set_transition(dt=0.5, method=self.pos_transition)
         newcard._orientation.set(euclid.Quaternion())
         newcard._orientation.set_transition(dt=0.2, method=self.orientation_transition)

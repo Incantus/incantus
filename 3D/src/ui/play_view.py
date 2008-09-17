@@ -239,7 +239,7 @@ class PlayView(Widget):
         #guicard._pos.y = anim.animate(guicard._pos.y, guicard._pos.y, dt=0.4, method="sine") #"ease_out")
         return guicard
     def remove_card(self, card, clock):
-        guicard = CardLibrary.CardLibrary.getPlayCard(card)
+        guicard = self._card_map.pop(card.key)
         guicard.leaving_play()
         for cardlist in [self.creatures,self.other_perms,self.attached]+self.lands.values():
             if guicard in cardlist: break
@@ -385,7 +385,7 @@ class PlayView(Widget):
         #lands = self.lands["Other"]
         #row += max_row_height
         #y, max_row_height = self.layout_subset(lands, size, y, y_incr, row, compare)
-    def get_card(self, gamecard): return self._card_map.get(gamecard.key, None)
+    def get_card(self, card): return self._card_map.get(card.key, None)
     def get_card_from_hit(self, select_ray):
         hits = []
         m = euclid.Matrix4()
