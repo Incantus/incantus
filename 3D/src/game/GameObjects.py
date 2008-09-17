@@ -67,7 +67,7 @@ class GameObject(MtGObject):
         def fget(self): return self._current_role
         def fset(self, newrole):
             self._last_known_info = self._current_role
-            self._current_role = newrole(weakref.proxy(self))
+            self._current_role = newrole(self)
             role = weakref.proxy(self._current_role)
             # Set up base characteristics
             role.owner = self.owner
