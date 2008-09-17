@@ -8,13 +8,13 @@ from Ability.PermanentAbility import basic_mana_ability
 from Ability.Effects import combine
 from Ability.Subtypes import all_basic_lands
 
-class GameRole(MtGObject):
+class CardRole(MtGObject):
     def info():
-        def fget(self): 
+        def fget(self):
             txt = [str(self.name)]
             color = str(self.color)
             if color: txt.append("\n%s"%color)
-            txt.append("\n") 
+            txt.append("\n")
             supertypes = str(self.supertypes)
             if supertypes: txt.append(supertypes+" ")
             cardtypes = str(self.types)
@@ -87,12 +87,6 @@ class GameRole(MtGObject):
         self.facedown = True
     def faceUp(self):
         self.facedown = False
-    #def __deepcopy__(self,memo,mutable=set([list,set,dict])):
-    #    newcopy = copy.copy(self)
-    #    for attr, value in self.__dict__.iteritems():
-    #        if type(value) in mutable: setattr(newcopy,attr,copy.copy(value))
-    #        else: setattr(newcopy,attr, value)
-    #    return newcopy
     def __str__(self): return str(self.name)
     def __repr__(self): return "%s %s at %d"%(self.name, self.__class__.__name__, id(self))
     def __del__(self):
@@ -100,15 +94,12 @@ class GameRole(MtGObject):
         #print "Deleting %s role for %s"%(self.__class__.__name__, self.name)
 
 # For token objects out of play
-class NoRole(GameRole): pass
-
-# Cards out of play
-class CardRole(GameRole): pass
+class NoRole(CardRole): pass
 
 # Cards on the stack
-class SpellRole(GameRole): pass
+class SpellRole(CardRole): pass
 
-class Permanent(GameRole):
+class Permanent(CardRole):
     controller = property(fget=lambda self: self._controller.get())
     continuously_in_play = property(fget=lambda self: self._continuously_in_play)
     def initialize_controller(self, controller):
