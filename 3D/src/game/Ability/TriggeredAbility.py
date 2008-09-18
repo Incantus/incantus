@@ -48,3 +48,12 @@ class TriggeredAbility(object):
         return TriggeredAbility([t.copy() for t in self.triggers], self.condition, self.effects, self.expiry, self.zone, self.txt)
     def __str__(self):
         return self.txt
+
+class SpecialTriggeredAbility(TriggeredAbility):
+    def __init__(self, triggers, condition, effects, special_funcs, expiry=-1, zone="play", txt='', keyword=''):
+        super(SpecialTriggeredAbility, self).__init__(triggers, condition, effects, expiry, zone, txt, keyword)
+        self.buildup, self.teardown = special_funcs
+    def toggle(self, val):
+        if val: self.buildup(self.source)
+        else: self.teardown(self.source)
+        super(SpecialTriggeredAbility, self).toggle(val)
