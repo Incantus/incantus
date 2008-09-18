@@ -1,7 +1,7 @@
 from game.pydispatch import dispatcher
 from game.pydispatch.robustapply import function
 from game.GameEvent import CleanupEvent
-from game.stacked_function import override, replace, logical_and, logical_or, do_all
+from game.stacked_function import override, replace, logical_and, logical_or
 from game.Match import isPlayer
 
 def do_when(func, event, condition=lambda *args: True):
