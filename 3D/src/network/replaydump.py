@@ -12,7 +12,9 @@ stack = None
 def persistent_id(obj):
     persid = None
     if isinstance(obj,CardRole):
-        persid = pickle.dumps(("Object", obj.key), 2)
+        persid = pickle.dumps(("Role", obj.key), 2)
+    elif isinstance(obj, GameObject):
+        persid = pickle.dumps(("Card", obj.key), 2)
     elif isinstance(obj,Player):
         persid = pickle.dumps(("Player", obj.name), 2)
     elif isinstance(obj,Ability):
@@ -21,8 +23,10 @@ def persistent_id(obj):
 
 def persistent_load(persid):
     id, val = pickle.loads(persid)
-    if id == "Object":
+    if id == "Role":
         return GameObject._cardmap[val]
+    elif id == "Card":
+        return GameObject._cardmap[val]._cardtmpl
     elif id == "Player":
         return players[val]
     elif id == "Ability":
