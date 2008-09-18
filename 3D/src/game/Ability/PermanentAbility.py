@@ -4,8 +4,11 @@ from game.GameEvent import TimestepEvent
 from ActivatedAbility import ActivatedAbility, ManaAbility
 from Target import NoTarget, Target
 from Cost import ManaCost, TapCost
-from Effects import do_override, override, replace, do_all
+from Effects import override, replace, do_all, combine
 from Limit import no_limit, sorcery
+
+from game import CardDatabase
+from game.GameObjects import GameObject
 
 #def flash(card):
 #    casting_ability = card.play_spell
@@ -57,7 +60,7 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
 
     def move_to(self, zone, position="top"):
         # Now move to play
-        before(self)
+        before(self.current_role)
         perm = self.move_to(zone, position)
         # At this point the card hasn't actually moved (it will on the next timestep event), so we can modify it's enteringZone function. This basically relies on the fact that entering play is batched and done on the timestep.
         remove_entering = override(perm, "enteringZone", lambda self, zone: during(self), combiner=do_all)
@@ -80,35 +83,17 @@ def optionally_untap(target):
     return do_override(target, "untapDuringUntapStep", untapDuringUntapStep)
 
 # Cloning
-#def clone(card, cloned):
-#    # XXX This is ugly,
-#    role = card.current_role
-#    for subrole in role.subroles: subrole.leavingPlay()
-#    reverse = CiP_as_cloned(card, cloned)
-#    for subrole in role.subroles: subrole.enteringPlay(role)
-#    def reversal():
-#        for subrole in role.subroles: subrole.leavingPlay()
-#        reverse()
-#        for subrole in role.subroles: subrole.enteringPlay(role)
-#    return reversal
-#
-#def CiP_as_cloned(card, cloned):
-#    text = cloned.text
-#    obj = CardDatabase.execCode(GameObject(card.controller), text)
-#    role = card.current_role
-#    role.cost = obj.base_cost
-#    reverse = [getattr(role, attr).set_copy(getattr(obj, "base_"+attr)) for attr in ("name", "text", "color", "types", "subtypes", "supertypes", "abilities")]
-#    # XXX Instead of this, i should reset the power/toughness value that the creature subrole will refer to
-#    # That way i keep the same subrole
-#    role.subroles = obj.in_play_role.subroles
-#    def reversal():
-#        role.name = card.base_name
-#        role.cost = card.base_cost
-#        role.text = card.base_text
-#        for r in reverse: r()
-#        role.subroles = card.in_play_role.subroles
-#    return reversal
-
+def clone(source, cloned):
+    clone = CardDatabase.execCode(GameObject(source.controller), cloned.text)
+    source.cost = clone.base_cost
+    expire1 = combine(*[getattr(source, attr).set_copy(getattr(clone, "base_"+attr)) for attr in ("name", "text", "color", "types", "subtypes", "supertypes", "abilities")])
+    expire2 = combine(*[getattr(source, attr).set_copy(getattr(clone, attr)) for attr in ("base_power", "base_toughness", "base_loyalty")])
+    def restore():
+        source.cost = source._cardtmpl.base_cost
+        expire1()
+        expire2()
+    del clone
+    return restore
 
 
 #class ThresholdAbility(ActivatedAbility):

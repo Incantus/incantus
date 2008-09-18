@@ -67,27 +67,29 @@ class GameObject(MtGObject):
         def fget(self): return self._current_role
         def fset(self, newrole):
             self._last_known_info = self._current_role
-            self._current_role = newrole(self)
-            role = weakref.proxy(self._current_role)
-            # Set up base characteristics
-            role.owner = self.owner
-            role.name = stacked_variable(self.base_name)
-            role.cost = self.base_cost
-            role.text = stacked_variable(self.base_text)
-            role.color = stacked_characteristic(role, self.base_color, ColorModifiedEvent())
-            role.types = stacked_type(role, self.base_types, TypesModifiedEvent())
-            role.subtypes = stacked_characteristic(role, self.base_subtypes, SubtypesModifiedEvent())
-            role.supertypes = stacked_characteristic(role, self.base_supertypes, SupertypesModifiedEvent)
-            role.abilities = stacked_abilities(weakref.ref(self._current_role), self.base_abilities)
-
-            role.play_spell = self.play_spell
-
-            role.base_power = stacked_variable(self.base_power)
-            role.base_toughness = stacked_variable(self.base_toughness)
-            role.base_loyalty = stacked_variable(self.base_loyalty)
-            self._cardmap[self.key] = self._current_role
+            self._cardmap[self.key] = self._current_role = self.build_role(newrole(self))
         return locals()
     current_role = property(**current_role())
+    def build_role(self, role):
+        proxy_role = weakref.proxy(role)
+        # Set up base characteristics
+        role.owner = self.owner
+        role.name = stacked_variable(self.base_name)
+        role.cost = self.base_cost
+        role.text = stacked_variable(self.base_text)
+        role.color = stacked_characteristic(proxy_role, self.base_color, ColorModifiedEvent())
+        role.types = stacked_type(proxy_role, self.base_types, TypesModifiedEvent())
+        role.subtypes = stacked_characteristic(proxy_role, self.base_subtypes, SubtypesModifiedEvent())
+        role.supertypes = stacked_characteristic(proxy_role, self.base_supertypes, SupertypesModifiedEvent)
+        role.abilities = stacked_abilities(weakref.ref(role), self.base_abilities)
+
+        role.play_spell = self.play_spell
+
+        role.base_power = stacked_variable(self.base_power)
+        role.base_toughness = stacked_variable(self.base_toughness)
+        role.base_loyalty = stacked_variable(self.base_loyalty)
+        return role
+
     def move_to(self, zone, position="top"):
         return zone.move_card(self, position)
     def __repr__(self):
