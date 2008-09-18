@@ -277,12 +277,12 @@ class PlayView(Widget):
                         break
             self.layout()
     def card_tapped(self, sender):
-        card = self.get_card[sender]
+        card = self.get_card(sender)
         if card in self.cards:
             card.tap()
             self.layout()
     def card_untapped(self, sender):
-        card = self.get_card[sender]
+        card = self.get_card(sender)
         if card in self.cards:
             card.untap()
             self.layout()
