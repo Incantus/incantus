@@ -36,10 +36,10 @@ class ClashEvent(Event): pass
 class CardCycledEvent(Event): pass
 
 class SubroleModifiedEvent(Event): pass
-class TypeModifiedEvent(Event): pass
+class TypesModifiedEvent(Event): pass
 class ColorModifiedEvent(Event): pass
-class SubtypeModifiedEvent(Event): pass
-class SupertypeModifiedEvent(Event): pass
+class SubtypesModifiedEvent(Event): pass
+class SupertypesModifiedEvent(Event): pass
 
 class ManaAdded(Event): pass
 class ManaSpent(Event): pass

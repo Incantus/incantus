@@ -230,7 +230,7 @@ class StackCard(Card):
             glPopMatrix()
 
 from game.Match import isCreature
-from game.GameEvent import TypeModifiedEvent, TimestepEvent, PowerToughnessChangedEvent, CounterAddedEvent, CounterRemovedEvent
+from game.GameEvent import TypesModifiedEvent, TimestepEvent, PowerToughnessChangedEvent, CounterAddedEvent, CounterRemovedEvent
 from game.pydispatch import dispatcher
 class PlayCard(Card):
     tapping = anim.Animatable()
@@ -301,7 +301,7 @@ class PlayCard(Card):
         # Check for counters
         dispatcher.connect(self.add_counter, signal=CounterAddedEvent(), sender=self.gamecard)
         dispatcher.connect(self.remove_counter, signal=CounterRemovedEvent(), sender=self.gamecard)
-        dispatcher.connect(self.type_modified, signal=TypeModifiedEvent(), sender=self.gamecard)
+        dispatcher.connect(self.type_modified, signal=TypesModifiedEvent(), sender=self.gamecard)
         self.counters = [Counter(counter.ctype) for counter in self.gamecard.counters]
         self.layout_counters()
     def leaving_play(self):
@@ -309,7 +309,7 @@ class PlayCard(Card):
             self.remove_creature_role()
         dispatcher.disconnect(self.add_counter, signal=CounterAddedEvent(), sender=self.gamecard)
         dispatcher.disconnect(self.remove_counter, signal=CounterRemovedEvent(), sender=self.gamecard)
-        dispatcher.disconnect(self.type_modified, signal=TypeModifiedEvent(), sender=self.gamecard)
+        dispatcher.disconnect(self.type_modified, signal=TypesModifiedEvent(), sender=self.gamecard)
     def layout_counters(self):
         numc = len(self.counters)
         if numc > 0:

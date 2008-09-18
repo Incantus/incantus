@@ -1,6 +1,6 @@
 import weakref
 from pydispatch import dispatcher
-from GameEvent import TokenLeavingPlay, ColorModifiedEvent, TypeModifiedEvent, SubtypeModifiedEvent, SupertypeModifiedEvent
+from GameEvent import TokenLeavingPlay, ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent
 from abilities import abilities, stacked_abilities
 from characteristics import stacked_variable, stacked_characteristic, stacked_type
 import CardDatabase
@@ -75,9 +75,9 @@ class GameObject(MtGObject):
             role.cost = self.base_cost
             role.text = stacked_variable(self.base_text)
             role.color = stacked_characteristic(role, self.base_color, ColorModifiedEvent())
-            role.types = stacked_type(role, self.base_types, TypeModifiedEvent())
-            role.subtypes = stacked_characteristic(role, self.base_subtypes, SubtypeModifiedEvent())
-            role.supertypes = stacked_characteristic(role, self.base_supertypes, SupertypeModifiedEvent)
+            role.types = stacked_type(role, self.base_types, TypesModifiedEvent())
+            role.subtypes = stacked_characteristic(role, self.base_subtypes, SubtypesModifiedEvent())
+            role.supertypes = stacked_characteristic(role, self.base_supertypes, SupertypesModifiedEvent)
             role.abilities = stacked_abilities(weakref.ref(self._current_role), self.base_abilities)
 
             role.play_spell = self.play_spell
