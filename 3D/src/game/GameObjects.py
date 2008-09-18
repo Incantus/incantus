@@ -131,7 +131,7 @@ class Token(GameObject):
         self.base_name = "%s Token"%self.base_name
         self._add_to_map()
     def move_to(self, zone, position="top"):
-        super(Token, self).move_to(zone, position)
         if not str(zone) == "play": self.send(TokenLeavingPlay())
+        return super(Token, self).move_to(zone, position)
     def __str__(self):
         return "Token: %s"%self.base_name
