@@ -62,7 +62,7 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
         # At this point the card hasn't actually moved (it will on the next timestep event), so we can modify it's enteringZone function. This basically relies on the fact that entering play is batched and done on the timestep.
         remove_entering = override(perm, "enteringZone", lambda self, zone: during(self), combiner=do_all)
         # XXX There might be timing issue, since we want to remove the override after the card is put into play
-        dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False)
+        dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False, expiry=1)
         return perm
 
     play_condition = lambda self, zone, position="top": str(zone) == "play"
