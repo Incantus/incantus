@@ -33,7 +33,7 @@ class CombatZone(object):
             self.orient = 1
             self.compare = max
         guicard = list(self.attack_zone.cards)[0]
-        self.zone_shift_vec = euclid.Vector3(0,0,2.5*self.orient) #guicard.size*guicard.height*self.orient)
+        self.zone_shift_vec = euclid.Vector3(0,0,2.5*self.orient)
         self.attack_zone.pos += self.zone_shift_vec
         self.orig_attacker_pos = {}
         self.orig_blocker_pos = {}
@@ -70,15 +70,6 @@ class CombatZone(object):
         shift_vec = -self.zone_shift_vec * 1.5
         size = 0.01*1.1*self.orient
         self.attack_zone.layout_subset(self.attackers, size, 0.1, 0.001, shift_vec.z, self.compare, combat=True)
-        #x = 0
-        #positions = []
-        #for guicard in self.attackers:
-        #    # XXX For some reason I need to keep the same y pos, or everything gets screwed up (selection wise)
-        #    positions.append(euclid.Vector3(x, guicard.pos.y, 0))
-        #    x += size*guicard.spacing
-        #if positions: avgx = sum([p.x for p in positions])/len(positions)
-        #for guicard, pos in zip(self.attackers, positions):
-        #    guicard.pos = pos + shift_vec - euclid.Vector3(avgx, 0, 0)
     def declare_attackers(self):
         self.blocking_list = dict([(attacker, []) for attacker in self.attackers])
         self.layout_attackers()
@@ -113,7 +104,7 @@ class CombatZone(object):
         avgx = startx-sum([pos.x for pos in positions])/len(positions)
         cards.append(card)
         for pos in positions: pos += euclid.Vector3(avgx, 0, 0)
-        width = x #+big_halfx
+        width = x
         return (width, cards, positions)
     def layout_all(self):
         shift_vec = self.zone_shift_vec * 1.5
@@ -246,11 +237,10 @@ class PlayView(Widget):
         guicard.alpha = anim.animate(1, 0.25, dt=1.5, method="ease_in_circ")
         clock.schedule_once(lambda t: cardlist.remove(guicard), 1.4)
         clock.schedule_once(lambda t: self.layout(), 1.5)
-        #clock.schedule_once(lambda t: cardlist.remove(guicard) or self.layout(), 1.5)
     #def card_attached_new(self, sender, attached):
     # XXX This is to handle attaching to the other player's permanents
-    #    attachment = CardLibrary.CardLibrary.getPlayCard(sender)
-    #    attached = self.get_card(attached) #CardLibrary.CardLibrary.getPlayCard(attached)
+    #    attachment = self.get_card(sender)
+    #    attached = self.get_card(attached)
     #    if attachment in self.other_perms: self.other_perms.remove(attachment)
     #    if attached: # Not coming into play, (Equipments)
     #        self.attached.append(attachment)
@@ -262,22 +252,21 @@ class PlayView(Widget):
     #            self.lands["Other"].append(attached)
     #    self.layout()
     def card_attached(self, sender, attached):
-        attachment = self.get_card(sender) #CardLibrary.CardLibrary.getPlayCard(sender)
-        attached = self.get_card(attached) #CardLibrary.CardLibrary.getPlayCard(attached)
-        if attachment and attached: #in self.other_perms:
+        attachment = self.get_card(sender)
+        attached = self.get_card(attached)
+        if attachment and attached:
             self.attached.append(attachment)
             self.other_perms.remove(attachment)
             if Match.isBasicLand(attached.gamecard):
-                #self.lands["Other"].remove(attached)
                 for landtype in self.lands.values():
                     if attached in landtype: break
                 landtype.remove(attached)
                 self.lands["Other"].append(attached)
             self.layout()
     def card_unattached(self, sender, unattached):
-        attachment = self.get_card(sender) #CardLibrary.CardLibrary.getPlayCard(sender)
-        unattached = self.get_card(unattached) #CardLibrary.CardLibrary.getPlayCard(unattached)
-        if attachment and unattached: #in self.attached:
+        attachment = self.get_card(sender)
+        unattached = self.get_card(unattached)
+        if attachment and unattached:
             self.attached.remove(attachment)
             self.other_perms.append(attachment)
             if Match.isBasicLand(unattached.gamecard):
@@ -288,12 +277,12 @@ class PlayView(Widget):
                         break
             self.layout()
     def card_tapped(self, sender):
-        card = CardLibrary.CardLibrary.getPlayCard(sender)
+        card = self.get_card[sender]
         if card in self.cards:
             card.tap()
             self.layout()
     def card_untapped(self, sender):
-        card = CardLibrary.CardLibrary.getPlayCard(sender)
+        card = self.get_card[sender]
         if card in self.cards:
             card.untap()
             self.layout()
