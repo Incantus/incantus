@@ -1,4 +1,4 @@
-import itertools
+import itertools, random
 from GameObjects import MtGObject
 from Action import PassPriority
 import Match
@@ -46,24 +46,25 @@ class GameKeeper(MtGObject):
         return locals()
     current_player = property(**current_player())
 
-    def __init__(self):
-        self.ready_to_start = False
-
     def init(self, *players):
-        self._player_order = players
-        self.player_cycler = player_cycler(players)
-
         self.stack = Stack(self)
         self.play = Play(self)
-        for player in self.players: player.init(self.play, self.stack)
+        for player in players:
+            player.init(self.play, self.stack, set(players))
 
         self._tokens_out_play = []
         self.register(lambda sender: self._tokens_out_play.append(sender), TokenLeavingPlay(), weak=False)
-        self.ready_to_start = True
+
+        # Determine starting player
+        players = list(players)
+        random.shuffle(players)
+        for idx, start_player in enumerate(players):
+            if idx == (len(players)-1) or start_player.getIntention("", "Would you like to go first?"):
+                break
+        self._player_order = tuple(players[idx:]+players[:idx])
+        self.player_cycler = player_cycler(self.players)
 
     def start(self):
-        if not self.ready_to_start: raise Exception("Players not added - not ready to start")
-        # XXX This is hacky - need a better way to signal end of game
         self.send(TimestepEvent())
         for player in self.players:
             player.do_draw(7)
@@ -81,7 +82,6 @@ class GameKeeper(MtGObject):
 
     def cleanup(self):
         for player in self.players: player.reset()
-        self.ready_to_start = False
 
     def run(self):
         self.send(GameStartEvent())

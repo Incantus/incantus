@@ -355,7 +355,6 @@ class GameWindow(window.Window):
         self.game_status.log("Starting network game")
         
         playername = self.conf.get("main", "playername")
-        player1 = game.Player(playername)
         if isserver:
             self.game_status.log("Waiting for client")
             self.connection = networkcomm.Server(ipaddr, port)
@@ -376,41 +375,26 @@ class GameWindow(window.Window):
             self.connection.send(playername)
 
         self.game_status.log("Exchanging data with other player")
-        player2 = game.Player(otherplayername)
-        self.player1 = player1
-        self.player2 = player2
 
-        # These need to be set here so that abilities can target the opponent
-        player1.setOpponents(player2)
-        player2.setOpponents(player1)
-
-        # Choose starting player
         random.seed(seed)
-        coin = random.randint(0,1)
-        #if coin == 0: msg = "%s won the coin toss"%player1.name
-        #else: msg = "%s won the coin toss"%player2.name
-        #self.game_status.log(msg)
-        #self.msg_controller.notify(msg, action=False)
 
         # Load decks - Make sure these are loaded in the same order for client and server
         my_deck = self.read_deckfile(self.conf.get("main", "deckfile"))
         if isserver:
             self.connection.send(my_deck)
             other_deck = self.connection.receive()
-            player1.setDeck(my_deck)
-            player2.setDeck(other_deck)
-            if coin == 0: first_player, second_player = player1, player2
-            else: first_player, second_player = player2, player1
         else:
             other_deck = self.connection.receive()
             self.connection.send(my_deck)
-            player1.setDeck(my_deck)
-            player2.setDeck(other_deck)
-            if coin == 0: first_player, second_player = player2, player1
-            else: first_player, second_player = player1, player2
 
+        player1 = game.Player(playername, my_deck)
+        player2 = game.Player(otherplayername, other_deck)
+        player1.dirty_input = self.userinput
+        player2.dirty_input = self.userinput_network_other
+        self.player1 = player1
+        self.player2 = player2
         dispatcher.reset()
-        game.Keeper.init(first_player, second_player)
+        game.Keeper.init(player1, player2)
         self.make_connections((0,0,255), (255,255,0), soundfx=True)
 
         # Save info for replay
@@ -419,24 +403,14 @@ class GameWindow(window.Window):
         self.dump_to_replay = replaydump.ReplayDump(self, replay_file, True)
         self.dump_to_replay(isserver)
         self.dump_to_replay(seed)
-        # From the perspective of the replay file, the first player is saved first
-        #self.dump_to_replay(first_player.name)
-        #if player1 == first_player: self.dump_to_replay(my_deck)
-        #else: self.dump_to_replay(other_deck)
-        #self.dump_to_replay(second_player.name)
-        #if player1 == second_player: self.dump_to_replay(my_deck)
-        #else: self.dump_to_replay(other_deck)
         self.dump_to_replay(player1.name)
         self.dump_to_replay(my_deck)
         self.dump_to_replay(player2.name)
         self.dump_to_replay(other_deck)
-        self.dump_to_replay(first_player.name)
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in [player1, player2]])
         replaydump.stack = game.Keeper.stack
-        player1.dirty_input = self.userinput
-        player2.dirty_input = self.userinput_network_other
 
         self.start_new_game = True
 
@@ -465,33 +439,23 @@ class GameWindow(window.Window):
             self.connection = networkcomm.Client(ipaddr, port)
             self.game_status.log("Connected to server")
 
-        player1 = game.Player(playername)
-        player2 = game.Player(otherplayername)
+        player1 = game.Player(playername, my_deck)
+        player2 = game.Player(otherplayername, other_deck)
+        player1.dirty_input = self.userinput
+        player2.dirty_input = self.userinput_network_other
         self.player1 = player1
         self.player2 = player2
-        player1.setDeck(my_deck)
-        player2.setDeck(other_deck)
-
-        # These need to be set here so that abilities can target the opponent
-        player1.setOpponents(player2)
-        player2.setOpponents(player1)
 
         # Choose starting player
         random.seed(seed)
-        coin = random.randint(0,1)
-        name = self.dump_to_replay.read()
-        if name == player1.name: first_player, second_player = player1, player2
-        else: first_player, second_player = player2, player1
 
         dispatcher.reset()
-        game.Keeper.init(first_player, second_player)
+        game.Keeper.init(player1, player2)
         self.make_connections((0,0,255), (255,255,0), soundfx=False)
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in [player1, player2]])
         replaydump.stack = game.Keeper.stack
-        player1.dirty_input = self.userinput
-        player2.dirty_input = self.userinput_network_other
 
         self.start_new_game = True
 
@@ -526,33 +490,19 @@ class GameWindow(window.Window):
             player2_name = self.dump_to_replay.read()
             other_deck = self.dump_to_replay.read()
 
-        player1 = game.Player(player1_name)
-        player2 = game.Player(player2_name)
+        player1 = game.Player(player1_name, my_deck)
+        player2 = game.Player(player2_name, other_deck)
+        player1.dirty_input = self.userinput
+        player2.dirty_input = self.userinput
 
         self.player1 = player1
         self.player2 = player2
 
-        # These need to be set here so that abilities can target the opponent
-        player1.setOpponents(player2)
-        player2.setOpponents(player1)
-
-        player1.setDeck(my_deck)
-        player2.setDeck(other_deck)
-
         # Choose starting player
         random.seed(seed)
-        coin = random.randint(0,1)
-        if not self.replay:
-            if coin == 0: first_player, second_player = player1, player2
-            else: first_player, second_player = player2, player1
-            self.dump_to_replay(first_player.name)
-        else:
-            name = self.dump_to_replay.read()
-            if name == player1.name: first_player, second_player = player1, player2
-            else: first_player, second_player = player2, player1
 
         dispatcher.reset()
-        game.Keeper.init(first_player, second_player)
+        game.Keeper.init(player1, player2)
         self.make_connections((0,0,255), (255,255,0), soundfx=not self.replay_fast)
 
         if self.conf.get("solitaire", "manaburn") == "No":
@@ -561,8 +511,6 @@ class GameWindow(window.Window):
         # This is hacky
         replaydump.players = dict([(player.name,player) for player in [player1, player2]])
         replaydump.stack = game.Keeper.stack
-        player1.dirty_input = self.userinput
-        player2.dirty_input = self.userinput
         self.start_new_game = True
 
     def make_connections(self, self_color, other_color, soundfx):

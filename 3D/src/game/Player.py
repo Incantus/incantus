@@ -36,7 +36,7 @@ class Player(MtGObject):
         self._life += amount  # This seems weird, but amount is negative
         self.send(LifeLostEvent(), amount=amount)
 
-    def __init__(self,name):
+    def __init__(self,name,deck):
         self.name = name
         self._life = 20
         self.poison = 0
@@ -44,8 +44,12 @@ class Player(MtGObject):
         self.land_actions = -1
         self.hand_limit = 7
         self.draw_empty = False
-        self.decklist = []
-    def init(self, play, stack):
+        self.decklist = deck
+    def init(self, play, stack, all_players):
+        all_players.remove(self)
+        self.opponent = tuple(all_players)[0] # XXX Get rid of this
+        self.opponents = all_players
+
         self.library = Library()
         self.hand = Hand()
         self.graveyard = Graveyard()
@@ -56,12 +60,6 @@ class Player(MtGObject):
 
         self.loadDeck()
         self.shuffle()
-    def setOpponents(self, *opponents):
-        self.opponent = opponents[0] # XXX Get rid of this
-        self.opponents = set(opponents)
-    def setDeck(self, decklist):
-        #XXX Check to make sure the deck is valid
-        self.decklist = decklist
     def newTurn(self):
         self.land_actions = 1
     def reset(self):
