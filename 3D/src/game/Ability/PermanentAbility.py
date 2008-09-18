@@ -1,5 +1,5 @@
 from game.pydispatch import dispatcher
-from game.Match import isCreature, isLand, isCardRole
+from game.Match import isCard, isCreature, isLand
 from game.GameEvent import TimestepEvent
 from ActivatedAbility import ActivatedAbility, ManaAbility
 from Target import NoTarget, Target
@@ -69,7 +69,7 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
     if condition: cond = lambda self, zone, position="top": play_condition(self,zone,position) and condition(self,zone,position)
     else: cond = play_condition
 
-    if isCardRole(obj): obj = obj._cardtmpl # If we are changing a specific card, make sure to modify the card move_to_play
+    if isCard(obj): obj = obj._cardtmpl # If we are changing a specific card, make sure to modify the card move_to_play
     return replace(obj, "move_to", move_to, msg=msg, condition=cond)
 
 # Optionally untapping during untap step

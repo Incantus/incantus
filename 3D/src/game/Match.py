@@ -1,32 +1,27 @@
+import copy
 
 class Match(object):
     def __init__(self, condition=None):
         if condition: self.condition = condition
-        else: self.condition = lambda: True
+        else: self.condition = lambda obj: True
     def with_condition(self, condition):
         # Creates a duplicate match with a condition
-        import copy
         newmatch = copy.copy(self)
         old_condition = newmatch.condition
         newmatch.condition = lambda obj: old_condition(obj) and condition(obj)
         return newmatch
-
-class ObjMatch(Match):
-    def __init__(self, condition=None):
-        if condition: self.condition = condition
-        else: self.condition = lambda x: True
     def match(self, obj):
         return self.condition(obj)
     def __call__(self, obj):
         return self.match(obj)
 
-class PlayerMatch(ObjMatch):
+class PlayerMatch(Match):
     def match(self, player):
         import Player
         return isinstance(player, Player.Player) and super(PlayerMatch,self).match(player)
     def __str__(self):
         return "Player"
-class OpponentMatch(ObjMatch):
+class OpponentMatch(Match):
     def __init__(self, card, condition=None):
         super(OpponentMatch,self).__init__(condition)
         self.card = card
@@ -39,51 +34,61 @@ isPlayer = PlayerMatch()
 
 
 # Matching any type of game object (cards or tokens)
-class TokenMatch(ObjMatch):
-    def match(self, obj=None):
-        import GameObjects
-        return isinstance(obj, GameObjects.Token) and super(TokenMatch,self).match(obj)
-    def __str__(self):
-        return "GameObject"
+#class TokenMatch(Match):
+#    def match(self, obj=None):
+#        import GameObjects
+#        return isinstance(obj, GameObjects.Token) and super(TokenMatch,self).match(obj)
+#    def __str__(self):
+#        return "GameObject"
 
-class CardMatch(ObjMatch):
-    def match(self, card=None):
-        import GameObjects
-        return isinstance(card, GameObjects.Card) and super(CardMatch,self).match(card)
-    def __str__(self):
-        return "Card"
-
-class CardRoleMatch(ObjMatch):
-    def match(self, card=None):
-        import CardRoles
-        return isinstance(card, CardRoles.CardRole) and super(CardRoleMatch,self).match(card)
-    def __str__(self):
-        return "Card"
-
-isCardRole = CardRoleMatch()
-isCard = isCardRole
+#class CardMatch(Match):
+#    def match(self, card=None):
+#        import GameObjects
+#        return isinstance(card, GameObjects.Card) and super(CardMatch,self).match(card)
+#    def __str__(self):
+#        return "Card"
 
 #isGameObject = GameObjectMatch()
 #isCard = CardMatch()
 #isToken = TokenMatch()
 
-class ZoneMatch(ObjMatch):
+class CardRoleMatch(Match):
+    def match(self, card=None):
+        import CardRoles
+        return isinstance(card, CardRoles.CardRole) and super(CardRoleMatch,self).match(card)
+    def __str__(self):
+        return "Card"
+    def zone(self, zone):
+        pass
+    def color(self, color):
+        pass
+    def types(self, types):
+        pass
+    def subtypes(self, subtypes):
+        pass
+    def supertypes(self, supertypes):
+        pass
+
+isCardRole = CardRoleMatch()
+isCard = isCardRole
+
+class ZoneMatch(Match):
     def __init__(self, zone, txt=''):
         super(ZoneMatch, self).__init__()
         self.zone = zone
         if not txt: txt = "Card in %s"%zone
         self.txt = txt
     def match(self, obj):
-        return isCardRole(obj) and str(obj.zone) == self.zone and super(ZoneMatch,self).match(obj)
+        return isCard(obj) and str(obj.zone) == self.zone and super(ZoneMatch,self).match(obj)
     def __str__(self): return self.txt
 
-isSpell = ZoneMatch("stack", "spell")
+#isSpell = ZoneMatch("stack", "spell")
 isPermanent = ZoneMatch("play", "permanent")
 isLegendaryPermanent = isPermanent.with_condition(lambda c: c.supertypes == "Legendary")
 isPermanentCard = isCard.with_condition(lambda c: c.types == "Artifact" or c.types == "Enchantment" or c.types == "Creature" or c.types == "Land" or c.types == "Planeswalker")
 
 # Type specific matching
-class TypeMatch(ObjMatch):
+class TypeMatch(Match):
     # Can match against power, toughness, anything
     # condition should be a boolean function
     def __init__(self, cardtype, in_play=False):
@@ -123,7 +128,7 @@ isEnchantmentCard = TypeMatch("Enchantment")
 isEquipmentCard = isArtifactCard.with_condition(lambda a: a.subtypes == "Equipment")
 isAuraCard = isEnchantmentCard.with_condition(lambda e: e.subtypes == "Aura")
 
-class PlayerOrCreatureMatch(ObjMatch):
+class PlayerOrCreatureMatch(Match):
     def match(self, obj):
         return (isPlayer(obj) or isCreature(obj)) and super(PlayerOrCreatureMatch,self).match(obj)
     def __str__(self):
@@ -131,7 +136,7 @@ class PlayerOrCreatureMatch(ObjMatch):
 isCreatureOrPlayer = isPlayerOrCreature = PlayerOrCreatureMatch()
 
 # For targeting and matching objects on the stack
-class AbilityMatch(ObjMatch):
+class AbilityMatch(Match):
     # This is for targetting abilities on the stack
     def __init__(self, ability_type, txt='', condition=None):
         super(AbilityMatch, self).__init__(condition)
@@ -146,8 +151,10 @@ class AbilityMatch(ObjMatch):
 from Ability.Ability import Ability
 from Ability.CastingAbility import CastSpell, CastSorcerySpell, CastInstantSpell
 from Ability.ActivatedAbility import ActivatedAbility
-isAbility = AbilityMatch(Ability, "Ability")
-isSpellAbility = AbilityMatch(CastSpell, "Spell")
+from Ability.TriggeredAbility import TriggeredStackAbility
+isStackAbility = AbilityMatch(Ability, "Ability")
+isSpell = AbilityMatch(CastSpell, "Spell")
 isInstantSpell = AbilityMatch(CastInstantSpell, "Instant")
 isSorcerySpell = AbilityMatch(CastSorcerySpell, "Sorcery")
 isActivatedAbility = AbilityMatch(ActivatedAbility, "Activated Ability")
+isTriggeredAbility = AbilityMatch(TriggeredStackAbility, "Triggered Ability")

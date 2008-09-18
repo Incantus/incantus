@@ -5,7 +5,7 @@ from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntap
 from Mana import ManaPool
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
-from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isCardRole, isPlaneswalker
+from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isPlaneswalker
 from stacked_function import replace
 
 class life(int):
@@ -410,7 +410,7 @@ class Player(MtGObject):
             elif numselections == -1: return [sellist[i][0] for i in sel]
             else: return [sellist[i][0] for i in sel][:numselections]
         else: return sel
-    def getCardSelection(self, selection, number, cardtype=isCardRole, zone=None, player=None, required=True, prompt=''):
+    def getCardSelection(self, selection, number, cardtype=isCard, zone=None, player=None, required=True, prompt=''):
         def filter(action):
             if isinstance(action, CancelAction):
                 if not required: return action

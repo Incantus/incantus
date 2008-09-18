@@ -9,7 +9,7 @@ from resources import ColorDict
 import CardLibrary
 from game import GameEvent
 from game.pydispatch import dispatcher
-from game.Match import isPlayer, isPermanent, isAbility
+from game.Match import isPlayer, isPermanent, isStackAbility
 from game.Ability.CastingAbility import CastSpell
 
 from play_view import CombatZone

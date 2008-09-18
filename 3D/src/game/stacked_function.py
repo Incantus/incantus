@@ -122,6 +122,7 @@ class stacked_function(object):
                     elif hasattr(obj, "keeper"): player = affected = obj.current_player
                     # In this case it is a role
                     elif isCardRole(obj): player, affected = obj.controller, obj
+                    # Otherwise it's a card (for move_to replacements)
                     else: player, affected = obj.current_role.controller, obj.current_role
                     i = player.getSelection([(f.msg, i) for i, f in enumerate(funcs)], numselections=1, required=True, idx=False, prompt="Choose replacement effect to affect %s"%(affected))
                 else: i = 0
