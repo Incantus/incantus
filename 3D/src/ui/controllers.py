@@ -864,7 +864,7 @@ class StackController(object):
             else: t = t.get_targeted()
             for i, tt in enumerate(t):
                 if tt == None: continue  # For delayed targeting abilities, like champion
-                if isAbility(tt):
+                if isStackAbility(tt):
                     guicard = self.stack_gui.get_card(tt)
                     if guicard:
                         self.highlighted.append(guicard)

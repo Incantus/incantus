@@ -138,7 +138,7 @@ class ZoneAnimator(object):
         dispatcher.connect(self.invalid_target, signal=GameEvent.InvalidTargetEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.targeted_by, signal=GameEvent.TargetedByEvent(), priority=dispatcher.UI_PRIORITY)
     def invalid_target(self, sender, target):
-        if isAbility(target):
+        if isStackAbility(target):
             guicard = self.stack.get_card(target)
             guicard.shake()
             clock.schedule_once(lambda t: guicard.unshake(), 0.25)
