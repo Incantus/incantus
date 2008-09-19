@@ -60,6 +60,17 @@ class stacked_abilities(object):
         def restore():
             for a in disabled: a.toggle(True)
         return restore
+    def remove_specific(self, specific_effects):
+        found = False
+        for group in self._stacking:
+            for ability in group._abilities:
+                if specific_effects == ability.effect_generator:
+                    found = True
+                    break
+            if found: break
+        else: raise Exception("Trying to remove a specific ability that doesn't exist")
+        ability.toggle(False)
+        return lambda: ability.toggle(True)
     def remove_all(self):
         # first disable all previous abilities
         disabled = []
