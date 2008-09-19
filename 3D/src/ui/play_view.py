@@ -208,15 +208,24 @@ class PlayView(Widget):
         self._card_map[card.key] = guicard
         guicard.entering_play()
         guicard._pos.set(euclid.Vector3(0,0,0))
-        if Match.isCreature(card): self.creatures.insert(0, guicard)
+        if Match.isCreature(card):
+            self.creatures.insert(0, guicard)
+            guicard._row = self.creatures
         elif Match.isLand(card):
             for key in self.lands.keys():
                 if card.subtypes == key:
                     self.lands[key].append(guicard)
+                    guicard._row = self.lands[key]
                     break
-            else: self.lands['Other'].append(guicard)
-        #elif Match.isAura(card): self.attached.append(guicard)
-        else: self.other_perms.insert(0, guicard)
+            else:
+                self.lands['Other'].append(guicard)
+                guicard._row = self.lands['Other']
+        elif Match.isAura(card):
+            self.attached.append(guicard)
+            guicard._row = self.attached
+        else:
+            self.other_perms.insert(0, guicard)
+            guicard._row = self.other_perms
         guicard._orientation.set(euclid.Quaternion.new_rotate_axis(-math.pi/2, euclid.Vector3(1,0,0)))
         if self.is_opponent_view: guicard.orientation *= euclid.Quaternion.new_rotate_axis(math.pi, euclid.Vector3(0,0,1))
         if card.tapped: guicard.tap()
@@ -256,11 +265,9 @@ class PlayView(Widget):
         attached = self.get_card(attached)
         if attachment and attached:
             self.attached.append(attachment)
-            self.other_perms.remove(attachment)
+            attachment._row.remove(attachment)
             if Match.isBasicLand(attached.gamecard):
-                for landtype in self.lands.values():
-                    if attached in landtype: break
-                landtype.remove(attached)
+                attached._row.remove(attached)
                 self.lands["Other"].append(attached)
             self.layout()
     def card_unattached(self, sender, unattached):
@@ -268,13 +275,10 @@ class PlayView(Widget):
         unattached = self.get_card(unattached)
         if attachment and unattached:
             self.attached.remove(attachment)
-            self.other_perms.append(attachment)
+            attachment._row.append(attachment)
             if Match.isBasicLand(unattached.gamecard):
                 self.lands["Other"].remove(unattached)
-                for subtype, landlist in self.lands.items():
-                    if unattached.gamecard.subtypes == subtype:
-                        landlist.append(unattached)
-                        break
+                unattached._row.append(unattached)
             self.layout()
     def card_tapped(self, sender):
         card = self.get_card(sender)

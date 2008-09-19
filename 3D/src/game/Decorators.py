@@ -19,6 +19,8 @@ def play_aura(cost, target_type):
     def effects(controller, source):
         yield cost
         target = yield Target(target_type)
+        perm = source.move_to(controller.play)
+        perm.attaching_target = target
         yield
     return EnchantAbility(effects, target_type, txt="Enchant %s"%target_type)
 

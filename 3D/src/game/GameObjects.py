@@ -120,6 +120,11 @@ class Card(GameObject):
             self.in_play_role = NoRole
         else:
             self.in_play_role = Permanent
+
+        if (self.base_subtypes == "Aura"):
+            from game.Ability.PermanentAbility import CiP, attach_on_enter
+            CiP(self, attach_on_enter, txt="Attach to target")
+
         self._add_to_map()
 
 class Token(GameObject):

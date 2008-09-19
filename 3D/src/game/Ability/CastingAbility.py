@@ -29,7 +29,6 @@ class CastPermanentSpell(CastSpell):
     limit_type = sorcery
     def resolved(self):
         self.source.move_to(self.controller.play)
-        self.source.send(TimestepEvent())
         super(CastPermanentSpell, self).resolved()
 
 class EnchantAbility(CastSpell):
@@ -37,12 +36,6 @@ class EnchantAbility(CastSpell):
     def __init__(self, effects, target_type, txt=''):
         self.target_type = target_type
         super(EnchantAbility, self).__init__(effects, txt=txt, keyword='enchant')
-    def resolved(self):
-        source = self.source.move_to(self.controller.play)
-        source.send(TimestepEvent())
-        source.set_target_type(self.target_type)
-        source.attach(self.targets[0].target)
-        super(EnchantAbility, self).resolved()
 
 class CastNonPermanentSpell(CastSpell):
     def resolved(self):

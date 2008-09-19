@@ -398,7 +398,7 @@ class Attachment(object):
     attached_abilities = property(fget=lambda self: self.abilities.attached())
     def activateAttachment(self):
         self.attached_to = None
-        self.target_types = None
+        self.target_type = None
     def deactivateRole(self):
         self.unattach()
         super(Attachment,self).deactivateRole()
@@ -411,7 +411,7 @@ class Attachment(object):
         self.attached_to.attachments.append(self)
         for ability in self.attached_abilities: ability.enable(self)
         self.send(AttachedEvent(), attached=self.attached_to)
-        return True
+        return self.unattach
     def unattach(self):
         if self.attached_to:
             for ability in self.attached_abilities: ability.disable()
@@ -424,4 +424,4 @@ class Attachment(object):
         self.attached_to = None
     def isValidAttachment(self):
         attachment = self.attached_to
-        return (attachment and str(attachment.zone) == "play" and self.target_type.match(attachment) and attachment.canBeAttachedBy(self))
+        return (attachment and str(attachment.zone) == "play" and self.target_type(attachment) and attachment.canBeAttachedBy(self))

@@ -7,9 +7,6 @@ from Cost import ManaCost, TapCost
 from Effects import override, replace, combine
 from Limit import no_limit, sorcery
 
-from game import CardDatabase
-from game.GameObjects import GameObject
-
 #def flash(card):
 #    casting_ability = card.play_spell
 #    if isinstance(casting_ability.limit, SorceryLimit):
@@ -53,6 +50,17 @@ def enter_play_tapped(self):
     '''Card comes into play tapped'''
     self.tapped = True
 
+# CiP functionality for auras
+def attach_on_enter(self):
+    self.target_type = self.play_spell.target_type
+    if hasattr(self, "attaching_target"): card = self.attaching_target
+    else:
+        # Ask to select target
+        card = self.controller.getTarget(self.target_type, zone="play", controller=None, required=True, prompt="Select %s to attach %s"%(self.target_type, self))
+        if not card: #move me to the graveyard
+            pass
+    self.attach(card)
+
 def do_entering(funcs, self, zone):
     funcs.reverse()
     funcs[0](self, zone)
@@ -89,6 +97,8 @@ def optionally_untap(target):
 
 # Cloning
 def clone(source, cloned):
+    from game import CardDatabase
+    from game.GameObjects import GameObject
     clone = CardDatabase.execCode(GameObject(source.controller), cloned.text)
     source.cost = clone.base_cost
     expire1 = combine(*[getattr(source, attr).set_copy(getattr(clone, "base_"+attr)) for attr in ("name", "text", "color", "types", "subtypes", "supertypes", "abilities")])
