@@ -39,9 +39,9 @@ except NameError:
     True = 1==1
     False = 1==0
 
-HIGH_PRIORITY = 0
-UI_PRIORITY = 5
-LOW_PRIORITY = 10
+UI_PRIORITY = 0
+CONTINUOUS_PRIORITY = 5
+LOWEST_PRIORITY = 10
 
 class _Parameter:
     """Used to represent default parameter values."""
@@ -87,6 +87,15 @@ sendersBack = {}
 disconnected = set()
 recurse = 0
 
+class _ConnectionData(object):
+    __slots__ = ["priority", "expiry", "sender", "signal", "weak"]
+    def __init__(self, priority, expiry, sender, signal, weak):
+        self.priority = priority
+        self.expiry = expiry
+        self.sender = sender
+        self.signal = signal
+        self.weak = weak
+
 def reset():
     return # XXX Fix this when setting up enabling game resetting
     global connections, senders, sendersBack
@@ -94,7 +103,7 @@ def reset():
     senders = {}
     sendersBack = {}
 
-def connect(receiver, signal=Any, sender=Any, weak=True, expiry=-1, priority=LOW_PRIORITY):
+def connect(receiver, signal=Any, sender=Any, weak=True, expiry=-1, priority=LOWEST_PRIORITY):
     """Connect receiver to sender for signal
 
     receiver -- a callable Python object which is to receive
@@ -187,11 +196,12 @@ def connect(receiver, signal=Any, sender=Any, weak=True, expiry=-1, priority=LOW
     except:
         pass
 
-    receiver.expiry = expiry
-    receiver.sender = sender
-    receiver.signal = signal
-    receiver.weak = weak
-    receiver.priority = priority
+    #receiver.expiry = expiry
+    #receiver.sender = sender
+    #receiver.signal = signal
+    #receiver.weak = weak
+    #receiver.priority = priority
+    receiver.cxn_info = _ConnectionData(priority, expiry, sender, signal, weak)
     receivers.append(receiver)
 
 
@@ -284,13 +294,14 @@ def liveReceivers(receivers):
     receivers.
     """
     for receiver in receivers:
+        cxn_info = receiver.cxn_info
         if isinstance( receiver, WEAKREF_TYPES):
             # Dereference the weak reference.
             receiver = receiver()
             if receiver is not None:
-                yield receiver
+                yield receiver, cxn_info
         else:
-            yield receiver
+            yield receiver, cxn_info
 
 
 
@@ -304,19 +315,19 @@ def getAllReceivers( sender = Any, signal = Any ):
     receivers = {}
     for set in (
         # Get receivers that receive *this* signal from *this* sender.
-        #getReceivers( sender, signal ),
+        getReceivers( sender, signal ),
         # Add receivers that receive *any* signal from *this* sender.
-        #getReceivers( sender, Any ),
+        getReceivers( sender, Any ),
         # Add receivers that receive *this* signal from *any* sender.
-        #getReceivers( Any, signal ),
+        getReceivers( Any, signal ),
         # Add receivers that receive *any* signal from *any* sender.
-        #getReceivers( Any, Any ),
+        getReceivers( Any, Any ),
 
         # XXX Try the reverse order - ultimately need to add priority
-        getReceivers( Any, Any ),
-        getReceivers( Any, signal ),
-        getReceivers( sender, Any ),
-        getReceivers( sender, signal ),
+        #getReceivers( Any, Any ),
+        #getReceivers( Any, signal ),
+        #getReceivers( sender, Any ),
+        #getReceivers( sender, signal ),
     ):
         for receiver in set:
             if receiver: # filter out dead instance-method weakrefs
@@ -367,11 +378,11 @@ def send(signal=Any, sender=Anonymous, *arguments, **named):
     responses = []
     removals = []
     receivers = list(liveReceivers(getAllReceivers(sender, signal)))
-    #receivers.sort(key=lambda r: (hasattr(r, "priority") and r.priority) or LOW_PRIORITY)
+    receivers.sort(key=lambda r: r[1].priority)
     global recurse
     recurse += 1
-    #for receiver in liveReceivers(getAllReceivers(sender, signal)):
-    for receiver in receivers:
+    #for receiver, cxn_info in liveReceivers(getAllReceivers(sender, signal)):
+    for receiver, cxn_info in receivers:
         if receiver in disconnected: continue
         response = robustapply.robustApply(
             receiver,
@@ -380,11 +391,10 @@ def send(signal=Any, sender=Anonymous, *arguments, **named):
             *arguments,
             **named
         )
-        if hasattr(receiver, "expiry"):
-            if receiver.expiry >= 1: receiver.expiry -= 1
-            if receiver.expiry == 0: removals.append(receiver)
+        if cxn_info.expiry >= 1: cxn_info.expiry -= 1
+        if cxn_info.expiry == 0: removals.append(receiver)
         responses.append((receiver, response))
-    for receiver in removals: disconnect(receiver,receiver.signal,receiver.sender,receiver.weak)
+    for receiver in removals: disconnect(receiver,cxn_info.signal,cxn_info.sender,cxn_info.weak)
     recurse -= 1
     if recurse == 0: disconnected.clear()
     return responses
@@ -398,7 +408,7 @@ def sendExact( signal=Any, sender=Anonymous, *arguments, **named ):
     sender.
     """
     responses = []
-    for receiver in liveReceivers(getReceivers(sender, signal)):
+    for receiver, cxn_info in liveReceivers(getReceivers(sender, signal)):
         response = robustapply.robustApply(
             receiver,
             signal=signal,

@@ -237,7 +237,7 @@ class Creature(object):
         toughness += sum([c.toughness for c in self.counters if hasattr(c,"toughness")]) # layer 6c
         power, toughness = self.PT_static_modifiers.calculate(power, toughness) # layer 6d
         power, toughness = self.PT_switch_modifiers.calculate(power, toughness) # layer 6e
-        self.cached_PT_dirty = False
+        #self.cached_PT_dirty = False
         self.curr_power, self.curr_toughness = power, toughness
     def _new_timestep(self, sender):
         self.cached_PT_dirty=True

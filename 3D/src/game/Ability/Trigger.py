@@ -1,7 +1,7 @@
 import copy
 from game.GameObjects import MtGObject
 from game.GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, ReceivesDamageFromEvent, CardEnteredZone, CardLeftZone, CardEnteringZone, CardLeavingZone, TimestepEvent
-from game.pydispatch.dispatcher import Any
+from game.pydispatch.dispatcher import Any, LOWEST_PRIORITY
 from Effects import robustApply
 
 class Trigger(MtGObject):
@@ -9,7 +9,7 @@ class Trigger(MtGObject):
         self.trigger_event = event
         self.trigger_sender = sender
         self.activated = False
-    def setup_trigger(self, source, trigger_function, match_condition=None, expiry=-1):
+    def setup_trigger(self, source, trigger_function, match_condition=None, expiry=-1, priority=LOWEST_PRIORITY):
         self.source = source
         self.count = 0
         self.expiry = expiry
@@ -18,7 +18,7 @@ class Trigger(MtGObject):
         else: self.match_condition = lambda *args: True
         if self.trigger_sender == "source": sender = self.source
         else: sender=Any
-        self.register(self.filter, event=self.trigger_event, sender=sender)
+        self.register(self.filter, event=self.trigger_event, sender=sender, priority=priority)
         self.activated = True
     def clear_trigger(self):
         if self.activated:
@@ -99,7 +99,7 @@ class EnterFromTrigger(Trigger):
         self.from_zone = from_zone
         self.to_zone = to_zone
         self.player = player
-    def setup_trigger(self, source, trigger_function, match_condition=None, expiry=-1):
+    def setup_trigger(self, source, trigger_function, match_condition=None, expiry=-1, priority=LOWEST_PRIORITY):
         self.entering = set()
         self.count = 0
         self.expiry = expiry
@@ -108,7 +108,7 @@ class EnterFromTrigger(Trigger):
         if match_condition: self.match_condition = match_condition
         else: self.match_condition = lambda *args: True
         self.events_senders = [(CardEnteringZone(), self.filter_entering), (CardLeavingZone(), self.filter_leaving)]
-        for event, filter in self.events_senders: self.register(filter, event=event)
+        for event, filter in self.events_senders: self.register(filter, event=event, priority=priority)
         self.activated = True
     def clear_trigger(self):
         if self.activated:

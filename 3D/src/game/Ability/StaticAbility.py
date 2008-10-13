@@ -1,5 +1,6 @@
 import copy
 from functools import partial
+from game.pydispatch.dispatcher import CONTINUOUS_PRIORITY
 from game.GameEvent import ControllerChanged, SubroleModifiedEvent, TimestepEvent
 from game.GameObjects import MtGObject
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger
@@ -62,10 +63,10 @@ class CardTrackingAbility(StaticAbility):
         # Get all cards in the tracked zone
         for card in self.get_current(): self.add_effects(card)
 
-        self.enter_trigger.setup_trigger(self.source, self.entering, self.condition)
-        self.leave_trigger.setup_trigger(self.source, self.leaving)
-        self.control_changed.setup_trigger(self.source, self.new_controller)
-        for trigger in self.other_triggers: trigger.setup_trigger(self.source, self.card_changed)
+        self.enter_trigger.setup_trigger(self.source, self.entering, self.condition, priority=CONTINUOUS_PRIORITY)
+        self.leave_trigger.setup_trigger(self.source, self.leaving, priority=CONTINUOUS_PRIORITY)
+        self.control_changed.setup_trigger(self.source, self.new_controller, priority=CONTINUOUS_PRIORITY)
+        for trigger in self.other_triggers: trigger.setup_trigger(self.source, self.card_changed, priority=CONTINUOUS_PRIORITY)
     def _disable(self):
         super(CardTrackingAbility, self)._disable()
         self.enter_trigger.clear_trigger()
