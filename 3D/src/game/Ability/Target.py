@@ -85,10 +85,17 @@ class MultipleTargets(object):
         self.target = targets
         return True
 
+class InvalidTarget(object):
+    def __init__(self, original):
+        self.original = original
+    def no_op(self, *args, **kw): pass
+    def __getattr__(self, attr): return self.no_op
+
 # When I add a new argument to constructor, make sure to add it to the copy function
 # or use the copy module
 class Target(object):
     def __init__(self, target_types=None, msg='', selector="controller", zone="play", player=None):
+        self.is_valid = False
         self.target = None
         self.zone = zone
         self.player = player
@@ -105,12 +112,15 @@ class Target(object):
         self.msg = msg
         self.selector = selector
         self.required = True
-    def get_targeted(self): return self.target
+    def get_targeted(self): 
+        if self.is_valid: return self.target
+        else: return InvalidTarget(self.target)
     def check_target(self, source):
         # Make sure the target is still in the correct zone (only for cards (and tokens), not players) and still matches original condition
         if not isPlayer(self.target):
-            return (not self.target.is_LKI and self.match_types(self.target) and self.target.canBeTargetedBy(source))
-        else: return self.target.canBeTargetedBy(source)
+            self.is_valid = (not self.target.is_LKI and self.match_types(self.target) and self.target.canBeTargetedBy(source))
+        else: self.is_valid = self.target.canBeTargetedBy(source)
+        return self.is_valid
     def get(self, source):
         if self.msg: prompt=self.msg
         else:
@@ -163,6 +173,7 @@ class Target(object):
             if self.target == False: return False
         if self.target.canBeTargetedBy(source):
             self.target.isTargetedBy(source)
+            self.is_valid = True
             return True
         else:
             selector.send(InvalidTargetEvent(), target=self.target)
@@ -170,18 +181,23 @@ class Target(object):
 
 class StackTarget(object):
     def __init__(self, target_types=None, msg=''):
+        self.is_valid = False
         self.target = None
         if not (type(target_types) == tuple or type(target_types) == list):
             self.target_types = [target_types]
         else: self.target_types = target_types
         self.msg = msg
-    def get_targeted(self): return self.target
+    def get_targeted(self):
+        if self.is_valid: return self.target
+        else: return InvalidTarget(self.target)
     def check_target(self, source):
-        return self.target in source.controller.stack
+        self.is_valid = self.target in source.controller.stack
+        return self.is_valid
     def get(self, source):
         if self.msg: prompt=self.msg
         elif self.target_types: prompt="Target %s for %s"%(' or '.join([str(t) for t in self.target_types]), source)
         else: prompt = "Select target for %s"%(source)
         self.target = source.controller.getTarget(self.target_types,required=False,prompt=prompt)
         if self.target == False: return False
-        return self.target.can_be_countered()
+        self.is_valid = self.target.can_be_countered()
+        return self.is_valid
