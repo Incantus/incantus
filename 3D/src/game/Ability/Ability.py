@@ -31,7 +31,7 @@ class Ability(object):
             self.targets = targets
             return True
         else: return False
-    def check_targets(self): return any((target.check_target(self.source) for target in self.targets))
+    def check_targets(self): return any([target.check_target(self.source) for target in self.targets])
     def resolve(self):
         if self.check_targets():
             targets = [target.get_targeted() for target in self.targets]
