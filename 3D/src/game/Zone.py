@@ -130,6 +130,9 @@ class PlayView(object):
     def __init__(self, player, play):
         self.player = player
         self.play = play
+    def __iter__(self):
+        # Top of the cards is the end of the list
+        return iter(self.get())
     def get(self, match=lambda c: True, all=False):
         if all: return self.play.get(match)
         else:
