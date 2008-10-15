@@ -116,8 +116,8 @@ class CardStaticAbility(StaticAbility):
         self.effect_tracking = None
 
 class CiPAbility(CardStaticAbility):
-    def __init__(self, effects, txt=''):
-        super(CiPAbility, self).__init__(effects, zone="all", txt=txt)
+    def __init__(self, effects, txt='', keyword=''):
+        super(CiPAbility, self).__init__(effects, zone="all", txt=txt, keyword=keyword)
         self.__activated = False
     def toggle(self, val):
         if val:
