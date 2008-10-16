@@ -13,6 +13,7 @@ class Ability(object):
         self.preannounce()
         if self.do_announce():
             self.played()
+            self.source.send(TimestepEvent())
             return True
         else:
             self.canceled()
