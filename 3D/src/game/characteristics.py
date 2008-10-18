@@ -2,9 +2,9 @@
 from GameEvent import ControllerChanged
 
 class stacked_variable(object):
+    _val = property(fget=lambda self: self._characteristics[-1][0])
     def __init__(self, initial):
         self._characteristics = [(initial,)]
-    def get(self): return self._characteristics[-1][0]
     def cda(self, var):
         new = (var,)
         self._characteristics.insert(1, new)
@@ -13,26 +13,27 @@ class stacked_variable(object):
         new = (var,)
         self._characteristics.append(new)
         return lambda: self._characteristics.remove(new)
-    def __getattr__(self, attr): return getattr(self.get(), attr)
-    def __str__(self): return str(self.get())
-    def __repr__(self): return repr(self.get())
-    def __int__(self): return int(self.get())
+    def __getattr__(self, attr): return getattr(self._val, attr)
+    def __eq__(self, other): return self._val == other
+    def __str__(self): return str(self._val)
+    def __repr__(self): return repr(self._val)
+    def __int__(self): return int(self._val)
 
 class stacked_controller(object):
+    _val = property(fget=lambda self: self._characteristics[-1][0])
     def __init__(self, perm, initial):
         self.perm = perm
         self._controllers = [(initial,)]
         self.perm.summoningSickness()
-    def get(self): return self._controllers[-1][0]
     def set(self, new_controller):
-        old_controller = self.get()
+        old_controller = self._val
         contr = (new_controller,)
         self._controllers.append(contr)
         if not new_controller == old_controller: self.controller_change(old_controller)
         def remove():
-            orig = self.get()
+            orig = self._val
             self._controllers.remove(contr)
-            if orig != self.get(): self.controller_change(orig)
+            if orig != self._val: self.controller_change(orig)
         return remove
     def controller_change(self, old_controller):
         self.perm.summoningSickness()
