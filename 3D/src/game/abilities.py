@@ -20,9 +20,12 @@ class abilities(object):
     def toggle(self, zone, val):
         for ability in self._abilities:
             if (ability.zone == "all" or ability.zone == zone): ability.toggle(val)
-    def __repr__(self): return ','.join([repr(a) for a in self._abilities])
-    def __str__(self): return '\n'.join([str(a) for a in self._abilities if a.enabled if str(a)])
-    def __len__(self): return len([a for a in self._abilities if a.enabled])
+
+    abilities = property(fget=lambda self: [ability for ability in self._abilities if ability.enabled])
+    def __repr__(self): return ','.join(map(repr, self._abilities))
+    def __str__(self): return '\n'.join(map(str, self.abilities))
+    def __len__(self): return len(self.abilities)
+    def __iter__(self): return iter(self.abilities)
     def __contains__(self, keyword): # This is to match keyword abilities
         return keyword in self._keywords and self._keywords[keyword].enabled
 
@@ -63,7 +66,7 @@ class stacked_abilities(object):
     def remove_specific(self, specific_effects):
         found = False
         for group in self._stacking:
-            for ability in group._abilities:
+            for ability in group:
                 if specific_effects == ability.effect_generator:
                     found = True
                     break
@@ -107,6 +110,10 @@ class stacked_abilities(object):
     def activated(self): return self.process_stacked("activated", [], self.source)
     def __len__(self): return self.process_stacked("__len__", 0)
     def __contains__(self, keyword): return self.process_stacked("__contains__", False, keyword) > 0
+    def __iter__(self):
+        for group in self._stacking:
+            for ability in group: yield ability
+            if hasattr(group, "_copy_effect"): break
     def enteringZone(self, zone):
         # This is only called when the card is moved to a new zone
         self.zone = zone
