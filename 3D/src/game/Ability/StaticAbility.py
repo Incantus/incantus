@@ -12,7 +12,7 @@ class StaticAbility(object):
     def __init__(self, effects, zone="play", txt='', keyword=''):
         self.effect_generator = effects
         self.zone = zone
-        if keyword: self.txt = keyword.capitalize()
+        if keyword and not txt: self.txt = keyword.capitalize()
         else: self.txt = txt
         self.keyword = keyword
         self.effect_tracking = None
