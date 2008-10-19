@@ -1,11 +1,12 @@
 from game.GameEvent import DeclareAttackersEvent, InvalidTargetEvent, EndTurnStepEvent
 from game.Match import isCreature
-from game.stacked_function import replace
-from game.Decorators import comes_into_play, delayed_trigger
+from game.Decorators import delayed_trigger
+from PermanentAbility import no_before, CiP
 from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
+from StaticAbility import CiPAbility
 from CreatureAbility import haste
-from Effects import until_end_of_turn, delay
+from Effects import until_end_of_turn, delay, do_replace
 from Target import NoTarget
 from Trigger import Trigger, PhaseTrigger
 from Counters import PowerToughnessCounter
@@ -22,24 +23,24 @@ def exalted():
     return TriggeredAbility(Trigger(DeclareAttackersEvent()), condition, effects, zone="play", keyword='exalted')
 
 def devour(value):
-    @comes_into_play("Devour %d"%value)
-    def ability():
-        def enterPlayWith(source):
-            cards = set()
-            if source.controller.you_may("Sacrifice creatures to %s"%source.name):
-                i = 0
-                num_creatures = len(source.controller.play.get(isCreature))
-                while i < num_creatures:
-                    creature = source.controller.getTarget(isCreature, zone="play", controller=source.controller, required=False, prompt="Select any number of creatures to sacrifice: (%d selected so far)"%i)
-                    if creature == False: break
-                    elif not creature in cards:
-                        cards.add(creature)
-                        i += 1
-                    else: source.controller.send(InvalidTargetEvent(), target=creature)
-                for card in cards: source.controller.sacrifice(card)
-                if cards: source.add_counters(PowerToughnessCounter(1, 1), len(cards)*value)
-        return no_before, enterPlayWith
-    return ability
+    txt = "Devour %d"%value
+    def enterPlayWith(source):
+        cards = set()
+        if source.controller.you_may("Sacrifice creatures to %s"%source.name):
+            i = 0
+            num_creatures = len(source.controller.play.get(isCreature))
+            while i < num_creatures:
+                creature = source.controller.getTarget(isCreature, zone="play", controller=source.controller, required=False, prompt="Select any number of creatures to sacrifice: (%d selected so far)"%i)
+                if creature == False: break
+                elif not creature in cards:
+                    cards.add(creature)
+                    i += 1
+                else: source.controller.send(InvalidTargetEvent(), target=creature)
+            for card in cards: source.controller.sacrifice(card)
+            if cards: source.add_counters(PowerToughnessCounter(1, 1), len(cards)*value)
+    def effects(source):
+        yield CiP(source, enterPlayWith, no_before, txt)
+    return CiPAbility(effects, txt=txt)
 
 def unearth(cost):
     if type(cost) == str: cost = ManaCost(cost)
@@ -61,6 +62,6 @@ def unearth(cost):
         leave_play_condition = lambda self, zone, position="top": str(self.zone) == "play"
         def move_to(self, zone, position="top"):
             return self.move_to(self.owner.removed)
-        until_end_of_turn(delay(source, d_trigger), replace(source, "move_to", move_to, msg="%s - remove from game"%source.name, condition=leave_play_condition))
+        until_end_of_turn(delay(source, d_trigger), do_replace(source, "move_to", move_to, msg="%s - remove from game"%source.name, condition=leave_play_condition))
         yield
     return ActivatedAbility(effects, limit=sorcery, zone="graveyard", keyword="Unearth %s"%str(cost))
