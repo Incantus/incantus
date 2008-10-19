@@ -141,18 +141,18 @@ class Player(MtGObject):
             self.send(DrawCardEvent())
     def discard(self, card):
         if str(card.zone) == "hand":
-            card.move_to(self.graveyard)
+            card = card.move_to(self.graveyard)
             self.send(DiscardCardEvent(), card=card)
-            return True
-        else: return False
+            return card
+        else: return None
     def force_discard(self, number=1, cardtype=isCard):
         if number == -1: number = len(self.hand)
         cards = self.choose_from_zone(number, cardtype, "hand", "discard")
-        for card in cards: self.discard(card)
-        return len(cards)
+        return [self.discard(card) for card in cards]
     def discard_down(self):
         number = len(self.hand) - self.hand_limit
-        if number > 0: self.force_discard(number)
+        if number > 0: return self.force_discard(number)
+        else: return []
     def sacrifice(self, perm):
         if perm.controller == self and str(perm.zone) == "play":
             perm.move_to(self.graveyard)
