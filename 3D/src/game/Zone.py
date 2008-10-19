@@ -4,29 +4,29 @@ from GameEvent import CardLeavingZone, CardEnteringZone, CardLeftZone, CardEnter
 
 class Zone(MtGObject):
     def __init__(self):
-        self.cards = []
+        self._cards = []
     def __str__(self):
         return self.name
     def __len__(self):
-        return len(self.cards)
+        return len(self._cards)
     def __iter__(self):
         # Top of the cards is the end of the list
         return iter(self.get())
     def top(self, number=1):
         if len(self) == 0: return None
         else:
-            if number == 1: return self.cards[-1].current_role
-            else: return [c.current_role for c in self.cards[:-(number+1):-1]]
+            if number == 1: return self._cards[-1].current_role
+            else: return [c.current_role for c in self._cards[:-(number+1):-1]]
     def bottom(self, number=1):
         if len(self) == 0: return None
-        else: return [c.current_role for c in self.cards[:number]]
+        else: return [c.current_role for c in self._cards[:number]]
     def get(self, match=lambda c: True):
         # Retrieve all of a type of Card in current location
-        return [card.current_role for card in iter(self.cards[::-1]) if match(card.current_role)]
+        return [card.current_role for card in iter(self._cards[::-1]) if match(card.current_role)]
     def cease_to_exist(self, card):
         self._remove_card(card, CardCeasesToExist())
     def _remove_card(self, card, event=CardLeftZone()):
-        self.cards.remove(card)
+        self._cards.remove(card)
         card.zone = None
         self.send(event, card=card._last_known_info)
         self.after_card_removed(card)
@@ -34,9 +34,9 @@ class Zone(MtGObject):
         # Remove card from previous zone
         if card.zone: card.zone._remove_card(card)
         self.before_card_added(card)
-        if position == "top": self.cards.append(card)
-        elif position == "bottom": self.cards.insert(0, card)
-        else: self.cards.insert(position, card)
+        if position == "top": self._cards.append(card)
+        elif position == "bottom": self._cards.insert(0, card)
+        else: self._cards.insert(position, card)
         card.zone = self
         self.send(CardEnteredZone(), card=card.current_role)
     def move_card(self, card, position):
@@ -80,7 +80,7 @@ class OrderedZone(Zone):
                 self.before_card_added(card)
             toplist = self.get_card_order([c for c in self.pending_top], "top")
             bottomlist = self.get_card_order([c for c in self.pending_bottom], "bottom")
-            self.cards = bottomlist + self.cards + toplist
+            self._cards = bottomlist + self._cards + toplist
             for card in self.pending_top+self.pending_bottom:
                 card.zone = self
                 self.send(CardEnteredZone(), card=card.current_role)
@@ -116,13 +116,13 @@ class Library(OutPlayMixin, OrderedZone):
         else: return super(Library, self).get_card_order(cardlist, pos)
     def shuffle(self):
         if not self.pending:
-            random.shuffle(self.cards)
+            random.shuffle(self._cards)
             self.send(ShuffleEvent())
         else: self.needs_shuffle = True
     def post_commit(self):
         if self.needs_shuffle:
             self.needs_shuffle = False
-            random.shuffle(self.cards)
+            random.shuffle(self._cards)
             self.send(ShuffleEvent())
     name = "library"
 
