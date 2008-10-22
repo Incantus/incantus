@@ -100,7 +100,7 @@ class NoRole(CardRole): pass
 class SpellRole(CardRole): pass
 
 class Permanent(CardRole):
-    controller = property(fget=lambda self: self._controller.get())
+    controller = property(fget=lambda self: self._controller._val)
     continuously_in_play = property(fget=lambda self: self._continuously_in_play)
     def initialize_controller(self, controller):
         self._controller = stacked_controller(self, controller)
