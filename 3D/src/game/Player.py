@@ -123,7 +123,7 @@ class Player(MtGObject):
                         number -= 1
                         prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
             else:
-                selection = getattr(self, zone).get()
+                selection = list(getattr(self, zone))
                 if number > 0:
                     if number == 1: a = 'a'
                     else: a = str(number)
@@ -191,8 +191,8 @@ class Player(MtGObject):
             else: break
         yield False
     def untapCards(self):
-        for card in self.play.get():
-            if card.untapDuringUntapStep(): card.untap()
+        for card in self.play:
+            if card.tapped and card.untapDuringUntapStep(): card.untap()
     def canBeDamagedBy(self, damager):
         return True
     def assignDamage(self, amt, source, combat=False):
