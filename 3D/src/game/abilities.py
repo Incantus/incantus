@@ -58,10 +58,10 @@ class stacked_abilities(object):
         for group in self._stacking:
             if keyword in group:
                 a = group._keywords[keyword]
-                a.toggle(False)
+                a.toggle(self.zone, False)
                 disabled.append(a)
         def restore():
-            for a in disabled: a.toggle(True)
+            for a in disabled: a.toggle(self.zone, True)
         return restore
     def remove_specific(self, specific_effects):
         found = False
@@ -72,16 +72,16 @@ class stacked_abilities(object):
                     break
             if found: break
         else: raise Exception("Trying to remove a specific ability that doesn't exist")
-        ability.toggle(False)
-        return lambda: ability.toggle(True)
+        ability.toggle(self.zone, False)
+        return lambda: ability.toggle(self.zone, True)
     def remove_all(self):
         # first disable all previous abilities
         disabled = []
         for a in self._stacking:
             disabled.append(a)
-            a.toggle(False)
+            a.toggle(self.zone, False)
         def remove():
-            for a in disabled: a.toggle(True)
+            for a in disabled: a.toggle(self.zone, True)
         return remove
     def set_copy(self, abilities):
         abilities._copy_effect = True
