@@ -322,7 +322,8 @@ class DamageSelector(object):
                 card.damage_text.visible = 1.0
                 card.damage_text.scale = 2.0
                 card.damage_text.pos = euclid.Vector3(0, card.height/2.5, 0.01)
-                card.damage_text.set_text("0")
+                card.damage_text.set_text(0)
+                card.text.set_text("%d/%d"%(blocker.power, blocker.lethalDamage()))
                 self.blockers.append(card)
                 x += card.width*size*1.1
     def on_key_press(self, symbol, modifiers):
@@ -334,7 +335,7 @@ class DamageSelector(object):
                 damage = int(blocker.damage_text.value)
                 dmg[blocker.gamecard] = damage
                 total_dmg += damage
-            if int(self.attacker.damage_text.value) == 0 or (self.trample and all([int(blocker.damage_text.value)>=blocker.gamecard.toughness for b in self.blockers])):
+            if int(self.attacker.damage_text.value) == 0 or (self.trample and all([int(blocker.damage_text.value)>=(blocker.gamecard.lethalDamage()) for b in self.blockers])):
                 self.window.user_action = Action.DistributionAssignment(dmg)
                 self.deactivate()
             return True

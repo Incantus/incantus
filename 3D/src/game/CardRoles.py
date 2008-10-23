@@ -274,6 +274,8 @@ class Creature(object):
         self.__damage = 0
     def currentDamage(self):
         return self.__damage
+    def lethalDamage(self):
+        return self.toughness - self.__damage
     def assignDamage(self, amt, source, combat=False):
         if amt > 0:
             if "wither" in source.abilities: self.add_counters(PowerToughnessCounter(-1, -1), amt)
@@ -291,10 +293,7 @@ class Creature(object):
             # Skip players and blockers who no longer exist
             if not isCreature(b): continue
             # if total assigned damage is lethal
-            # lethal_damage will never be less than 1
-            lethal_damage = b.toughness-b.currentDamage()
-            assert lethal_damage >= 1, "Error in damage calculation"
-            if damage_assn[b] < lethal_damage:
+            if damage_assn[b] < b.lethalDamage():
                 not_enough = True
                 break
             total_applied += damage_assn[b]
