@@ -1,5 +1,5 @@
 import new, copy
-from characteristics import stacked_controller, PTModifiers
+from characteristics import stacked_controller, PTModifiers, stacked_characteristic
 from GameObjects import MtGObject
 from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageFromEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
 from Planeswalker import Planeswalker
@@ -184,12 +184,41 @@ class Permanent(CardRole):
             cls.__bases__ = (Attachment,)+orig_bases
             self.activateAttachment()
 
+
+class stacked_land_subtype(stacked_characteristic):
+    def __init__(self, orig_stacked):
+        self._orig = orig_stacked
+        self._stacking = orig_stacked._stacking
+        self.card = orig_stacked.card
+        self.change_event = orig_stacked.change_event
+    def revert(self):
+        self.card.subtypes = self._orig
+    def set(self, *subtypes):
+        if len(all_basic_lands.intersection(subtypes)) > 0:
+            card = self.card
+            expire1 = super(stacked_land_subtype, self).set(*subtypes)
+            card._remove_basic_abilities()
+            expire2 = card.abilities.remove_all()
+            card._add_basic_abilities()
+            return combine(expire1, expire2, card._remove_basic_abilities, card._add_basic_abilities)
+        else:
+            return self._insert_into_stacking(characteristic(*subtypes))
+    def add(self, *subtypes):
+        if len(all_basic_lands.intersection(subtypes)) > 0:
+            expire = super(stacked_land_subtype, self).add(*subtypes)
+            self.card._add_basic_abilities()
+            return combine(expire, self.card._remove_basic_abilities)
+        else:
+            return self._insert_into_stacking(additional_characteristics(*subtypes))
+
 class Land(object):
     _track_basic = dict([(subtype, {}) for subtype in all_basic_lands])
     def activateLand(self):
+        self.subtypes = stacked_land_subtype(self.subtypes)
         self._add_basic_abilities()
-    #def deactivateRole(self):
-    #    super(Land,self).deactivateRole()
+    def deactivateRole(self):
+        self.subtypes.revert()
+        super(Land,self).deactivateRole()
     def _add_basic_abilities(self):
         for subtype in all_basic_lands:
             if self.subtypes == subtype and not self in self._track_basic[subtype]:
@@ -200,17 +229,6 @@ class Land(object):
                 # Don't have basic subtype anymore, remove ability if it was added
                 expire = self._track_basic[subtype].pop(self, None)
                 if expire: expire()
-
-    def set_basic_land_subtypes(self, *subtypes):
-        expire1 = self.subtypes.set(*subtypes)
-        self._remove_basic_abilities()
-        expire2 = self.abilities.remove_all()
-        self._add_basic_abilities()
-        return combine(expire1, expire2, self._remove_basic_abilities, self._add_basic_abilities)
-    def add_basic_land_subtypes(self, *subtypes):
-        expire = self.subtypes.add(*subtypes)
-        self._add_basic_abilities()
-        return combine(expire, self._remove_basic_abilities)
 
 class Creature(object):
     def power():
