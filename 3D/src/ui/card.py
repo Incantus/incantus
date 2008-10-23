@@ -411,7 +411,7 @@ class PlayCard(Card):
         self.orientation = self.orig_orientation
         self.size = self.old_size
         if self.is_creature:
-            self.text.set_text("%d/%d"%(self.power, self.lethalDamage()))
+            self.text.set_text("%d/%d"%(self.power, self.toughness - self.damage))
             self.text.pos = self.text.orig_pos
             self.text.scale = 2.0
             self.damage_text.scale = 0.4
