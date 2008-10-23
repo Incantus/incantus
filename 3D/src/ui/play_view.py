@@ -220,9 +220,10 @@ class PlayView(Widget):
             else:
                 self.lands['Other'].append(guicard)
                 guicard._row = self.lands['Other']
-        elif Match.isAura(card):
+        elif Match.isAura(card): # it should be attached at this point
             self.attached.append(guicard)
             guicard._row = self.attached
+            self.card_attached(card, card.attached_to)
         else:
             self.other_perms.insert(0, guicard)
             guicard._row = self.other_perms
