@@ -20,7 +20,7 @@ class stacked_variable(object):
     def __int__(self): return int(self._val)
 
 class stacked_controller(object):
-    _val = property(fget=lambda self: self._characteristics[-1][0])
+    _val = property(fget=lambda self: self._controllers[-1][0])
     def __init__(self, perm, initial):
         self.perm = perm
         self._controllers = [(initial,)]
