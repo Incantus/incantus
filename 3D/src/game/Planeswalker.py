@@ -1,3 +1,4 @@
+import weakref
 from stacked_function import replace
 from abilities import stacked_abilities
 from Player import Player
@@ -34,7 +35,7 @@ class Planeswalker(object):
         # These are immutable and come from the card
         self.add_counters("loyalty", self.loyalty)
         self.redirect_expire = redirect_to(self)
-        self.abilities = planeswalker_abilities(self.card, self.abilities) # XXX LKI fix
+        self.abilities = planeswalker_abilities(weakref.ref(self), self.abilities)
     def deactivateRole(self):
         super(Planeswalker, self).deactivateRole()
         self.redirect_expire()
