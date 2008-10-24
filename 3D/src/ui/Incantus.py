@@ -394,7 +394,10 @@ class GameWindow(window.Window):
         self.player1 = player1
         self.player2 = player2
         dispatcher.reset()
-        game.Keeper.init(player1, player2)
+        if isserver:
+            game.Keeper.init(player1, player2)
+        else:
+            game.Keeper.init(player2, player1)
         self.make_connections((0,0,255), (255,255,0), soundfx=True)
 
         # Save info for replay
