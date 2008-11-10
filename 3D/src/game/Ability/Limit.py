@@ -26,7 +26,7 @@ class MultipleLimits(Limit):
     def resolved(self, card):
         for l in self.limits: l.resolved(card)
     def __add__(self, other):
-        if isinstance(other, Limit): return MultipleLimits(other, self.limits)
+        if isinstance(other, Limit): return MultipleLimits(other, *self.limits)
         elif isinstance(other, MultipleLimits): return MultipleLimits(*(self.limits+other.limits))
         elif isinstance(other, Unlimited): return other
 
