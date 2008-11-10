@@ -107,6 +107,7 @@ class Player(MtGObject):
             raise NotImplementedError()
     def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action='', required=True, all=False):
         cards_in_zone = getattr(self, zone).get(cardtype)
+        if zone == "library" and not cardtype == isCard: required = False
         if number >= len(cards_in_zone) and required: cards = cards_in_zone
         else:
             cards = []
@@ -126,10 +127,10 @@ class Player(MtGObject):
                         prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
             else:
                 selection = list(getattr(self, zone))
-                if number > 0:
+                if number >= -1:
                     if number == 1: a = 'a'
+                    elif number == -1: a = 'any number of'
                     else: a = str(number)
-                    if zone == "library" and not cardtype == isCard: required = False
                     cards = self.getCardSelection(selection, number=number, cardtype=cardtype, required=required, prompt="Search your %s for %s %s to %s."%(zone, a, cardtype, action))
                     if zone == "library": self.shuffle()
         return cards

@@ -171,7 +171,7 @@ class CardSelector(object):
         self.window = window
     def activate(self, sellist, from_zone, number=1, required=False, is_opponent=False, filter=None):
         self.required = required
-        self.number = number
+        self.number = number  # if number is -1 then we can select any number of cards
         self.tmp_dx = 0
         self.filter = filter
         self.window.push_handlers(self)
@@ -195,10 +195,11 @@ class CardSelector(object):
         if symbol == key.ENTER:
             selection = [card.gamecard for card in self.zone_view.selected]
             if len(selection) == 0 and len(self.zone_view.cards) == self.number:
+                # This is used to order cards in the zone_view - if none are selected use the default order
                 self.window.user_action = Action.MultipleCardsSelected([card.gamecard for card in self.zone_view.cards])
                 self.deactivate()
             else:
-                if (len(selection) == self.number) or (len(self.zone_view.cards) == 0 and len(selection) < self.number):
+                if (self.number == -1) or (len(selection) == self.number) or (len(self.zone_view.cards) == 0 and len(selection) < self.number):
                     self.window.user_action = Action.MultipleCardsSelected(selection)
                     self.deactivate()
             return True
@@ -234,7 +235,7 @@ class CardSelector(object):
             flag, result = self.zone_view.handle_click(x, y)
             if flag == 0:
                 if len(self.zone_view.cards):
-                    if len(self.zone_view.selected) < self.number and self.filter(result.gamecard):
+                    if (self.number == -1 or len(self.zone_view.selected) < self.number) and self.filter(result.gamecard):
                         self.zone_view.select_card(result)
             elif flag == 1:
                 self.zone_view.deselect_card(result)
