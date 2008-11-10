@@ -92,7 +92,8 @@ class GameStepEvent(Event): pass
 class UntapStepEvent(GameStepEvent): pass
 class UpkeepStepEvent(GameStepEvent): pass
 class DrawStepEvent(GameStepEvent): pass
-class MainPhaseEvent(GameStepEvent): pass
+class MainPhase1Event(GameStepEvent): pass
+class MainPhase2Event(GameStepEvent): pass
 class EndMainPhaseEvent(GameStepEvent): pass
 class BeginCombatEvent(GameStepEvent): pass
 class AttackStepEvent(GameStepEvent): pass

@@ -9,7 +9,7 @@ import stacked_function as stacked
 from Ability.AssignDamage import AssignDamage
 
 state_map = {"Untap": UntapStepEvent, "Upkeep": UpkeepStepEvent, "Draw": DrawStepEvent,
-             "Main1": MainPhaseEvent, "Main2": MainPhaseEvent, "EndMain": EndMainPhaseEvent,
+             "Main1": MainPhase1Event, "Main2": MainPhase2Event, "EndMain": EndMainPhaseEvent,
              "BeginCombat": BeginCombatEvent, "Attack": AttackStepEvent,
              "Block": BlockStepEvent, "Damage": AssignDamageEvent, "EndCombat": EndCombatEvent,
              "EndTurn": EndTurnStepEvent, "Cleanup": CleanupPhase}

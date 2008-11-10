@@ -1,5 +1,5 @@
 from game.GameObjects import MtGObject
-from game.GameEvent import TurnFinishedEvent, UpkeepStepEvent, MainPhaseEvent, EndMainPhaseEvent, NewTurnEvent
+from game.GameEvent import TurnFinishedEvent, UpkeepStepEvent, MainPhase1Event, MainPhase2Event, EndMainPhaseEvent, NewTurnEvent
 
 class Limit(MtGObject):
     def __call__(self, card): raise Exception()
@@ -61,7 +61,7 @@ class TurnLimit(Limit):
 class UpkeepLimit(Limit):
     def __init__(self):
         self.register(self.state, event=UpkeepStepEvent())
-        self.register(self.state, event=MainPhaseEvent())
+        self.register(self.state, event=MainPhase1Event())
         self.correct_phase = False
     def state(self, signal, sender):
         self.current_player = sender.current_player
@@ -71,12 +71,13 @@ class UpkeepLimit(Limit):
 
 class SorceryLimit(Limit):
     def __init__(self):
-        self.register(self.state, event=MainPhaseEvent())
+        self.register(self.state, event=MainPhase1Event())
+        self.register(self.state, event=MainPhase2Event())
         self.register(self.state, event=EndMainPhaseEvent())
         self.correct_phase = False
     def state(self, signal, sender):
         self.current_player = sender.current_player
-        self.correct_phase = signal == MainPhaseEvent()
+        self.correct_phase = (signal == MainPhase1Event() or signal == MainPhase2Event())
     def __call__(self, card):
         return self.correct_phase and self.current_player == card.controller and card.controller.stack.empty()
 
