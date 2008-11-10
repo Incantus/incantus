@@ -7,6 +7,7 @@ from pyglet import event
 from pyglet import window
 from pyglet.window import key
 import ConfigParser
+from colors import hexconvert
 
 import math, random
 import anim
@@ -353,8 +354,9 @@ class GameWindow(window.Window):
 
     def start_network_game(self, ipaddr, port, isserver):
         self.game_status.log("Starting network game")
-        
+
         playername = self.conf.get("main", "playername")
+        playercolor = self.conf.get("main", "color")
         if isserver:
             self.game_status.log("Waiting for client")
             self.connection = networkcomm.Server(ipaddr, port)
@@ -363,8 +365,10 @@ class GameWindow(window.Window):
             seed = pyglet.clock.time.time()
             self.connection.send(seed)
             self.connection.send(playername)
+            self.connection.send(playercolor)
             # Get the name of the other player
             otherplayername = self.connection.receive()
+            otherplayercolor = self.connection.receive()
         else:
             self.game_status.log("Connecting to server at %s, %d"%(ipaddr, port))
             self.connection = networkcomm.Client(ipaddr, port)
@@ -372,7 +376,9 @@ class GameWindow(window.Window):
             seed = self.connection.receive()
             # Get the name of the other player
             otherplayername = self.connection.receive()
+            otherplayercolor = self.connection.receive()
             self.connection.send(playername)
+            self.connection.send(playercolor)
 
         self.game_status.log("Exchanging data with other player")
 
@@ -398,7 +404,7 @@ class GameWindow(window.Window):
             game.Keeper.init(player1, player2)
         else:
             game.Keeper.init(player2, player1)
-        self.make_connections((0,0,255), (255,255,0), soundfx=True)
+        self.make_connections(playercolor, otherplayercolor, soundfx=True)
 
         # Save info for replay
         self.replay = False
@@ -407,8 +413,10 @@ class GameWindow(window.Window):
         self.dump_to_replay(isserver)
         self.dump_to_replay(seed)
         self.dump_to_replay(player1.name)
+        self.dump_to_replay(playercolor)
         self.dump_to_replay(my_deck)
         self.dump_to_replay(player2.name)
+        self.dump_to_replay(otherplayercolor)
         self.dump_to_replay(other_deck)
 
         # XXX This is hacky - need to change it
@@ -428,8 +436,10 @@ class GameWindow(window.Window):
         isserver = self.dump_to_replay.read()
         seed = self.dump_to_replay.read()
         playername = self.dump_to_replay.read()
+        playercolor = self.dump_to_replay.read()
         my_deck = self.dump_to_replay.read()
         otherplayername = self.dump_to_replay.read()
+        otherplayercolor = self.dump_to_replay.read()
         other_deck = self.dump_to_replay.read()
 
         if isserver:
@@ -454,7 +464,7 @@ class GameWindow(window.Window):
 
         dispatcher.reset()
         game.Keeper.init(player1, player2)
-        self.make_connections((0,0,255), (255,255,0), soundfx=False)
+        self.make_connections(playercolor, otherplayercolor, soundfx=False)
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in [player1, player2]])
@@ -477,20 +487,26 @@ class GameWindow(window.Window):
             seed = pyglet.clock.time.time()
             player1_name = self.conf.get("main", "playername")
             player2_name = self.conf.get("solitaire", "playername")
+            player1_color = self.conf.get("main", "color")
+            player2_color = self.conf.get("solitaire", "color")
             my_deck = self.read_deckfile(self.conf.get("main", "deckfile"))
             other_deck = self.read_deckfile(self.conf.get("solitaire", "deckfile"))
             self.dump_to_replay(True)
             self.dump_to_replay(seed)
             self.dump_to_replay(player1_name)
+            self.dump_to_replay(player1_color)
             self.dump_to_replay(my_deck)
             self.dump_to_replay(player2_name)
+            self.dump_to_replay(player2_color)
             self.dump_to_replay(other_deck)
         else:
             isserver = self.dump_to_replay.read()
             seed = self.dump_to_replay.read()
             player1_name = self.dump_to_replay.read()
+            player1_color = self.dump_to_replay.read()
             my_deck = self.dump_to_replay.read()
             player2_name = self.dump_to_replay.read()
+            player2_color = self.dump_to_replay.read()
             other_deck = self.dump_to_replay.read()
 
         player1 = game.Player(player1_name, my_deck)
@@ -506,7 +522,7 @@ class GameWindow(window.Window):
 
         dispatcher.reset()
         game.Keeper.init(player1, player2)
-        self.make_connections((0,0,255), (255,255,0), soundfx=not self.replay_fast)
+        self.make_connections(player1_color, player2_color, soundfx=not self.replay_fast)
 
         if self.conf.get("solitaire", "manaburn") == "No":
             game.Keeper.manaBurn = lambda: None
@@ -517,6 +533,8 @@ class GameWindow(window.Window):
         self.start_new_game = True
 
     def make_connections(self, self_color, other_color, soundfx):
+        self_color = hexconvert(self_color)
+        other_color = hexconvert(other_color)
         self.mainplayer_status.setup_player(self.player1, self_color)
         self.otherplayer_status.setup_player(self.player2, other_color)
         self.phase_status.setup_player_colors(self.player1, self_color, other_color)
