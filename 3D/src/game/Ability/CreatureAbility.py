@@ -47,6 +47,16 @@ def flying():
         return ("flying" in blocker.abilities or "reach" in blocker.abilities)
     return CardStaticAbility(effects=override_effect("canBeBlockedBy", canBeBlockedBy), keyword=keyword)
 
+def shadow():
+    keyword = "shadow"
+    def canBeBlockedBy(self, blocker):
+        return keyword in blocker.abilities
+    def canBlockAttacker(self, attacker):
+        return keyword in attacker.abilities
+    def shadow_effects(source):
+        yield do_override(source, "canBeBlockedBy", canBeBlockedBy), do_override(source, "canBlockAttacker", canBlockAttacker)
+    return CardStaticAbility(effects=shadow_effects, keyword=keyword)
+
 def haste():
     keyword = "haste"
     def continuouslyInPlay(self): return True
