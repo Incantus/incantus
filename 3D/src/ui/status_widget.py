@@ -441,7 +441,7 @@ class StatusView(Widget):
         self.symbols["life"].shaking = 0
         for symbol in self.symbols.values():
             symbol.alpha = 0.5
-        self.player_name = Label(" ", 20, halign="center", shadow=True)
+        self.player_name = Label(" ", 20, halign=("right" if is_opponent else "left"), shadow=True)
         self.values = dict([(symbol, Label('', size, halign="center", valign="center")) for symbol, size in zip(self.symbols, sizes)])
         self.values["life"].halign = "center"
         self.values["life"].valign = "center"
@@ -579,7 +579,7 @@ class StatusView(Widget):
             life.pos = euclid.Vector3(x, y, 0)
             self.active.pos = euclid.Vector3(x, y, 0)
             lifevalue.pos = euclid.Vector3(x, y, 0)
-            self.player_name.pos = euclid.Vector3(x, -self.player_name.height, 0)
+            self.player_name.pos = euclid.Vector3(-x/2, -self.player_name.height, 0)
             self.manapool.pos = self.manapool.orig_pos = euclid.Vector3((width-self.manapool.width)/2, starty+self.manapool.height, 0)
             self._transx = -(width-self.manapool.width)/2
             self._transy = self.player_name.height
@@ -588,7 +588,7 @@ class StatusView(Widget):
             life.pos = euclid.Vector3(x, y, 0)
             self.active.pos = euclid.Vector3(x,y,0)
             lifevalue.pos = euclid.Vector3(x,y,0)
-            self.player_name.pos = euclid.Vector3(x, 0, 0)
+            self.player_name.pos = euclid.Vector3(-x/2, 0, 0)
             self.manapool.pos = self.manapool.orig_pos = euclid.Vector3(-(self.manapool.width-width)/2, starty-self.manapool.height, 0)
             self._transx = -10 #-self.manapool.width/2 #0.2*width
             self._transy = -self.player_name.height
@@ -597,7 +597,8 @@ class StatusView(Widget):
         else: self.box = (-self.pos.x, -self.pos.y, -self.pos.x+self.width-5, starty+self.manapool.height*1.5+5)
     def render_after_transform(self):
         ac = self.active.color
-        glColor4f(0.2, 0.2, 0.3, 0.5) #glColor4f(ac[0]*0.5, ac[1]*0.5, ac[2]*0.5, 0.3)
+        #glColor4f(0.2, 0.2, 0.3, 0.5)
+        glColor4f(ac[0]*0.5, ac[1]*0.5, ac[2]*0.5, 0.3)
         l, b, r, t = self.box
         glDisable(GL_TEXTURE_2D)
         glBegin(GL_QUADS)
