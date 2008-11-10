@@ -22,11 +22,12 @@ class PlayerMatch(Match):
     def __str__(self):
         return "Player"
 class OpponentMatch(Match):
-    def __init__(self, card, condition=None):
+    def __init__(self, controller, condition=None):
         super(OpponentMatch,self).__init__(condition)
-        self.card = card
+        self.controller = controller
     def match(self, player):
-        return isinstance(player, Player.Player) and player in self.card.controller.opponents and super(OpponentMatch,self).match(player)
+        import Player
+        return isinstance(player, Player.Player) and player in self.controller.opponents and super(OpponentMatch,self).match(player)
     def __str__(self):
         return "Opponent"
 
