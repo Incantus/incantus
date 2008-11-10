@@ -4,7 +4,7 @@ from game.GameEvent import TimestepEvent
 from ActivatedAbility import ActivatedAbility, ManaAbility
 from Target import NoTarget, Target
 from Cost import ManaCost, TapCost
-from Effects import override, replace, combine
+from Effects import override, replace, combine, do_all
 from Limit import no_limit, sorcery
 
 #def flash(card):
@@ -54,11 +54,6 @@ def attach_on_enter(self):
             pass
     self.attach(card)
 
-def do_entering(funcs, self, zone):
-    funcs.reverse()
-    funcs[0](self, zone)
-    for f in funcs[1:]: f(self)
-
 no_before = lambda source: None
 def CiP(obj, during, before=no_before, condition=None, txt=''):
     if not txt and hasattr(during, "__doc__"): msg = during.__doc__
@@ -69,7 +64,7 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
         before(self.current_role)
         perm = self.move_to(zone, position)
         # At this point the card hasn't actually moved (it will on the next timestep event), so we can modify it's enteringZone function. This basically relies on the fact that entering play is batched and done on the timestep.
-        remove_entering = override(perm, "enteringZone", during, combiner=do_entering)
+        remove_entering = override(perm, "modifyEntering", during, combiner=do_all)
         # XXX There might be timing issue, since we want to remove the override after the card is put into play
         dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False, expiry=1)
         return perm

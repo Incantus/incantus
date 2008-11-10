@@ -49,7 +49,9 @@ class CardRole(MtGObject):
     def canBeAttachedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
         self.send(TargetedByEvent(), targeter=targeter)
+    def modifyEntering(self): pass
     def enteringZone(self, zone):
+        self.modifyEntering()
         self.abilities.enteringZone(zone)
         self.is_LKI = False
     def leavingZone(self, zone):
