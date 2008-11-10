@@ -199,7 +199,7 @@ class stacked_land_subtype(stacked_characteristic):
         if len(all_basic_lands.intersection(subtypes)) > 0:
             card = self.card
             expire1 = super(stacked_land_subtype, self).set(*subtypes)
-            card._remove_basic_abilities()
+            card._remove_all_basic_abilities()
             expire2 = card.abilities.remove_all()
             card._add_basic_abilities()
             return combine(expire1, expire2, card._remove_basic_abilities, card._add_basic_abilities)
@@ -231,6 +231,10 @@ class Land(object):
                 # Don't have basic subtype anymore, remove ability if it was added
                 expire = self._track_basic[subtype].pop(self, None)
                 if expire: expire()
+    def _remove_all_basic_abilities(self):
+        for subtype in all_basic_lands:
+            expire = self._track_basic[subtype].pop(self, None)
+            if expire: expire()
 
 class Creature(object):
     def power():
