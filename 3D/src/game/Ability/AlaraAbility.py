@@ -39,15 +39,15 @@ def devour(value):
             for card in cards: source.controller.sacrifice(card)
             if cards: source.add_counters(PowerToughnessCounter(1, 1), len(cards)*value)
     def effects(source):
-        yield CiP(source, enterPlayWith, no_before, txt)
-    return CiPAbility(effects, txt=txt)
+        yield CiP(source, enterPlayWith, no_before, txt=txt)
+    return CiPAbility(effects, txt=txt, keyword="devour")
 
 def unearth(cost):
     if type(cost) == str: cost = ManaCost(cost)
     def effects(controller, source):
         yield cost
         yield NoTarget()
-        source.move_to(controller.play)
+        source = source.move_to(controller.play)
         yield
         source.abilities.add(haste())
 
@@ -64,4 +64,4 @@ def unearth(cost):
             return self.move_to(self.owner.removed)
         until_end_of_turn(delay(source, d_trigger), do_replace(source, "move_to", move_to, msg="%s - remove from game"%source.name, condition=leave_play_condition))
         yield
-    return ActivatedAbility(effects, limit=sorcery, zone="graveyard", keyword="Unearth %s"%str(cost))
+    return ActivatedAbility(effects, limit=sorcery, zone="graveyard", txt="Unearth %s"%str(cost, keyword="unearth"))
