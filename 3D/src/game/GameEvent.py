@@ -40,6 +40,7 @@ class TypesModifiedEvent(Event): pass
 class ColorModifiedEvent(Event): pass
 class SubtypesModifiedEvent(Event): pass
 class SupertypesModifiedEvent(Event): pass
+class AbilitiesModifiedEvent(Event): pass
 
 class ManaAdded(Event): pass
 class ManaSpent(Event): pass

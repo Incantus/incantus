@@ -1,3 +1,5 @@
+from GameEvent import AbilitiesModifiedEvent
+
 class abilities(object):
     # Internally stored as a list
     def __init__(self):
@@ -49,6 +51,7 @@ class stacked_abilities(object):
         abilities = additional_abilities(*abilities)
         self._stacking.insert(0, abilities)
         abilities.enable(self.zone, self.source)
+        self.source.send(AbilitiesModifiedEvent())
         def restore():
             self._stacking.remove(abilities)
             abilities.disable(self.zone)
@@ -60,6 +63,7 @@ class stacked_abilities(object):
                 a = group._keywords[keyword]
                 a.toggle(self.zone, False)
                 disabled.append(a)
+        self.source.send(AbilitiesModifiedEvent())
         def restore():
             for a in disabled: a.toggle(self.zone, True)
         return restore
@@ -73,6 +77,7 @@ class stacked_abilities(object):
             if found: break
         else: raise Exception("Trying to remove a specific ability that doesn't exist")
         ability.toggle(self.zone, False)
+        self.source.send(AbilitiesModifiedEvent())
         return lambda: ability.toggle(self.zone, True)
     def remove_all(self):
         # first disable all previous abilities
@@ -80,6 +85,7 @@ class stacked_abilities(object):
         for a in self._stacking:
             disabled.append(a)
             a.toggle(self.zone, False)
+        self.source.send(AbilitiesModifiedEvent())
         def remove():
             for a in disabled: a.toggle(self.zone, True)
         return remove
@@ -95,6 +101,7 @@ class stacked_abilities(object):
                 a.toggle(self.zone, False)
             abilities.enable(self.zone, self.source)
         self._stacking.insert(i, abilities)
+        self.source.send(AbilitiesModifiedEvent())
         def restore():
             self._stacking.remove(abilities)
             abilities.disable(self.zone)
