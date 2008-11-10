@@ -14,14 +14,14 @@ class Zone(MtGObject):
         return iter(self.get())
     def top(self, number=None):
         if number:
-            if len(self) == 0: return []
+            if number < 1 or len(self) == 0: return []
             else: return [c.current_role for c in self._cards[:-(number+1):-1]]
         else:
             if len(self) == 0: return None
             else: return self._cards[-1].current_role
     def bottom(self, number=None):
         if number:
-            if len(self) == 0: return []
+            if number < 1 or len(self) == 0: return []
             else: return [c.current_role for c in self._cards[:number]]
         else:
             if len(self) == 0: return None
