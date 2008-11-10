@@ -23,7 +23,11 @@ class CardRole(MtGObject):
             if subtypes: txt.append(" - %s"%subtypes)
             abilities = str(self.abilities)
             if abilities: txt.append('\n\n%s'%abilities)
-            if self.counters: txt.append('\n\nCounters: %s'%', '.join(map(str,self.counters)))
+            if self.counters:
+                count = {}
+                for counter in self.counters:
+                    count[str(counter)] = count.get(str(counter), 0)+1
+                txt.append('\n\nCounters: %s'%', '.join(["%s (%d)"%(counter, num) for counter, num in count.items()]))
             #subrole_info = self.subrole_info()
             #if subrole_info: txt.append('\n\n'+subrole_info)
             return ''.join(txt)
