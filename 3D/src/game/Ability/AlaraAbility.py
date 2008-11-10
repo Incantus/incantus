@@ -37,6 +37,7 @@ def devour(value):
                     i += 1
                 else: source.controller.send(InvalidTargetEvent(), target=creature)
             for card in cards: source.controller.sacrifice(card)
+            source.devoured = cards
             if cards: source.add_counters(PowerToughnessCounter(1, 1), len(cards)*value)
     def effects(source):
         yield CiP(source, enterPlayWith, no_before, txt=txt)
