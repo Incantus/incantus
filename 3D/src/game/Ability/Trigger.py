@@ -1,6 +1,6 @@
 import copy
 from game.GameObjects import MtGObject
-from game.GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, ReceivesDamageFromEvent, CardEnteredZone, CardLeftZone, CardEnteringZone, CardLeavingZone, TimestepEvent
+from game.GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZone, CardLeavingZone, TimestepEvent
 from game.pydispatch.dispatcher import Any, LOWEST_PRIORITY
 from Effects import robustApply
 
@@ -52,9 +52,6 @@ class DealDamageToTrigger(Trigger):
 class ReceiveDamageTrigger(Trigger):
     def __init__(self, sender=None):
         super(ReceiveDamageTrigger, self).__init__(event=ReceivesDamageEvent(), sender=sender)
-class ReceiveDamageFromTrigger(Trigger):
-    def __init__(self, sender=None):
-        super(ReceiveDamageFromTrigger, self).__init__(event=ReceivesDamageFromEvent(), sender=sender)
 
 # The next triggers are for events that pertain to cards but aren't sent by the card itself (ie zone changes, spells of abilities of cards)
 class CardTrigger(Trigger): pass

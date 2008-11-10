@@ -1,4 +1,4 @@
-from game.GameEvent import UpkeepStepEvent, ReceivesDamageFromEvent
+from game.GameEvent import UpkeepStepEvent, DealsDamageToEvent
 from game.Match import isCreature, isPlayer
 from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
@@ -21,11 +21,11 @@ def reinforce(cost, number=1):
 class ProwlVariable(MemoryVariable):
     def __init__(self):
         self.reset()
-        self.register(self.dealt, event=ReceivesDamageFromEvent())
+        self.register(self.dealt, event=DealsDamageToEvent())
         super(ProwlVariable, self).__init__()
-    def dealt(self, sender, source, amount, combat):
-        if combat and isPlayer(sender):
-            self.prowl_damage.add((source.controller, set(source.subtypes)))
+    def dealt(self, sender, to, amount, combat):
+        if combat and isPlayer(to):
+            self.prowl_damage.add((sender.controller, set(sender.subtypes)))
     def check(self, card):
         for controller, subtypes in self.prowl_damage:
             if controller == card.controller and card.subtypes.intersects(subtypes):

@@ -29,7 +29,7 @@ def persist():
 def wither(): return CardStaticAbility(effects=keyword_effect, zone="all", keyword="wither")
 
 # XXX
-#from game.GameEvent import CounterAddedEvent, ReceivesDamageFromEvent
+#from game.GameEvent import CounterAddedEvent
 #from game.CardRoles import Creature
 #from game.stacked_function import logical_and
 #def wither_as_override(card):
@@ -39,7 +39,6 @@ def wither(): return CardStaticAbility(effects=keyword_effect, zone="all", keywo
 #        continue_chain = True
 #        if source == card:
 #            self.perm.add_counters(PowerToughnessCounter(-1, -1), amt)
-#            self.send(ReceivesDamageEvent(), source=source, amount=amt)
 #            continue_chain = False
 #        return continue_chain
 #    return GlobalStaticAbility(card,

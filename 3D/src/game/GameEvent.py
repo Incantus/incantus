@@ -73,11 +73,9 @@ class CreatureInCombatEvent(Event): pass
 class CreatureCombatClearedEvent(Event): pass
 class RegenerateEvent(Event): pass
 class DamagePreventedEvent(Event): pass
-class PlayerDamageEvent(Event): pass
 class DealsDamageEvent(Event): pass
 class DealsDamageToEvent(Event): pass
 class ReceivesDamageEvent(Event): pass
-class ReceivesDamageFromEvent(Event): pass
 class PermanentSacrificedEvent(Event): pass
 class PermanentDestroyedEvent(Event): pass
 class AttachedEvent(Event): pass
