@@ -52,9 +52,17 @@ class Counter(anim.Animable):
 
     piece_list = None
 
-    def __init__(self, ctype, color=(0., 0., 1.)):
+    def __init__(self, ctype, color=None):
         self.ctype = ctype
-        self.color = color
+        if not color:
+            color = [0, 0, 0]
+            temp = hash(ctype) % 2**24
+            color[0] = temp/2**16
+            temp = temp % 2**16
+            color[1] = temp/2**8
+            color[2] = temp % 2**8
+            self.color = (color[0] / 255.0, color[1] / 255.0, color[2] / 255.0)
+        else: self.color = color
         self.radius = PIECE_RADIUS
         self.height = PIECE_HEIGHT
         self.size = anim.constant(1)
