@@ -119,7 +119,7 @@ def protection(condition, attribute):
                       do_override(target, "canBeBlockedBy", canBeBlockedBy),
                       do_override(target, "canBeTargetedBy", canBeTargetedBy))
 
-    return CardStaticAbility(effects=protection_effect, txt=keyword)
+    return CardStaticAbility(effects=protection_effect, keyword=keyword)
 
 protection_from_black = partial(protection, condition = lambda other: other.color == "B", attribute="black")
 protection_from_blue = partial(protection, condition = lambda other: other.color == "U", attribute="blue")
@@ -132,6 +132,7 @@ protection_from_artifacts = partial(protection, condition = lambda other: isArti
 protection_from_monocolored = partial(protection, condition = lambda other: len(other.color) == 1, attribute="monocolored")
 protection_from_multicolored = partial(protection, condition = lambda other: len(other.color) > 1, attribute="multicolored")
 
+# Unless I completely misunderstand, this is for auras which say "Enchanted creature gains protection from <attribute>. This protection does not remove CARDNAME." I hope that's what it's for, anyway, because otherwise, I'm clueless. -MK17
 def aura_protection(aura, condition, attribute):
     keyword = "protection from %s"%attribute
     # DEBT is an acronym. It stands for Damage, Enchantments/Equipment, Blocking, and Targeting
@@ -141,7 +142,7 @@ def aura_protection(aura, condition, attribute):
     def effects(target):
         yield combine(*[do_override(target, func_name, mk_override(cond)) for func_name, cond in [("canBeDamagedBy", condition), ("canBeAttachedBy", lambda o: not o==aura and condition(o)), ("canBeBlockedBy", condition), ("canBeTargetedBy", condition)]])
 
-    return CardStaticAbility(effects=effects, txt=keyword)
+    return CardStaticAbility(effects=effects, keyword=keyword)
 
 # 502.68b If a permanent has multiple instances of lifelink, each triggers separately.
 def lifelink():
@@ -159,16 +160,21 @@ def lifelink():
 def must_attack():
     def checkAttack(self, attackers, not_attacking):
         return self in attackers or not self.canAttack()
-    return CardStaticAbility(effects=override_effect("checkAttack", checkAttack), txt="must attack")
+    return CardStaticAbility(effects=override_effect("checkAttack", checkAttack), txt="~ must attack each turn if able.")
 
 def only_block(keyword):
     def canBlockAttacker(self, attacker):
         return keyword in attacker.abilities
-    return CardStaticAbility(effects=override_effect("canBlockAttacker", canBlockAttacker), txt="only block %s"%keyword)
+    return CardStaticAbility(effects=override_effect("canBlockAttacker", canBlockAttacker), txt="~ can only block creatures with %s."%keyword)
+
+def make_unblockable(target):
+    def canBeBlocked(self): return False
+    return do_override(target, "canBeBlocked", canBeBlocked)
 
 def unblockable():
-    def canBeBlocked(self): return False
-    return CardStaticAbility(effects=override_effect("canBeBlocked", canBeBlocked), txt="unblockable")
+    def unblockable_effect(target):
+        yield make_unblockable(target)
+    return CardStaticAbility(effects=unblockable_effect, txt="~ is unblockable.")
 
 def make_indestructible(target):
     def shouldDestroy(self): return False
@@ -178,11 +184,25 @@ def make_indestructible(target):
 def indestructible():
     def indestructible_effect(target):
         yield make_indestructible(target)
-    return CardStaticAbility(effects=indestructible_effect, keyword="Indestructible")
+    return CardStaticAbility(effects=indestructible_effect, txt="~ is indestructible.")
+
+def absorb(value):
+    def absorb_effects(source):
+        yield prevent_damage(source, value, False)
+    return CardStaticAbility(effects=absorb_effects, txt="Absorb %d"%value, keyword="absorb")
+
+def flanking():
+    def condition(source, sender, attacker):
+        return source == attacker and not "flanking" in sender.abilities
+    def effects(controller, source, sender):
+        yield NoTarget()
+        until_end_of_turn(sender.augment_power_toughness(-1, -1))
+        yield
+    return TriggeredAbility(Trigger(BlockerDeclaredEvent()), condition, effects, zone="play", keyword='flanking')
 
 def prevent_damage(target, amount, next=True, txt='', condition=None):
     if not txt:
-        txt = 'Prevent %s %s damage'%("the next" if next else '', str(amount) if amount == -1 else "all")
+        txt = 'Prevent %s%s damage'%("the next " if next else '', str(amount) if amount > -1 else "all")
     def shieldDamage(self, amt, source, combat=False):
         dmg = 0
         if shieldDamage.curr_amt != -1:
@@ -212,10 +232,10 @@ def regenerate(target, txt="Regenerate", condition=None):
         canDestroy.expire()
         #self.send(RegenerationEvent())
         return False
-    return do_replace(target, "canDestroy", canDestroy, msg=txt, condition=condition)
+    return until_end_of_turn(do_replace(target, "canDestroy", canDestroy, msg=txt, condition=condition))
 def redirect_damage(from_target, to_target, amount, next=True, txt='', condition=None):
     if not txt:
-        txt = 'Redirect %s %s damage from %s to %s'%("the next" if next else '', str(amount) if amount == -1 else "all", from_target, to_target)
+        txt = 'Redirect %s%s damage from %s to %s'%("the next " if next else '', str(amount) if amount == -1 else "all", from_target, to_target)
     def redirectDamage(self, amt, source, combat=False):
         dmg = 0
         if redirectDamage.curr_amt != -1:

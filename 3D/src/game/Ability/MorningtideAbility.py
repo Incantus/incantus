@@ -59,8 +59,7 @@ def prowl(prowl_cost):
         card.play_spell = orig_spell.__class__(play_prowl, limit=orig_spell.limit, txt=orig_spell.txt, keyword=orig_spell.keyword)
         def restore(): card.play_spell = orig_spell
         yield restore
-
-    return CardStaticAbility(effects=prowl_effect, zone="stack", keyword="prowl %s"%prowl_cost)
+    return CardStaticAbility(effects=prowl_effect, zone="all", txt="Prowl %s"%prowl_cost, keyword="prowl")
 
 # Kinship is a decorator for kinship abilities
 def kinship(txt=''):
@@ -76,6 +75,5 @@ def kinship(txt=''):
                     controller.revealCard(topcard, title=msg, prompt=msg)
                     return True
             return False
-        #if not txt: txt = effects.__doc__
         return TriggeredAbility(PhaseTrigger(UpkeepStepEvent()), condition=condition, effects=effects, txt="Kinship - %s"%txt)
     return wrap
