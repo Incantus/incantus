@@ -12,14 +12,20 @@ class Zone(MtGObject):
     def __iter__(self):
         # Top of the cards is the end of the list
         return iter(self.get())
-    def top(self, number=1):
-        if len(self) == 0: return None
-        else:
-            if number == 1: return self._cards[-1].current_role
+    def top(self, number=None):
+        if number:
+            if len(self) == 0: return []
             else: return [c.current_role for c in self._cards[:-(number+1):-1]]
-    def bottom(self, number=1):
-        if len(self) == 0: return None
-        else: return [c.current_role for c in self._cards[:number]]
+        else:
+            if len(self) == 0: return None
+            else: return self._cards[-1].current_role
+    def bottom(self, number=None):
+        if number:
+            if len(self) == 0: return []
+            else: return [c.current_role for c in self._cards[:number]]
+        else:
+            if len(self) == 0: return None
+            else: return self._cards[0].current_role
     def get(self, match=lambda c: True):
         # Retrieve all of a type of Card in current location
         return [card.current_role for card in iter(self._cards[::-1]) if match(card.current_role)]
