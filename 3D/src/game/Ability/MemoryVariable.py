@@ -98,7 +98,26 @@ class PlaySpellVariable(MemoryVariable):
     def value(self): return self.was_played
     def reset(self): self.was_played = False
 
+class SpellRecordVariable(MemoryVariable):
+    def __init__(self):
+        self.reset()
+        self.register(self.played, event=SpellPlayedEvent())
+        super(SpellRecordVariable, self).__init__()
+    def reset(self):
+        self.record = {}
+    def played(self, sender, spell):
+        if not sender in self.record: self.record[sender] = set()
+        self.record[sender].add(spell)
+    def value(self): return sum([len(self.record[player]) for player in self.record])
+    def get(self, condition=lambda s: True, player=None):
+        if player and player in self.record: return [spell for spell in self.record[player] if condition(spell)]
+        elif not player:
+            temp = []
+            for player in self.record: temp.extend([spell for spell in self.record[player] if condition(spell)])
+            return temp
+        else: return []
 
 # Predefined memory variables
 damage_tracker = DamageTrackingVariable()
 graveyard_tracker = ZoneMoveVariable(from_zone="play", to_zone="graveyard")
+spell_record = SpellRecordVariable()
