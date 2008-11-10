@@ -24,6 +24,8 @@ from Ability.CreatureAbility import *
 from Ability.PermanentAbility import *
 from Ability.CyclingAbility import *
 
+from Ability.GeneralAbility import *
+from Ability.FifthDawnAbility import *
 from Ability.UrzasSagaAbility import *
 from Ability.LorwynAbility import *
 from Ability.MorningtideAbility import *
