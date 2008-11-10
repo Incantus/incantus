@@ -178,7 +178,7 @@ class CombatZone(object):
                 blocker.pos = pos - euclid.Vector3(halfx, 0, 0)
 
 
-landtypes = ['Forest', 'Mountain', 'Swamp', 'Plains', 'Island', 'Other']
+landtypes = ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest', 'Other']
 
 class PlayView(Widget):
     def cards():
