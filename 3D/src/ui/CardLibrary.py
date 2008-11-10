@@ -51,7 +51,7 @@ class _CardLibrary:
                     img_file = urllib.urlopen("http://magiccards.info/tokens/thumb/%s-%03d.jpg"%(ed,number))
                     data = img_file.read()
                     img_file.close()
-                    if "HTML" in data: return self.back
+                    if "<HTML>" in data or "<h1>Service Unavailable</h1>" in data: return self.back
                     else: self.cardfile[name] = data
                 else: return self.back
             else:
@@ -65,7 +65,7 @@ class _CardLibrary:
                     img_file = urllib.urlopen("http://www.wizards.com/global/images/magic/general/%s.jpg"%imagename)
                     data = img_file.read()
                     img_file.close()
-                    if "<HTML>" in data: return self.notfound
+                    if "<HTML>" in data or "<h1>Service Unavailable</h1>" in data: return self.notfound
                     else: self.cardfile[name] = data
         return pyglet.image.load(imagename, file=StringIO(data)).texture
 
