@@ -10,4 +10,4 @@ all_spells = set(['Arcane'])
 all_lands = set(['Desert','Forest','Island','Lair','Locus','Mine','Mountain','Plains','Power-Plant','Swamp','Tower','Urza\'s'])
 all_basic_lands = set(['Forest','Island','Mountain','Plains','Swamp'])
 
-all_planeswalkers = set(['Ajani','Chandra','Garruk','Jace','Liliana'])
+all_planeswalkers = set(['Ajani','Chandra','Elspeth','Garruk','Jace','Liliana','Sarkhan','Tezzeret'])
