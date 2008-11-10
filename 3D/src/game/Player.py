@@ -95,9 +95,11 @@ class Player(MtGObject):
         else:
             return False
     def play_token(self, info, number=1):
+        token_roles = []
         for n in range(number):
             token = Token(info, owner=self)
-            token.move_to(self.play)
+            token_roles.append(token.move_to(self.play))
+        return token_roles
     def choose_opponent(self):
         if len(self.opponents) == 1:
             return tuple(self.opponents)[0]
