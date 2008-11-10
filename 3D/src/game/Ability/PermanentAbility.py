@@ -29,7 +29,7 @@ def attach_artifact(cost, target_type, keyword, limit=no_limit):
     if type(cost) == str: cost = ManaCost(cost)
     def effects(controller, source):
         yield cost
-        target = yield Target(target_type)
+        target = yield Target(target_type, player='you')
         source.set_target_type(target_type)
         source.attach(target)
         yield
