@@ -76,12 +76,18 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
     if isCard(obj): obj = obj._cardtmpl # If we are changing a specific card, make sure to modify the card move_to_play
     return replace(obj, "move_to", move_to, msg=msg, condition=cond)
 
-# Optionally untapping during untap step
-def untapDuringUntapStep(self):
-    msg = "Untap %s"%self
-    return self.canUntap() and self.controller.getIntention(msg, msg)
+# Untapping abilities
+
+optionallyUntap = lambda self: self.canUntap() and self.controller.getIntention("Untap %s"%self)
 def optionally_untap(target):
-    return do_override(target, "untapDuringUntapStep", untapDuringUntapStep)
+    return do_override(target, "canUntapDuringUntapStep", optionallyUntap)
+def doesnt_untap_controllers_next_untap_step(target):
+    def cantUntap(self):
+        cantUntap.expire()
+        return False
+    return do_override(target, "canUntapDuringUntapStep", cantUntap)
+def doesntUntapAbility(txt):
+    return CardStaticAbility(effects=override_effect("canUntapDuringUntapStep", lambda self: False), txt=txt)
 
 # Cloning
 def clone(source, cloned):

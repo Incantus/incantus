@@ -1,6 +1,6 @@
 from math import *
 from characteristics import characteristic, no_characteristic
-from stacked_function import global_override, override, replace, logical_or, logical_and, do_all, most_recent
+from stacked_function import *
 from Decorators import *
 from Player import Player
 from GameKeeper import Keeper

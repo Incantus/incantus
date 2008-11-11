@@ -225,7 +225,7 @@ class GameKeeper(MtGObject):
         self.setState("Untap")
         # XXX Do phasing - nothing that phases in will trigger any "when ~this~ comes 
         # into play..." effect, though they will trigger "When ~this~ leaves play" effects
-        self.current_player.untapCards()
+        self.current_player.untapStep()
     def upkeepStep(self):
         self.setState("Upkeep")
         self.playInstantaneous()

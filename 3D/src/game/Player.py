@@ -1,7 +1,7 @@
 
 from GameObjects import MtGObject, Card, Token
 from GameKeeper import Keeper
-from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent
+from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent
 from Mana import ManaPool
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
@@ -193,9 +193,43 @@ class Player(MtGObject):
                 yield True
             else: break
         yield False
-    def untapCards(self):
-        for card in self.play:
-            if card.tapped and card.untapDuringUntapStep(): card.untap()
+    def checkUntapStep(self, cards): return True
+    def untapStep(self):
+        permanents = untapCards = set([card for card in self.play if card.canUntapDuringUntapStep()])
+        prompt = "Select cards to untap"
+        valid_untap = self.checkUntapStep(permanents)
+        while not valid_untap:
+            permanents = set()
+            done_selecting = False
+            perm = self.getPermanentInPlay(prompt=prompt)
+            while not done_selecting:
+                if perm == True:
+                    done_selecting = True
+                    self.send(AllDeselectedEvent())
+                    break
+                elif perm == False:
+                    # reset untap
+                    permanents = untapCards
+                    self.send(AllDeselectedEvent())
+                    prompt = "Selection canceled - select cards to untap"
+                    break
+                else:
+                    if not perm in permanents and perm in untapCards:
+                        permanents.add(perm)
+                        self.send(CardSelectedEvent(), card=perm)
+                        prompt = "%s selected - select another"%perm
+                    elif perm in permanents:
+                        self.send(InvalidTargetEvent(), target=perm)
+                        prompt = "%s already selected - select another"%perm
+                    else:
+                        self.send(InvalidTargetEvent(), target=perm)
+                        prompt = "%s can't be untapped - select another"%perm
+                perm = self.getPermanentInPlay(prompt=prompt)
+            if done_selecting:
+                valid_untap = self.checkUntapStep(permanents)
+                if not valid_untap:
+                    prompt = "Invalid selection - select again"
+        for card in permanents: card.untap()
     def canBeDamagedBy(self, damager):
         return True
     def assignDamage(self, amt, source, combat=False):
@@ -431,6 +465,23 @@ class Player(MtGObject):
         sel = self.input(context, "%s: %s"%(self.name,prompt))
         if isinstance(sel, CancelAction): return False
         else: return sel
+    def getPermanentInPlay(self, prompt='Select permanent'):
+        def filter(action):
+            if isinstance(action, CancelAction) or isinstance(action, PassPriority):
+                return action
+
+            card = action.selection
+            if isPermanent(card) and (card.controller == self):
+                return card
+            else:
+                self.send(InvalidTargetEvent(), target=card)
+                return False
+        context = {'get_target': True, 'process': filter}
+        card = self.input(context, "%s: %s"%(self.name,prompt))
+
+        if isinstance(card, PassPriority): return True
+        elif isinstance(card, CancelAction): return False
+        else: return card
     def getCombatCreature(self, mine=True, prompt='Select target'):
         def filter(action):
             if isinstance(action, CancelAction) or isinstance(action, PassPriority):

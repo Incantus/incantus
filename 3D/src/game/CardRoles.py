@@ -136,7 +136,7 @@ class Permanent(CardRole):
         else: return False
     def canUntap(self):
         return self.tapped
-    untapDuringUntapStep = canUntap
+    canUntapDuringUntapStep = canUntap
     def untap(self):
         if self.tapped:
             self.tapped = False
