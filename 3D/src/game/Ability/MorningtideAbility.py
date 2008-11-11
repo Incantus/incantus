@@ -33,7 +33,7 @@ class ProwlVariable(MemoryVariable):
         else: return False
     def reset(self): self.prowl_damage = set()
 
-prowl_tracker = ProwlVariable()
+#prowl_tracker = ProwlVariable()
 
 # XXX This doesn't work, since by the time it's installed, I'm already running the original play_spell
 # Need to redo alternative costs
