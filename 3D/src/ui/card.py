@@ -360,6 +360,11 @@ class PlayCard(Card):
     def flash(self):
         self.highlighting = anim.animate(1,0,dt=0.75, method="step")
         self.highlight_alpha = anim.animate(0.0, 0.8, dt=0.75, method="oscillate")
+    def select(self):
+        self.highlighting = 1.0
+        self.highlight_alpha = anim.animate(0., 1., dt=0.2, method="linear")
+    def deselect(self):
+        self.highlighting = 0.0
     def highlight(self):
         if self.highlighting == 0:
             self.highlighting = anim.animate(0,1,dt=0.75)

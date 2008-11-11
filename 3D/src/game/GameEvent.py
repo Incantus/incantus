@@ -80,6 +80,8 @@ class PermanentSacrificedEvent(Event): pass
 class PermanentDestroyedEvent(Event): pass
 class AttachedEvent(Event): pass
 class UnAttachedEvent(Event): pass
+class CardSelectedEvent(Event): pass
+class AllDeselectedEvent(Event): pass
 class TargetedByEvent(Event): pass
 class InvalidTargetEvent(Event): pass
 class PowerToughnessChangedEvent(Event): pass

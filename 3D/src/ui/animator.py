@@ -107,6 +107,7 @@ class ZoneAnimator(object):
         self.window = window
         self.sparks = SparkFXManager()
         self.player_status = {}
+        self.selected_cards = []
 
         self.red_zone = None
     def setup(self, main_status, other_status, stack, main_play, other_play, board):
@@ -137,6 +138,8 @@ class ZoneAnimator(object):
         dispatcher.connect(self.player_life, signal=GameEvent.LifeLostEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.invalid_target, signal=GameEvent.InvalidTargetEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.targeted_by, signal=GameEvent.TargetedByEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.select_card, signal=GameEvent.CardSelectedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.deselect_all, signal=GameEvent.AllDeselectedEvent(), priority=dispatcher.UI_PRIORITY)
     def invalid_target(self, sender, target):
         if isStackAbility(target):
             guicard = self.stack.get_card(target)
@@ -154,6 +157,14 @@ class ZoneAnimator(object):
             guicard = zone.get_card(target)
             guicard.shake()
             clock.schedule_once(lambda t: guicard.unshake(), 0.25)
+    def select_card(self, sender, card):
+        zone = self.play_zones[card.controller]
+        guicard = zone.get_card(card)
+        guicard.select()
+        self.selected_cards.append(guicard)
+    def deselect_all(self, sender):
+        for guicard in self.selected_cards: guicard.deselect()
+        self.selected_cards = []
     def targeted_by(self, sender, targeter):
         color =  (0.5,0.71,0.94, 1.0)
         dt = 2.0
