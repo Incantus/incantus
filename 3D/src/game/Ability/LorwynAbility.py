@@ -1,18 +1,18 @@
 from game.Match import isCreature, isPermanent
 from game.GameEvent import ClashEvent
-from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
 from StaticAbility import CardStaticAbility, CiPAbility
 from PermanentAbility import enter_play_tapped, CiP
 from Target import NoTarget
 from Trigger import EnterTrigger, LeaveTrigger, DealDamageToTrigger
-from Cost import ManaCost
 from Subtypes import all_creatures
+from EffectsUtilities import keyword_action
 
 # This should be called from within an effects function
-def clash(controller):
+@keyword_action
+def clash(controller, opponent=None):
     winner = None
-    opponent = controller.choose_opponent()
+    if not opponent: opponent = controller.choose_opponent()
     cards = (controller.library.top(), opponent.library.top())
     controller_cmc, opponent_cmc = [card.cost.converted_mana_cost() for card in cards]
     if controller_cmc > opponent_cmc:
