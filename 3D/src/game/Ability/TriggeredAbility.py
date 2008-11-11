@@ -1,5 +1,5 @@
 from Ability import Ability
-from Effects import robustApply
+from EffectsUtilities import robustApply
 
 source_match = lambda source, card: source == card
 sender_match = lambda source, sender: source == sender

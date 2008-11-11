@@ -4,7 +4,7 @@ from game.GameEvent import TimestepEvent
 from ActivatedAbility import ActivatedAbility, ManaAbility
 from Target import NoTarget, Target
 from Cost import ManaCost, TapCost
-from Effects import override, replace, combine, do_all
+from EffectsUtilities import override, replace, combine, do_all
 from Limit import no_limit, sorcery
 
 #def flash(card):

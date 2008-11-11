@@ -5,7 +5,7 @@ from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent,
 from Planeswalker import Planeswalker
 from Ability.Counters import *
 from Ability.PermanentAbility import basic_mana_ability
-from Ability.Effects import combine
+from Ability.EffectsUtilities import combine
 from Ability.Subtypes import all_basic_lands
 
 class CardRole(MtGObject):

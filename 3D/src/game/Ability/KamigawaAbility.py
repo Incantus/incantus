@@ -1,7 +1,7 @@
 from game.GameEvent import BlockerDeclaredEvent, AttackerBlockedEvent
 from game.LazyInt import LazyInt
 from TriggeredAbility import TriggeredAbility, sender_match
-from Effects import until_end_of_turn
+from EffectsUtilities import until_end_of_turn
 from Target import NoTarget
 from Trigger import Trigger
 

@@ -4,7 +4,7 @@ from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from TriggeredAbility import TriggeredAbility
 from Trigger import DealDamageTrigger
-from Effects import do_override, do_replace, logical_or, logical_and, combine
+from EffectsUtilities import do_override, do_replace, logical_or, logical_and, combine
 
 def override_effect(func_name, func, combiner=logical_and):
     def effects(target):

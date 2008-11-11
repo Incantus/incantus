@@ -4,7 +4,7 @@ from game.pydispatch.dispatcher import CONTINUOUS_PRIORITY
 from game.GameEvent import ControllerChanged, SubroleModifiedEvent, TimestepEvent
 from game.GameObjects import MtGObject
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger
-from Effects import combine
+from EffectsUtilities import combine
 
 # Static abilities always function while the permanent is in the relevant zone
 class StaticAbility(object):

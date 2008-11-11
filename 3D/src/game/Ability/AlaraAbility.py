@@ -6,7 +6,7 @@ from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
 from StaticAbility import CiPAbility
 from CreatureAbility import haste
-from Effects import until_end_of_turn, delay, do_replace
+from EffectsUtilities import until_end_of_turn, delay, do_replace
 from Target import NoTarget
 from Trigger import Trigger, PhaseTrigger
 from Counters import PowerToughnessCounter

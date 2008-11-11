@@ -17,7 +17,7 @@ from Ability.Trigger import *
 from Ability.Cost import *
 from Ability.Counters import *
 from Ability.Limit import *
-from Ability.Effects import *
+from Ability.EffectsUtilities import *
 from Ability.MemoryVariable import *
 
 from Ability.CreatureAbility import *

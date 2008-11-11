@@ -26,6 +26,10 @@ def combine(*restores):
 def until_end_of_turn(*restores):
     dispatcher.connect(combine(*restores), signal=CleanupEvent(), weak=False, expiry=1)
 
+def keyword_action(func):
+    from game.Player import Player
+    setattr(Player, func.__name__, func)
+
 #def do_override(target, func_name, func, combiner=logical_and):
 #    if isPlayer(target): obj = target
 #    else: obj = target.current_role

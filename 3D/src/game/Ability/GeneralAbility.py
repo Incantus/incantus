@@ -1,7 +1,7 @@
 from game.CardRoles import Creature
 from game.Planeswalker import Planeswalker
 from game.Player import Player
-from Effects import do_replace
+from EffectsUtilities import do_replace
 
 preventAll = lambda self, amt, source, combat=False: 0
 
