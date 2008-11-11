@@ -1,5 +1,5 @@
 
-from GameEvent import LandPlayedEvent, AbilityPlayedEvent, LogEvent
+from GameEvent import TimestepEvent, LandPlayedEvent, AbilityPlayedEvent, LogEvent
 
 class Action(object):
     def __eq__(self, other):
@@ -74,6 +74,7 @@ class PlayLand(CardAction):
         elif player.land_actions > 0: player.land_actions -= 1
         card = self.card
         card.move_to(player.play)
+        player.send(TimestepEvent())
         player.send(LandPlayedEvent(), card=card)
         player.send(LogEvent(), msg="%s plays %s"%(player.name,card))
         return True
