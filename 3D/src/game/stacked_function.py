@@ -1,6 +1,8 @@
 import new, types
 from Match import isPlayer, isCardRole
 
+__all__ = ['global_override', 'override', 'replace', 'logical_or', 'logical_and', 'do_all', 'most_recent']
+
 # this is probably where the static layering rules come into play
 def logical_or(funcs, *args, **kw):
     return reduce(lambda x, y: x or y(*args, **kw), funcs, False)
