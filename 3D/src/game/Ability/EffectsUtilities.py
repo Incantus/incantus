@@ -30,6 +30,10 @@ def keyword_action(func):
     from game.Player import Player
     setattr(Player, func.__name__, func)
 
+def permanent_method(func):
+    from game.CardRoles import Permanent
+    setattr(Permanent, func.__name__, func)
+
 #def do_override(target, func_name, func, combiner=logical_and):
 #    if isPlayer(target): obj = target
 #    else: obj = target.current_role

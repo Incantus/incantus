@@ -4,7 +4,7 @@ from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from TriggeredAbility import TriggeredAbility
 from Trigger import DealDamageTrigger
-from EffectsUtilities import do_override, do_replace, logical_or, logical_and, combine
+from EffectsUtilities import do_override, do_replace, logical_or, logical_and, combine, permanent_method
 
 def override_effect(func_name, func, combiner=logical_and):
     def effects(target):
@@ -222,6 +222,8 @@ def prevent_damage(target, amount, next=True, txt='', condition=None):
         return dmg
     shieldDamage.curr_amt = amount
     return do_replace(target, "assignDamage", shieldDamage, msg=txt, condition=condition)
+
+@permanent_method
 def regenerate(target, txt="Regenerate", condition=None):
     def canDestroy(self):
         if self.canBeTapped(): self.tap()
@@ -233,6 +235,7 @@ def regenerate(target, txt="Regenerate", condition=None):
         #self.send(RegenerationEvent())
         return False
     return until_end_of_turn(do_replace(target, "canDestroy", canDestroy, msg=txt, condition=condition))
+
 def redirect_damage(from_target, to_target, amount, next=True, txt='', condition=None):
     if not txt:
         txt = 'Redirect %s%s damage from %s to %s'%("the next " if next else '', str(amount) if amount == -1 else "all", from_target, to_target)
