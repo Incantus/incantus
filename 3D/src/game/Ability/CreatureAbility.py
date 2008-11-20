@@ -178,7 +178,7 @@ def unblockable():
 
 def make_indestructible(target):
     def shouldDestroy(self): return False
-    def destroy(self, skip=False): return False
+    def destroy(self, regenerate=True): return False
     return combine(do_override(target, "shouldDestroy", shouldDestroy), do_override(target, "destroy", destroy))
 
 def indestructible():
