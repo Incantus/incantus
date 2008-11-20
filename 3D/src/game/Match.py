@@ -90,7 +90,7 @@ class TypeMatch(Match):
         if self.in_play:
             return isPermanent(obj) and obj.types == self.cardtype and super(TypeMatch,self).match(obj)
         else:
-            return isCardRole(obj) and obj.types == self.cardtype and super(TypeMatch,self).match(obj)
+            return isCard(obj) and obj.types == self.cardtype and super(TypeMatch,self).match(obj)
     def __str__(self):
         name = str(self.cardtype)
         if not self.in_play: name += " card"
