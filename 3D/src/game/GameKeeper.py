@@ -58,6 +58,7 @@ class GameKeeper(MtGObject):
             player.init(self.play, self.stack, all_players-set([player]))
 
         # Determine starting player
+        players = list(players)
         random.shuffle(players)
         for idx, start_player in enumerate(players):
             if idx == (len(players)-1) or start_player.getIntention("", "Would you like to go first?"):
