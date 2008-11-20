@@ -114,12 +114,12 @@ class GameKeeper(MtGObject):
         players = self.players
         actions = []
         # 420.5a A player with 0 or less life loses the game.
-        def EndGame(player, msg):
-            def SBE(): raise GameOver("%s %s and loses the game!"%(player, msg))
+        def LoseGame(player, msg):
+            def SBE(): player.lose(msg)
             return SBE
         for player in players:
             if player.life <= 0: 
-                actions.append(EndGame(player, "has less than 0 life"))
+                actions.append(LoseGame(player, "has less than 0 life"))
 
         # 420.5b and 420.5c are combined
         # 420.5b A creature with toughness 0 or less is put into its owner's graveyard. Regeneration can't replace this event.
@@ -179,11 +179,11 @@ class GameKeeper(MtGObject):
         # 420.5g A player who attempted to draw a card from an empty library since the last time state-based effects were checked loses the game.
         for player in players:
             if player.draw_empty:
-                actions.append(EndGame(player, "draws from an empty library"))
+                actions.append(LoseGame(player, "draws from an empty library"))
         # 420.5h A player with ten or more poison counters loses the game.
         for player in players:
             if player.poison >= 10:
-                actions.append(EndGame(player, "is poisoned"))
+                actions.append(LoseGame(player, "is poisoned"))
 
         # 420.5i If two or more permanents have the supertype world, all except the one that has been a permanent with the world supertype in play for the shortest amount of time are put into their owners' graveyards. In the event of a tie for the shortest amount of time, all are put into their owners' graveyards. This is called the "world rule."
         # 420.5j A copy of a spell in a zone other than the stack ceases to exist. A copy of a card in any zone other than the stack or the in-play zone ceases to exist.

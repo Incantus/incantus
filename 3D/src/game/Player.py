@@ -1,7 +1,7 @@
 
 from GameObjects import MtGObject, Card, Token
 from GameKeeper import Keeper
-from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent
+from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent, GameOverException
 from Mana import ManaPool
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
@@ -71,6 +71,12 @@ class Player(MtGObject):
                 self.library.add_new_card(Card(name, owner=self))
 
     # The following functions are part of the card code DSL
+    def win(self, msg=''):
+        if msg: msg = " %s and"%msg
+        raise GameOverException("%s%s wins the game!"%(player, msg))
+    def lose(self, msg=''):
+        if msg: msg = " %s and"%msg
+        raise GameOverException("%s%s loses the game!"%(player, msg))
     def add_mana(self, *amount):
         if len(amount) > 1:
             amount = self.getSelection(amount, 1, prompt="Select mana to add")
