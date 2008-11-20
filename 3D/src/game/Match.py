@@ -1,11 +1,12 @@
 import copy
+import GameObjects
 
 class Match(object):
     def __init__(self, condition=None):
         if condition: self.condition = condition
         else: self.condition = lambda obj: True
     def with_condition(self, condition):
-        # Creates a duplicate match with a condition
+        # Creates a duplicate match with nested conditions
         newmatch = copy.copy(self)
         old_condition = newmatch.condition
         newmatch.condition = lambda obj: old_condition(obj) and condition(obj)
@@ -33,16 +34,6 @@ class OpponentMatch(Match):
 
 isPlayer = PlayerMatch()
 
-
-# Matching any type of game object (cards or tokens)
-class TokenMatch(Match):
-    def match(self, obj=None):
-        import GameObjects
-        return isinstance(obj._cardtmpl, GameObjects.Token) and super(TokenMatch,self).match(obj)
-    def __str__(self):
-        return "Token"
-
-isToken = TokenMatch()
 
 class CardRoleMatch(Match):
     def match(self, card=None):
@@ -77,6 +68,9 @@ class ZoneMatch(Match):
 isPermanent = ZoneMatch("play", "permanent")
 isLegendaryPermanent = isPermanent.with_condition(lambda c: c.supertypes == "Legendary")
 isPermanentCard = isCard.with_condition(lambda c: c.types == "Artifact" or c.types == "Enchantment" or c.types == "Creature" or c.types == "Land" or c.types == "Planeswalker")
+
+isToken = isPermanent.with_condition(lambda c: isinstance(c._cardtmpl, GameObjects.Token))
+isNonToken = isPermanent.with_condition(lambda c: not isinstance(c._cardtmpl, GameObjects.Token))
 
 # Type specific matching
 class TypeMatch(Match):
