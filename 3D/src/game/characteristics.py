@@ -127,7 +127,7 @@ class stacked_characteristic(object):
         return remove
     def cda(self, *char):
         # Stick this after the card defined one
-        return self._insert_into_stacking(characterstic(*char), 1)
+        return self._insert_into_stacking(characteristic(*char), 1)
     def set_copy(self, copy_char):
         # find last copy effect
         copy_char._copy_effect = True
