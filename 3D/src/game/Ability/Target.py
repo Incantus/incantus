@@ -54,7 +54,6 @@ class MultipleTargets(object):
         else: prompt = "Select %s%d target(s) for %s"%(another,number,source)
         return prompt
     def get(self, source): 
-        # XXX Fix the selector if it is an opponent
         if self.selector == "opponent": selector = source.controller.choose_opponent()
         elif self.selector == "current_player":
             import game.GameKeeper
@@ -138,22 +137,22 @@ class Target(object):
         # If required, make sure there is actually a target available
         if self.required and not self.targeting_player:
             perm = []
-            sel_zone = getattr(selector, self.zone)
-            opponent_zone = getattr(selector.opponent, self.zone)
-            for ttype in self.target_types:
-                if self.zone != "play":
-                    if self.player == None: zones = [sel_zone, opponent_zone]
-                    elif self.player == "you": zones = [sel_zone]
-                    else: zones = [opponent_zone]
+            if self.zone != "play":
+                zones = [getattr(selector, self.zone)] + [getattr(opponent, self.zone) for opponent in selector.opponents]
+                if self.player == "you": zones = zones[:1]
+                elif self.player == "opponent": zones = zones[1:]
+                for ttype in self.target_types:
                     for zone in zones:
                         perm.extend([p for p in zone.get(ttype) if p.canBeTargetedBy(source)])
-                else:
+            else:
+                for ttype in self.target_types:
                     if self.player == None:
                         perm.extend([p for p in selector.play.get(ttype, all=True) if p.canBeTargetedBy(source)])
                     elif self.player == "you":
                         perm.extend([p for p in selector.play.get(ttype) if p.canBeTargetedBy(source)])
                     else:
-                        perm.extend([p for p in selector.opponent.play.get(ttype) if p.canBeTargetedBy(source)])
+                        for opponent in selector.opponents:
+                            perm.extend([p for p in opponent.play.get(ttype) if p.canBeTargetedBy(source)])
 
             numtargets = len(perm)
             if numtargets == 0: return False
