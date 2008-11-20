@@ -96,8 +96,6 @@ def static_tracking(events=[], tracking="play", zone="play", txt=''):
         return CardTrackingAbility(effects, condition, events, tracking, zone, txt)
     return make_ability
 
-no_condition = None
-
 def static(zone="play", txt=''):
     def make_ability(ability):
         condition, effects = ability()
