@@ -49,14 +49,15 @@ class GameKeeper(MtGObject):
     def init(self, *players):
         self.stack = Stack(self)
         self.play = Play(self)
-        for player in players:
-            player.init(self.play, self.stack, set(players))
 
         self._tokens_out_play = []
         self.register(lambda sender: self._tokens_out_play.append(sender), TokenLeavingPlay(), weak=False)
 
+        all_players = set(players)
+        for player in players:
+            player.init(self.play, self.stack, all_players-set([player]))
+
         # Determine starting player
-        players = list(players)
         random.shuffle(players)
         for idx, start_player in enumerate(players):
             if idx == (len(players)-1) or start_player.getIntention("", "Would you like to go first?"):

@@ -45,10 +45,8 @@ class Player(MtGObject):
         self.hand_limit = 7
         self.draw_empty = False
         self.decklist = deck
-    def init(self, play, stack, all_players):
-        all_players.remove(self)
-        self.opponent = tuple(all_players)[0] # XXX Get rid of this
-        self.opponents = all_players
+    def init(self, play, stack, opponents):
+        self.opponents = opponents
 
         self.library = Library()
         self.hand = Hand()
