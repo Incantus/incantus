@@ -77,7 +77,7 @@ class GameKeeper(MtGObject):
                 if did_mulligan == False: break
         try:
             self.run()
-        except GameOver, g:
+        except GameOverException, g:
             self.send(GameOverEvent())
             self.cleanup()
             return g.msg
