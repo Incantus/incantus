@@ -35,23 +35,14 @@ isPlayer = PlayerMatch()
 
 
 # Matching any type of game object (cards or tokens)
-#class TokenMatch(Match):
-#    def match(self, obj=None):
-#        import GameObjects
-#        return isinstance(obj, GameObjects.Token) and super(TokenMatch,self).match(obj)
-#    def __str__(self):
-#        return "GameObject"
+class TokenMatch(Match):
+    def match(self, obj=None):
+        import GameObjects
+        return isinstance(obj._cardtmpl, GameObjects.Token) and super(TokenMatch,self).match(obj)
+    def __str__(self):
+        return "Token"
 
-#class CardMatch(Match):
-#    def match(self, card=None):
-#        import GameObjects
-#        return isinstance(card, GameObjects.Card) and super(CardMatch,self).match(card)
-#    def __str__(self):
-#        return "Card"
-
-#isGameObject = GameObjectMatch()
-#isCard = CardMatch()
-#isToken = TokenMatch()
+isToken = TokenMatch()
 
 class CardRoleMatch(Match):
     def match(self, card=None):
