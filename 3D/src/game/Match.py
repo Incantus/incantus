@@ -61,8 +61,7 @@ class CardRoleMatch(Match):
     def supertypes(self, supertypes):
         pass
 
-isCardRole = CardRoleMatch()
-isCard = isCardRole
+isCard = CardRoleMatch()
 
 class ZoneMatch(Match):
     def __init__(self, zone, txt=''):

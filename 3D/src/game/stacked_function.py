@@ -1,5 +1,5 @@
 import new, types
-from Match import isPlayer, isCardRole
+from Match import isPlayer, isCard
 
 __all__ = ['global_override', 'override', 'replace', 'logical_or', 'logical_and', 'do_all', 'most_recent']
 
@@ -123,7 +123,7 @@ class stacked_function(object):
                     if isPlayer(obj): player = affected = obj
                     elif hasattr(obj, "keeper"): player = affected = obj.current_player
                     # In this case it is a role
-                    elif isCardRole(obj): player, affected = obj.controller, obj
+                    elif isCard(obj): player, affected = obj.controller, obj
                     # Otherwise it's a card (for move_to replacements)
                     else: player, affected = obj.current_role.controller, obj.current_role
                     i = player.getSelection([(f.msg, i) for i, f in enumerate(funcs)], numselections=1, required=True, idx=False, prompt="Choose replacement effect to affect %s"%(affected))
