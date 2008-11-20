@@ -170,6 +170,12 @@ class stacked_characteristic(object):
 
 class stacked_type(stacked_characteristic):
     def _insert_into_stacking(self, char, pos=-1):
-        remove = super(stacked_type, self)._insert_into_stacking(char, pos)
+        if pos == -1: self._stacking.append(char)
+        else: self._stacking.insert(pos, char)
         self.card.add_basecls()
+        self.card.send(self.change_event)
+        def remove():
+            if char in self._stacking:
+                self._stacking.remove(char)
+                self.card.send(self.change_event)
         return remove

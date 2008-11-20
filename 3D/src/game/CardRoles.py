@@ -1,5 +1,5 @@
 import new, copy
-from characteristics import stacked_controller, PTModifiers, stacked_characteristic
+from characteristics import stacked_controller, PTModifiers, stacked_characteristic, additional_characteristics
 from GameObjects import MtGObject
 from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessChangedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
 from Planeswalker import Planeswalker
