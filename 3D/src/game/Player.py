@@ -120,7 +120,7 @@ class Player(MtGObject):
                 total = number
                 prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
                 while number > 0:
-                    card = self.getTarget(cardtype, zone=zone, controller=None if all else self, required=required, prompt=prompt)
+                    card = self.getTarget(cardtype, zone=zone, from_player=None if all else "you", required=required, prompt=prompt)
                     if card == False: break
                     if card in cards:
                         prompt = "Card already selected - select again"
@@ -503,7 +503,7 @@ class Player(MtGObject):
         if isinstance(target, PassPriority): return True
         elif isinstance(target, CancelAction): return False
         else: return target
-    def getTarget(self, target_types, zone=None, controller=None, required=True, prompt='Select target'):
+    def getTarget(self, target_types, zone=None, from_player=None, required=True, prompt='Select target'):
         # If required is True (default) then you can't cancel the request for a target
         if not (type(target_types) == list or type(target_types) == tuple): target_types = [target_types]
         def filter(action):
@@ -515,7 +515,7 @@ class Player(MtGObject):
             elif isinstance(action, PassPriority): return False
 
             target = action.selection
-            if isPlayer(target) or ((not zone or str(target.zone) == zone) and (not controller or target.controller == controller)):
+            if isPlayer(target) or ((not zone or str(target.zone) == zone) and (not from_player or (from_player == "you" and target.controller == self) or (from_player == "opponent" and target.controller in self.opponents))):
                 for target_type in target_types:
                     if target_type(target): return target
             # Invalid target

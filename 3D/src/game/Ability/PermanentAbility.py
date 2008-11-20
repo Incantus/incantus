@@ -49,7 +49,7 @@ def attach_on_enter(self):
     if hasattr(self, "attaching_target"): card = self.attaching_target
     else:
         # Ask to select target
-        card = self.controller.getTarget(self.target_type, zone="play", controller=None, required=True, prompt="Select %s to attach %s"%(self.target_type, self))
+        card = self.controller.getTarget(self.target_type, zone="play", from_player=None, required=True, prompt="Select %s to attach %s"%(self.target_type, self))
         if not card: #move me to the graveyard
             pass
     self.attach(card)

@@ -6,7 +6,7 @@ from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
 from StaticAbility import CiPAbility
 from CreatureAbility import haste
-from EffectsUtilities import until_end_of_turn, delay, do_replace
+from EffectsUtilities import until_end_of_turn, delay, do_replace, no_condition
 from Target import NoTarget
 from Trigger import Trigger, PhaseTrigger
 from Counters import PowerToughnessCounter
@@ -30,7 +30,7 @@ def devour(value):
             i = 0
             num_creatures = len(source.controller.play.get(isCreature))
             while i < num_creatures:
-                creature = source.controller.getTarget(isCreature, zone="play", controller=source.controller, required=False, prompt="Select any number of creatures to sacrifice: (%d selected so far)"%i)
+                creature = source.controller.getTarget(isCreature, zone="play", from_player="you", required=False, prompt="Select any number of creatures to sacrifice: (%d selected so far)"%i)
                 if creature == False: break
                 elif not creature in cards:
                     cards.add(creature)
@@ -65,4 +65,4 @@ def unearth(cost):
             return self.move_to(self.owner.removed)
         until_end_of_turn(delay(source, d_trigger), do_replace(source, "move_to", move_to, msg="%s - remove from game"%source.name, condition=leave_play_condition))
         yield
-    return ActivatedAbility(effects, limit=sorcery, zone="graveyard", txt="Unearth %s"%str(cost, keyword="unearth"))
+    return ActivatedAbility(effects, limit=sorcery, zone="graveyard", txt="Unearth %s"%str(cost), keyword="unearth")

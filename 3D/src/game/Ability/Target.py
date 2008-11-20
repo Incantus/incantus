@@ -55,18 +55,15 @@ class MultipleTargets(object):
         return prompt
     def get(self, source): 
         # XXX Fix the selector if it is an opponent
-        if self.selector == "opponent": selector = source.controller.opponent
+        if self.selector == "opponent": selector = source.controller.choose_opponent()
         elif self.selector == "current_player":
             import game.GameKeeper
             selector = game.GameKeeper.Keeper.current_player
         else: selector = source.controller
-        if self.player == None: controller=None
-        elif self.player == "you": controller=selector
-        else: controller=selector.opponent
         i = 0
         targets = []
         while i < self.number:
-            target = selector.getTarget(self.target_types,zone="play",controller=controller,required=False,prompt=self.get_prompt(i, source.name))
+            target = selector.getTarget(self.target_types,zone="play",from_player=self.player,required=False,prompt=self.get_prompt(i, source.name))
             if target == False:
                 if not self.up_to or len(targets) == 0: return False
                 else: break
@@ -133,14 +130,11 @@ class Target(object):
                 elif self.player == "you": zl = " you control"
                 else: zl = " opponent controls"
             prompt="Target %s%s for %s"%(' or '.join([str(t) for t in self.target_types]), zl, source)
-        if self.selector == "opponent": selector = source.controller.opponent
+        if self.selector == "opponent": selector = source.controller.choose_opponent()
         elif self.selector == "current_player":
             from game.GameKeeper import Keeper
             selector = Keeper.current_player
         else: selector = source.controller
-        if self.player == None: controller=None
-        elif self.player == "you": controller=selector
-        else: controller=selector.opponent
         # If required, make sure there is actually a target available
         if self.required and not self.targeting_player:
             perm = []
@@ -166,10 +160,10 @@ class Target(object):
             elif numtargets == 1: self.target = perm[0]
             else:
                 while True:
-                    self.target = selector.getTarget(self.target_types,zone=self.zone,controller=controller,required=self.required,prompt=prompt)
+                    self.target = selector.getTarget(self.target_types,zone=self.zone,from_player=self.player,required=self.required,prompt=prompt)
                     if self.target.canBeTargetedBy(source): break
         else:
-            self.target = selector.getTarget(self.target_types,zone=self.zone,controller=controller,required=False,prompt=prompt)
+            self.target = selector.getTarget(self.target_types,zone=self.zone,from_player=self.player,required=False,prompt=prompt)
             if self.target == False: return False
         if self.target.canBeTargetedBy(source):
             self.target.isTargetedBy(source)

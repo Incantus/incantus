@@ -161,7 +161,7 @@ class TapCost(Cost):
         else:
             prompt = "Select %d %s(s) for tapping"%(self.number-len(self.targets), self.cardtype)
             while True:
-                target = player.getTarget(self.cardtype, zone="play", controller=player, required=False, prompt=prompt)
+                target = player.getTarget(self.cardtype, zone="play", from_player="you", required=False, prompt=prompt)
                 if target == False: return False
                 if target in self.targets:
                     prompt = "Card already selected - select again"
@@ -203,7 +203,7 @@ class UntapCost(Cost):
         else:
             prompt = "Select %d %s(s) for untapping"%(self.number-len(self.targets), self.cardtype)
             while True:
-                target = player.getTarget(self.cardtype, zone="play", controller=player, required=False, prompt=prompt)
+                target = player.getTarget(self.cardtype, zone="play", from_player="you", required=False, prompt=prompt)
                 if target == False: return False
                 if target in self.targets:
                     prompt = "Card already selected - select again"
@@ -244,7 +244,7 @@ class SacrificeCost(Cost):
         else:
             prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
             while True:
-                target = player.getTarget(self.cardtype, zone="play", controller=player, required=False, prompt=prompt)
+                target = player.getTarget(self.cardtype, zone="play", from_player="you", required=False, prompt=prompt)
                 if target == False: return False
                 if target in self.targets:
                     prompt = "Card already selected - select again"
@@ -280,7 +280,7 @@ class ChangeZoneCost(Cost):
         else:
             prompt = "Select %d %s(s) to %s"%(self.number-len(self.targets), self.cardtype, self.action_txt%'')
             while True:
-                target = player.getTarget(self.cardtype, zone=self.from_zone, controller=player, required=False, prompt=prompt)
+                target = player.getTarget(self.cardtype, zone=self.from_zone, from_player="you", required=False, prompt=prompt)
                 if target == False: return False
                 if target in self.targets:
                     prompt = "%s already selected - select again"%target
@@ -338,7 +338,7 @@ class RemoveCounterCost(Cost):
         else:
             prompt = "Select %s from which to remove %d %s counter(s)"%(self.cardtype, self.number, self.counter_type)
             while True:
-                target = player.getTarget(self.cardtype, zone="play", controller=player, required=False, prompt=prompt)
+                target = player.getTarget(self.cardtype, zone="play", from_player="you", required=False, prompt=prompt)
                 if target == False: return False
                 if not self.enough_counters(target):
                     prompt = "Card doesn't have enough %s counters - select again"%self.counter_type
@@ -368,7 +368,7 @@ class AddCounterCost(Cost):
         else:
             prompt = "Select %s on which to place %d %s counter(s)"%(self.cardtype, self.number, self.counter_type)
             while True:
-                target = player.getTarget(self.cardtype, zone="play", controller=player, required=False, prompt=prompt)
+                target = player.getTarget(self.cardtype, zone="play", from_player="you", required=False, prompt=prompt)
                 if target == False: return False
                 else:
                     self.target = target
@@ -423,7 +423,7 @@ class RevealCost(Cost):
         num = 0
         prompt = "Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
         while num < self.number:
-            target = player.getTarget(self.cardtype, zone="hand", controller=player, required=False,prompt=prompt)
+            target = player.getTarget(self.cardtype, zone="hand", from_player="you", required=False,prompt=prompt)
             if not target: return False
             if not target in self.reveals:
                 self.reveals.append(target)
@@ -462,7 +462,7 @@ class DiscardCost(Cost):
             num = 0
             prompt = "Select %s card%s to discard: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
             while num < self.number:
-                target = player.getTarget(self.cardtype, zone="hand", controller=player,required=False,prompt=prompt)
+                target = player.getTarget(self.cardtype, zone="hand", from_player="you",required=False,prompt=prompt)
                 if not target: return False
                 if not target in self.discards:
                     self.discards.append(target)
