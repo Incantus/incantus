@@ -60,7 +60,6 @@ class CardRole(MtGObject):
         self.is_LKI = False
     def leavingZone(self, zone):
         self.abilities.leavingZone(zone)
-        for attached in self.attachments: attached.attachedLeavingPlay()
         self.is_LKI = True
     def move_to(self, zone, position="top"):
         if not self.is_LKI:
@@ -439,10 +438,6 @@ class Attachment(object):
             for ability in self.attached_abilities: ability.disable()
             self.attached_to.attachments.remove(self)
             self.send(UnAttachedEvent(), unattached=self.attached_to)
-        self.attached_to = None
-    def attachedLeavingPlay(self):
-        for ability in self.attached_abilities: ability.disable()
-        self.send(UnAttachedEvent(), unattached=self.attached_to)
         self.attached_to = None
     def isValidAttachment(self):
         attachment = self.attached_to
