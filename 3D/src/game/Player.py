@@ -2,7 +2,7 @@
 from GameObjects import MtGObject, Card, Token
 from GameKeeper import Keeper
 from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent, GameOverException
-from Mana import ManaPool
+from Mana import ManaPool, generate_hybrid_choices
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
 from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isPlaneswalker
@@ -79,8 +79,11 @@ class Player(MtGObject):
         raise GameOverException("%s%s loses the game!"%(player, msg))
     def add_mana(self, *amount):
         if len(amount) > 1:
-            amount = self.getSelection(amount, 1, prompt="Select mana to add")
+            amount = self.getSelection(amount, 1, prompt="Choose mana to add")
         else: amount = amount[0]
+        # XXX This is a bit hacky - need to combine with other hybrid calcs
+        if "(" in amount:
+            amount = self.getSelection(generate_hybrid_choices(amount), 1, prompt="Choose mana to add")
         self.manapool.add(amount)
     def shuffle(self):
         self.library.shuffle()
