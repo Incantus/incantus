@@ -90,7 +90,7 @@ class InvalidTarget(object):
 # When I add a new argument to constructor, make sure to add it to the copy function
 # or use the copy module
 class Target(object):
-    def __init__(self, target_types=None, msg='', selector="controller", zone="play", player=None):
+    def __init__(self, target_types, msg='', selector="controller", zone="play", player=None):
         self.is_valid = False
         self.target = None
         self.zone = zone
