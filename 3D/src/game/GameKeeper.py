@@ -124,8 +124,8 @@ class GameKeeper(MtGObject):
         # 420.5b and 420.5c are combined
         # 420.5b A creature with toughness 0 or less is put into its owner's graveyard. Regeneration can't replace this event.
         # 420.5c A creature with lethal damage, but greater than 0 toughness, is destroyed. Lethal damage is an amount of damage greater than or equal to a creature's toughness. Regeneration can replace this event.
-        def MoveToGraveyard(creature):
-            def SBE(): creature.move_to(creature.owner.graveyard)
+        def MoveToGraveyard(permanent):
+            def SBE(): permanent.move_to(permanent.owner.graveyard)
             return SBE
         for creature in self.play.get(Match.isCreature):
             if creature.toughness <= 0:
@@ -137,14 +137,9 @@ class GameKeeper(MtGObject):
                 actions.append(walker.destroy)
 
         # 420.5d An Aura attached to an illegal object or player, or not attached to an object or player, is put into its owner's graveyard.
-        def DestroyAura(aura):
-            def SBE():
-                aura.unattach()
-                aura.move_to(aura.owner.graveyard)
-            return SBE
         for aura in self.play.get(Match.isAura):
             if not aura.isValidAttachment():
-                actions.append(DestroyAura(aura))
+                actions.append(MoveToGraveyard(aura))
         # 420.5e If two or more legendary permanents with the same name are in play, all are put into their owners' graveyards. This is called the "legend rule." If only one of those permanents is legendary, this rule doesn't apply.
         legendaries = self.play.get(Match.isLegendaryPermanent)
         # XXX There's got to be a better way to find multiples
@@ -188,17 +183,13 @@ class GameKeeper(MtGObject):
         # 420.5i If two or more permanents have the supertype world, all except the one that has been a permanent with the world supertype in play for the shortest amount of time are put into their owners' graveyards. In the event of a tie for the shortest amount of time, all are put into their owners' graveyards. This is called the "world rule."
         # 420.5j A copy of a spell in a zone other than the stack ceases to exist. A copy of a card in any zone other than the stack or the in-play zone ceases to exist.
         # 420.5k An Equipment or Fortification attached to an illegal permanent becomes unattached from that permanent. It remains in play.
-        def Unattach(equipment):
-            def SBE():
-                equipment.unattach()
-            return SBE
         for equipment in self.play.get(Match.isEquipment):
             if equipment.attached_to and not equipment.isValidAttachment():
-                actions.append(Unattach(equipment))
+                actions.append(equipment.unattach)
         # 420.5m A permanent that's neither an Aura, an Equipment, nor a Fortification, but is attached to another permanent, becomes unattached from that permanent. It remains in play.
         for permanent in self.play.get(Match.isPermanent):
             if hasattr(permanent, "attached_to") and not Match.isAttachment(permanent):
-                permanent.unattach()
+                actions.append(permanent.unattach)
         # 420.5n If a permanent has both a +1/+1 counter and a -1/-1 counter on it, N +1/+1 and N -1/-1 counters are removed from it, where N is the smaller of the number of +1/+1 and -1/-1 counters on it.
         def RemoveCounters(perm, num):
             def SBE():
