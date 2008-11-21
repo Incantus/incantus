@@ -70,15 +70,17 @@ class CardRole(MtGObject):
         for counter in [counter_type.copy() for i in range(number)]:
             self._counters.append(counter)
             self.send(CounterAddedEvent(), counter=counter)
-    def remove_counters(self, counter_type, number=1):
+    def remove_counters(self, counter_type=None, number=1):
         num = 0
-        for counter in [c for c in self._counters if c == counter_type][:number]:
+        counters = [counter for counter in self._counters if counter_type and counter == counter_type]
+        if not number == -1: counters = counters[:number]
+        for counter in counters:
             num += 1
             self._counters.remove(counter)
             self.send(CounterRemovedEvent(), counter=counter)
         return num  # Return the number of counters we actually removed
-    def num_counters(self, counter=None):
-        if counter: return len([c for c in self._counters if c == counter])
+    def num_counters(self, counter_type=None):
+        if counter_type: return len([c for c in self._counters if c == counter_type])
         else: return len(self._counters)
     counters = property(fget=lambda self: self._counters)
     def cda_power_toughness(self, power, toughness):
