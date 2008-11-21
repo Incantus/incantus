@@ -170,12 +170,6 @@ class Permanent(CardRole):
         self.__class__ = new.classobj("_Permanent", (Permanent,), {})
         self.add_basecls()
         super(Permanent, self).enteringZone(zone)
-    def leavingZone(self, zone):
-        # Add the necessary superclasses, depending on our type/subtypes
-        # Don't remove the superclasses, because of LKI
-        self.deactivateRole()
-        super(Permanent, self).leavingZone(zone)
-    def deactivateRole(self): pass
     def add_basecls(self):
         cls = self.__class__
         orig_bases = cls.__bases__
@@ -224,9 +218,9 @@ class Land(object):
     def activateLand(self):
         self.subtypes = stacked_land_subtype(self.subtypes)
         self._add_basic_abilities()
-    def deactivateRole(self):
+    def leavingZone(self, zone):
         self.subtypes.revert()
-        super(Land,self).deactivateRole()
+        super(Land,self).leavingZone(zone)
     def _add_basic_abilities(self):
         for subtype in all_basic_lands:
             if self.subtypes == subtype and not self in self._track_basic[subtype]:
@@ -293,9 +287,9 @@ class Creature(object):
         self.cached_PT_dirty = True
 
         self.register(self._new_timestep, TimestepEvent())
-    def deactivateRole(self):
+    def leavingZone(self, zone):
         self.unregister(self._new_timestep, TimestepEvent())
-        super(Creature,self).deactivateRole()
+        super(Creature,self).leavingZone(zone)
     def canBeDamagedBy(self, damager):
         return not self.is_LKI
     def combatDamage(self):
@@ -427,9 +421,9 @@ class Attachment(object):
     def activateAttachment(self):
         self.attached_to = None
         self.target_type = None
-    def deactivateRole(self):
+    def leavingZone(self, zone):
         self.unattach()
-        super(Attachment,self).deactivateRole()
+        super(Attachment,self).leavingZone(zone)
     def set_target_type(self, target_type):
         # This is set by the aura playing ability, or the equip ability
         self.target_type = target_type
