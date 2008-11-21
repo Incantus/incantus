@@ -60,12 +60,12 @@ class stacked_abilities(object):
         disabled = []
         for group in self._stacking:
             if keyword in group:
-                a = group._keywords[keyword]
-                a.toggle(self.zone, False)
-                disabled.append(a)
+                ability = group._keywords[keyword]
+                ability.toggle(False)
+                disabled.append(ability)
         #self.source.send(AbilitiesModifiedEvent())
         def restore():
-            for a in disabled: a.toggle(self.zone, True)
+            for ability in disabled: ability.toggle(True)
         return restore
     def remove_specific(self, specific_effects):
         found = False
@@ -76,18 +76,18 @@ class stacked_abilities(object):
                     break
             if found: break
         else: raise Exception("Trying to remove a specific ability that doesn't exist")
-        ability.toggle(self.zone, False)
+        ability.toggle(False)
         #self.source.send(AbilitiesModifiedEvent())
-        return lambda: ability.toggle(self.zone, True)
+        return lambda: ability.toggle(True)
     def remove_all(self):
         # first disable all previous abilities
         disabled = []
-        for a in self._stacking:
-            disabled.append(a)
-            a.toggle(self.zone, False)
+        for group in self._stacking:
+            disabled.append(group)
+            group.toggle(self.zone, False)
         #self.source.send(AbilitiesModifiedEvent())
         def remove():
-            for a in disabled: a.toggle(self.zone, True)
+            for group in disabled: group.toggle(self.zone, True)
         return remove
     def set_copy(self, abilities):
         abilities._copy_effect = True
@@ -95,17 +95,17 @@ class stacked_abilities(object):
             if hasattr(ability, "_copy_effect"): break
         disabled = []
         if self.zone:
-            for a in self._stacking[::-1]:
-                if not hasattr(a, "_copy_effect"): break
-                disabled.append(a)
-                a.toggle(self.zone, False)
+            for group in self._stacking[::-1]:
+                if not hasattr(group, "_copy_effect"): break
+                disabled.append(group)
+                group.toggle(self.zone, False)
             abilities.enable(self.zone, self.source)
         self._stacking.insert(i, abilities)
         #self.source.send(AbilitiesModifiedEvent())
         def restore():
             self._stacking.remove(abilities)
             abilities.disable(self.zone)
-            for a in disabled: a.toggle(self.zone, True)
+            for group in disabled: group.toggle(self.zone, True)
         return restore
     def stacking(self): return len(self._stacking) > 1
     def process_stacked(self, func, total, *args):
