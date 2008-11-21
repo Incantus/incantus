@@ -35,7 +35,6 @@ class MorphEvent(Event): pass
 class ClashEvent(Event): pass
 class CardCycledEvent(Event): pass
 
-class SubroleModifiedEvent(Event): pass
 class TypesModifiedEvent(Event): pass
 class ColorModifiedEvent(Event): pass
 class SubtypesModifiedEvent(Event): pass
