@@ -1,7 +1,7 @@
 import copy
 from functools import partial
 from game.pydispatch.dispatcher import CONTINUOUS_PRIORITY
-from game.GameEvent import ControllerChanged, SubroleModifiedEvent, TimestepEvent
+from game.GameEvent import ControllerChanged, TimestepEvent
 from game.GameObjects import MtGObject
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger
 from EffectsUtilities import combine
@@ -39,9 +39,10 @@ class CardTrackingAbility(StaticAbility):
         super(CardTrackingAbility, self).__init__(effects, zone, txt)
         self.enter_trigger = EnterTrigger(tracking, player="any")
         self.leave_trigger = LeaveTrigger(tracking, player="any")
-        self.control_changed = Trigger(ControllerChanged(), sender="source")
-        if not type(events) == list: events = [events]
-        self.other_triggers = [Trigger(event) for event in [SubroleModifiedEvent(), ControllerChanged()] + events]
+        self.control_changed = Trigger(ControllerChanged(), sender="source")  # card with ability changed controller
+        if type(events) == tuple: events = list(events)
+        elif not type(events) == list: events = [events]
+        self.other_triggers = [Trigger(event) for event in [ControllerChanged()] + events] # triggers for tracked cards
         if not condition: condition = lambda *args: True
         self.condition = condition
         self.tracking = tracking
@@ -102,7 +103,7 @@ class CardTrackingAbility(StaticAbility):
         tracking = sender in self.effect_tracking
         pass_condition = self.condition(self.source, sender)
         # If card is already tracked, but doesn't pass the condition, remove it
-        # Note the condition can't rely on any trigger data
+        # XXX Note the condition can't rely on any trigger data
         if not tracking and pass_condition: self.add_effects(sender)
         elif tracking and not pass_condition and not self.effect_tracking[sender] == True: self.remove_effects(sender)
 
