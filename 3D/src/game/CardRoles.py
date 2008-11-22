@@ -418,8 +418,14 @@ class Creature(object):
 class Attachment(object):
     attached_abilities = property(fget=lambda self: self.abilities.attached())
     def activateAttachment(self):
+        from Match import isLand, isCreature
         self.attached_to = None
-        self.target_type = None
+        if self.subtypes == "Equipment":
+            self.target_type = isCreature
+        elif self.subtypes == "Fortification":
+            self.target_type = isLand
+        else:
+            self.target_type = None
     def leavingZone(self, zone):
         self.unattach()
         super(Attachment,self).leavingZone(zone)

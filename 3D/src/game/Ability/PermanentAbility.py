@@ -25,18 +25,17 @@ def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plain
         yield
     return ManaAbility(effects, txt="T: Add %s"%color)
 
-def attach_artifact(cost, target_type, keyword, limit=no_limit):
+def attach_artifact(cost, keyword, limit=no_limit):
     if type(cost) == str: cost = ManaCost(cost)
     def effects(controller, source):
         yield cost
-        target = yield Target(target_type, player='you')
-        source.set_target_type(target_type)
+        target = yield Target(source.target_type, player='you')
         source.attach(target)
         yield
     return ActivatedAbility(effects, limit=limit+sorcery, txt='%s %s'%(keyword, cost))
 
-equip = lambda cost, target_type=isCreature, limit=no_limit: attach_artifact(cost, target_type, "Equip", limit)
-fortify = lambda cost, target_type=isLand, limit=no_limit: attach_artifact(cost, target_type, "Fortify", limit)
+equip = lambda cost, limit=no_limit: attach_artifact(cost, "Equip", limit)
+fortify = lambda cost, limit=no_limit: attach_artifact(cost, "Fortify", limit)
 
 # Comes into play functionality
 def enter_play_tapped(self):
