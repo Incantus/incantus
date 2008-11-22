@@ -158,16 +158,3 @@ def clone(source, cloned):
 
 #def suspend(card, number):
 #    pass
-
-#def echo(card, cost="0"):
-#    #At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.
-#    # XXX This doesn't work when the controller is changed
-#    # need to reset the triggered ability somehow or implement the intervening if properly
-#    echo_ability = [TriggeredAbility(card,
-#                       trigger = PlayerTrigger(event=UpkeepStepEvent()),
-#                       match_condition = lambda player: player == card.controller,
-#                       ability = Ability(card,
-#                                        target=Target(targeting="you"),
-#                                        effects=DoOr(PayExtraCost(cost), failed=SacrificeSelf())),
-#                       expiry=1)]
-#    return card.abilities.add(echo_ability)
