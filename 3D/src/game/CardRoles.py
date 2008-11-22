@@ -424,8 +424,6 @@ class Attachment(object):
             self.target_type = isCreature
         elif self.subtypes == "Fortification":
             self.target_type = isLand
-        else:
-            self.target_type = None
     def leavingZone(self, zone):
         self.unattach()
         super(Attachment,self).leavingZone(zone)

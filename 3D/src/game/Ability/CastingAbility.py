@@ -31,12 +31,6 @@ class CastPermanentSpell(CastSpell):
         self.source.move_to(self.controller.play)
         super(CastPermanentSpell, self).resolved()
 
-class EnchantAbility(CastSpell):
-    limit_type = sorcery
-    def __init__(self, effects, target_type, txt=''):
-        self.target_type = target_type
-        super(EnchantAbility, self).__init__(effects, txt=txt, keyword='enchant')
-
 class CastNonPermanentSpell(CastSpell):
     def resolved(self):
         # The discard comes after the card does its thing

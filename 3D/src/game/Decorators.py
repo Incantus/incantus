@@ -1,7 +1,7 @@
 from Ability.ActivatedAbility import ActivatedAbility, ManaAbility
 from Ability.TriggeredAbility import TriggeredAbility
 from Ability.StaticAbility import CardStaticAbility, ConditionalStaticAbility, CardTrackingAbility, CiPAbility
-from Ability.CastingAbility import CastPermanentSpell, CastInstantSpell, CastSorcerySpell, EnchantAbility
+from Ability.CastingAbility import CastPermanentSpell, CastInstantSpell, CastSorcerySpell
 from Ability.Target import NoTarget, Target
 from Ability.Cost import ManaCost
 from Ability.PermanentAbility import CiP
@@ -14,20 +14,19 @@ def play_permanent(cost):
         yield
     return CastPermanentSpell(effects, txt="Play spell")
 
-def play_aura(cost, target_type):
+def play_aura(cost):
     if type(cost) == str: cost = ManaCost(cost)
     def effects(controller, source):
         yield cost
-        target = yield Target(target_type)
-        perm = source.move_to(controller.play)
-        perm.attaching_target = target
+        target = yield Target(source.target_type)
+        source._attaching_to = target
+        source.move_to(controller.play)
         yield
-    return EnchantAbility(effects, target_type, txt="Enchant %s"%target_type)
+    return CastPermanentSpell(effects)
 
 # Decorators for effects of cards
 def play_sorcery():
     def make_spell(effects):
-        global play_spell
         return CastSorcerySpell(effects, txt="Play spell")
     return make_spell
 

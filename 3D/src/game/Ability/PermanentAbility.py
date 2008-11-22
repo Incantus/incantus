@@ -2,6 +2,7 @@ from game.pydispatch import dispatcher
 from game.Match import isCard, isCreature, isLand
 from game.GameEvent import TimestepEvent
 from ActivatedAbility import ActivatedAbility, ManaAbility
+from StaticAbility import CardStaticAbility
 from Target import NoTarget, Target
 from Cost import ManaCost, TapCost
 from EffectsUtilities import override, replace, combine, do_all
@@ -37,36 +38,52 @@ def attach_artifact(cost, keyword, limit=no_limit):
 equip = lambda cost, limit=no_limit: attach_artifact(cost, "Equip", limit)
 fortify = lambda cost, limit=no_limit: attach_artifact(cost, "Fortify", limit)
 
+def enchant(target_type):
+    def effects(source):
+        source.target_type = target_type
+        def reverse(): del source.target_type
+        yield reverse
+    return CardStaticAbility(effects, keyword="Enchant %s"%target_type, zone="all")
+
+# CiP functionality for auras
+def attach_on_enter(aura):
+    attaching_to = [None]
+    def before(source):
+        # Ask to select target
+        if hasattr(source, "_attaching_to"):
+            card = source._attaching_to
+        else:
+            card = source.controller.getTarget(source.target_type, zone="play", required=True, prompt="Select %s to attach %s"%(source.target_type, source))
+        if card:
+            attaching_to[0] = card
+            return True
+        else: return False
+    def during(self):
+        self.attach(attaching_to[0])
+    CiP(aura, during, before=before, txt="Attach to card")
+
 # Comes into play functionality
 def enter_play_tapped(self):
     '''Card comes into play tapped'''
     self.tapped = True
 
-# CiP functionality for auras
-def attach_on_enter(self):
-    self.target_type = self.play_spell.target_type
-    if hasattr(self, "attaching_target"): card = self.attaching_target
-    else:
-        # Ask to select target
-        card = self.controller.getTarget(self.target_type, zone="play", from_player=None, required=True, prompt="Select %s to attach %s"%(self.target_type, self))
-        if not card: #move me to the graveyard
-            pass
-    self.attach(card)
-
-no_before = lambda source: None
+no_before = lambda source: True
 def CiP(obj, during, before=no_before, condition=None, txt=''):
     if not txt and hasattr(during, "__doc__"): msg = during.__doc__
     else: msg = txt
 
     def move_to(self, zone, position="top"):
         # Now move to play
-        before(self.current_role)
-        perm = self.move_to(zone, position)
-        # At this point the card hasn't actually moved (it will on the next timestep event), so we can modify it's enteringZone function. This basically relies on the fact that entering play is batched and done on the timestep.
-        remove_entering = override(perm, "modifyEntering", during, combiner=do_all)
-        # XXX There might be timing issue, since we want to remove the override after the card is put into play
-        dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False, expiry=1)
-        return perm
+        if before(self.current_role):
+            perm = self.move_to(zone, position)
+            # At this point the card hasn't actually moved (it will on the next timestep event), so we can modify it's enteringZone function. This basically relies on the fact that entering play is batched and done on the timestep.
+            remove_entering = override(perm, "modifyEntering", during, combiner=do_all)
+            # XXX There might be timing issue, since we want to remove the override after the card is put into play
+            dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False, expiry=1)
+            return perm
+        else:
+            # Don't actually move the card
+            return self.current_role
 
     play_condition = lambda self, zone, position="top": str(zone) == "play"
     if condition: cond = lambda self, zone, position="top": play_condition(self,zone,position) and condition(self,zone,position)
