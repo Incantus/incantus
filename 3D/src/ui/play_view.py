@@ -220,7 +220,8 @@ class PlayView(Widget):
             else:
                 self.lands['Other'].append(guicard)
                 guicard._row = self.lands['Other']
-        elif Match.isAura(card): # it should be attached at this point
+        elif Match.isAura(card) and Match.isPermanent(card.attached_to):
+            # it should be attached at this point
             self.attached.append(guicard)
             guicard._row = self.attached
             self.card_attached(card, card.attached_to)
@@ -247,20 +248,6 @@ class PlayView(Widget):
         guicard.alpha = anim.animate(1, 0.25, dt=1.5, method="ease_in_circ")
         clock.schedule_once(lambda t: cardlist.remove(guicard), 1.4)
         clock.schedule_once(lambda t: self.layout(), 1.5)
-    #def card_attached_new(self, sender, attached):
-    # XXX This is to handle attaching to the other player's permanents
-    #    attachment = self.get_card(sender)
-    #    attached = self.get_card(attached)
-    #    if attachment in self.other_perms: self.other_perms.remove(attachment)
-    #    if attached: # Not coming into play, (Equipments)
-    #        self.attached.append(attachment)
-    #        if Match.isBasicLand(attached.gamecard):
-    #            for landtype in self.lands.values():
-    #                if attached in landtype:
-    #                    break
-    #            landtype.remove(attached)
-    #            self.lands["Other"].append(attached)
-    #    self.layout()
     def card_attached(self, sender, attached):
         attachment = self.get_card(sender)
         attached = self.get_card(attached)
@@ -274,7 +261,7 @@ class PlayView(Widget):
     def card_unattached(self, sender, unattached):
         attachment = self.get_card(sender)
         unattached = self.get_card(unattached)
-        if attachment and unattached:
+        if attachment and unattached and attachment in self.attached:
             self.attached.remove(attachment)
             attachment._row.append(attachment)
             if Match.isBasicLand(unattached.gamecard):
