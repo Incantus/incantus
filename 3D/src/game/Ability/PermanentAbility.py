@@ -5,7 +5,7 @@ from ActivatedAbility import ActivatedAbility, ManaAbility
 from StaticAbility import CardStaticAbility
 from Target import NoTarget, Target
 from Cost import ManaCost, TapCost
-from EffectsUtilities import override, replace, combine, do_all
+from EffectsUtilities import do_override, do_replace, combine, do_all
 from Limit import no_limit, sorcery
 
 #def flash(card):
@@ -79,7 +79,7 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
         if before(self):
             perm = self.move_to(zone, position)
             # At this point the card hasn't actually moved (it will on the next timestep event), so we can modify it's enteringZone function. This basically relies on the fact that entering play is batched and done on the timestep.
-            remove_entering = override(perm, "modifyEntering", during, combiner=do_all)
+            remove_entering = do_override(perm, "modifyEntering", during, combiner=do_all)
             # XXX There might be timing issue, since we want to remove the override after the card is put into play
             dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False, expiry=1)
             return perm
@@ -91,7 +91,7 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
     if condition: cond = lambda self, zone, position="top": play_condition(self,zone,position) and condition(self,zone,position)
     else: cond = play_condition
 
-    return replace(obj, "move_to", move_to, msg=msg, condition=cond)
+    return do_replace(obj, "move_to", move_to, msg=msg, condition=cond)
 
 # Untapping abilities
 
