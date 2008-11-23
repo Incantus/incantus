@@ -38,16 +38,6 @@ def permanent_method(func):
     from game.CardRoles import Permanent
     setattr(Permanent, func.__name__, func)
 
-#def do_override(target, func_name, func, combiner=logical_and):
-#    if isPlayer(target): obj = target
-#    else: obj = target.current_role
-#    return override(obj, func_name, func, combiner)
-
-#def do_replace(target, func_name, func, msg, condition):
-#    if isPlayer(target): obj = target
-#    else: obj = target.current_role
-#    return replace(obj, func_name, func, msg, condition=condition)
-
 do_override = override
 do_replace = replace
 

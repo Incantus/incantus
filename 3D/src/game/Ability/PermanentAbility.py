@@ -76,7 +76,7 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
 
     def move_to(self, zone, position="top"):
         # Now move to play
-        if before(self.current_role):
+        if before(self):
             perm = self.move_to(zone, position)
             # At this point the card hasn't actually moved (it will on the next timestep event), so we can modify it's enteringZone function. This basically relies on the fact that entering play is batched and done on the timestep.
             remove_entering = override(perm, "modifyEntering", during, combiner=do_all)
@@ -85,13 +85,12 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
             return perm
         else:
             # Don't actually move the card
-            return self.current_role
+            return self
 
     play_condition = lambda self, zone, position="top": str(zone) == "play"
     if condition: cond = lambda self, zone, position="top": play_condition(self,zone,position) and condition(self,zone,position)
     else: cond = play_condition
 
-    if isCard(obj): obj = obj._cardtmpl # If we are changing a specific card, make sure to modify the card move_to_play
     return replace(obj, "move_to", move_to, msg=msg, condition=cond)
 
 # Untapping abilities
