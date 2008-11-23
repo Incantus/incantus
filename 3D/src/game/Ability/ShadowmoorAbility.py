@@ -11,13 +11,12 @@ def persist():
         return source_match(source, card) and card.num_counters("-1-1") == 0
     def enterWithCounters(self):
         self.add_counters(PowerToughnessCounter(-1, -1))
-    def persist_effect(controller, source, card):
+    def persist_effect(controller, source, card, newcard):
         yield NoTarget()
         if condition(source, card):
             expire = CiP(source, enterWithCounters, txt='%s - enter play with a -1/-1 counter'%source)
             # Now move to play
-            # XXX Cheat and move the card since we don't have the new role object
-            source._cardtmpl.move_to(source.owner.play)
+            newcard.move_to(newcard.owner.play)
             expire()
         yield
 

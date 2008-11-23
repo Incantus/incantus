@@ -185,6 +185,10 @@ class Player(MtGObject):
         return replace(Keeper, "newTurn", skipTurn, condition=condition, msg=msg)
     def take_extra_turn(self):
         Keeper.player_cycler.insert(self)
+    def setup_special_action(self, action):
+        #408.2i. Some effects allow a player to take an action at a later time, usually to end a continuous effect or to stop a delayed triggered ability. This is a special action. A player can stop a delayed triggered ability from triggering or end a continuous effect only if the ability or effect allows it and only when he or she has priority. The player who took the action gets priority after this special action.
+        #408.2j. Some effects from static abilities allow a player to take an action to ignore the effect from that ability for a duration. This is a special action. A player can take an action to ignore an effect only when he or she has priority. The player who took the action gets priority after this special action. (Only 3 cards use this: Damping Engine, Lost in Thought, Volrath's Curse)
+        raise NotImplementedError()
 
     # Rule engine functions
     def mulligan(self):
