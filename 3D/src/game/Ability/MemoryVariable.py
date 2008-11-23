@@ -120,7 +120,7 @@ class TimestepDamageTrackingVariable(MemoryVariable):
             if not isPlayer(to): self.receiving[to]['combat'] += amount
         else:
             self.dealing[sender]['other'] += amount
-        if not isPlayer(to): self.receiving[to]['other'] += amount
+            if not isPlayer(to): self.receiving[to]['other'] += amount
     def value(self):
         return sum([self.tracking[source]['combat'] + self.tracking[source]['other'] for source in self.tracking])
 
