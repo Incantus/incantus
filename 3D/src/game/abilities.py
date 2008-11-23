@@ -5,7 +5,8 @@ class abilities(object):
     def __init__(self):
         self._abilities = []
         self._keywords = {}
-    def add(self, ability):
+    def add(self, ability, tag=''):
+        ability.tag = tag
         if type(ability) == tuple:
             self._abilities.extend(ability)
         else:
@@ -67,11 +68,11 @@ class stacked_abilities(object):
         def restore():
             for ability in disabled: ability.toggle(True)
         return restore
-    def remove_specific(self, specific_effects):
+    def remove_by_tag(self, tag):
         found = False
         for group in self._stacking:
             for ability in group:
-                if specific_effects == ability.effect_generator:
+                if tag == ability.tag:
                     found = True
                     break
             if found: break
