@@ -1,5 +1,7 @@
 from game.GameObjects import MtGObject
+from game.Match import isPlayer
 from game.GameEvent import *
+
 
 class MemoryVariable(MtGObject):
     def __init__(self):
@@ -91,7 +93,41 @@ class SpellRecordVariable(MemoryVariable):
             return temp
         else: return []
 
+# This should never be referred to... it's solely to make damage triggers work properly
+class TimestepDamageTrackingVariable(MemoryVariable):
+    def __init__(self):
+        self.reset()
+        self.register(self.damage, event=DealsDamageToEvent())
+        self.register(self.cleanup, event=TimestepEvent())
+    def reset(self):
+        self.dealing = {}
+        self.receiving = {}
+    def cleanup(self):
+        for source in self.dealing:
+            if self.dealing[source]['combat'] > 0:
+                source.send(DealsDamageEvent(), amount=self.dealing[source]['combat'], combat=True)
+            if self.dealing[source]['other'] > 0:
+                source.send(DealsDamageEvent(), amount=self.dealing[source]['other'], combat=False)
+        for recipient in self.receiving:
+            if self.receiving[recipient]['combat'] > 0: recipient.send(ReceivesDamageEvent(), amount=self.receiving[recipient]['combat'], combat=True)
+            if self.receiving[recipient]['other'] > 0: recipient.send(ReceivesDamageEvent(), amount=self.receiving[recipient]['other'], combat=False)
+        self.reset()
+    def damage(self, sender, to, amount, combat):
+        if not sender in self.dealing: self.dealing[sender] = {'combat': 0, 'other': 0}
+        if not isPlayer(to) and not to in self.receiving: self.receiving[to] = {'combat': 0, 'other': 0}
+        if combat:
+            self.dealing[sender]['combat'] += amount
+            if not isPlayer(to): self.receiving[to]['combat'] += amount
+        else:
+            self.dealing[sender]['other'] += amount
+        if not isPlayer(to): self.receiving[to]['other'] += amount
+    def value(self):
+        return sum([self.tracking[source]['combat'] + self.tracking[source]['other'] for source in self.tracking])
+
+timestep_damage_tracker = TimestepDamageTrackingVariable()
+
 # Predefined memory variables
 damage_tracker = DamageTrackingVariable()
 graveyard_tracker = ZoneMoveVariable(from_zone="play", to_zone="graveyard")
 spell_record = SpellRecordVariable()
+

@@ -187,7 +187,7 @@ class ZoneAnimator(object):
             guicard = zone.get_card(sender)
             start_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))
             self.sparks.add_star_spark(start_pos, start_pos, dt=dt, color=color, dim=2)
-    def card_damage(self, sender, source, amount):
+    def card_damage(self, sender, amount):
         zone = self.play_zones[sender.controller]
         guicard = zone.get_card(sender)
         start_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))+euclid.Vector3(0,10,0)

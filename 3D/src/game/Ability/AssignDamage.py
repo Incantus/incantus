@@ -34,6 +34,4 @@ class AssignDamage(Ability):
             total = 0
             for damagee, amt in damage_assn.iteritems():
                 if amt > 0: total += damager.dealDamage(damagee, amt, combat=True)
-
-            if total > 0: damager.send(DealsDamageEvent(), amount=total, combat=True)
     def __str__(self): return self.txt
