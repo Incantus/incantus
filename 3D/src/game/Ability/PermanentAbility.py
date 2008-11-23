@@ -24,7 +24,7 @@ def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plain
         yield NoTarget()
         controller.add_mana(color)
         yield
-    return ManaAbility(effects, txt="T: Add %s"%color)
+    return ManaAbility(effects, txt="T: Add %s to your mana pool"%color)
 
 def attach_artifact(cost, keyword, limit=no_limit):
     if type(cost) == str: cost = ManaCost(cost)
