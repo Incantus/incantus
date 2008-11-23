@@ -1,6 +1,6 @@
 import weakref
 from pydispatch import dispatcher
-from GameEvent import TokenLeavingPlay, ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent
+from GameEvent import ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent
 from abilities import abilities, stacked_abilities
 from characteristics import stacked_variable, stacked_characteristic, stacked_type
 import CardDatabase
@@ -90,8 +90,6 @@ class GameObject(MtGObject):
         role.base_loyalty = stacked_variable(self.base_loyalty)
         return role
 
-    def move_to(self, zone, position="top"):
-        return zone.move_card(self, position)
     def __repr__(self):
         return "%s at %s"%(str(self),str(id(self)))
     def __str__(self):
@@ -130,15 +128,17 @@ class Card(GameObject):
 class Token(GameObject):
     def __init__(self, info, owner):
         super(Token, self).__init__(owner)
-        from CardRoles import NoRole, Permanent
+        from CardRoles import NoRole, TokenPermanent
         if type(info) == dict: info = CardDatabase.convertToTxt(info)
         CardDatabase.execCode(self, info)
         self.out_play_role = self.stack_role = NoRole
-        self.in_play_role = Permanent
+        self.in_play_role = TokenPermanent
         self.base_name = "%s Token"%self.base_name
         self._add_to_map()
-    def move_to(self, zone, position="top"):
-        if not str(zone) == "play": self.send(TokenLeavingPlay())
-        return super(Token, self).move_to(zone, position)
+
+        # Set up the token to be played
+        self.current_role = self.out_play_role
+        self.current_role.is_LKI = False
+
     def __str__(self):
         return "Token: %s"%self.base_name

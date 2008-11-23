@@ -105,7 +105,8 @@ class Player(MtGObject):
         token_roles = []
         for _ in range(number):
             token = Token(info, owner=self)
-            token_roles.append(token.move_to(self.play))
+            role = token.current_role
+            token_roles.append(role.move_to(self.play))
         return token_roles
     def choose_opponent(self):
         if len(self.opponents) == 1:

@@ -30,6 +30,7 @@ class Zone(MtGObject):
         # Retrieve all of a type of Card in current location
         return [card.current_role for card in iter(self._cards[::-1]) if match(card.current_role)]
     def cease_to_exist(self, card):
+        card = card._cardtmpl
         self._remove_card(card, CardCeasesToExist())
     def _remove_card(self, card, event=CardLeftZone()):
         self._cards.remove(card)
@@ -46,6 +47,7 @@ class Zone(MtGObject):
         card.zone = self
         self.send(CardEnteredZone(), card=card.current_role)
     def move_card(self, card, position):
+        card = card._cardtmpl
         orig_role = card.current_role
         self.setup_new_role(card)
         if card.zone:
@@ -174,7 +176,7 @@ class Play(OrderedZone):
                 cardlist.extend(cards)
         return cardlist
     def move_card(self, card, position, controller):
-        self.controllers[card] = controller
+        self.controllers[card._cardtmpl] = controller
         return super(Play, self).move_card(card, position)
     def setup_new_role(self, card):
         card.current_role = card.in_play_role

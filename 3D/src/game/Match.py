@@ -1,5 +1,4 @@
 import copy
-import GameObjects
 
 class Match(object):
     def __init__(self, condition=None):
@@ -69,8 +68,8 @@ isPermanent = ZoneMatch("play", "permanent")
 isLegendaryPermanent = isPermanent.with_condition(lambda c: c.supertypes == "Legendary")
 isPermanentCard = isCard.with_condition(lambda c: c.types == "Artifact" or c.types == "Enchantment" or c.types == "Creature" or c.types == "Land" or c.types == "Planeswalker")
 
-isToken = isPermanent.with_condition(lambda c: isinstance(c._cardtmpl, GameObjects.Token))
-isNonToken = isPermanent.with_condition(lambda c: not isinstance(c._cardtmpl, GameObjects.Token))
+isToken = isPermanent.with_condition(lambda c: isinstance(c, CardRole.TokenPermanent))
+isNonToken = isPermanent.with_condition(lambda c: not isinstance(c, CardRole.TokenPermanent))
 
 # Type specific matching
 class TypeMatch(Match):

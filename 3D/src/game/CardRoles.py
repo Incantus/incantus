@@ -63,7 +63,9 @@ class CardRole(MtGObject):
         self.is_LKI = True
     def move_to(self, zone, position="top"):
         if not self.is_LKI:
-            return self._cardtmpl.move_to(zone, position)
+            if type(zone) == str and not zone == "play":
+                zone = getattr(self.owner, zone)
+            return zone.move_card(self, position)
     def add_counters(self, counter_type, number=1):
         if type(counter_type) == str: counter_type = Counter(counter_type)
         for counter in [counter_type.copy() for i in range(number)]:
@@ -166,7 +168,7 @@ class Permanent(CardRole):
 
     def enteringZone(self, zone):
         # Add the necessary superclasses, depending on our type/subtypes
-        self.__class__ = new.classobj("_Permanent", (Permanent,), {})
+        self.__class__ = new.classobj("_Permanent", (self.__class__,), {})
         self.add_basecls()
         super(Permanent, self).enteringZone(zone)
     def add_basecls(self):
@@ -185,6 +187,11 @@ class Permanent(CardRole):
             cls.__bases__ = (Attachment,)+orig_bases
             self.activateAttachment()
 
+class TokenPermanent(Permanent):
+    def move_to(self, zone, position="top"):
+        newrole = super(TokenPermanent, self).move_to(zone, position)
+        if not str(zone) == "play": newrole.send(TokenLeavingPlay())
+        return newrole
 
 class stacked_land_subtype(stacked_characteristic):
     def __init__(self, orig_stacked):
