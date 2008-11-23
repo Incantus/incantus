@@ -22,8 +22,7 @@ class LifeLostEvent(Event): pass
 class DrawCardEvent(Event): pass
 class DiscardCardEvent(Event): pass
 class ShuffleEvent(Event): pass
-class CardEnteringZone(Event): pass
-class CardLeavingZone(Event): pass
+class CardEnteringZoneFrom(Event): pass
 class CardEnteredZone(Event): pass
 class CardLeftZone(Event): pass
 class CardCeasesToExist(Event): pass

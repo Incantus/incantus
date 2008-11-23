@@ -1,6 +1,6 @@
 import random
 from GameObjects import MtGObject
-from GameEvent import CardLeavingZone, CardEnteringZone, CardLeftZone, CardEnteredZone, CardCeasesToExist, TimestepEvent, ShuffleEvent
+from GameEvent import CardEnteringZoneFrom, CardLeftZone, CardEnteredZone, CardCeasesToExist, TimestepEvent, ShuffleEvent
 
 class Zone(MtGObject):
     def __init__(self):
@@ -46,9 +46,10 @@ class Zone(MtGObject):
         card.zone = self
         self.send(CardEnteredZone(), card=card.current_role)
     def move_card(self, card, position):
-        self.send(CardEnteringZone(), card=card.current_role)
-        if card.zone: card.zone.send(CardLeavingZone(), card=card.current_role)
+        orig_role = card.current_role
         self.setup_new_role(card)
+        if card.zone:
+            self.send(CardEnteringZoneFrom(), from_zone=card.zone, oldcard=orig_role, newcard=card.current_role)
         self._insert_card(card, position)
         return card.current_role
     # The next 2 are for zones to setup and takedown card roles
@@ -113,7 +114,7 @@ class Library(OutPlayMixin, OrderedZone):
         super(Library, self).__init__()
         self.needs_shuffle = False
     def add_new_card(self, card, position="top"):
-        self.send(CardEnteringZone(), card=card.current_role)
+        #self.send(CardEnteringZone(), card=card.current_role) # This is weird - at this point it has no role since it will have just been created
         self.setup_new_role(card)
         return self._insert_card(card, position)
     def get_card_order(self, cardlist, pos):
