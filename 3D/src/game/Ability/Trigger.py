@@ -82,12 +82,6 @@ class EnterTrigger(MoveTrigger):
 class LeaveTrigger(MoveTrigger):
     def __init__(self, zone=None, player="controller"):
         super(LeaveTrigger,self).__init__(event=CardLeftZone(), zone=zone, player=player)
-class EnteringTrigger(MoveTrigger):
-    def __init__(self, zone=None, player="controller"):
-        super(EnteringTrigger,self).__init__(event=CardEnteringZone(), zone=zone, player=player)
-class LeavingTrigger(MoveTrigger):
-    def __init__(self, zone=None, player="controller"):
-        super(LeavingTrigger,self).__init__(event=CardLeavingZone(), zone=zone, player=player)
 
 class EnterFromTrigger(Trigger):
     # We need to keep track of all zone changes, to make sure that we catch the right sequence of events
