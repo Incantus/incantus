@@ -422,14 +422,13 @@ class Attachment(object):
         self.attached_to = None
         if self.subtypes == "Equipment":
             self.target_type = isCreature
+            self.target_zone = "play"
         elif self.subtypes == "Fortification":
             self.target_type = isLand
+            self.target_zone = "play"
     def leavingZone(self, zone):
         self.unattach()
         super(Attachment,self).leavingZone(zone)
-    def set_target_type(self, target_type):
-        # This is set by the aura playing ability, or the equip ability
-        self.target_type = target_type
     def attach(self, target):
         if self.attached_to != None: self.unattach()
         self.attached_to = target
@@ -445,4 +444,4 @@ class Attachment(object):
         self.attached_to = None
     def isValidAttachment(self):
         attachment = self.attached_to
-        return (attachment and str(attachment.zone) == "play" and self.target_type(attachment) and attachment.canBeAttachedBy(self))
+        return (attachment and str(attachment.zone) == self.target_zone and self.target_type(attachment) and attachment.canBeAttachedBy(self))

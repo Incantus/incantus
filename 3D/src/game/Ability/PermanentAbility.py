@@ -38,12 +38,12 @@ def attach_artifact(cost, keyword, limit=no_limit):
 equip = lambda cost, limit=no_limit: attach_artifact(cost, "Equip", limit)
 fortify = lambda cost, limit=no_limit: attach_artifact(cost, "Fortify", limit)
 
-def enchant(target_type):
+def enchant(target_type, zone="play"):
     def effects(source):
         source.target_type = target_type
-        def reverse(): del source.target_type
-        yield reverse
-    return CardStaticAbility(effects, keyword="Enchant %s"%target_type, zone="all")
+        source.target_zone = zone
+        yield lambda: None
+    return CardStaticAbility(effects, keyword="Enchant %s in %s"%(target_type, zone), zone="all")
 
 # CiP functionality for auras
 def attach_on_enter(aura):
@@ -53,7 +53,9 @@ def attach_on_enter(aura):
         if hasattr(source, "_attaching_to"):
             card = source._attaching_to
         else:
-            card = source.controller.getTarget(source.target_type, zone="play", required=True, prompt="Select %s to attach %s"%(source.target_type, source))
+            if not source.target_zone == "play": where = " in %s"%source.target_zone
+            else: where = ''
+            card = source.controller.getTarget(source.target_type, zone=source.target_zone, required=True, prompt="Select %s%s to attach %s"%(source.target_type, where, source))
         if card:
             attaching_to[0] = card
             return True

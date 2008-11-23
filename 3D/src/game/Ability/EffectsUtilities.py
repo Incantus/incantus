@@ -15,7 +15,9 @@ def do_when(func, event, condition=lambda *args: True):
 
 def delay(source, delayed_trigger):
     delayed_trigger.enable(source)
-    def expire(): delayed_trigger.disable()
+    def expire():
+        delayed_trigger.disable()
+        #del delayed_trigger  # if I delete this, it seems to get garbage collected when it's first set up
     return expire
 
 def combine(*restores):
