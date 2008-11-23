@@ -28,8 +28,8 @@ class CardRole(MtGObject):
                 for counter in self.counters:
                     count[str(counter)] = count.get(str(counter), 0)+1
                 txt.append('\n\nCounters: %s'%', '.join(["%s (%d)"%(counter, num) for counter, num in count.items()]))
-            #subrole_info = self.subrole_info()
-            #if subrole_info: txt.append('\n\n'+subrole_info)
+            #type_info = self.type_info()
+            #if type_info: txt.append('\n\n'+type_info)
             return ''.join(txt)
         return locals()
     info = property(**info())
@@ -47,7 +47,6 @@ class CardRole(MtGObject):
         if to.canBeDamagedBy(self) and amount > 0:
             final_dmg = to.assignDamage(amount, source=self, combat=combat)
             if final_dmg > 0: self.send(DealsDamageToEvent(), to=to, amount=final_dmg, combat=combat)
-        #self.send(DealsDamageEvent(), amount=final_dmg, combat=combat)
         return final_dmg
     def canBeTargetedBy(self, targeter): return True
     def canBeAttachedBy(self, targeter): return True
@@ -271,17 +270,12 @@ class Creature(object):
         self.curr_power, self.curr_toughness = power, toughness
     def _new_timestep(self, sender):
         self.cached_PT_dirty=True
-        #amt, combat = self.__instant_damage
-        #if amt:
-        #    self.send(ReceivesDamageEvent(), amount=amt, combat=combat)
-        #    self.__instant_damage[:] = (0, False)
     def activateCreature(self):
         self.curr_power = self.curr_toughness = 0
         self.cached_PT_dirty = False
 
         # Only accessed internally
         self.__damage = 0
-        self.__instant_damage = [0, False]
 
         self.PT_other_modifiers = PTModifiers() # layer 6b - other modifiers
         self.PT_static_modifiers = PTModifiers() # layer 6d - static modifiers
@@ -310,8 +304,6 @@ class Creature(object):
         if amt > 0:
             if "wither" in source.abilities: self.add_counters(PowerToughnessCounter(-1, -1), amt)
             else: self.__damage += amt
-            #self.__instant_damage[0] += amt
-            #self.__instant_damage[1] = combat
         return amt
     def trample(self, damage_assn):
         from Match import isCreature
@@ -414,13 +406,13 @@ class Creature(object):
         PT = PowerToughnessSwitcher()
         return self.PT_switch_modifiers.add(PT)
 
-    #def subrole_info(self):
-    #    txt = ["%d/%d"%(self.base_power, self.base_toughness)]
-    #    txt.append(str(self.PT_other_modifiers))
-    #    txt.append(', '.join([str(c) for c in self.counters if hasattr(c,"power")]))
-    #    txt.append(str(self.PT_static_modifiers))
-    #    txt.append(str(self.PT_switch_modifiers))
-    #    return '' #'P/T:\n'+'\n'.join(["6%s: %s"%(layer, mod) for layer, mod in zip("ABCDE", txt) if mod])
+    def type_info(self):
+        txt = ["%d/%d"%(self.base_power, self.base_toughness)]
+        txt.append(str(self.PT_other_modifiers))
+        txt.append(', '.join([str(c) for c in self.counters if hasattr(c,"power")]))
+        txt.append(str(self.PT_static_modifiers))
+        txt.append(str(self.PT_switch_modifiers))
+        return 'P/T:\n'+'\n'.join(["6%s: %s"%(layer, mod) for layer, mod in zip("ABCDE", txt) if mod])
 
 class Attachment(object):
     attached_abilities = property(fget=lambda self: self.abilities.attached())
