@@ -212,11 +212,12 @@ class PlayView(Widget):
             self.creatures.insert(0, guicard)
             guicard._row = self.creatures
         elif Match.isLand(card):
-            for key in self.lands.keys():
-                if card.subtypes == key:
-                    self.lands[key].append(guicard)
-                    guicard._row = self.lands[key]
-                    break
+            if card.supertypes == "Basic":
+                for key in self.lands.keys():
+                    if card.subtypes == key:
+                        self.lands[key].append(guicard)
+                        guicard._row = self.lands[key]
+                        break
             else:
                 self.lands['Other'].append(guicard)
                 guicard._row = self.lands['Other']
