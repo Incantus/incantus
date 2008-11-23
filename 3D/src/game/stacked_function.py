@@ -1,5 +1,4 @@
 import new, types
-from Match import isPlayer, isCard
 
 __all__ = ['global_override', 'override', 'replace', 'logical_or', 'logical_and', 'do_all', 'most_recent']
 
@@ -111,6 +110,7 @@ class stacked_function(object):
         return replacements
 
     def __call__(self, *args, **kw):
+        from Match import isPlayer, isCard
         obj = args[0]
         global_overrides = [f for f in self.global_overrides[::-1] if f.obj == "all" or f.obj == obj]
         if global_overrides: return global_overrides[0](*args, **kw)

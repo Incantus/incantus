@@ -1,7 +1,6 @@
 import weakref
 from stacked_function import replace
 from abilities import stacked_abilities
-from Player import Player
 from Ability.Counters import Counter
 from Ability.Limit import SorceryLimit, CountLimit
 
@@ -20,6 +19,7 @@ class planeswalker_abilities(stacked_abilities):
             if hasattr(a, "activated"): a.limit += self.walker_limit
 
 def redirect_to(planeswalker):
+    from Player import Player
     def condition(self, amt, source, combat):
         return not (combat or source.controller == planeswalker.controller)
     def redirectDamage(self, amt, source, combat=False):
