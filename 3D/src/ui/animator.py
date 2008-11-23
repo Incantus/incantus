@@ -50,6 +50,16 @@ class SparkFXManager(object):
         spark.scale = anim.animate(1.0, 1.3, dt=dt, method="sine")
         if dim == 2: self.active_sparks.append(spark)
         else: self.active_sparks_3d.append(spark)
+    def add_card_spark(self, card, start_pos, end_pos, dt=1.0, color=None, grow=False, dim=2):
+        spark = Image(card.front, pos=start_pos)
+        spark._final_scale = 0.5
+        spark._pos.set_transition(dt=dt, method="ease_out_circ") #ease_out_back")
+        spark.pos = end_pos
+        spark.visible = anim.animate(1., 0., dt=dt)
+        if grow: spark.scale = anim.animate(0.5, 1.0, dt=dt, method="sine")
+        else: spark.scale = anim.animate(1.5, 0.2, dt=dt, method="sine")
+        if dim == 2: self.active_sparks.append(spark)
+        else: self.active_sparks_3d.append(spark)
     def add_spark(self, start_pos, end_pos, dt=1.0, color=None, grow=False, dim=2):
         spark = Image("glow", pos=start_pos)
         spark._pos.set_transition(dt=dt, method="ease_out_circ") #ease_out_back")
@@ -256,6 +266,7 @@ class ZoneAnimator(object):
                 start_pos, from_zone = self.tracker[card.key]
                 end_pos = pstatus.pos + symbol.pos
                 if from_zone in self.play_zones.values():
+                    guicard = from_zone.get_card(card)
                     from_zone.remove_card(card, clock)
                     self.sparks.add_spark(start_pos, start_pos, dt=1.5, color=str(card.color), grow=True)
                     clock.schedule_once(lambda t: self.sparks.add_spark(start_pos, end_pos, dt=1.25, color=str(card.color)), 1.55)
@@ -289,7 +300,6 @@ class ZoneAnimator(object):
             if pstatus.visible == 1 and not card.key in self.tracker: # already here because it was in the stack
                 self.tracker[card.key] = (pstatus.pos + symbol.pos, pstatus)
             pstatus.update_zone(sender)
-            #pstatus.update_cards()
         elif str(sender) == "play":
             zone = self.play_zones[card.controller]
             guicard = zone.get_card(card)
