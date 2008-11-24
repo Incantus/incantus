@@ -33,7 +33,9 @@ from Ability.ShadowmoorAbility import *
 from Ability.EventideAbility import *
 from Ability.AlaraAbility import *
 from Ability.KamigawaAbility import *
-
-from Ability.MarekAbility import *
+from Ability.DarksteelAbility import *
+from Ability.ColdsnapAbility import *
+from Ability.DissensionAbility import *
+from Ability.NemesisAbility import *
 
 nan = None
