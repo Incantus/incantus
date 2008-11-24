@@ -34,4 +34,6 @@ from Ability.EventideAbility import *
 from Ability.AlaraAbility import *
 from Ability.KamigawaAbility import *
 
+from Ability.MarekAbility import *
+
 nan = None
