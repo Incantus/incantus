@@ -57,15 +57,14 @@ class ReceiveDamageTrigger(Trigger):
 class CardTrigger(Trigger): pass
 
 class MoveTrigger(Trigger):
-    def __init__(self, event, zone, player="controller"):
+    def __init__(self, event, zone, player="you"):
         super(MoveTrigger, self).__init__(event=event)
         self.zone = zone
         self.player = player
     def check_player(self, sender, card):
-        if self.zone == "play": player_cmp = card.controller
-        else: player_cmp = card.owner
+        player_cmp = card.controller  # Out of play defaults to owner
 
-        if self.player == "controller" and player_cmp == self.source.controller: return True
+        if self.player == "you" and player_cmp == self.source.controller: return True
         elif self.player == "opponent" and player_cmp in self.source.controller.opponents: return True
         elif self.player == "any": return True
         else: return False
@@ -77,15 +76,15 @@ class MoveTrigger(Trigger):
             self.count += 1
 
 class EnterTrigger(MoveTrigger):
-    def __init__(self, zone=None, player="controller"):
+    def __init__(self, zone=None, player="you"):
         super(EnterTrigger,self).__init__(event=CardEnteredZone(), zone=zone, player=player)
 class LeaveTrigger(MoveTrigger):
-    def __init__(self, zone=None, player="controller"):
+    def __init__(self, zone=None, player="you"):
         super(LeaveTrigger,self).__init__(event=CardLeftZone(), zone=zone, player=player)
 
 class EnterFromTrigger(Trigger):
     # We need to keep track of all zone changes, to make sure that we catch the right sequence of events
-    def __init__(self, to_zone, from_zone, player="any"):
+    def __init__(self, to_zone, from_zone, player="you"):
         super(EnterFromTrigger,self).__init__(event=None)
         self.from_zone = from_zone
         self.to_zone = to_zone
@@ -104,10 +103,9 @@ class EnterFromTrigger(Trigger):
             self.unregister(self.filter, event=CardEnteringZoneFrom())
             self.activated = False
     def check_player(self, sender, card):
-        if self.to_zone == "play": player_cmp = card.controller
-        else: player_cmp = card.owner
+        player_cmp = card.controller  # Out of play defaults to owner
 
-        if self.player == "controller" and player_cmp == self.source.controller: return True
+        if self.player == "you" and player_cmp == self.source.controller: return True
         elif self.player == "opponent" and player_cmp in self.source.controller.opponents: return True
         elif self.player == "any": return True
         else: return False
