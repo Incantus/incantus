@@ -51,7 +51,7 @@ class GameKeeper(MtGObject):
         self.play = Play(self)
 
         self._tokens_out_play = []
-        self.register(lambda sender: self._tokens_out_play.append(sender), TokenLeavingPlay(), weak=False)
+        self.register(lambda sender: setattr(sender, "is_LKI", True) or self._tokens_out_play.append(sender), TokenLeavingPlay(), weak=False)
 
         all_players = set(players)
         for player in players:
