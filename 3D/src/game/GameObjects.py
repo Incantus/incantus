@@ -35,13 +35,10 @@ class MtGObject(object):
     #    for func in MtGObject._holding: func()
 
 class GameObject(MtGObject):
-    #__slots__ = ["name", "base_name", "base_cost", "base_text", "base_color", "base_types", "base_subtypes", "base_supertypes", "_owner", "zone", "out_play_role", "in_play_role", "stack_role", "_current_role", "key"]
+    #__slots__ = ["key", "base_name", "base_cost", "base_text", "base_color", "base_types", "base_subtypes", "base_supertypes", "_owner", "out_play_role", "in_play_role", "stack_role"]
     def __init__(self, owner):
         self._owner = owner
-        self.zone = None
 
-        self._current_role = None
-        self._last_known_info = None
         self.in_play_role = None
         self.stack_role = None
         self.out_play_role = None
@@ -62,16 +59,10 @@ class GameObject(MtGObject):
         self.base_loyalty = None
 
     owner = property(fget=lambda self: self._owner)
-    def current_role():
-        doc = '''The current role for this card. Either a Card (when in hand, library, graveyard or removed from game), Spell, (stack) or Permanent (in play)'''
-        def fget(self): return self._current_role
-        def fset(self, newrole):
-            self._last_known_info = self._current_role
-            self._cardmap[self.key] = self._current_role = self.build_role(newrole(self))
-        return locals()
-    current_role = property(**current_role())
-    def build_role(self, role):
+    def new_role(self, rolecls):
+        role = rolecls(self.key)
         proxy_role = weakref.proxy(role)
+        self._current_roles[self.key] = role
         # Set up base characteristics
         role.owner = self.owner
         role.name = stacked_variable(self.base_name)
@@ -97,18 +88,16 @@ class GameObject(MtGObject):
 
     # Class attributes for mapping the cards
     _counter = 0
+    _current_roles = {}
     _cardmap = {}
     def _add_to_map(self):
         self.key = (GameObject._counter, self.base_name)
-        #self._cardmap[self.key] = self
+        self._cardmap[self.key] = self
         GameObject._counter += 1
 
 class Card(GameObject):
     def __init__(self, cardname, owner):
         super(Card, self).__init__(owner)
-        # characteristics
-        self.expansion = None
-        self.hidden = False
 
         from CardRoles import Permanent, SpellRole, CardRole, NoRole
         CardDatabase.loadCardFromDB(self, cardname)
@@ -125,6 +114,12 @@ class Card(GameObject):
 
         self._add_to_map()
 
+    @classmethod
+    def create(cls, cardname, owner):
+        card = cls(cardname, owner)
+        newrole = card.new_role(card.out_play_role)
+        return newrole
+
 class Token(GameObject):
     def __init__(self, info, owner):
         super(Token, self).__init__(owner)
@@ -136,9 +131,12 @@ class Token(GameObject):
         self.base_name = "%s Token"%self.base_name
         self._add_to_map()
 
-        # Set up the token to be played
-        self.current_role = self.out_play_role
-        self.current_role.is_LKI = False
+    @classmethod
+    def create(cls, info, owner):
+        token = cls(info, owner)
+        newrole = token.new_role(token.out_play_role)
+        newrole.is_LKI = False
+        return newrole
 
     def __str__(self):
         return "Token: %s"%self.base_name

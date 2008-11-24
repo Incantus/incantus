@@ -34,11 +34,10 @@ class CardRole(MtGObject):
         return locals()
     info = property(**info())
     controller = property(fget=lambda self: self.owner)
-    zone = property(fget=lambda self: self._cardtmpl.zone)
-    key = property(fget=lambda self: self._cardtmpl.key)
 
-    def __init__(self, card):
-        self._cardtmpl = card
+    def __init__(self, key):
+        self.key = key
+        self.zone = None
         self._counters = []
         self.attachments = []
         self.facedown = False

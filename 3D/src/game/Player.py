@@ -68,7 +68,7 @@ class Player(MtGObject):
         for num, name in self.decklist:
             num = int(num)
             for n in range(num):
-                self.library.add_new_card(Card(name, owner=self))
+                self.library.add_new_card(Card.create(name, owner=self))
 
     # The following functions are part of the card code DSL
     def win(self, msg=''):
@@ -96,18 +96,18 @@ class Player(MtGObject):
         else: return False
     def play_card(self, card):
         ability = card.play_spell
+        # XXX I need to return the new object on the stack somehow
         if ability.announce(card, self):
             self.send(AbilityPlayedEvent(), ability=ability)
             return True
         else:
             return False
     def play_tokens(self, info, number=1):
-        token_roles = []
+        tokens = []
         for _ in range(number):
-            token = Token(info, owner=self)
-            role = token.current_role
-            token_roles.append(role.move_to(self.play))
-        return token_roles
+            token = Token.create(info, owner=self)
+            tokens.append(token.move_to(self.play))
+        return tokens
     def choose_opponent(self):
         if len(self.opponents) == 1:
             return tuple(self.opponents)[0]

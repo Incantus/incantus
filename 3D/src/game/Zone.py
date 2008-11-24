@@ -1,5 +1,5 @@
 import random
-from GameObjects import MtGObject
+from GameObjects import MtGObject, GameObject
 from GameEvent import CardEnteringZoneFrom, CardLeftZone, CardEnteredZone, CardCeasesToExist, TimestepEvent, ShuffleEvent
 
 class Zone(MtGObject):
@@ -15,50 +15,48 @@ class Zone(MtGObject):
     def top(self, number=None):
         if number:
             if number < 1 or len(self) == 0: return []
-            else: return [c.current_role for c in self._cards[:-(number+1):-1]]
+            else: return [c for c in self._cards[:-(number+1):-1]]
         else:
             if len(self) == 0: return None
-            else: return self._cards[-1].current_role
+            else: return self._cards[-1]
     def bottom(self, number=None):
         if number:
             if number < 1 or len(self) == 0: return []
-            else: return [c.current_role for c in self._cards[:number]]
+            else: return [c for c in self._cards[:number]]
         else:
             if len(self) == 0: return None
-            else: return self._cards[0].current_role
+            else: return self._cards[0]
     def get(self, match=lambda c: True):
         # Retrieve all of a type of Card in current location
-        return [card.current_role for card in iter(self._cards[::-1]) if match(card.current_role)]
+        return [card for card in iter(self._cards[::-1]) if match(card)]
     def cease_to_exist(self, card):
-        card = card._cardtmpl
         self._remove_card(card, CardCeasesToExist())
+        del GameObject._cardmap[card.key]
     def _remove_card(self, card, event=CardLeftZone()):
         self._cards.remove(card)
         card.zone = None
-        self.send(event, card=card._last_known_info)
+        self.send(event, card=card)
         self.after_card_removed(card)
-    def _insert_card(self, card, position):
+    def _insert_card(self, oldcard, card, position):
         # Remove card from previous zone
-        if card.zone: card.zone._remove_card(card)
+        if oldcard.zone: oldcard.zone._remove_card(oldcard)
         self.before_card_added(card)
         if position == "top": self._cards.append(card)
         elif position == "bottom": self._cards.insert(0, card)
         else: self._cards.insert(position, card)
         card.zone = self
-        self.send(CardEnteredZone(), card=card.current_role)
+        self.send(CardEnteredZone(), card=card)
     def move_card(self, card, position):
-        card = card._cardtmpl
-        orig_role = card.current_role
-        self.setup_new_role(card)
+        newcard = self.setup_new_role(card)
         if card.zone:
-            self.send(CardEnteringZoneFrom(), from_zone=card.zone, oldcard=orig_role, newcard=card.current_role)
-        self._insert_card(card, position)
-        return card.current_role
+            self.send(CardEnteringZoneFrom(), from_zone=card.zone, oldcard=card, newcard=newcard)
+        self._insert_card(card, newcard, position)
+        return newcard
     # The next 2 are for zones to setup and takedown card roles
     def before_card_added(self, card):
-        card.current_role.enteringZone(self.name)
+        card.enteringZone(self.name)
     def after_card_removed(self, card):
-        card._last_known_info.leavingZone(self.name)
+        card.leavingZone(self.name)
     def setup_new_role(self, card):
         raise NotImplementedError()
 
@@ -69,10 +67,10 @@ class OrderedZone(Zone):
         self.pending_top = []
         self.pending_bottom = []
         self.register(self.commit, TimestepEvent())
-    def _insert_card(self, card, position):
+    def _insert_card(self, oldcard, card, position):
         self.pending = True
-        if position == "top": self.pending_top.append(card)
-        else: self.pending_bottom.append(card)
+        if position == "top": self.pending_top.append((oldcard, card))
+        else: self.pending_bottom.append((oldcard, card))
     def get_card_order(self, cardlist, pos):
         if len(cardlist) > 1:
             player = cardlist[0].owner
@@ -84,15 +82,15 @@ class OrderedZone(Zone):
     def commit(self):
         if self.pending_top or self.pending_bottom:
             self.pre_commit()
-            for card in self.pending_top+self.pending_bottom:
-                if card.zone: card.zone._remove_card(card)
+            for oldcard, card in self.pending_top+self.pending_bottom:
+                if oldcard.zone: oldcard.zone._remove_card(oldcard)
                 self.before_card_added(card)
-            toplist = self.get_card_order([c for c in self.pending_top], "top")
-            bottomlist = self.get_card_order([c for c in self.pending_bottom], "bottom")
+            toplist = self.get_card_order([c for o,c in self.pending_top], "top")
+            bottomlist = self.get_card_order([c for o,c in self.pending_bottom], "bottom")
             self._cards = bottomlist + self._cards + toplist
-            for card in self.pending_top+self.pending_bottom:
+            for card in toplist+bottomlist:
                 card.zone = self
-                self.send(CardEnteredZone(), card=card.current_role)
+                self.send(CardEnteredZone(), card=card)
             self.pending_top[:] = []
             self.pending_bottom[:] = []
             self.post_commit()
@@ -100,7 +98,8 @@ class OrderedZone(Zone):
 
 class OutPlayMixin(object):
     def setup_new_role(self, card):
-        card.current_role = card.out_play_role
+        cardtmpl = GameObject._cardmap[card.key]
+        return cardtmpl.new_role(cardtmpl.out_play_role)
 
 class Graveyard(OutPlayMixin, OrderedZone):
     name = "graveyard"
@@ -116,9 +115,8 @@ class Library(OutPlayMixin, OrderedZone):
         super(Library, self).__init__()
         self.needs_shuffle = False
     def add_new_card(self, card, position="top"):
-        #self.send(CardEnteringZone(), card=card.current_role) # This is weird - at this point it has no role since it will have just been created
-        self.setup_new_role(card)
-        return self._insert_card(card, position)
+        newcard = self.setup_new_role(card)
+        return self._insert_card(card, newcard, position)
     def get_card_order(self, cardlist, pos):
         # we're gonna shuffle anyway, no need to order the cards
         if self.needs_shuffle: return cardlist
@@ -145,7 +143,6 @@ class PlayView(object):
     def get(self, match=lambda c: True, all=False):
         if all: return self.play.get(match)
         else:
-            # This doesn't need to use current_role because it's getting the cards from the Play zone
             return [card for card in self.play if match(card) and card.controller == self.player]
     def __getattr__(self, attr):
         return getattr(self.play, attr)
@@ -166,7 +163,7 @@ class Play(OrderedZone):
             # Sort the cards
             player_cards = dict([(player, []) for player in self.game.players])
             for card in cardlist:
-                player_cards[card.current_role.controller].append(card)
+                player_cards[card.controller].append(card)
             cardlist = []
             for player in self.game.players:
                 cards = player_cards[player]
@@ -176,12 +173,14 @@ class Play(OrderedZone):
                 cardlist.extend(cards)
         return cardlist
     def move_card(self, card, position, controller):
-        self.controllers[card._cardtmpl] = controller
-        return super(Play, self).move_card(card, position)
+        card = super(Play, self).move_card(card, position)
+        self.controllers[card] = controller
+        return card
     def setup_new_role(self, card):
-        card.current_role = card.in_play_role
+        cardtmpl = GameObject._cardmap[card.key]
+        return cardtmpl.new_role(cardtmpl.in_play_role)
     def before_card_added(self, card):
-        card.current_role.initialize_controller(self.controllers[card])
+        card.initialize_controller(self.controllers[card])
         super(Play, self).before_card_added(card)
     def post_commit(self):
         self.controllers = {}
@@ -189,4 +188,5 @@ class Play(OrderedZone):
 class CardStack(Zone):
     name = "stack"
     def setup_new_role(self, card):
-        card.current_role = card.stack_role
+        cardtmpl = GameObject._cardmap[card.key]
+        return cardtmpl.new_role(cardtmpl.stack_role)
