@@ -292,7 +292,7 @@ class ChangeZoneCost(Cost):
         return True
     def pay(self, source, player):
         for target in self.targets:
-            target.move_to(getattr(target.owner, self.to_zone))
+            target.move_to(self.to_zone)
         self.payment = self.targets
     def __str__(self):
         if self.cardtype: txt = ' '+str(self.cardtype)

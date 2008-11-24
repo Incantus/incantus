@@ -16,7 +16,7 @@ def persist():
         if condition(source, card):
             expire = CiP(source, enterWithCounters, txt='%s - enter play with a -1/-1 counter'%source)
             # Now move to play
-            newcard.move_to(newcard.owner.play)
+            newcard.move_to("play")
             expire()
         yield
 

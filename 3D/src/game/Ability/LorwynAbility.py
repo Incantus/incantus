@@ -30,7 +30,7 @@ def clash(controller, opponent=None):
         player.send(ClashEvent(), winner=winner)
         msg = "Move %s to the bottom of your library?"%card
         if player.getIntention(msg, msg):
-            card.move_to(card.owner.library, position="bottom")
+            card.move_to("library", position="bottom")
     return winner == controller
 
 def champion(types=None, subtypes=None):
@@ -54,7 +54,7 @@ def champion(types=None, subtypes=None):
         cards = controller.choose_from_zone(cardtype=cardtype.with_condition(lambda p: not p == source), required=False, action="champion")
         if cards:
             card = cards[0]
-            source.championed = card.move_to(card.owner.removed)
+            source.championed = card.move_to("removed")
         else:
             controller.sacrifice(source)
         yield
@@ -67,7 +67,7 @@ def champion(types=None, subtypes=None):
         target = yield NoTarget()
         # Code for effect
         removed = source.championed
-        if removed: removed.move_to(removed.owner.play)
+        if removed: removed.move_to("play")
         yield
     champion_return = TriggeredAbility(LeaveTrigger("play"),
             condition = lambda source, card: source == card,
@@ -85,10 +85,10 @@ def hideaway(cost="0"):
         topcards = controller.library.top(4)
         card = controller.getCardSelection(topcards, number=1, required=True, prompt="Choose 1 card to hideaway")[0]
         source.hidden = card
-        card.move_to(controller.removed)
+        card.move_to("removed")
         card.faceDown()
         topcards.remove(card)
-        for card in topcards: card.move_to(controller.library, position="bottom")
+        for card in topcards: card.move_to("library", position="bottom")
         yield
     hideaway = TriggeredAbility(EnterTrigger("play"),
             condition = lambda source, card: source == card,

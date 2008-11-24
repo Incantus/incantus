@@ -22,7 +22,7 @@ class CastSpell(CostAbility):
         super(CastSpell, self).played()
         self.controller.send(SpellPlayedEvent(), spell=self.source)
     def countered(self):
-        self.source.move_to(self.source.owner.graveyard)
+        self.source.move_to("graveyard")
         super(CastSpell,self).countered()
 
 class CastPermanentSpell(CastSpell):
@@ -34,7 +34,7 @@ class CastPermanentSpell(CastSpell):
 class CastNonPermanentSpell(CastSpell):
     def resolved(self):
         # The discard comes after the card does its thing
-        self.source.move_to(self.source.owner.graveyard)
+        self.source.move_to("graveyard")
         super(CastNonPermanentSpell, self).resolved()
 
 class CastInstantSpell(CastNonPermanentSpell): pass

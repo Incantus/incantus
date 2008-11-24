@@ -29,7 +29,7 @@ def typecycling(subtype, cost):
         yield cost + CycleDiscard()
         yield NoTarget()
         for card in controller.choose_from_zone(number=1, cardtype=isCard.with_condition(lambda c: c.subtypes == subtype), zone="library", action=subtype, required=False):
-            card.move_to(card.owner.hand)
+            card.move_to("hand")
         yield
     return ActivatedAbility(effects, None, "hand", txt="%scycling %s"%(subtype, str(cost)), keyword="cycling")
 

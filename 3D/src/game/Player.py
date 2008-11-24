@@ -63,7 +63,7 @@ class Player(MtGObject):
     def reset(self):
         # return all cards to library
         for from_location in [self.play, self.hand, self.graveyard, self.removed]:
-            for card in from_location: card.move_to(card.owner.library)
+            for card in from_location: card.move_to("library")
     def loadDeck(self):
         for num, name in self.decklist:
             num = int(num)
@@ -198,7 +198,7 @@ class Player(MtGObject):
             number -= 1
             if self.getIntention("", "Would you like to mulligan?"): #, "Would you like to mulligan?"):
                 self.send(LogEvent(), msg="%s mulligans"%self)
-                for card in self.hand: card.move_to(zone=self.library)
+                for card in self.hand: card.move_to(self.library)
                 self.shuffle()
                 yield
                 for i in range(number): self.draw()

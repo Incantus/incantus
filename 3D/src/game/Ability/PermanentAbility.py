@@ -152,8 +152,8 @@ def clone(source, cloned):
 #    def draw(self):
 #        if self.getIntention("Would you like to dredge %s?"%card, "Dredge %s"%card):
 #            top_N = self.library.top(number)
-#            for c in top_N: c.move_to(self.graveyard)
-#            card.move_to(self.hand)
+#            for c in top_N: c.move_to("graveyard")
+#            card.move_to("hand")
 #        else:
 #            self.draw()
 #

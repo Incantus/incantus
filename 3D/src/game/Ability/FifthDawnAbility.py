@@ -7,4 +7,4 @@ def scry(player, number):
     for card in cards:
         if card in bottom_cards: position = 'bottom'
         else: position = 'top'
-        card.move_to(player.library, position=position)
+        card.move_to("library", position=position)
