@@ -57,3 +57,18 @@ class SpecialTriggeredAbility(TriggeredAbility):
         if val: self.buildup(self.source)
         else: self.teardown(self.source)
         super(SpecialTriggeredAbility, self).toggle(val)
+
+def modal_triggered_effects(*modes, **kw):
+    choose = kw['choose']
+    def modal_effects(**keys):
+        controller = keys['controller']
+        source = keys['source']
+        indices = controller.getSelection([(mode.__doc__,i) for i, mode in enumerate(modes)], choose, idx=False, msg='Select %d mode(s):'%choose)
+        if hasattr(indices, "__len__"): chosen = tuple((robustApply(modes[i], **keys) for i in indices))
+        else: chosen = (robustApply(modes[indices], **keys), )
+        # get the targets
+        targets = yield tuple((mode.next() for mode in chosen))
+        if not hasattr(targets, "__len__"): targets = (targets, )
+        yield tuple((mode.send(t) for t, mode in zip(targets, chosen)))
+
+    return modal_effects
