@@ -166,10 +166,10 @@ class Player(MtGObject):
         else: return []
     def sacrifice(self, perm):
         if perm.controller == self and str(perm.zone) == "play":
-            perm.move_to(self.graveyard)
+            card = perm.move_to(self.graveyard)
             self.send(PermanentSacrificedEvent(), card=perm)
-            return True
-        else: return False
+            return card
+        else: return None
     def force_sacrifice(self, number=1, cardtype=isPermanent):
         perms = self.choose_from_zone(number, cardtype, "play", "sacrifice")
         for perm in perms: self.sacrifice(perm)
