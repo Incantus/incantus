@@ -59,11 +59,14 @@ class CardRole(MtGObject):
     def leavingZone(self, zone):
         self.abilities.leavingZone(zone)
         self.is_LKI = True
+    # DSL functions
     def move_to(self, zone, position="top"):
         if not self.is_LKI:
             if type(zone) == str:
                 zone = getattr(self.owner, zone)
             return zone.move_card(self, position)
+    def deal_damage(self, to, amount):
+        self.dealDamage(to, amount)
     def add_counters(self, counter_type, number=1):
         if type(counter_type) == str: counter_type = Counter(counter_type)
         for counter in [counter_type.copy() for i in range(number)]:
