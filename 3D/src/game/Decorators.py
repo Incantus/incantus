@@ -5,6 +5,7 @@ from Ability.CastingAbility import CastPermanentSpell, CastInstantSpell, CastSor
 from Ability.Target import NoTarget, Target
 from Ability.Cost import ManaCost
 from Ability.PermanentAbility import CiP
+from Ability.EffectsUtilities import robustApply
 
 def play_permanent(cost):
     if type(cost) == str: cost = ManaCost(cost)
@@ -53,20 +54,20 @@ def modal(*modes, **kw):
         return modal_effects
     return make_modal
 
-def modal_triggered(*modes, **kw):
+def modal_triggered_effects(*modes, **kw):
     choose = kw['choose']
-    def make_modal(effects):
-        def modal_effects(controller, source):
-            indices = controller.getSelection([(mode.__doc__,i) for i, mode in enumerate(modes)], choose, idx=False, msg='Select %d mode(s):'%choose)
-            if hasattr(indices, "__len__"): chosen = tuple((modes[i](controller, source) for i in indices))
-            else: chosen = (modes[indices](controller, source), )
-            # get the targets
-            targets = yield tuple((mode.next() for mode in chosen))
-            if not hasattr(targets, "__len__"): targets = (targets, )
-            yield tuple((mode.send(t) for t, mode in zip(targets, chosen)))
+    def modal_effects(**keys):
+        controller = keys['controller']
+        source = keys['source']
+        indices = controller.getSelection([(mode.__doc__,i) for i, mode in enumerate(modes)], choose, idx=False, msg='Select %d mode(s):'%choose)
+        if hasattr(indices, "__len__"): chosen = tuple((robustApply(modes[i], **keys) for i in indices))
+        else: chosen = (robustApply(modes[indices], **keys), )
+        # get the targets
+        targets = yield tuple((mode.next() for mode in chosen))
+        if not hasattr(targets, "__len__"): targets = (targets, )
+        yield tuple((mode.send(t) for t, mode in zip(targets, chosen)))
 
-        return modal_effects
-    return make_modal
+    return modal_effects
 
 def mana(limit=None, zone='play', txt=''):
     def make_ability(ability):
