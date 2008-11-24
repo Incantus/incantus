@@ -20,7 +20,6 @@ def play_aura(cost):
         yield cost
         target = yield Target(source.target_type, zone=source.target_zone)
         source._attaching_to = target
-        source.move_to(controller.play)
         yield
     return CastPermanentSpell(effects)
 

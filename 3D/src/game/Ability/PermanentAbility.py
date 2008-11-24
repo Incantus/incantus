@@ -46,7 +46,8 @@ def enchant(target_type, zone="play"):
     return CardStaticAbility(effects, keyword="Enchant %s in %s"%(target_type, zone), zone="all")
 
 # CiP functionality for auras
-def attach_on_enter(aura):
+from StaticAbility import CiPAbility
+def attach_on_enter():
     attaching_to = [None]
     def before(source):
         # Ask to select target
@@ -55,14 +56,17 @@ def attach_on_enter(aura):
         else:
             if not source.target_zone == "play": where = " in %s"%source.target_zone
             else: where = ''
-            card = source.controller.getTarget(source.target_type, zone=source.target_zone, required=True, prompt="Select %s%s to attach %s"%(source.target_type, where, source))
+            # XXX Need to make sure there is a valid attachment
+            card = source.controller.getTarget(source.target_type, zone=source.target_zone, required=False, prompt="Select %s%s to attach %s"%(source.target_type, where, source))
         if card:
             attaching_to[0] = card
             return True
         else: return False
     def during(self):
         self.attach(attaching_to[0])
-    CiP(aura, during, before=before, txt="Attach to card")
+    def effects(source):
+        yield CiP(source, during, before=before, txt="Attach to card")
+    return CiPAbility(effects, txt="")
 
 # Comes into play functionality
 def enter_play_tapped(self):

@@ -121,7 +121,7 @@ class Card(GameObject):
 
         if (self.base_subtypes == "Aura"):
             from game.Ability.PermanentAbility import attach_on_enter
-            attach_on_enter(self)
+            self.base_abilities.add(attach_on_enter())
 
         self._add_to_map()
 

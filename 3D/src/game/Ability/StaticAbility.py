@@ -119,15 +119,6 @@ class CardStaticAbility(StaticAbility):
 class CiPAbility(CardStaticAbility):
     def __init__(self, effects, txt='', keyword=''):
         super(CiPAbility, self).__init__(effects, zone="all", txt=txt, keyword=keyword)
-        self.__activated = False
-    def toggle(self, val):
-        if val:
-            self._status_count += 1
-            if not self.__activated:
-                self._enable()
-                self.__activated = True
-        else:
-            self._status_count -= 1
 
 class ControllerChange(MtGObject):
     def _enable(self):
