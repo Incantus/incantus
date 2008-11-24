@@ -62,7 +62,7 @@ class CardRole(MtGObject):
         self.is_LKI = True
     def move_to(self, zone, position="top"):
         if not self.is_LKI:
-            if type(zone) == str and not zone == "play":
+            if type(zone) == str:
                 zone = getattr(self.owner, zone)
             return zone.move_card(self, position)
     def add_counters(self, counter_type, number=1):
