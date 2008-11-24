@@ -7,18 +7,16 @@ from Ability.Cost import ManaCost
 from Ability.PermanentAbility import CiP
 from Ability.EffectsUtilities import robustApply
 
-def play_permanent(cost):
-    if type(cost) == str: cost = ManaCost(cost)
+def play_permanent():
     def effects(controller, source):
-        yield cost
+        yield source.cost
         yield NoTarget()
         yield
     return CastPermanentSpell(effects, txt="Play spell")
 
-def play_aura(cost):
-    if type(cost) == str: cost = ManaCost(cost)
+def play_aura():
     def effects(controller, source):
-        yield cost
+        yield source.cost
         target = yield Target(source.target_type, zone=source.target_zone, player=source.target_player)
         source._attaching_to = target
         yield
