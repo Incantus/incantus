@@ -13,8 +13,11 @@ from EffectsUtilities import keyword_action
 def clash(controller, opponent=None):
     winner = None
     if not opponent: opponent = controller.choose_opponent()
-    cards = (controller.library.top(), opponent.library.top())
-    controller_cmc, opponent_cmc = [card.cost.converted_mana_cost() for card in cards]
+    card0, card1 = (controller.library.top(), opponent.library.top())
+    if card0: controller_cmc = card0.cost.converted_mana_cost()
+    else: controller_cmc = -1
+    if card1: opponent_cmc = card1.cost.converted_mana_cost()
+    else: opponent_cmc = -1
     if controller_cmc > opponent_cmc:
         winner = controller
         msg = "%s wins the clash!"%winner
