@@ -48,6 +48,12 @@ class Ability(object):
         self.source.send(TimestepEvent())
         self.source.send(AbilityResolved())
     def can_be_countered(self): return True
+    def counter(self):
+        if self.can_be_countered():
+            self.controller.stack.counter(self)
+            self.countered()
+            return True
+        else: return False
     def countered(self): self.source.send(AbilityCountered())
     def copy(self): return copy.copy(self)
     def __str__(self):

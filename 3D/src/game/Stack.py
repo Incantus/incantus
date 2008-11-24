@@ -40,12 +40,8 @@ class Stack(MtGObject):
         ability.resolve()
         self.send(AbilityRemovedFromStack(), ability=ability)
     def counter(self, ability):
-        if ability.can_be_countered():
-            self.abilities.remove(ability)
-            ability.countered()
-            self.send(AbilityRemovedFromStack(), ability=ability)
-            return True
-        else: return False
+        self.abilities.remove(ability)
+        self.send(AbilityRemovedFromStack(), ability=ability)
     def empty(self): return len(self.abilities) == 0
     def __contains__(self, ability): return ability in self.abilities
     def index(self, ability): return self.abilities.index(ability)
