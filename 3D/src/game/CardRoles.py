@@ -418,12 +418,12 @@ class Attachment(object):
     def activateAttachment(self):
         from Match import isLand, isCreature
         self.attached_to = None
+        self.target_zone = "play"
+        self.target_player = None
         if self.subtypes == "Equipment":
             self.target_type = isCreature
-            self.target_zone = "play"
         elif self.subtypes == "Fortification":
             self.target_type = isLand
-            self.target_zone = "play"
     def leavingZone(self, zone):
         self.unattach()
         super(Attachment,self).leavingZone(zone)
@@ -442,4 +442,7 @@ class Attachment(object):
         self.attached_to = None
     def isValidAttachment(self):
         attachment = self.attached_to
-        return (attachment and str(attachment.zone) == self.target_zone and self.target_type(attachment) and attachment.canBeAttachedBy(self))
+        if self.target_player:
+            check_player = (self.target_player == "you" and attachment.controller == self.controller) or (self.target_player == "opponent" and attachment.controller in self.controller.opponents)
+        else: check_player = True
+        return (attachment and str(attachment.zone) == self.target_zone and check_player and self.target_type(attachment) and attachment.canBeAttachedBy(self))

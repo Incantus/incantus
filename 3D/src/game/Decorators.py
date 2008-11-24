@@ -19,7 +19,7 @@ def play_aura(cost):
     if type(cost) == str: cost = ManaCost(cost)
     def effects(controller, source):
         yield cost
-        target = yield Target(source.target_type, zone=source.target_zone)
+        target = yield Target(source.target_type, zone=source.target_zone, player=source.target_player)
         source._attaching_to = target
         yield
     return CastPermanentSpell(effects)

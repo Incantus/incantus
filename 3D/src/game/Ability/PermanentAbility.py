@@ -38,10 +38,11 @@ def attach_artifact(cost, keyword, limit=no_limit):
 equip = lambda cost, limit=no_limit: attach_artifact(cost, "Equip", limit)
 fortify = lambda cost, limit=no_limit: attach_artifact(cost, "Fortify", limit)
 
-def enchant(target_type, zone="play"):
+def enchant(target_type, zone="play", player=None):
     def effects(source):
         source.target_type = target_type
         source.target_zone = zone
+        source.target_player = player
         yield lambda: None
     return CardStaticAbility(effects, keyword="Enchant %s in %s"%(target_type, zone), zone="all")
 
