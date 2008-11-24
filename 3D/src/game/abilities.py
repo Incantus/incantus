@@ -6,10 +6,10 @@ class abilities(object):
         self._abilities = []
         self._keywords = {}
     def add(self, ability, tag=''):
-        ability.tag = tag
         if type(ability) == tuple:
             self._abilities.extend(ability)
         else:
+            ability.tag = tag
             self._abilities.append(ability)
             if ability.keyword: self._keywords[ability.keyword] = ability
     def attached(self): return [ability for ability in self._abilities if ability.zone == "attached"]
