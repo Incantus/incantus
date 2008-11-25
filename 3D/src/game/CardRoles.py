@@ -74,7 +74,8 @@ class CardRole(MtGObject):
             self.send(CounterAddedEvent(), counter=counter)
     def remove_counters(self, counter_type=None, number=1):
         num = 0
-        counters = [counter for counter in self._counters if counter_type and counter == counter_type]
+        if counter_type: counters = [counter for counter in self._counters if counter == counter_type]
+        else: counters = self._counters[:]
         if not number == -1: counters = counters[:number]
         for counter in counters:
             num += 1
