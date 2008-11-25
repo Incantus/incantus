@@ -189,6 +189,7 @@ class Permanent(CardRole):
             self.activateAttachment()
 
 class TokenPermanent(Permanent):
+    _token = True
     def move_to(self, zone, position="top"):
         newrole = super(TokenPermanent, self).move_to(zone, position)
         if not str(zone) == "play": newrole.send(TokenLeavingPlay())
