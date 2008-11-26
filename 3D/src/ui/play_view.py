@@ -221,7 +221,7 @@ class PlayView(Widget):
             else:
                 self.lands['Other'].append(guicard)
                 guicard._row = self.lands['Other']
-        elif Match.isAura(card) and Match.isPermanent(card.attached_to):
+        elif Match.isAura(card) and Match.isPermanent(card.attached_to) and card.controller == card.attached_to.controller:
             # it should be attached at this point
             self.attached.append(guicard)
             guicard._row = self.attached
