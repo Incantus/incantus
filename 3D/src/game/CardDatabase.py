@@ -135,5 +135,5 @@ subtypes = no_characteristic()
 color = no_characteristic()
 cost = ManaCost("0")
 
-play_spell = play_permanent(cost)
+play_spell = play_permanent()
 '''
