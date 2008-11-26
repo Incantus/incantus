@@ -13,6 +13,8 @@ def do_when(func, event, condition=lambda *args: True):
             dispatcher.disconnect(wrap_, signal=event, weak=False)
     dispatcher.connect(wrap_, signal=event, weak=False)
 
+do_until = do_when
+
 def delay(source, delayed_trigger):
     delayed_trigger.enable(source)
     def expire():
