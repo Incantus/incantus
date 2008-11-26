@@ -455,6 +455,7 @@ class ZoneView(CardView):
         self.path = BezierPath(*[euclid.Point2(v[0], v[1]) for v in points])
         self.visible = anim.animate(0,0,dt=0.3)
         self.layout = self.layout_straight
+        self.is_library = False
     def build(self, zone, is_opponent):
         self.cards = []
         self.selected = []
@@ -468,8 +469,10 @@ class ZoneView(CardView):
         self.selected_text = [Label("Top", halign=align[0], background=True), Label("Bottom", halign=align[1], background=True)]
         self.selected_text[0].visible = self.selected_text[1].visible = 0.0
         for card in zone: self.add_card(card)
+        if str(card.zone) == "library": self.is_library = True
+        self.cards.reverse()
+        self.focus_idx = len(self.cards)-1 #0
         self.orig_order = dict([(c.gamecard.key, i) for i, c in enumerate(self.cards)])
-        self.focus_idx = 0
         self.layout()
         self.scroll = ((self.scroll_shift*self.focus_idx)*self.dir, -17*self.dir, (self.scroll_shift*(self.focus_idx+1))*self.dir, -10*self.dir)
     def focus_next(self):
@@ -572,16 +575,17 @@ class ZoneView(CardView):
             i = 0.001
             x = y = 0
             xincr = self.shift_factor
-            #x -= cards[0].width*self.focus_size*0.6*dir
             for card in cards[:self.focus_idx]:
                 card.size = size
                 x += card.width*size*xincr*dir
                 card.pos = euclid.Vector3(x, y+card.height*size/2*dir,i)
+                if self.is_library: card.hidden = True
                 i += 0.001
             card = cards[self.focus_idx]
             card.size = self.focus_size
             x += card.width*self.focus_size*0.5*dir
             card.pos = euclid.Vector3(x, y+card.height*self.focus_size/2*dir,i)
+            card.hidden = False
             self.height = card.height*self.focus_size
             x += card.width*self.focus_size*0.5*dir
             i += 0.001
@@ -589,6 +593,7 @@ class ZoneView(CardView):
                 card.size = size
                 x += card.width*size*xincr*dir
                 card.pos = euclid.Vector3(x, y+card.height*size/2*dir,i)
+                card.hidden = False
                 i += 0.001
             self.width = x #+card.width*0.25
             self.scroll_bar = (0, -5*dir, self.width, -20*dir)
