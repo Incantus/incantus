@@ -24,7 +24,7 @@ class Stack(MtGObject):
             for player in self.game.players:
                 triggered = triggered_sets[player]
                 if len(triggered) > 1:
-                    triggered = player.getSelection(triggered, -1, prompt="Drag to reorder triggered abilities(Top ability resolves first)")
+                    triggered = player.make_selection(triggered, -1, prompt="Drag to reorder triggered abilities(Top ability resolves first)")
                 # Now reorder
                 for ability in triggered: ability.announce(ability.source, player)
             self.pending_triggered[:] = []

@@ -124,10 +124,9 @@ class stacked_function(object):
                     elif hasattr(obj, "keeper"): player = affected = obj.current_player
                     # In this case it is a role
                     elif isCard(obj): player, affected = obj.controller, obj
-                    i = player.getSelection([(f.msg, i) for i, f in enumerate(funcs)], numselections=1, required=True, idx=False, prompt="Choose replacement effect to affect %s"%(affected))
-                else: i = 0
-                # Remove the selected replacement function
-                func = funcs.pop(i)
+                    func = player.make_selection([(f.msg, f) for f in funcs], number=1, prompt="Choose replacement effect to affect %s"%(affected))
+                    funcs.remove(func)
+                else: func = funcs.pop(0)
                 # *** This where we could potentially recurse
                 result = func(*args, **kw)
                 # No more replacements - unmark this stacked_function

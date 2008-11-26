@@ -37,9 +37,9 @@ def modal(*modes, **kw):
     choose = kw['choose']
     def make_modal(effects):
         def modal_effects(controller, source):
-            indices = controller.getSelection([(mode.__doc__,i) for i, mode in enumerate(modes)], choose, idx=False, msg='Select %d mode(s):'%choose)
-            if hasattr(indices, "__len__"): chosen = tuple((modes[i](controller, source) for i in indices))
-            else: chosen = (modes[indices](controller, source), )
+            selected = controller.make_selection([(mode.__doc__,mode) for mode in modes], choose, prompt='Select %d mode(s):'%choose)
+            if choose > 1: chosen = tuple((mode(controller, source) for mode in selected))
+            else: chosen = (selected(controller, source), )
             # get the costs
             costs = tuple((mode.next() for mode in chosen))
             payment = yield effects(controller, source).next()

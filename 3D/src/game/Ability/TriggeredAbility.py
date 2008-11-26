@@ -63,9 +63,9 @@ def modal_triggered_effects(*modes, **kw):
     def modal_effects(**keys):
         controller = keys['controller']
         source = keys['source']
-        indices = controller.getSelection([(mode.__doc__,i) for i, mode in enumerate(modes)], choose, idx=False, msg='Select %d mode(s):'%choose)
-        if hasattr(indices, "__len__"): chosen = tuple((robustApply(modes[i], **keys) for i in indices))
-        else: chosen = (robustApply(modes[indices], **keys), )
+        selected = controller.make_selection([(mode.__doc__,mode) for mode in modes], choose, msg='Select %d mode(s):'%choose)
+        if choose > 1: chosen = tuple((robustApply(mode, **keys) for mode in selected))
+        else: chosen = (robustApply(selected, **keys), )
         # get the targets
         targets = yield tuple((mode.next() for mode in chosen))
         if not hasattr(targets, "__len__"): targets = (targets, )

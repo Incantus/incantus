@@ -90,7 +90,7 @@ class PlayAbility(CardAction):
         if numabilities == 0: return False
         elif numabilities == 1: ability = abilities[0]
         else:
-            ability = player.getSelection(abilities, 1, required=False, prompt="%s: Select ability"%self.card)
+            ability = player.make_selection(abilities, 1, required=False, prompt="%s: Select ability"%self.card)
             if ability == False: return False
         ability = ability.copy()
         if ability.announce(card, player):
@@ -109,7 +109,7 @@ class ActivateForMana(CardAction):
         if numabilities == 0: return False
         elif numabilities == 1: ability = abilities[0]
         else:
-            ability = player.getSelection(abilities, 1, required=False, prompt="%s - Mana abilities"%self.card)
+            ability = player.make_selection(abilities, 1, required=False, prompt="%s - Mana abilities"%self.card)
             if ability is False: return False
         ability.copy().announce(card, player)
         return True

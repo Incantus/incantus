@@ -79,11 +79,11 @@ class Player(MtGObject):
         raise GameOverException("%s%s loses the game!"%(player, msg))
     def add_mana(self, *amount):
         if len(amount) > 1:
-            amount = self.getSelection(amount, 1, prompt="Choose mana to add")
+            amount = self.make_selection(amount, 1, prompt="Choose mana to add")
         else: amount = amount[0]
         # XXX This is a bit hacky - need to combine with other hybrid calcs
         if "(" in amount:
-            amount = self.getSelection(generate_hybrid_choices(amount), 1, prompt="Choose mana to add")
+            amount = self.make_selection(generate_hybrid_choices(amount), 1, prompt="Choose mana to add")
         self.manapool.add(amount)
     def shuffle(self):
         self.library.shuffle()
@@ -108,6 +108,10 @@ class Player(MtGObject):
             token = Token.create(info, owner=self)
             tokens.append(token.move_to(self.play))
         return tokens
+    def make_selection(self, sellist, number=1, required=True, prompt=''):
+        if type(sellist[0]) == tuple: idx=False
+        else: idx=True
+        return self.getSelection(sellist, numselections=number, required=required, idx=idx, prompt=prompt)
     def choose_opponent(self):
         if len(self.opponents) == 1:
             return tuple(self.opponents)[0]
@@ -447,15 +451,17 @@ class Player(MtGObject):
             if not isinstance(action, PassPriority): return action.selection
             return False
         if msg == '': msg = prompt
-        if idx == True: sellist = [(val, i) for i, val in enumerate(sellist)]
-        context = {'get_selection': True, 'list':sellist, 'numselections': numselections, 'required': required, 'msg': msg, 'process': filter}
+        if idx == True: idx_sellist = [(val, i) for i, val in enumerate(sellist)]
+        else:
+            idx_sellist = [(val[0], i) for i, val in enumerate(sellist)]
+            sellist = [val[1] for val in sellist]
+        context = {'get_selection': True, 'list':idx_sellist, 'numselections': numselections, 'required': required, 'msg': msg, 'process': filter}
+        # get_selection only returns indices into the given list
         sel = self.input(context,"%s: %s"%(self.name,prompt))
         if isinstance(sel, CancelAction): return False
-        elif idx == True:
-            if numselections == 1: return sellist[sel][0]
-            elif numselections == -1: return [sellist[i][0] for i in sel]
-            else: return [sellist[i][0] for i in sel][:numselections]
-        else: return sel
+        if numselections == 1: return sellist[sel]
+        elif numselections == -1: return [sellist[i] for i in sel]
+        else: return [sellist[i] for i in sel][:numselections]
     def getCardSelection(self, selection, number, cardtype=isCard, zone=None, player=None, required=True, prompt=''):
         def filter(action):
             if isinstance(action, CancelAction):

@@ -88,7 +88,7 @@ class ManaCost(Cost):
         mp = player.manapool
         self._X = 0
         if self.hasX(): self._X = player.getX()
-        if self.isHybrid(): cost = player.getSelection(Mana.generate_hybrid_choices(self.cost), 1, prompt="Choose hybrid cost")
+        if self.isHybrid(): cost = player.make_selection(Mana.generate_hybrid_choices(self.cost), 1, prompt="Choose hybrid cost")
         else: cost = self.cost
         self.final_cost = Mana.convert_mana_string(cost)
         self.final_cost[-1] += self._X
@@ -516,7 +516,7 @@ class ChoiceCost(SpecialCost):
         self.reset()
     def reset(self): self.cost = None
     def precompute(self, source, player):
-        self.cost = player.getSelection(self.choice_costs, 1, prompt="Select additional cost")
+        self.cost = player.make_selection(self.choice_costs, 1, prompt="Select additional cost")
         return super(ChoiceCost, self).precompute(source, player)
     def __str__(self):
         return "Choose between %s"%' or '.join([str(c) for c in self.choice_costs])
