@@ -86,12 +86,13 @@ def hideaway(cost="0"):
         source.hidden = None
         yield NoTarget()
         topcards = controller.library.top(4)
-        card = controller.getCardSelection(topcards, number=1, required=True, prompt="Choose 1 card to hideaway")[0]
-        source.hidden = card
-        card.move_to("removed")
-        card.faceDown()
-        topcards.remove(card)
-        for card in topcards: card.move_to("library", position="bottom")
+        if topcards:
+            card = controller.choose_from(topcards, number=1, prompt="Choose 1 card to hideaway")[0]
+            source.hidden = card
+            card.move_to("removed")
+            card.faceDown()
+            topcards.remove(card)
+            for card in topcards: card.move_to("library", position="bottom")
         yield
     hideaway = TriggeredAbility(EnterTrigger("play"),
             condition = lambda source, card: source == card,

@@ -117,6 +117,11 @@ class Player(MtGObject):
             return tuple(self.opponents)[0]
         else:
             raise NotImplementedError()
+    def choose_from(self, cards, number, cardtype=isCard, required=True, prompt=''):
+        if not prompt: prompt = "Choose %d card(s)"%number
+        selected = self.getCardSelection(cards, number, cardtype=cardtype, required=required, prompt=prompt)
+        if number == 1: return selected[0]
+        else: return selected
     def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action='', required=True, all=False):
         cards_in_zone = getattr(self, zone).get(cardtype)
         if zone == "library" and not cardtype == isCard: required = False
