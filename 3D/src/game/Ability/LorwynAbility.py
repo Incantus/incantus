@@ -27,6 +27,7 @@ def clash(controller, opponent=None):
     else:
         msg = "No one wins the clash"
 
+    # XXX This is buggered
     controller.revealCard(cards, msgs=[controller.name, opponent.name], title=msg, prompt=msg)
 
     for player, card in zip((controller, opponent), cards):

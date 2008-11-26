@@ -69,10 +69,8 @@ def kinship(txt=''):
             controller = source.controller
             if controller == player and controller.you_may("look at the top card of your library"):
                 topcard = controller.library.top()
-                msg = "Top card of library"
-                controller.peek(topcard, title=msg, prompt=msg)
-                if source.subtypes.intersects(topcard.subtypes) and controller.getIntention("Reveal card?", "reveal card?"):
-                    controller.revealCard(topcard, title=msg, prompt=msg)
+                if topcard and source.subtypes.intersects(topcard.subtypes) and controller.getIntention("Reveal card?", "reveal card?"):
+                    controller.reveal_cards(topcard, msg="Top card of library")
                     return True
             return False
         return TriggeredAbility(PhaseTrigger(UpkeepStepEvent()), condition=condition, effects=effects, txt="Kinship - %s"%txt)

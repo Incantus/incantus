@@ -433,7 +433,7 @@ class RevealCost(Cost):
                 prompt = "Card already selected. Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
         return True
     def pay(self, source, player):
-        player.revealCard(self.reveals)
+        player.reveal_cards(self.reveals)
         self.payment = self.reveals
     def __str__(self):
         txt = "%d %s"%(self.number, str(self.cardtype))

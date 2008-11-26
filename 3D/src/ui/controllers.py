@@ -176,14 +176,13 @@ class CardSelector(object):
         self.filter = filter
         self.window.push_handlers(self)
         # Figure out where to pop up
-        if from_zone == '': self.zone_view.pos = euclid.Vector3(self.window.width/2, self.window.height/2, 0)
+        # zone options are play, library, graveyard, and removed
+        # XXX The hand part should really reveal cards in the players hand
+        if from_zone == "play" or from_zone == "hand": self.zone_view.pos = euclid.Vector3(self.window.width/2, self.window.height/2, 0)
         else:
             if not is_opponent: status = self.mainstatus
             else: status = self.otherstatus
-            if from_zone == "hand" or from_zone == "play": 
-               #self.zone_view.pos = status.pos + status.symbols["life"].pos
-               self.zone_view.pos = euclid.Vector3(self.window.width/2, self.window.height/2, 0)
-            else: self.zone_view.pos = status.pos + status.symbols[from_zone].pos
+            self.zone_view.pos = status.pos + status.symbols[from_zone].pos
         self.zone_view.build(sellist, is_opponent)
         self.zone_view.show()
         self.dragging = False

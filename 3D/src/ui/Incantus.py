@@ -659,7 +659,7 @@ class GameWindow(window.Window):
 
         CardLibrary.CardLibrary.close()
 
-    def userinput_network_other(self, context, prompt=''):
+    def userinput_network_other(self, context, prompt='', revealing=[False]):
         #self.game_status.log(prompt)
         self.game_status.log("Waiting for %s"%self.player2.name)
         networkevent = False
@@ -669,15 +669,27 @@ class GameWindow(window.Window):
             if not result == False: return result
             else: self.soundfx.connect()
 
+        process = context['process']
+        if context.get("reveal_card", False):
+            sellist = context['cards']
+            from_zone = context['from_zone']
+            from_player = context['from_player']
+            all = context['all']
+            if all: 
+                self.card_selector.activate(sellist, from_zone, 0, required=False, is_opponent=(from_player != self.player1))
+                revealing[0] = True
+
         while not (self.has_exit or networkevent):
             self.soundfx.dispatch_events()
             self.dispatch_events()
             self.clock.tick()
             self.draw()
             # Poll other network player for action
-            if self.connection.poll_other():
-                result = self.connection.receive()
-                networkevent = True
+            if not revealing[0]:
+                if self.connection.poll_other():
+                    result = self.connection.receive()
+                    networkevent = True
+            if self.user_action and process(self.user_action) is not False: revealing[0] = False
             self.user_action = None
 
         if self.has_exit: raise GameOverException()
@@ -704,6 +716,11 @@ class GameWindow(window.Window):
             from_player = context['from_player']
             check_card = context['check_card']
             self.card_selector.activate(sellist, from_zone, numselections, required=required, is_opponent=(from_player != self.player1), filter=check_card)
+        elif context.get("reveal_card", False):
+            sellist = context['cards']
+            from_zone = context['from_zone']
+            from_player = context['from_player']
+            self.card_selector.activate(sellist, from_zone, 0, required=False, is_opponent=(from_player != self.player1))
         elif context.get("get_selection", False):
             sellist = context['list']
             numselections = context['numselections']
@@ -731,10 +748,6 @@ class GameWindow(window.Window):
             blocking_list = context['blocking_list']
             trample = context['trample']
             self.damage_assignment.activate(blocking_list, trample)
-        elif context.get("reveal_card", False):
-            #msgs = context['msgs']
-            sellist = context['cards']
-            self.card_selector.activate(sellist, '', 0, required=False)
 
         while not (self.has_exit or userevent):
             self.soundfx.dispatch_events()
