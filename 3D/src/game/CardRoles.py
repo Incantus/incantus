@@ -34,7 +34,7 @@ class CardRole(MtGObject):
         return locals()
     info = property(**info())
     controller = property(fget=lambda self: self.owner)
-    converted_mana_cost = property(fget=lambda self.cost.converted_mana_cost())
+    converted_mana_cost = property(fget=lambda self: self.cost.converted_mana_cost())
 
     def __init__(self, key):
         self.key = key

@@ -108,6 +108,8 @@ class Target(object):
         self.msg = msg
         self.selector = selector
         self.required = True
+    def copy(self):
+        return Target(self.target_types, self.msg, self.selector, self.zone, self.player)
     def get_targeted(self): 
         if self.is_valid: return self.target
         else: return InvalidTarget(self.target)
