@@ -6,6 +6,13 @@ from game.Match import isPlayer
 
 no_condition = None
 
+def do(func, event, condition=lambda *args: True):
+    def wrap_(**kw):
+        if robustApply(condition, **kw):
+            func()
+    dispatcher.connect(wrap_, signal=event, weak=False)
+    func.expire = lambda: dispatcher.disconnect(wrap_, signal=event, weak=False)
+
 def do_when(func, event, condition=lambda *args: True):
     def wrap_(**kw):
         if robustApply(condition, **kw):
