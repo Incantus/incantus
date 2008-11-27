@@ -8,6 +8,7 @@ from Cost import ManaCost, DiscardCost
 from Trigger import Trigger, EnterTrigger, PhaseTrigger
 from Counters import PowerToughnessCounter
 from MemoryVariable import MemoryVariable
+from EffectsUtilities import keyword_action
 
 def reinforce(cost, number=1):
     if type(cost) == str: cost = ManaCost(cost)
@@ -62,16 +63,20 @@ def prowl(prowl_cost):
     return CardStaticAbility(effects=prowl_effect, zone="all", txt="Prowl %s"%prowl_cost, keyword="prowl")
 
 # Kinship is a decorator for kinship abilities
-def kinship(txt=''):
+def kinship_triggered(txt=''):
     def wrap(ability):
         effects = ability()
         def condition(source, player):
-            controller = source.controller
-            if controller == player and controller.you_may("look at the top card of your library"):
-                topcard = controller.library.top()
-                if topcard and source.subtypes.intersects(topcard.subtypes) and controller.getIntention("Reveal card?", "reveal card?"):
-                    controller.reveal_cards(topcard, msg="Top card of library")
-                    return True
-            return False
+            return source.controller == player
         return TriggeredAbility(PhaseTrigger(UpkeepStepEvent()), condition=condition, effects=effects, txt="Kinship - %s"%txt)
     return wrap
+
+@keyword_action
+def kinship(player, card):
+    if player.you_may("look at the top card of your library"):
+        topcard = player.library.top()
+        if topcard and card.subtypes.intersects(topcard.subtypes) and player.getIntention("Reveal card?"):
+            player.reveal_cards(topcard, msg="Top card of library")
+            return True
+    return False
+
