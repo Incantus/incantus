@@ -421,9 +421,10 @@ class Creature(object):
 
 class Attachment(object):
     attached_abilities = property(fget=lambda self: self.abilities.attached())
+    attached_to = property(fget=lambda self: self._attached_to)
     def activateAttachment(self):
         from Match import isLand, isCreature
-        self.attached_to = None
+        self._attached_to = None
         self.target_zone = "play"
         self.target_player = None
         if self.subtypes == "Equipment":
@@ -434,18 +435,18 @@ class Attachment(object):
         self.unattach()
         super(Attachment,self).leavingZone(zone)
     def attach(self, target):
-        if self.attached_to != None: self.unattach()
-        self.attached_to = target
-        self.attached_to.attachments.append(self)
+        if self._attached_to != None: self.unattach()
+        self._attached_to = target
+        self._attached_to.attachments.append(self)
         for ability in self.attached_abilities: ability.enable(self)
-        self.send(AttachedEvent(), attached=self.attached_to)
+        self.send(AttachedEvent(), attached=self._attached_to)
         return self.unattach
     def unattach(self):
-        if self.attached_to:
+        if self._attached_to:
             for ability in self.attached_abilities: ability.disable()
-            self.attached_to.attachments.remove(self)
-            self.send(UnAttachedEvent(), unattached=self.attached_to)
-        self.attached_to = None
+            self._attached_to.attachments.remove(self)
+            self.send(UnAttachedEvent(), unattached=self._attached_to)
+        self._attached_to = None
     def isValidAttachment(self):
         attachment = self.attached_to
         if self.target_player:

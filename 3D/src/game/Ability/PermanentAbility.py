@@ -43,6 +43,7 @@ def enchant(target_type, zone="play", player=None):
         source.target_type = target_type
         source.target_zone = zone
         source.target_player = player
+        source.attach_on_enter = None
         yield lambda: None
     return CardStaticAbility(effects, keyword="Enchant %s in %s"%(target_type, zone), zone="all")
 
@@ -52,8 +53,8 @@ def attach_on_enter():
     attaching_to = [None]
     def before(source):
         # Ask to select target
-        if hasattr(source, "_attaching_to"):
-            card = source._attaching_to
+        if source.attach_on_enter:
+            card = source.attach_on_enter
         else:
             if not source.target_zone == "play": where = " in %s"%source.target_zone
             else: where = ''

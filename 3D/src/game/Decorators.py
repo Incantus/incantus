@@ -18,7 +18,7 @@ def play_aura():
     def effects(controller, source):
         yield source.cost
         target = yield Target(source.target_type, zone=source.target_zone, player=source.target_player)
-        source._attaching_to = target
+        source.attach_on_enter = target
         yield
     return CastPermanentSpell(effects)
 
