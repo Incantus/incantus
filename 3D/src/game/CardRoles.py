@@ -447,8 +447,9 @@ class Attachment(object):
             self._attached_to.attachments.remove(self)
             self.send(UnAttachedEvent(), unattached=self._attached_to)
         self._attached_to = None
-    def isValidAttachment(self):
-        attachment = self.attached_to
+    def isValidAttachment(self, attachment=None):
+        return self.canBeAttachedTo(self.attached_to)
+    def canBeAttachedTo(self, attachment):
         if self.target_player:
             check_player = (self.target_player == "you" and attachment.controller == self.controller) or (self.target_player == "opponent" and attachment.controller in self.controller.opponents)
         else: check_player = True
