@@ -5,7 +5,7 @@ from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntap
 from Mana import ManaPool, generate_hybrid_choices
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
-from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isPlaneswalker
+from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isPlaneswalker, OpponentMatch
 from stacked_function import replace
 
 class life(int):
@@ -313,7 +313,7 @@ class Player(MtGObject):
                         # Now select who to attack
                         if multiple_opponents:
                             while True:
-                                target = self.getTarget(target_types=(isPlayer, isPlaneswalker), zone="play", prompt="Select opponent to attack")
+                                target = self.getTarget(target_types=(OpponentMatch(self), isPlaneswalker), zone="play", prompt="Select opponent to attack")
                                 if target in opponents:
                                     creature.setOpponent(target)
                                     target.send(TargetedByEvent(), targeter=creature)
