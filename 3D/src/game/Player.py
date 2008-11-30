@@ -115,7 +115,7 @@ class Player(MtGObject):
         if len(self.opponents) == 1:
             return tuple(self.opponents)[0]
         else:
-            raise NotImplementedError()
+            return self.getTarget(target_types=OpponentMatch(self), required=True, prompt="Select an opponent")
     def choose_player(self):
         return self.getTarget(target_types=isPlayer, required=True, prompt="Select player")
     def reveal_cards(self, cards, msg=''):
