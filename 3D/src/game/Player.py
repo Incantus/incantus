@@ -36,7 +36,7 @@ class Player(MtGObject):
         self._life += amount  # This seems weird, but amount is negative
         self.send(LifeLostEvent(), amount=amount)
 
-    def __init__(self,name,deck):
+    def __init__(self, name, deck):
         self.name = name
         self._life = 20
         self.poison = 0
@@ -47,7 +47,6 @@ class Player(MtGObject):
         self.decklist = deck
     def init(self, play, stack, opponents):
         self.opponents = opponents
-
         self.library = Library()
         self.hand = Hand()
         self.graveyard = Graveyard()
@@ -117,6 +116,8 @@ class Player(MtGObject):
             return tuple(self.opponents)[0]
         else:
             raise NotImplementedError()
+    def choose_player(self):
+        return self.getTarget(target_types=isPlayer, required=True, prompt="Select player")
     def reveal_cards(self, cards, msg=''):
         # XXX I can't do a true asynchronous reveal until i move to the new networking
         # You can only reveal from hand or library
