@@ -18,10 +18,11 @@ def soulshift(n):
             txt="Soulshift %s"%n)
 
 def bushido(value):
-    if isinstance(value, int): txt="Bushido %d"%value
+    if type(value) == int: txt="Bushido %d"%value
     else: txt = "Bushido X"
     def effects(controller, source):
         yield NoTarget()
+        if not type(value) == int: value = value()
         until_end_of_turn(source.augment_power_toughness(value, value))
         yield
     ability = TriggeredAbility([Trigger(BlockerDeclaredEvent()), Trigger(AttackerBlockedEvent())], sender_match, effects, zone="play", txt=txt, keyword='bushido')
