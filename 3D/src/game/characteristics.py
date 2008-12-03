@@ -1,4 +1,4 @@
-
+import copy
 from GameEvent import ControllerChanged
 
 class stacked_variable(object):
@@ -130,27 +130,24 @@ class stacked_characteristic(object):
                 self._stacking.remove(char)
                 self.card.send(self.change_event)
         return remove
-    def cda(self, *char):
-        # Stick this after the card defined one
-        cda_char = characteristic(*char)
-        cda_char._copyable = True
-        return self._insert_into_stacking(cda_char, 1)
-    def copyable():
+    def _after_last_copyable_index():
         def fget(self):
-            # find last copy effect
             for i, char in enumerate(self._stacking):
                 if not hasattr(char, "_copyable"): break
             else: i += 1
-            return self._stacking[i-1]  # return the last copyable value
+            return i
         return locals()
-    copyable = property(**copyable())
-    def set_copy(self, copy_char):
+    _after_last_copyable_index = property(**_after_last_copyable_index())
+    def cda(self, *char):
+        # Stick this after the card defined one and all copy effects
+        cda_char = characteristic(*char)
+        return self._insert_into_stacking(cda_char, pos=self._after_last_copyable_index)
+    copyable = property(fget = lambda self: self._stacking[self._after_last_copyable_index-1])
+    def set_copy(self, chargroup):
         # find last copy effect
-        copy_char._copyable = True
-        for i, char in enumerate(self._stacking):
-            if not hasattr(char, "_copyable"): break
-        else: i += 1
-        return self._insert_into_stacking(copy_char, pos=i)
+        chargroup = copy.copy(chargroup)
+        chargroup._copyable = True
+        return self._insert_into_stacking(chargroup, pos=self._after_last_copyable_index)
     def set(self, *new_char):
         return self._insert_into_stacking(characteristic(*new_char))
     def add(self, *new_char):
