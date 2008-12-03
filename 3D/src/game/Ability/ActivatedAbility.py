@@ -57,29 +57,3 @@ class ManaAbility(ActivatedAbility):
     def resolved(self):
         self.limit.resolved(self.source)
         super(ManaAbility, self).resolved()
-
-#class MultipleAbilities(ActivatedAbility):
-    # XXX This doesn't override all the functions it should
-    # Is there a better way of doing this? Currently only used by Broken Ambitions
-#    def __init__(self, card, cost="0", abilities=[]):
-#        super(MultipleAbilities, self).__init__(card, cost)
-#        self.abilities = abilities
-#    def process_abilities(self, func_name):
-#        success = True
-#        for a in self.abilities:
-#            func = getattr(a, func_name)
-#            if not func():
-#                success = False
-#                break
-#        print "func_name", func_name, success
-#        return success
-#    def precompute_cost(self): return self.process_abilities("precompute_cost")
-#    def compute_cost(self): return self.process_abilities("compute_cost")
-#    def pay_cost(self):
-#        self.process_abilities("pay_cost")
-#        return True
-#    def get_target(self): return self.process_abilities("get_target")
-#    def resolve(self): return self.process_abilities("resolve")
-#    def __str__(self):
-#        return ", ".join(map(str, self.abilities))
-
