@@ -45,7 +45,7 @@ class ActivatedAbility(CostAbility):
     def enable(self, source): self._status_count += 1
     def disable(self): self._status_count -= 1
     def toggle(self, val): self.enable(None) if val else self.disable()
-    def playable(self, source): return self.enabled and self.limit(source)
+    def playable(self, source): return self.enabled and super(ActivatedAbility, self).playable(source)
 
 class ManaAbility(ActivatedAbility):
     mana_ability = True
