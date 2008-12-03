@@ -1,6 +1,5 @@
 from game import Mana
 from game.GameEvent import CounterAddedEvent, CounterRemovedEvent, InvalidTargetEvent
-from game.LazyInt import LazyInt
 from game.Match import isCard, isPermanent
 
 class Cost(object):
@@ -80,8 +79,7 @@ class ManaCost(Cost):
         super(ManaCost,self).__init__()
         self._mana_amt = cost
         self._X = 0
-        self.X = LazyInt(self._get_X, finalize=True)
-    def _get_X(self): return self._X
+    X = property(fget=lambda self: self._X)
     def is_mana_cost(self): return True
     def __iter__(self): return iter(self.cost)
     def precompute(self, source, player):
