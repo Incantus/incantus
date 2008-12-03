@@ -123,6 +123,7 @@ class CardStaticAbility(StaticAbility):
 class CiPAbility(CardStaticAbility):
     def __init__(self, effects, txt='', keyword=''):
         super(CiPAbility, self).__init__(effects, zone="all", txt=txt, keyword=keyword)
+    def copy(self): return self.__class__(self.effect_generator, self.txt, self.keyword)
 
 class ControllerChange(MtGObject):
     def _enable(self):
@@ -161,3 +162,4 @@ class ConditionalStaticAbility(Conditional, CardStaticAbility):
     def __init__(self, effects, condition, zone="play", txt=''):
         super(ConditionalStaticAbility, self).__init__(effects, zone, txt)
         self.init_condition(condition)
+    def copy(self): return self.__class__(self.effect_generator, self.condition, self.zone, self.txt)
