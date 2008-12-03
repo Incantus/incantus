@@ -22,6 +22,7 @@ def bushido(value):
     else: txt = "Bushido X"
     def effects(controller, source):
         yield NoTarget()
+        value = int(value)
         until_end_of_turn(source.augment_power_toughness(value, value))
         yield
     ability = TriggeredAbility([Trigger(BlockerDeclaredEvent()), Trigger(AttackerBlockedEvent())], sender_match, effects, zone="play", txt=txt, keyword='bushido')
