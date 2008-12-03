@@ -54,9 +54,9 @@ class GameObject(MtGObject):
         self.base_abilities = abilities()
         self.play_spell = None
 
-        self.base_power = 0 #None  It should really be None for CDAs
-        self.base_toughness = 0 #None
-        self.base_loyalty = None
+        self.base_power = 0
+        self.base_toughness = 0
+        self.base_loyalty = 0
 
     owner = property(fget=lambda self: self._owner)
     def new_role(self, rolecls):

@@ -2,38 +2,44 @@
 from GameEvent import ControllerChanged
 
 class stacked_variable(object):
-    _val = property(fget=lambda self: self._characteristics[-1][0])
+    current = property(fget=lambda self: self._characteristics[-1][0])
     def __init__(self, initial):
         self._characteristics = [(initial,)]
+        self._copyable_index = 0
     def cda(self, var):
-        new = (var,)
-        self._characteristics.insert(1, new)
-        return lambda: self._characteristics.remove(new)
-    def set_copy(self, var):
         new = (var,)
         self._characteristics.append(new)
         return lambda: self._characteristics.remove(new)
-    def __getattr__(self, attr): return getattr(self._val, attr)
-    def __eq__(self, other): return self._val == other
-    def __str__(self): return str(self._val)
-    def __repr__(self): return repr(self._val)
-    def __int__(self): return int(self._val)
+    copyable = property(fget=lambda self: self._characteristics[self._copyable_index][0])
+    def set_copy(self, var):
+        new = (var,)
+        self._copyable_index += 1
+        self._characteristics.insert(self._copyable_index, new)
+        def reverse():
+            self._characteristics.remove(new)
+            self._copyable_index -= 1
+        return reverse
+    def __getattr__(self, attr): return getattr(self.current, attr)
+    def __eq__(self, other): return self.current == other
+    def __str__(self): return str(self.current)
+    def __repr__(self): return repr(self._characteristics)
+    def __int__(self): return int(self.current)
 
 class stacked_controller(object):
-    _val = property(fget=lambda self: self._controllers[-1][0])
+    current = property(fget=lambda self: self._controllers[-1][0])
     def __init__(self, perm, initial):
         self.perm = perm
         self._controllers = [(initial,)]
         self.perm.summoningSickness()
     def set(self, new_controller):
-        old_controller = self._val
+        old_controller = self.current
         contr = (new_controller,)
         self._controllers.append(contr)
         if not new_controller == old_controller: self.controller_change(old_controller)
         def remove():
-            orig = self._val
+            orig = self.current
             self._controllers.remove(contr)
-            if orig != self._val: self.controller_change(orig)
+            if orig != self.current: self.controller_change(orig)
         return remove
     def controller_change(self, old_controller):
         self.perm.summoningSickness()
@@ -110,10 +116,9 @@ class remove_characteristics(characteristic):
     def evaluate(self, fields): fields.difference_update(self.characteristics)
 
 class stacked_characteristic(object):
-    stacked = True
     def __init__(self, card, orig, change_event):
         self._stacking = [orig]
-        orig._copy_effect = True
+        orig._copyable = True
         self.card = card
         self.change_event = change_event
     def _insert_into_stacking(self, char, pos=-1):
@@ -127,12 +132,23 @@ class stacked_characteristic(object):
         return remove
     def cda(self, *char):
         # Stick this after the card defined one
-        return self._insert_into_stacking(characteristic(*char), 1)
+        cda_char = characteristic(*char)
+        cda_char._copyable = True
+        return self._insert_into_stacking(cda_char, 1)
+    def copyable():
+        def fget(self):
+            # find last copy effect
+            for i, char in enumerate(self._stacking):
+                if not hasattr(char, "_copyable"): break
+            else: i += 1
+            return self._stacking[i-1]  # return the last copyable value
+        return locals()
+    copyable = property(**copyable())
     def set_copy(self, copy_char):
         # find last copy effect
-        copy_char._copy_effect = True
+        copy_char._copyable = True
         for i, char in enumerate(self._stacking):
-            if not hasattr(char, "_copy_effect"): break
+            if not hasattr(char, "_copyable"): break
         else: i += 1
         return self._insert_into_stacking(copy_char, pos=i)
     def set(self, *new_char):
@@ -147,7 +163,6 @@ class stacked_characteristic(object):
         return self._insert_into_stacking(remove_characteristics(*old_char))
     def remove_all(self):
         return self._insert_into_stacking(no_characteristic())
-    def stacking(self): return len(self._stacking) > 1
     def __eq__(self, other): return other in self.current
     def __contains__(self, val): return self == val
     def intersects(self, other):

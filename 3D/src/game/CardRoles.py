@@ -112,7 +112,7 @@ class NoRole(CardRole): pass
 class SpellRole(CardRole): pass
 
 class Permanent(CardRole):
-    controller = property(fget=lambda self: self._controller._val)
+    controller = property(fget=lambda self: self._controller.current)
     continuously_in_play = property(fget=lambda self: self._continuously_in_play)
     def initialize_controller(self, controller):
         self._controller = stacked_controller(self, controller)
@@ -169,6 +169,15 @@ class Permanent(CardRole):
         self._continuously_in_play = False
         self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
 
+    def clone(self, other, exclude=set(), extra_abilities=None):
+        # copyable values
+        reverse = []
+        copyable = set(["name", "cost", "text", "color", "supertypes", "subtypes", "types", "base_power", "base_toughness", "base_loyalty"])
+        for name in copyable-exclude:
+            obj = getattr(self, name)
+            reverse.append(obj.set_copy(getattr(other, name).copyable))
+        reverse.append(self.abilities.set_copy(other.abilities.copyable, extra_abilities))
+        return combine(*reverse)
     def enteringZone(self, zone):
         # Add the necessary superclasses, depending on our type/subtypes
         self.__class__ = new.classobj("_Permanent", (self.__class__,), {})

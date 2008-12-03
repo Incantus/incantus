@@ -28,18 +28,20 @@ class TriggeredAbility(object):
         self._status_count = 0
     def toggle(self, val):
         if val:
-            for trigger in self.triggers:
-                trigger.setup_trigger(self.source,self.playAbility,self.condition,self.expiry)
+            self._status_count += 1
+            if self._status_count == 1:
+                for trigger in self.triggers:
+                    trigger.setup_trigger(self.source,self.playAbility,self.condition,self.expiry)
         else:
-            for trigger in self.triggers:
-                trigger.clear_trigger()
+            self._status_count -= 1
+            if self._status_count == 0:
+                for trigger in self.triggers:
+                    trigger.clear_trigger()
     def enable(self, source):
         self.source = source
-        self._status_count += 1
-        if self._status_count == 1: self.toggle(True)
+        self.toggle(True)
     def disable(self):
-        self._status_count -= 1
-        if self._status_count == 0: self.toggle(False)
+        self.toggle(False)
     def playAbility(self, **trigger_keys):
         player = self.source.controller
         trigger_keys["controller"] = player
@@ -48,6 +50,7 @@ class TriggeredAbility(object):
         return TriggeredAbility([t.copy() for t in self.triggers], self.condition, self.effect_generator, self.expiry, self.zone, self.txt)
     def __str__(self):
         return self.txt
+    def __repr__(self): return "%s<%s %o: %s>"%('*' if self.enabled else '', self.__class__.__name__, id(self), self.txt)
 
 class SpecialTriggeredAbility(TriggeredAbility):
     def __init__(self, triggers, condition, effects, special_funcs, expiry=-1, zone="play", txt='', keyword=''):
@@ -57,6 +60,10 @@ class SpecialTriggeredAbility(TriggeredAbility):
         if val: self.buildup(self.source)
         else: self.teardown(self.source)
         super(SpecialTriggeredAbility, self).toggle(val)
+    def copy(self):
+        newcopy = super(SpecialTriggeredAbility, self).copy()
+        newcopy.buildup, newcopy.teardown = self.buildup, self.teardown
+        return newcopy
 
 def modal_triggered_effects(*modes, **kw):
     choose = kw['choose']

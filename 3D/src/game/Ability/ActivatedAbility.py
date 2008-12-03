@@ -42,10 +42,15 @@ class ActivatedAbility(CostAbility):
     def __init__(self, effects, limit=None, zone=None, txt='', keyword=''):
         super(ActivatedAbility,self).__init__(effects, limit, zone, txt, keyword)
         self._status_count = 0
-    def enable(self, source): self._status_count += 1
-    def disable(self): self._status_count -= 1
-    def toggle(self, val): self.enable(None) if val else self.disable()
+    def enable(self, source):
+        self.source = source
+        self.toggle(True)
+    def disable(self): self.toggle(False)
+    def toggle(self, val):
+        if val: self._status_count += 1
+        else: self._status_count -= 1
     def playable(self, source): return self.enabled and super(ActivatedAbility, self).playable(source)
+    def __repr__(self): return "%s<%s %o: %s>"%('*' if self.enabled else '', self.__class__.__name__, id(self), self.txt)
 
 class ManaAbility(ActivatedAbility):
     mana_ability = True

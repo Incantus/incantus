@@ -31,8 +31,9 @@ class StaticAbility(object):
             if self._status_count == 0: self._disable()
     def _enable(self): pass
     def _disable(self): pass
-    def copy(self): return copy.copy(self)
+    def copy(self): return self.__class__(self.effect_generator, self.zone, self.txt, self.keyword)
     def __str__(self): return self.txt
+    def __repr__(self): return "%s<%s %o: %s>"%('*' if self.enabled else '', self.__class__.__name__, id(self), self.txt)
 
 class CardTrackingAbility(StaticAbility):
     def __init__(self, effects, condition, events = [], tracking="play", zone="play", txt=''):
@@ -46,6 +47,7 @@ class CardTrackingAbility(StaticAbility):
         if not condition: condition = lambda *args: True
         self.condition = condition
         self.tracking = tracking
+        self.events = events
     def get_current(self):
         controller = self.source.controller
         zone_condition = partial(self.condition, self.source)
@@ -106,6 +108,8 @@ class CardTrackingAbility(StaticAbility):
         # XXX Note the condition can't rely on any trigger data
         if not tracking and pass_condition: self.add_effects(sender)
         elif tracking and not pass_condition and not self.effect_tracking[sender] == True: self.remove_effects(sender)
+    def copy(self):
+        return self.__class__(self.effects, self.condition, self.events, self.tracking, self.zone, self.txt)
 
 class CardStaticAbility(StaticAbility):
     def _enable(self):

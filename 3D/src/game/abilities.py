@@ -12,8 +12,6 @@ class abilities(object):
             ability.tag = tag
             self._abilities.append(ability)
             if ability.keyword: self._keywords[ability.keyword] = ability
-    def attached(self): return [ability for ability in self._abilities if ability.zone == "attached"]
-    def activated(self, source): return [ability for ability in self._abilities if hasattr(ability, "activated") and ability.playable(source())]
     def enable(self, zone, source):
         for ability in self._abilities:
             if (ability.zone == "all" or ability.zone == zone): ability.enable(source())
@@ -23,14 +21,19 @@ class abilities(object):
     def toggle(self, zone, val):
         for ability in self._abilities:
             if (ability.zone == "all" or ability.zone == zone): ability.toggle(val)
-
     abilities = property(fget=lambda self: [ability for ability in self._abilities if ability.enabled])
-    def __repr__(self): return ','.join(map(repr, self._abilities))
+    def attached(self): return [ability for ability in self.abilities if ability.zone == "attached"]
+    def activated(self, source): return [ability for ability in self.abilities if hasattr(ability, "activated") and ability.playable(source())]
+    def __repr__(self): return '\n'.join(map(repr, self._abilities))
     def __str__(self): return '\n'.join(map(str, self.abilities))
     def __len__(self): return len(self.abilities)
     def __iter__(self): return iter(self.abilities)
     def __contains__(self, keyword): # This is to match keyword abilities
         return keyword in self._keywords and self._keywords[keyword].enabled
+    def copy(self):
+        newabilities = abilities()
+        for ability in self._abilities: newabilities.add(ability.copy())
+        return newabilities
 
 class additional_abilities(abilities):
     def __init__(self, *abilities):
@@ -40,14 +43,21 @@ class additional_abilities(abilities):
             if ability.keyword: self._keywords[ability.keyword] = ability
 
 # This is only valid in a single zone
+# Abilities are stored in reverse - the front of the list has the most recently added abilities (the end of the list contains the original card defined abilities)
 class stacked_abilities(object):
-    stacked = True
     def __init__(self, source, abilities):
-        abilities._copy_effect = True
+        abilities._copyable = True
         self._stacking = [abilities]
         self.source = source
         self.zone = None
-    def __repr__(self): return "stacked: [%s]"%','.join(map(repr, self._stacking))
+    def _current():
+        def fget(self):
+            for group in self._stacking:
+                yield group
+                if hasattr(group, "_copyable"): break
+        return locals()
+    _current = property(**_current())
+
     def add(self, *abilities):
         abilities = additional_abilities(*abilities)
         self._stacking.insert(0, abilities)
@@ -90,14 +100,19 @@ class stacked_abilities(object):
         def remove():
             for group in disabled: group.toggle(self.zone, True)
         return remove
-    def set_copy(self, abilities):
-        abilities._copy_effect = True
-        for i, ability in enumerate(self._stacking):
-            if hasattr(ability, "_copy_effect"): break
+    copyable = property(fget=lambda self: tuple(self._current)[-1])
+    def set_copy(self, abilities, extra_abilities=None):
+        # abilities is an abilities object (a group of abilities)
+        abilities = abilities.copy()
+        if extra_abilities: abilities.add(extra_abilities)
+        abilities._copyable = True
+
+        for i, group in enumerate(self._stacking):
+            if hasattr(group, "_copyable"): break
         disabled = []
         if self.zone:
             for group in self._stacking[::-1]:
-                if not hasattr(group, "_copy_effect"): break
+                if not hasattr(group, "_copyable"): break
                 disabled.append(group)
                 group.toggle(self.zone, False)
             abilities.enable(self.zone, self.source)
@@ -108,34 +123,24 @@ class stacked_abilities(object):
             abilities.disable(self.zone)
             for group in disabled: group.toggle(self.zone, True)
         return restore
-    def stacking(self): return len(self._stacking) > 1
     def process_stacked(self, func, total, *args):
-        for a in self._stacking:
-            total += getattr(a, func).__call__(*args)
-            if hasattr(a, "_copy_effect"): break
+        for group in self._current:
+            total += getattr(group, func).__call__(*args)
         return total
     def attached(self): return self.process_stacked("attached", [])
     def activated(self): return self.process_stacked("activated", [], self.source)
     def __len__(self): return self.process_stacked("__len__", 0)
     def __contains__(self, keyword): return self.process_stacked("__contains__", False, keyword) > 0
     def __iter__(self):
-        for group in self._stacking:
+        for group in self._current:
             for ability in group: yield ability
-            if hasattr(group, "_copy_effect"): break
     def enteringZone(self, zone):
         # This is only called when the card is moved to a new zone
         self.zone = zone
-        for a in self._stacking:
-            a.enable(zone, self.source)
-            if hasattr(a, "_copy_effect"): break
+        for group in self._current: group.enable(zone, self.source)
     def leavingZone(self, zone):
-        for a in self._stacking:
-            a.disable(zone)
-            if hasattr(a, "_copy_effect"): break
+        for group in self._current: group.disable(zone)
         self.zone = None
     def __str__(self):
-        string = []
-        for a in self._stacking:
-            string.append(str(a))
-            if hasattr(a, "_copy_effect"): break
-        return '\n'.join(string)
+        return '\n'.join([str(group) for group in self._current])
+    def __repr__(self): return "[%s]"%('\n%s\n'%('-'*80)).join(map(repr, self._stacking))
