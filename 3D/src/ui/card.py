@@ -252,7 +252,7 @@ class PlayCard(Card):
         self.info_box.pos = euclid.Vector3(self.width/2+self.info_box.border, self.height/2-self.info_box.border, 0.005)
         self.info_box.visible = False
     def type_modified(self, sender):
-        if isCreature(self.gamecard):
+        if isCreature(self.gamecard) and not self.is_creature:
             self.setup_creature_role()
         elif not isCreature(self.gamecard) and self.is_creature:
             self.remove_creature_role()
