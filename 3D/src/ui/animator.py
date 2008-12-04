@@ -143,7 +143,7 @@ class ZoneAnimator(object):
         dispatcher.connect(self.reset_blockers, signal=GameEvent.BlockersResetEvent(), priority=dispatcher.UI_PRIORITY)
 
         dispatcher.connect(self.end_combat, signal=GameEvent.EndCombatEvent())
-        dispatcher.connect(self.card_damage, signal=GameEvent.ReceivesDamageEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.card_damage, signal=GameEvent.DealsDamageToEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.player_life, signal=GameEvent.LifeGainedEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.player_life, signal=GameEvent.LifeLostEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.invalid_target, signal=GameEvent.InvalidTargetEvent(), priority=dispatcher.UI_PRIORITY)
@@ -187,12 +187,13 @@ class ZoneAnimator(object):
             guicard = zone.get_card(sender)
             start_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))
             self.sparks.add_star_spark(start_pos, start_pos, dt=dt, color=color, dim=2)
-    def card_damage(self, sender, amount):
-        zone = self.play_zones[sender.controller]
-        guicard = zone.get_card(sender)
-        start_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))+euclid.Vector3(0,10,0)
-        end_pos = start_pos + euclid.Vector3(0,40,0)
-        self.sparks.add_number_spark(amount, start_pos, end_pos, color=(1,0,0,1), dt=1.0, dim=2)
+    def card_damage(self, sender, to, amount):
+        if not isPlayer(to):
+            zone = self.play_zones[to.controller]
+            guicard = zone.get_card(to)
+            start_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))+euclid.Vector3(0,10,0)
+            end_pos = start_pos + euclid.Vector3(0,40,0)
+            self.sparks.add_number_spark(amount, start_pos, end_pos, color=(1,0,0,1), dt=1.0, dim=2)
     def player_life(self, sender, amount):
         pstatus, life = self.player_status[sender]
         start_pos = pstatus.pos + life.pos + euclid.Vector3(0,10,0)
