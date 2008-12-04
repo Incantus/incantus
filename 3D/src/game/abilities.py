@@ -22,7 +22,7 @@ class abilities(object):
         for ability in self._abilities:
             if (ability.zone == "all" or ability.zone == zone): ability.toggle(val)
     abilities = property(fget=lambda self: [ability for ability in self._abilities if ability.enabled])
-    def attached(self): return [ability for ability in self.abilities if ability.zone == "attached"]
+    def attached(self): return [ability for ability in self._abilities if ability.zone == "attached"]
     def activated(self, source): return [ability for ability in self.abilities if hasattr(ability, "activated") and ability.playable(source())]
     def __repr__(self): return '\n'.join(map(repr, self._abilities))
     def __str__(self): return '\n'.join(map(str, self.abilities))
