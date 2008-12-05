@@ -53,12 +53,12 @@ class CardRole(MtGObject):
     def isTargetedBy(self, targeter):
         self.send(TargetedByEvent(), targeter=targeter)
     def modifyEntering(self): pass
-    def enteringZone(self, zone):
+    def enteringZone(self):
         self.modifyEntering()
-        self.abilities.enteringZone(zone)
+        self.abilities.enteringZone()
         self.is_LKI = False
-    def leavingZone(self, zone):
-        self.abilities.leavingZone(zone)
+    def leavingZone(self):
+        self.abilities.leavingZone()
         self.is_LKI = True
     # DSL functions
     def move_to(self, zone, position="top"):
@@ -178,11 +178,11 @@ class Permanent(CardRole):
             extra_copyable = extra.get(name, None)
             reverse.append(obj.set_copy(getattr(other, name).copyable, extra_copyable))
         return combine(*reverse)
-    def enteringZone(self, zone):
+    def enteringZone(self):
         # Add the necessary superclasses, depending on our type/subtypes
         self.__class__ = new.classobj("_Permanent", (self.__class__,), {})
         self.add_basecls()
-        super(Permanent, self).enteringZone(zone)
+        super(Permanent, self).enteringZone()
     def add_basecls(self):
         cls = self.__class__
         orig_bases = cls.__bases__
@@ -237,9 +237,9 @@ class Land(object):
     def activateLand(self):
         self.subtypes = stacked_land_subtype(self.subtypes)
         self._add_basic_abilities()
-    def leavingZone(self, zone):
+    def leavingZone(self):
         self.subtypes.revert()
-        super(Land,self).leavingZone(zone)
+        super(Land,self).leavingZone()
     def _add_basic_abilities(self):
         for subtype in all_basic_lands:
             if self.subtypes == subtype and not self in self._track_basic[subtype]:
@@ -301,9 +301,9 @@ class Creature(object):
         self.cached_PT_dirty = True
 
         self.register(self._new_timestep, TimestepEvent())
-    def leavingZone(self, zone):
+    def leavingZone(self):
         self.unregister(self._new_timestep, TimestepEvent())
-        super(Creature,self).leavingZone(zone)
+        super(Creature,self).leavingZone()
     def canBeDamagedBy(self, damager):
         return not self.is_LKI
     def combatDamage(self):
@@ -440,9 +440,9 @@ class Attachment(object):
             self.target_type = isCreature
         elif self.subtypes == "Fortification":
             self.target_type = isLand
-    def leavingZone(self, zone):
+    def leavingZone(self):
         self.unattach()
-        super(Attachment,self).leavingZone(zone)
+        super(Attachment,self).leavingZone()
     def attach(self, target):
         if self._attached_to != None: self.unattach()
         self._attached_to = target

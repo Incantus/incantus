@@ -34,7 +34,6 @@ class Zone(MtGObject):
         del GameObject._cardmap[card.key]
     def _remove_card(self, card, event=CardLeftZone()):
         self._cards.remove(card)
-        card.zone = None
         self.send(event, card=card)
         self.after_card_removed(card)
     def _insert_card(self, oldcard, card, position):
@@ -44,7 +43,6 @@ class Zone(MtGObject):
         if position == "top": self._cards.append(card)
         elif position == "bottom": self._cards.insert(0, card)
         else: self._cards.insert(position, card)
-        card.zone = self
         self.send(CardEnteredZone(), card=card)
     def move_card(self, card, position):
         newcard = self.setup_new_role(card)
@@ -54,9 +52,11 @@ class Zone(MtGObject):
         return newcard
     # The next 2 are for zones to setup and takedown card roles
     def before_card_added(self, card):
-        card.enteringZone(self.name)
+        card.zone = self
+        card.enteringZone()
     def after_card_removed(self, card):
-        card.leavingZone(self.name)
+        card.leavingZone()
+        card.zone = None
     def setup_new_role(self, card):
         raise NotImplementedError()
 
@@ -88,9 +88,7 @@ class OrderedZone(Zone):
             toplist = self.get_card_order([c for o,c in self.pending_top], "top")
             bottomlist = self.get_card_order([c for o,c in self.pending_bottom], "bottom")
             self._cards = bottomlist + self._cards + toplist
-            for card in toplist+bottomlist:
-                card.zone = self
-                self.send(CardEnteredZone(), card=card)
+            for card in toplist+bottomlist: self.send(CardEnteredZone(), card=card)
             self.pending_top[:] = []
             self.pending_bottom[:] = []
             self.post_commit()

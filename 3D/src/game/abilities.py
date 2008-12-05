@@ -113,12 +113,11 @@ class stacked_abilities(object):
         for i, group in enumerate(self._stacking):
             if hasattr(group, "_copyable"): break
         disabled = []
-        if self.zone:
-            for group in self._stacking[::-1]:
-                if not hasattr(group, "_copyable"): break
-                disabled.append(group)
-                group.toggle(self.zone, False)
-            abilities.enable(self.zone, self.source)
+        for group in self._stacking[::-1]:
+            if not hasattr(group, "_copyable"): break
+            disabled.append(group)
+            group.toggle(self.zone, False)
+        abilities.enable(self.zone, self.source)
         self._stacking.insert(i, abilities)
         #self.source.send(AbilitiesModifiedEvent())
         def restore():
@@ -137,12 +136,12 @@ class stacked_abilities(object):
     def __iter__(self):
         for group in self._current:
             for ability in group: yield ability
-    def enteringZone(self, zone):
+    def enteringZone(self):
         # This is only called when the card is moved to a new zone
-        self.zone = zone
-        for group in self._current: group.enable(zone, self.source)
-    def leavingZone(self, zone):
-        for group in self._current: group.disable(zone)
+        self.zone = str(self.source().zone)
+        for group in self._current: group.enable(self.zone, self.source)
+    def leavingZone(self):
+        for group in self._current: group.disable(self.zone)
         self.zone = None
     def __str__(self):
         return '\n'.join([str(group) for group in self._current])
