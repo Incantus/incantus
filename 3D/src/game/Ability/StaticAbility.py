@@ -6,6 +6,8 @@ from game.GameObjects import MtGObject
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger
 from EffectsUtilities import combine
 
+__all__ = ["CardStaticAbility", "ConditionalStaticAbility", "CardTrackingAbility", "CiPAbility", "ControllerChangeCardStatic"]
+
 # Static abilities always function while the permanent is in the relevant zone
 class StaticAbility(object):
     enabled = property(fget=lambda self: self._status_count > 0)
@@ -135,6 +137,8 @@ class ControllerChange(MtGObject):
     def new_controller(self, original):
         super(ControllerChange, self)._disable()
         super(ControllerChange, self)._enable()
+
+class ControllerChangeCardStatic(ControllerChange, CardStaticAbility): pass
 
 # The condition is checked every timestep
 class Conditional(MtGObject):

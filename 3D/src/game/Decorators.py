@@ -1,6 +1,6 @@
 from Ability.ActivatedAbility import ActivatedAbility, ManaAbility
 from Ability.TriggeredAbility import TriggeredAbility
-from Ability.StaticAbility import CardStaticAbility, ConditionalStaticAbility, CardTrackingAbility, CiPAbility
+from Ability.StaticAbility import *
 from Ability.CastingAbility import CastPermanentSpell, CastInstantSpell, CastSorcerySpell
 from Ability.Target import NoTarget, Target
 from Ability.Cost import ManaCost
@@ -85,8 +85,13 @@ def static(zone="play", txt=''):
         else: return CardStaticAbility(effects, zone, txt)
     return make_ability
 
-def attached(zone="attached", txt=''):
-    return static(zone, txt)
+def attached(zone="attached", controller_dependent=False, txt=''):
+    if controller_dependent:
+        def make_ability(ability):
+            condition, effects = ability()
+            return ControllerChangeCardStatic(effects, zone, txt)
+        return make_ability
+    else: return static(zone, txt)
 
 def comes_into_play(txt=''):
     def make_ability(ability):
