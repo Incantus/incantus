@@ -281,14 +281,14 @@ class ZoneAnimator(object):
             else: pstatus.update_zone(sender)
         elif str(sender) == "play":
             dt = 0.5
+            zone = self.play_zones[card.controller]
             if card.key in self.tracker:
-                guicard = self.play_zones[card.controller].add_card(card,startt=dt)
-                zone = self.play_zones[card.controller]
+                guicard = zone.add_card(card,startt=dt)
                 start_pos, from_zone = self.tracker[card.key]
                 end_pos = self.window.project_to_window(*tuple(zone.pos+guicard.pos))
                 self.sparks.add_spark(start_pos, end_pos, grow=True, dt=dt, color=str(card.color))
                 del self.tracker[card.key]
-            else: self.play_zones[card.controller].add_card(card,startt=0)
+            else: zone.add_card(card,startt=0)
         else:
             if card.key in self.tracker:
                 start_pos, from_zone = self.tracker[card.key]

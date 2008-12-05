@@ -32,7 +32,6 @@ class CombatZone(object):
         else:
             self.orient = 1
             self.compare = max
-        guicard = list(self.attack_zone.cards)[0]
         self.zone_shift_vec = euclid.Vector3(0,0,2.5*self.orient)
         self.attack_zone.pos += self.zone_shift_vec
         self.orig_attacker_pos = {}
@@ -271,12 +270,12 @@ class PlayView(Widget):
             self.layout()
     def card_tapped(self, sender):
         card = self.get_card(sender)
-        if card in self.cards:
+        if card:
             card.tap()
             self.layout()
     def card_untapped(self, sender):
         card = self.get_card(sender)
-        if card in self.cards:
+        if card:
             card.untap()
             self.layout()
     def layout_subset(self, cardlist, size, y, y_incr, row, compare, combat=False):
