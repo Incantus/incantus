@@ -14,7 +14,7 @@ def persist():
     def persist_effect(controller, source, card, newcard):
         yield NoTarget()
         if condition(source, card):
-            expire = CiP(source, enterWithCounters, txt='%s - enter play with a -1/-1 counter'%source)
+            expire = CiP(newcard, enterWithCounters, txt='%s - enter play with a -1/-1 counter'%source)
             # Now move to play
             newcard.move_to("play")
             expire()
