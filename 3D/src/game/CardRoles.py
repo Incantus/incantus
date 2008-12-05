@@ -116,7 +116,7 @@ class Permanent(CardRole):
     continuously_in_play = property(fget=lambda self: self._continuously_in_play)
     def initialize_controller(self, controller):
         self._controller = stacked_controller(self, controller)
-    def change_controller(self, new_controller):
+    def set_controller(self, new_controller):
         return self._controller.set(new_controller)
     def __init__(self, card):
         super(Permanent, self).__init__(card)
