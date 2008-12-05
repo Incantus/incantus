@@ -11,7 +11,7 @@ class stacked_variable(object):
         self._characteristics.append(new)
         return lambda: self._characteristics.remove(new)
     copyable = property(fget=lambda self: self._characteristics[self._copyable_index][0])
-    def set_copy(self, var):
+    def set_copy(self, var, extra=None):
         new = (var,)
         self._copyable_index += 1
         self._characteristics.insert(self._copyable_index, new)
@@ -63,19 +63,12 @@ class PTModifiers(object):
 
 class _base_characteristic(object): pass
 
-class no_characteristic(_base_characteristic):
-    # This characterisitic matches nothing
-    def __eq__(self, other): return False
-    def __contains__(self, val): return self == val
-    def intersects(self, other): return False
-    def __str__(self): return ""
-    def __repr__(self): return "no_characteristic()"
-    def evaluate(self, fields): fields.clear()
-
 class characteristic(_base_characteristic):
     # Internally stored as a set
     def __init__(self, *init_val):
         self.characteristics = set(init_val)
+    def add(self, *additional):
+        self.characteristics.update(set(additional))
     def intersects(self, other): return len(self.characteristics.intersection(other)) > 0
     def __eq__(self, other): return other in self.characteristics
     def __contains__(self, val): return self == val
@@ -87,6 +80,13 @@ class characteristic(_base_characteristic):
         fields.clear()
         fields.update(self.characteristics)
 
+class no_characteristic(characteristic):
+    # This characteristic matches nothing
+    # XXX I should really remove this, it's not needed anymore now that removal is based on sets
+    # and no_characteristic() is just characteristic with no arguments (so an empty set)
+    def __init__(self):
+        super(no_characteristic, self).__init__()
+
 # These are only used internally
 class all_characteristic(characteristic):
     def __init__(self, *init_val):
@@ -95,7 +95,7 @@ class all_characteristic(characteristic):
     def set_text(self, text):
         self.text = text
     def __str__(self): return self.text
-    def __repr__(self): return "characteristic(%s)"%self.txt
+    def __repr__(self): return "characteristic(%s)"%self.text
 
 class additional_characteristics(characteristic):
     def __eq__(self, other):
@@ -143,9 +143,12 @@ class stacked_characteristic(object):
         cda_char = characteristic(*char)
         return self._insert_into_stacking(cda_char, pos=self._after_last_copyable_index)
     copyable = property(fget = lambda self: self._stacking[self._after_last_copyable_index-1])
-    def set_copy(self, chargroup):
+    def set_copy(self, chargroup, extra_chars=None):
         # find last copy effect
         chargroup = copy.copy(chargroup)
+        if extra_chars:
+            if not (type(extra_chars) == list or type(extra_chars) == tuple): extra_chars = (extra_chars,)
+            chargroup.add(*extra_chars)
         chargroup._copyable = True
         return self._insert_into_stacking(chargroup, pos=self._after_last_copyable_index)
     def set(self, *new_char):

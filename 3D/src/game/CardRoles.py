@@ -169,14 +169,14 @@ class Permanent(CardRole):
         self._continuously_in_play = False
         self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
 
-    def clone(self, other, exclude=set(), extra_abilities=None):
+    def clone(self, other, exclude=set(), extra={}):
         # copyable values
         reverse = []
-        copyable = set(["name", "cost", "text", "color", "supertypes", "subtypes", "types", "base_power", "base_toughness", "base_loyalty"])
+        copyable = set(["name", "cost", "text", "abilities", "color", "supertypes", "subtypes", "types", "base_power", "base_toughness", "base_loyalty"])
         for name in copyable-exclude:
             obj = getattr(self, name)
-            reverse.append(obj.set_copy(getattr(other, name).copyable))
-        reverse.append(self.abilities.set_copy(other.abilities.copyable, extra_abilities))
+            extra_copyable = extra.get(name, None)
+            reverse.append(obj.set_copy(getattr(other, name).copyable, extra_copyable))
         return combine(*reverse)
     def enteringZone(self, zone):
         # Add the necessary superclasses, depending on our type/subtypes
