@@ -111,7 +111,7 @@ class CardTrackingAbility(StaticAbility):
         if not tracking and pass_condition: self.add_effects(sender)
         elif tracking and not pass_condition and not self.effect_tracking[sender] == True: self.remove_effects(sender)
     def copy(self):
-        return self.__class__(self.effects, self.condition, self.events, self.tracking, self.zone, self.txt)
+        return self.__class__(self.effect_generator, self.condition, self.events, self.tracking, self.zone, self.txt)
 
 class CardStaticAbility(StaticAbility):
     def _enable(self):
