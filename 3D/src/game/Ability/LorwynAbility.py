@@ -52,7 +52,6 @@ def champion(types=None, subtypes=None):
     elif subtypes:
         cardtype = isPermanent.with_condition(lambda p: p.subtypes.intersects(subtypes))
     def champion1(controller, source):
-        source.championed = None
         yield NoTarget()
         # Code for effect
         cards = controller.choose_from_zone(cardtype=cardtype.with_condition(lambda p: not p == source), required=False, action="champion")
@@ -70,7 +69,7 @@ def champion(types=None, subtypes=None):
     def champion2(controller, source):
         target = yield NoTarget()
         # Code for effect
-        removed = source.championed
+        removed = source.championed if hasattr(source, "championed") else None
         if removed: removed.move_to("play")
         yield
     champion_return = TriggeredAbility(LeaveTrigger("play"),
