@@ -1,11 +1,11 @@
-from Ability.ActivatedAbility import ActivatedAbility, ManaAbility
-from Ability.TriggeredAbility import TriggeredAbility
-from Ability.StaticAbility import *
-from Ability.CastingAbility import CastPermanentSpell, CastInstantSpell, CastSorcerySpell
-from Ability.Target import NoTarget, Target
-from Ability.Cost import ManaCost
-from Ability.PermanentAbility import CiP
-from Ability.EffectsUtilities import robustApply
+from ActivatedAbility import ActivatedAbility, ManaAbility
+from TriggeredAbility import TriggeredAbility
+from StaticAbility import *
+from CastingAbility import CastPermanentSpell, CastInstantSpell, CastSorcerySpell
+from Target import NoTarget, Target
+from Cost import ManaCost
+from PermanentAbility import CiP
+from EffectsUtilities import robustApply
 
 def play_permanent():
     def effects(controller, source):

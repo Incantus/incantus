@@ -1,13 +1,13 @@
 from math import *
 from characteristics import characteristic, no_characteristic
 from stacked_function import *
-from Decorators import *
 from Player import Player
 from GameKeeper import Keeper
 from Match import *
 from LazyInt import LazyInt
 from GameEvent import *
 
+from Ability.Decorators import *
 from Ability.ActivatedAbility import ActivatedAbility, ManaAbility
 from Ability.TriggeredAbility import TriggeredAbility, source_match, sender_match, modal_triggered_effects
 from Ability.StaticAbility import *

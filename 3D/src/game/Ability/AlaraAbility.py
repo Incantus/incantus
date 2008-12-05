@@ -1,6 +1,6 @@
 from game.GameEvent import DeclareAttackersEvent, InvalidTargetEvent, EndTurnStepEvent
 from game.Match import isCreature
-from game.Decorators import delayed_trigger
+from Decorators import delayed_trigger
 from PermanentAbility import no_before, CiP
 from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
