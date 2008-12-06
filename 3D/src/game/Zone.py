@@ -2,6 +2,8 @@ import random
 from GameObjects import MtGObject, GameObject
 from GameEvent import CardEnteringZoneFrom, CardLeftZone, CardEnteredZone, CardCeasesToExist, TimestepEvent, ShuffleEvent
 
+all_match = lambda card: True
+
 class Zone(MtGObject):
     def __init__(self):
         self._cards = []
@@ -26,7 +28,7 @@ class Zone(MtGObject):
         else:
             if len(self) == 0: return None
             else: return self._cards[0]
-    def get(self, match=lambda c: True):
+    def get(self, match=all_match):
         # Retrieve all of a type of Card in current location
         return [card for card in iter(self._cards[::-1]) if match(card)]
     def cease_to_exist(self, card):
@@ -77,11 +79,9 @@ class OrderedZone(Zone):
             reorder = player.getCardSelection(cardlist, number=len(cardlist), zone=str(self), player=player, required=False, prompt="Order cards entering %s of %s"%(pos, self))
             if reorder: cardlist = reorder[::-1]
         return cardlist
-    def pre_commit(self): pass
     def post_commit(self): pass
     def commit(self):
         if self.pending_top or self.pending_bottom:
-            self.pre_commit()
             for oldcard, card in self.pending_top+self.pending_bottom:
                 if oldcard.zone: oldcard.zone._remove_card(oldcard)
                 self.before_card_added(card)
@@ -109,6 +109,7 @@ class Removed(OutPlayMixin, Zone):
     name = "removed"
 
 class Library(OutPlayMixin, OrderedZone):
+    name = "library"
     def __init__(self):
         super(Library, self).__init__()
         self.needs_shuffle = False
@@ -129,7 +130,6 @@ class Library(OutPlayMixin, OrderedZone):
             self.needs_shuffle = False
             random.shuffle(self._cards)
             self.send(ShuffleEvent())
-    name = "library"
 
 class PlayView(object):
     def __init__(self, player, play):
@@ -138,21 +138,22 @@ class PlayView(object):
     def __iter__(self):
         # Top of the cards is the end of the list
         return iter(self.get())
-    def get(self, match=lambda c: True, all=False):
-        if all: return self.play.get(match)
-        else:
-            return [card for card in self.play if match(card) and card.controller == self.player]
-    def __getattr__(self, attr):
-        return getattr(self.play, attr)
+    def get(self, match=all_match, all=False):
+        cards = self.play.get(match)
+        if not all: cards = [card for card in cards if card.controller == self.player]
+        return cards
+    #def __getattr__(self, attr):
+    #    return getattr(self.play, attr)
     def move_card(self, card, position="top"):
-        return self.play.move_card(card, position, self.player)
+        card = self.play.move_card(card, position)
+        card.initialize_controller(self.player)
+        return card
     def __str__(self): return "play"
 
 class Play(OrderedZone):
     name = "play"
     def __init__(self, game):
         self.game = game
-        self.controllers = {}
         super(Play, self).__init__()
     def get_view(self, player):
         return PlayView(player, self)
@@ -170,18 +171,9 @@ class Play(OrderedZone):
                     cards.reverse()
                 cardlist.extend(cards)
         return cardlist
-    def move_card(self, card, position, controller):
-        card = super(Play, self).move_card(card, position)
-        self.controllers[card] = controller
-        return card
     def setup_new_role(self, card):
         cardtmpl = GameObject._cardmap[card.key]
         return cardtmpl.new_role(cardtmpl.in_play_role)
-    def before_card_added(self, card):
-        card.initialize_controller(self.controllers[card])
-        super(Play, self).before_card_added(card)
-    def post_commit(self):
-        self.controllers = {}
 
 class CardStack(Zone):
     name = "stack"
