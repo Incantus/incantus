@@ -585,7 +585,7 @@ class ZoneView(CardView):
             card.size = self.focus_size
             x += card.width*self.focus_size*0.5*dir
             card.pos = euclid.Vector3(x, y+card.height*self.focus_size/2*dir,i)
-            card.hidden = False
+            if self.is_library: card.hidden = False
             self.height = card.height*self.focus_size
             x += card.width*self.focus_size*0.5*dir
             i += 0.001
@@ -593,7 +593,7 @@ class ZoneView(CardView):
                 card.size = size
                 x += card.width*size*xincr*dir
                 card.pos = euclid.Vector3(x, y+card.height*size/2*dir,i)
-                card.hidden = False
+                if self.is_library: card.hidden = False
                 i += 0.001
             self.width = x #+card.width*0.25
             self.scroll_bar = (0, -5*dir, self.width, -20*dir)
