@@ -9,7 +9,7 @@ from GameEvent import *
 
 from Ability.Decorators import *
 from Ability.ActivatedAbility import ActivatedAbility, ManaAbility
-from Ability.TriggeredAbility import TriggeredAbility, source_match, sender_match, modal_triggered_effects
+from Ability.TriggeredAbility import TriggeredAbility, source_match, sender_match, modal_triggered_effects, attached_match
 from Ability.StaticAbility import *
 from Ability.CastingAbility import *
 from Ability.Target import *
