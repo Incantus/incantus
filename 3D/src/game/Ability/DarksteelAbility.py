@@ -2,8 +2,7 @@ from game.Match import isArtifactCreature
 from TriggeredAbility import TriggeredAbility, source_match
 from Trigger import EnterFromTrigger
 from Target import Target
-from PermanentAbility import CiP, no_before
-from StaticAbility import CiPAbility
+from CiPAbility import CiP, CiPAbility
 from Counters import PowerToughnessCounter
 
 def modular(n):

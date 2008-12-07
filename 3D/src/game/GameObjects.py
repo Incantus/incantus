@@ -109,7 +109,7 @@ class Card(GameObject):
             self.in_play_role = Permanent
 
         if (self.base_subtypes == "Aura"):
-            from game.Ability.PermanentAbility import attach_on_enter
+            from game.Ability.CiPAbility import attach_on_enter
             self.base_abilities.add(attach_on_enter())
 
         self._add_to_map()

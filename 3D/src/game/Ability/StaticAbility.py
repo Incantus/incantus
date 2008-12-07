@@ -6,7 +6,7 @@ from game.GameObjects import MtGObject
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger
 from EffectsUtilities import combine
 
-__all__ = ["CardStaticAbility", "ConditionalStaticAbility", "CardTrackingAbility", "CiPAbility", "ControllerChangeCardStatic"]
+__all__ = ["CardStaticAbility", "ConditionalStaticAbility", "CardTrackingAbility", "ControllerChangeCardStatic"]
 
 # Static abilities always function while the permanent is in the relevant zone
 class StaticAbility(object):
@@ -121,11 +121,6 @@ class CardStaticAbility(StaticAbility):
         super(CardStaticAbility, self)._disable()
         for remove in self.effect_tracking: remove()
         self.effect_tracking = None
-
-class CiPAbility(CardStaticAbility):
-    def __init__(self, effects, txt='', keyword=''):
-        super(CiPAbility, self).__init__(effects, zone="all", txt=txt, keyword=keyword)
-    def copy(self): return self.__class__(self.effect_generator, self.txt, self.keyword)
 
 class ControllerChange(MtGObject):
     def _enable(self):

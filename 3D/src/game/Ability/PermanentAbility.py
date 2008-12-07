@@ -1,21 +1,10 @@
-from game.pydispatch import dispatcher
 from game.Match import isCard, isCreature, isLand
-from game.GameEvent import TimestepEvent
 from ActivatedAbility import ActivatedAbility, ManaAbility
 from StaticAbility import CardStaticAbility
 from Target import NoTarget, Target
 from Cost import ManaCost, TapCost
-from EffectsUtilities import do_override, do_replace, combine, do_all
+from EffectsUtilities import do_override
 from Limit import no_limit, sorcery
-
-#def flash(card):
-#    casting_ability = card.play_spell
-#    if isinstance(casting_ability.limit, SorceryLimit):
-#        casting_ability.limit = Unlimited(card)
-#    elif isinstance(casting_ability.limit, MultipleLimits):
-#        for i, limit in enumerate(casting_ability.limit):
-#            if isinstance(limit, SorceryLimit): break
-#        casting_ability.limit.limits.pop(i)
 
 def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plains='W',Mountain='R',Swamp='B')):
     color = subtype_to_mana[subtype]
@@ -47,60 +36,7 @@ def enchant(target_type, zone="play", player=None):
         yield lambda: None
     return CardStaticAbility(effects, keyword="Enchant %s in %s"%(target_type, zone), zone="all")
 
-# CiP functionality for auras
-from StaticAbility import CiPAbility
-def attach_on_enter():
-    attaching_to = [None]
-    def before(source):
-        # Ask to select target
-        if source.attach_on_enter:
-            card = source.attach_on_enter
-        else:
-            if not source.target_zone == "play": where = " in %s"%source.target_zone
-            else: where = ''
-            # XXX Need to make sure there is a valid attachment
-            card = source.controller.getTarget(source.target_type, zone=source.target_zone, required=False, prompt="Select %s%s to attach %s"%(source.target_type, where, source))
-        if card:
-            attaching_to[0] = card
-            return True
-        else: return False
-    def during(self):
-        self.attach(attaching_to[0])
-    def effects(source):
-        yield CiP(source, during, before=before, txt="Attach to card")
-    return CiPAbility(effects, txt="")
-
-# Comes into play functionality
-def enter_play_tapped(self):
-    '''Card comes into play tapped'''
-    self.tapped = True
-
-no_before = lambda source: True
-def CiP(obj, during, before=no_before, condition=None, txt=''):
-    if not txt and hasattr(during, "__doc__"): msg = during.__doc__
-    else: msg = txt
-
-    def move_to(self, zone, position="top"):
-        # Now move to play
-        if before(self):
-            perm = self.move_to(zone, position)
-            # At this point the card hasn't actually moved (it will on the next timestep event), so we can modify it's enteringZone function. This basically relies on the fact that entering play is batched and done on the timestep.
-            remove_entering = do_override(perm, "modifyEntering", during, combiner=do_all)
-            # XXX There might be timing issue, since we want to remove the override after the card is put into play
-            dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False, expiry=1)
-            return perm
-        else:
-            # Don't actually move the card
-            return self
-
-    play_condition = lambda self, zone, position="top": str(zone) == "play"
-    if condition: cond = lambda self, zone, position="top": play_condition(self,zone,position) and condition(self,zone,position)
-    else: cond = play_condition
-
-    return do_replace(obj, "move_to", move_to, msg=msg, condition=cond)
-
 # Untapping abilities
-
 optionallyUntap = lambda self: self.canUntap() and self.controller.getIntention("Untap %s"%self)
 def optionally_untap(target):
     return do_override(target, "canUntapDuringUntapStep", optionallyUntap)
@@ -111,22 +47,6 @@ def doesnt_untap_controllers_next_untap_step(target):
     return do_override(target, "canUntapDuringUntapStep", cantUntap)
 def doesntUntapAbility(txt):
     return CardStaticAbility(effects=override_effect("canUntapDuringUntapStep", lambda self: False), txt=txt)
-
-# Cloning
-def clone(source, cloned):
-    from game import CardDatabase
-    from game.GameObjects import GameObject
-    clone = CardDatabase.execCode(GameObject(source.controller), cloned.text)
-    source.cost = clone.base_cost
-    expire1 = combine(*[getattr(source, attr).set_copy(getattr(clone, "base_"+attr)) for attr in ("name", "text", "color", "types", "subtypes", "supertypes", "abilities")])
-    expire2 = combine(*[getattr(source, attr).set_copy(getattr(clone, attr)) for attr in ("base_power", "base_toughness", "base_loyalty")])
-    def restore():
-        source.cost = source._cardtmpl.base_cost
-        expire1()
-        expire2()
-    del clone
-    return restore
-
 
 #class ThresholdAbility(ActivatedAbility):
 #    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="play"):
@@ -165,3 +85,13 @@ def clone(source, cloned):
 
 #def suspend(card, number):
 #    pass
+
+#def flash(card):
+#    casting_ability = card.play_spell
+#    if isinstance(casting_ability.limit, SorceryLimit):
+#        casting_ability.limit = Unlimited(card)
+#    elif isinstance(casting_ability.limit, MultipleLimits):
+#        for i, limit in enumerate(casting_ability.limit):
+#            if isinstance(limit, SorceryLimit): break
+#        casting_ability.limit.limits.pop(i)
+

@@ -4,7 +4,7 @@ from Target import NoTarget
 from Trigger import EnterFromTrigger
 from Counters import PowerToughnessCounter
 from CreatureAbility import keyword_effect
-from PermanentAbility import CiP
+from CiPAbility import CiP
 
 def persist():
     def condition(source, card):

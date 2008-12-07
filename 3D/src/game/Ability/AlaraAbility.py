@@ -1,10 +1,9 @@
 from game.GameEvent import DeclareAttackersEvent, InvalidTargetEvent, EndTurnStepEvent
 from game.Match import isCreature
 from Decorators import delayed_trigger
-from PermanentAbility import no_before, CiP
 from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
-from StaticAbility import CiPAbility
+from CiPAbility import CiP, CiPAbility
 from CreatureAbility import haste
 from EffectsUtilities import until_end_of_turn, delay, do_replace, no_condition
 from Target import NoTarget
@@ -40,7 +39,7 @@ def devour(value):
             source.devoured = cards
             if cards: source.add_counters(PowerToughnessCounter(1, 1), len(cards)*value)
     def effects(source):
-        yield CiP(source, enterPlayWith, no_before, txt=txt)
+        yield CiP(source, enterPlayWith, txt=txt)
     return CiPAbility(effects, txt=txt, keyword="devour")
 
 def unearth(cost):

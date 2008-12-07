@@ -1,6 +1,5 @@
 from Counters import PowerToughnessCounter
-from PermanentAbility import CiP
-from StaticAbility import CiPAbility
+from CiPAbility import CiP, CiPAbility
 from EffectsUtilities import keyword_action
 
 @keyword_action

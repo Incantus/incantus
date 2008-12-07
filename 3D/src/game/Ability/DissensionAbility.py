@@ -1,6 +1,5 @@
 from Counters import PowerToughnessCounter
-from PermanentAbility import CiP
-from StaticAbility import CiPAbility
+from CiPAbility import CiP, CiPAbility
 from TriggeredAbility import TriggeredAbility
 from Target import NoTarget
 from Trigger import EnterTrigger

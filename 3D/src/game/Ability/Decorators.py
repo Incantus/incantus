@@ -4,7 +4,7 @@ from StaticAbility import *
 from CastingAbility import CastPermanentSpell, CastInstantSpell, CastSorcerySpell
 from Target import NoTarget, Target
 from Cost import ManaCost
-from PermanentAbility import CiP
+from CiPAbility import CiP, CiPAbility
 from EffectsUtilities import robustApply
 
 def play_permanent():

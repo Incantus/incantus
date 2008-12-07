@@ -47,6 +47,10 @@ def permanent_method(func):
     from game.CardRoles import Permanent
     setattr(Permanent, func.__name__, func)
 
+def role_method(func):
+    from game.CardRoles import CardRole
+    setattr(CardRole, func.__name__, func)
+
 do_override = override
 do_replace = replace
 

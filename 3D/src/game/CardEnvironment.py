@@ -12,6 +12,7 @@ from Ability.ActivatedAbility import ActivatedAbility, ManaAbility
 from Ability.TriggeredAbility import TriggeredAbility, source_match, sender_match, modal_triggered_effects, attached_match
 from Ability.StaticAbility import *
 from Ability.CastingAbility import *
+from Ability.CiPAbility import *
 from Ability.Target import *
 from Ability.Trigger import *
 from Ability.Cost import *

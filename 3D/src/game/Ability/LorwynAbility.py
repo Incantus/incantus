@@ -1,8 +1,7 @@
 from game.Match import isCreature, isPermanent
 from game.GameEvent import ClashEvent
 from TriggeredAbility import TriggeredAbility
-from StaticAbility import CardStaticAbility, CiPAbility
-from PermanentAbility import enter_play_tapped, CiP
+from CiPAbility import comes_into_play_tapped
 from Target import NoTarget
 from Trigger import EnterTrigger, LeaveTrigger, DealDamageToTrigger
 from Subtypes import all_creatures
@@ -78,9 +77,7 @@ def champion(types=None, subtypes=None):
     return champion_send, champion_return
 
 def hideaway(cost="0"):
-    def effects(source):
-        yield CiP(source, enter_play_tapped, txt="%s comes into play tapped"%source)
-    cip = CiPAbility(effects, txt="~ comes into play tapped")
+    cip = comes_into_play_tapped(txt="~ comes into play tapped")
 
     def hideaway_effect(controller, source):
         source.hidden = None
