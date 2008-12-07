@@ -33,25 +33,13 @@ class CardRole(MtGObject):
             return ''.join(txt)
         return locals()
 
-    def zone():
-        def fget(self): return self._zone
-        def fset(self, new_zone):
-            if new_zone != None:
-                self._zone = new_zone
-                self.enteringZone()
-            else:
-                self.leavingZone()
-                self._zone = new_zone
-        return locals()
-    zone = property(**zone())
-
     info = property(**info())
     controller = property(fget=lambda self: self.owner)
     converted_mana_cost = property(fget=lambda self: self.cost.converted_mana_cost())
 
     def __init__(self, key):
         self.key = key
-        self._zone = None
+        self.zone = None
         self._counters = []
         self.attachments = []
         self.facedown = False
@@ -66,13 +54,15 @@ class CardRole(MtGObject):
     def isTargetedBy(self, targeter):
         self.send(TargetedByEvent(), targeter=targeter)
     def modifyEntering(self): pass
-    def enteringZone(self):
+    def enteringZone(self, zone):
+        self.zone = zone
         self.modifyEntering()
         self.abilities.enteringZone()
         self.is_LKI = False
     def leavingZone(self):
         self.abilities.leavingZone()
         self.is_LKI = True
+        self.zone = None
     # DSL functions
     def move_to(self, zone, position="top"):
         if not self.is_LKI:
@@ -191,11 +181,11 @@ class Permanent(CardRole):
             extra_copyable = extra.get(name, None)
             reverse.append(obj.set_copy(getattr(other, name).copyable, extra_copyable))
         return combine(*reverse)
-    def enteringZone(self):
+    def modifyEntering(self):
         # Add the necessary superclasses, depending on our type/subtypes
         self.__class__ = new.classobj("_Permanent", (self.__class__,), {})
         self.add_basecls()
-        super(Permanent, self).enteringZone()
+        super(Permanent, self).modifyEntering()
     def add_basecls(self):
         cls = self.__class__
         orig_bases = cls.__bases__

@@ -33,15 +33,15 @@ class Zone(MtGObject):
         return [card for card in iter(self._cards[::-1]) if match(card)]
     def cease_to_exist(self, card):
         self._remove_card(card, CardCeasesToExist())
-        card.zone = None
+        card.leavingZone()
         del GameObject._cardmap[card.key]
     def _remove_card(self, card, event=CardLeftZone()):
         self._cards.remove(card)
         self.send(event, card=card)
     def _insert_card(self, oldcard, card, position):
         # Remove card from previous zone
-        oldcard.zone = None
-        card.zone = self
+        oldcard.leavingZone()
+        card.enteringZone(self)
         if position == "top": self._cards.append(card)
         elif position == "bottom": self._cards.insert(0, card)
         else: self._cards.insert(position, card)
@@ -76,8 +76,8 @@ class OrderedZone(Zone):
     def commit(self):
         if self.pending_top or self.pending_bottom:
             for oldcard, card in self.pending_top+self.pending_bottom:
-                oldcard.zone = None
-                card.zone = self
+                oldcard.leavingZone()
+                card.enteringZone(self)
             toplist = self.get_card_order([c for o,c in self.pending_top], "top")
             bottomlist = self.get_card_order([c for o,c in self.pending_bottom], "bottom")
             self._cards = bottomlist + self._cards + toplist
@@ -94,7 +94,7 @@ class OutPlayMixin(object):
 
 class AddCardsMixin(object):
     def add_new_card(self, card):
-        card.zone = self
+        card.enteringZone(self)
         self._cards.append(card)
         self.send(CardEnteredZone(), card=card)
         return card
