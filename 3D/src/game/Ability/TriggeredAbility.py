@@ -3,7 +3,7 @@ from EffectsUtilities import robustApply
 
 source_match = lambda source, card: source == card
 sender_match = lambda source, sender: source == sender
-attached_match = lambda source, card: source.attached_to == source
+attached_match = lambda source, card: source.attached_to == card
 
 class TriggeredStackAbility(Ability):
     triggered = True
