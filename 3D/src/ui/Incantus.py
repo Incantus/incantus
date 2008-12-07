@@ -385,7 +385,7 @@ class GameWindow(window.Window):
         random.seed(seed)
 
         # Load decks - Make sure these are loaded in the same order for client and server
-        my_deck = self.read_deckfile(self.conf.get("main", "deckfile"))
+        my_deck, sideboard = self.read_deckfile(self.conf.get("main", "deckfile"))
         if isserver:
             self.connection.send(my_deck)
             other_deck = self.connection.receive()
@@ -489,8 +489,8 @@ class GameWindow(window.Window):
             player2_name = self.conf.get("solitaire", "playername")
             player1_color = self.conf.get("main", "color")
             player2_color = self.conf.get("solitaire", "color")
-            my_deck = self.read_deckfile(self.conf.get("main", "deckfile"))
-            other_deck = self.read_deckfile(self.conf.get("solitaire", "deckfile"))
+            my_deck, sideboard = self.read_deckfile(self.conf.get("main", "deckfile"))
+            other_deck, other_sideboard = self.read_deckfile(self.conf.get("solitaire", "deckfile"))
             self.dump_to_replay(True)
             self.dump_to_replay(seed)
             self.dump_to_replay(player1_name)
@@ -630,11 +630,12 @@ class GameWindow(window.Window):
             self._keep_priority = False
 
     def read_deckfile(self, filename):
-        deckfile = [l.strip().split() for l in file(filename, "rU").readlines() if not (l[0] == "#" or l[:2] == "//")]
-        decklist = [(l[0], " ".join(l[1:])) for l in deckfile if l and l[0] != "SB:"]
+        deckfile = [l.strip().split() for l in file(filename, "rU").readlines() if l.strip() and not (l[0] == "#" or l[:2] == "//")]
+        decklist = [(l[0], " ".join(l[1:])) for l in deckfile if l[0] != "SB:"]
+        sideboard = [(l[1], " ".join(l[2:])) for l in deckfile if l[0] == "SB:"]
         self.game_status.log("Retrieving card images from web")
         #CardLibrary.CardLibrary.retrieveCardImages([c[1] for c in decklist])
-        return decklist
+        return decklist, sideboard
 
     def on_close(self):
         del self.dump_to_replay
