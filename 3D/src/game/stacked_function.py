@@ -8,7 +8,7 @@ def logical_or(funcs, *args, **kw):
 def logical_and(funcs, *args, **kw):
     return reduce(lambda x, y: x and y(*args, **kw), funcs, True)
 def do_all(funcs, *args, **kw):
-    for f in funcs: f(*args, **kw)
+    for f in funcs[::-1]: f(*args, **kw)
 def most_recent(funcs, *args, **kw):
     return funcs[0](*args, **kw)
 
