@@ -32,13 +32,26 @@ class CardRole(MtGObject):
             #if type_info: txt.append('\n\n'+type_info)
             return ''.join(txt)
         return locals()
+
+    def zone():
+        def fget(self): return self._zone
+        def fset(self, new_zone):
+            if new_zone != None:
+                self._zone = new_zone
+                self.enteringZone()
+            else:
+                self.leavingZone()
+                self._zone = new_zone
+        return locals()
+    zone = property(**zone())
+
     info = property(**info())
     controller = property(fget=lambda self: self.owner)
     converted_mana_cost = property(fget=lambda self: self.cost.converted_mana_cost())
 
     def __init__(self, key):
         self.key = key
-        self.zone = None
+        self._zone = None
         self._counters = []
         self.attachments = []
         self.facedown = False

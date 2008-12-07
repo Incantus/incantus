@@ -33,33 +33,25 @@ class Zone(MtGObject):
         return [card for card in iter(self._cards[::-1]) if match(card)]
     def cease_to_exist(self, card):
         self._remove_card(card, CardCeasesToExist())
-        self.after_card_removed(card)
+        card.zone = None
         del GameObject._cardmap[card.key]
     def _remove_card(self, card, event=CardLeftZone()):
         self._cards.remove(card)
         self.send(event, card=card)
     def _insert_card(self, oldcard, card, position):
         # Remove card from previous zone
-        oldcard.zone._remove_card(oldcard)
-        oldcard.zone.after_card_removed(oldcard)
-        self.before_card_added(card)
+        oldcard.zone = None
+        card.zone = self
         if position == "top": self._cards.append(card)
         elif position == "bottom": self._cards.insert(0, card)
         else: self._cards.insert(position, card)
         self.send(CardEnteredZone(), card=card)
     def move_card(self, card, position):
         newcard = self.setup_new_role(card)
-        if card.zone:
-            self.send(CardEnteringZoneFrom(), from_zone=card.zone, oldcard=card, newcard=newcard)
+        self.send(CardEnteringZoneFrom(), from_zone=card.zone, oldcard=card, newcard=newcard)
+        card.zone._remove_card(card)
         self._insert_card(card, newcard, position)
         return newcard
-    # The next 2 are for zones to setup and takedown card roles
-    def before_card_added(self, card):
-        card.zone = self
-        card.enteringZone()
-    def after_card_removed(self, card):
-        card.leavingZone()
-        card.zone = None
     def setup_new_role(self, card):
         raise NotImplementedError()
 
@@ -72,7 +64,6 @@ class OrderedZone(Zone):
         self.register(self.commit, TimestepEvent())
     def _insert_card(self, oldcard, card, position):
         self.pending = True
-        oldcard.zone._remove_card(oldcard)
         if position == "top": self.pending_top.append((oldcard, card))
         else: self.pending_bottom.append((oldcard, card))
     def get_card_order(self, cardlist, pos):
@@ -85,8 +76,8 @@ class OrderedZone(Zone):
     def commit(self):
         if self.pending_top or self.pending_bottom:
             for oldcard, card in self.pending_top+self.pending_bottom:
-                oldcard.zone.after_card_removed(oldcard)
-                self.before_card_added(card)
+                oldcard.zone = None
+                card.zone = self
             toplist = self.get_card_order([c for o,c in self.pending_top], "top")
             bottomlist = self.get_card_order([c for o,c in self.pending_bottom], "bottom")
             self._cards = bottomlist + self._cards + toplist
@@ -103,7 +94,7 @@ class OutPlayMixin(object):
 
 class AddCardsMixin(object):
     def add_new_card(self, card):
-        self.before_card_added(card)
+        card.zone = self
         self._cards.append(card)
         self.send(CardEnteredZone(), card=card)
         return card
