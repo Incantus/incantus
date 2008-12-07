@@ -511,6 +511,7 @@ class ZoneView(CardView):
         newcard._orientation.set_transition(dt=0.2, method=self.orientation_transition)
         newcard.size = anim.animate(0.1, 0.1, dt=0.2, method="sine")
         newcard.alpha = anim.animate(0, 1, dt=1.0, method="ease_out_circ")
+        newcard.hidden = False
         self.cards.append(newcard)
     def select_card(self, card):
         self.cards.remove(card)
