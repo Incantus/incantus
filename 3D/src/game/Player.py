@@ -496,7 +496,7 @@ class Player(MtGObject):
         if not player: player = selection[0].controller
         context = {'get_cards': True, 'list':selection, 'numselections': number, 'required': required, 'process': filter, 'from_zone': zone, 'from_player': player, 'check_card': check_card}
         sel = self.input(context, "%s: %s"%(self.name,prompt))
-        if isinstance(sel, CancelAction): return False
+        if isinstance(sel, CancelAction): return []
         else: return sel
     def getPermanentInPlay(self, prompt='Select permanent'):
         def filter(action):
