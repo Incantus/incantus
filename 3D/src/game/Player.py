@@ -104,7 +104,7 @@ class Player(MtGObject):
     def play_tokens(self, info, number=1):
         tokens = []
         for _ in range(number):
-            token = Token.create(info, owner=self)
+            token = self.removed.add_new_card(Token.create(info, owner=self))
             tokens.append(token.move_to(self.play))
         return tokens
     def make_selection(self, sellist, number=1, required=True, prompt=''):

@@ -33,14 +33,15 @@ class Zone(MtGObject):
         return [card for card in iter(self._cards[::-1]) if match(card)]
     def cease_to_exist(self, card):
         self._remove_card(card, CardCeasesToExist())
+        self.after_card_removed(card)
         del GameObject._cardmap[card.key]
     def _remove_card(self, card, event=CardLeftZone()):
         self._cards.remove(card)
         self.send(event, card=card)
-        self.after_card_removed(card)
     def _insert_card(self, oldcard, card, position):
         # Remove card from previous zone
-        if oldcard.zone: oldcard.zone._remove_card(oldcard)
+        oldcard.zone._remove_card(oldcard)
+        oldcard.zone.after_card_removed(oldcard)
         self.before_card_added(card)
         if position == "top": self._cards.append(card)
         elif position == "bottom": self._cards.insert(0, card)
@@ -71,6 +72,7 @@ class OrderedZone(Zone):
         self.register(self.commit, TimestepEvent())
     def _insert_card(self, oldcard, card, position):
         self.pending = True
+        oldcard.zone._remove_card(oldcard)
         if position == "top": self.pending_top.append((oldcard, card))
         else: self.pending_bottom.append((oldcard, card))
     def get_card_order(self, cardlist, pos):
@@ -83,7 +85,7 @@ class OrderedZone(Zone):
     def commit(self):
         if self.pending_top or self.pending_bottom:
             for oldcard, card in self.pending_top+self.pending_bottom:
-                if oldcard.zone: oldcard.zone._remove_card(oldcard)
+                oldcard.zone.after_card_removed(oldcard)
                 self.before_card_added(card)
             toplist = self.get_card_order([c for o,c in self.pending_top], "top")
             bottomlist = self.get_card_order([c for o,c in self.pending_bottom], "bottom")
@@ -99,23 +101,27 @@ class OutPlayMixin(object):
         cardtmpl = GameObject._cardmap[card.key]
         return cardtmpl.new_role(cardtmpl.out_play_role)
 
+class AddCardsMixin(object):
+    def add_new_card(self, card):
+        self.before_card_added(card)
+        self._cards.append(card)
+        self.send(CardEnteredZone(), card=card)
+        return card
+
 class Graveyard(OutPlayMixin, OrderedZone):
     name = "graveyard"
 
 class Hand(OutPlayMixin, Zone):
     name = "hand"
 
-class Removed(OutPlayMixin, Zone):
+class Removed(OutPlayMixin, AddCardsMixin, Zone):
     name = "removed"
 
-class Library(OutPlayMixin, OrderedZone):
+class Library(OutPlayMixin, AddCardsMixin, OrderedZone):
     name = "library"
     def __init__(self):
         super(Library, self).__init__()
         self.needs_shuffle = False
-    def add_new_card(self, card, position="top"):
-        newcard = self.setup_new_role(card)
-        return self._insert_card(card, newcard, position)
     def get_card_order(self, cardlist, pos):
         # we're gonna shuffle anyway, no need to order the cards
         if self.needs_shuffle: return cardlist
