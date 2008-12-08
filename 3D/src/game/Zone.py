@@ -40,6 +40,7 @@ class Zone(MtGObject):
         self.send(event, card=card)
     def _insert_card(self, oldcard, card, position):
         # Remove card from previous zone
+        oldcard.zone._remove_card(oldcard)
         oldcard.leavingZone()
         card.enteringZone(self)
         if position == "top": self._cards.append(card)
@@ -49,7 +50,6 @@ class Zone(MtGObject):
     def move_card(self, card, position):
         newcard = self.setup_new_role(card)
         self.send(CardEnteringZoneFrom(), from_zone=card.zone, oldcard=card, newcard=newcard)
-        card.zone._remove_card(card)
         self._insert_card(card, newcard, position)
         return newcard
     def setup_new_role(self, card):
@@ -75,13 +75,17 @@ class OrderedZone(Zone):
     def post_commit(self): pass
     def commit(self):
         if self.pending_top or self.pending_bottom:
-            for oldcard, card in self.pending_top+self.pending_bottom:
+            cards = self.pending_top+self.pending_bottom
+            for oldcard, _ in cards:
+                oldcard.zone._remove_card(oldcard)
+            for oldcard, card in cards:
                 oldcard.leavingZone()
                 card.enteringZone(self)
             toplist = self.get_card_order([c for o,c in self.pending_top], "top")
             bottomlist = self.get_card_order([c for o,c in self.pending_bottom], "bottom")
             self._cards = bottomlist + self._cards + toplist
-            for card in toplist+bottomlist: self.send(CardEnteredZone(), card=card)
+            for _, card in cards:
+                self.send(CardEnteredZone(), card=card)
             self.pending_top[:] = []
             self.pending_bottom[:] = []
             self.post_commit()
