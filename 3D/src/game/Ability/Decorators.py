@@ -1,5 +1,5 @@
 from ActivatedAbility import ActivatedAbility, ManaAbility
-from TriggeredAbility import TriggeredAbility
+from TriggeredAbility import TriggeredAbility, attached_match
 from StaticAbility import *
 from CastingAbility import CastPermanentSpell, CastInstantSpell, CastSorcerySpell
 from Target import NoTarget, Target
@@ -86,12 +86,17 @@ def static(zone="play", txt=''):
     return make_ability
 
 def attached(zone="attached", controller_dependent=False, txt=''):
-    if controller_dependent:
-        def make_ability(ability):
-            condition, effects = ability()
-            return ControllerChangeCardStatic(effects, zone, txt)
-        return make_ability
-    else: return static(zone, txt)
+    def make_ability(ability):
+        condition, effects = ability()
+        if controller_dependent:
+            ability = ControllerChangeCardStatic(effects, zone, txt)
+        elif condition:
+            ability = ConditionalStaticAbility(effects, condition, zone, txt)
+        else:
+            ability = CardStaticAbility(effects, zone, txt)
+        ability.LKI_condition = attached_match
+        return ability
+    return make_ability
 
 def comes_into_play(txt=''):
     def make_ability(ability):

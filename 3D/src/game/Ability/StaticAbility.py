@@ -6,7 +6,7 @@ from game.GameObjects import MtGObject
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger
 from EffectsUtilities import combine
 
-__all__ = ["CardStaticAbility", "ConditionalStaticAbility", "CardTrackingAbility", "ControllerChangeCardStatic"]
+__all__ = ["SimpleStaticAbility", "CardStaticAbility", "ConditionalStaticAbility", "CardTrackingAbility", "ControllerChangeCardStatic"]
 
 # Static abilities always function while the permanent is in the relevant zone
 class StaticAbility(object):
@@ -113,14 +113,34 @@ class CardTrackingAbility(StaticAbility):
     def copy(self):
         return self.__class__(self.effect_generator, self.condition, self.events, self.tracking, self.zone, self.txt)
 
+class SimpleStaticAbility(StaticAbility):
+    def _enable(self):
+        super(SimpleStaticAbility, self)._enable()
+        self.effect_tracking = [combine(*removal_func) if type(removal_func) == tuple else removal_func for removal_func in self.effect_generator(self.source)]
+    def _disable(self):
+        super(SimpleStaticAbility, self)._disable()
+        for remove in self.effect_tracking: remove()
+        self.effect_tracking = []
+
 class CardStaticAbility(StaticAbility):
+    def __init__(self, effects, zone="play", txt='', keyword=''):
+        super(CardStaticAbility, self).__init__(effects, zone=zone, txt=txt, keyword=keyword)
+        # XXX The zone is not quite right, for attached static abilities that can 
+        # attach to something out of play
+        self.leave_trigger = LeaveTrigger("play", player="any")
+        self.LKI_condition = lambda source, card: source == card
     def _enable(self):
         super(CardStaticAbility, self)._enable()
+        self.leave_trigger.setup_trigger(self.source, self.leaving, self.LKI_condition, priority=CONTINUOUS_PRIORITY)
         self.effect_tracking = [combine(*removal_func) if type(removal_func) == tuple else removal_func for removal_func in self.effect_generator(self.source)]
     def _disable(self):
         super(CardStaticAbility, self)._disable()
+        self.leave_trigger.clear_trigger()
         for remove in self.effect_tracking: remove()
-        self.effect_tracking = None
+        self.effect_tracking = []
+    def leaving(self, card):
+        # XXX Don't remove the effect since it's part of LKI
+        self.effect_tracking = []
 
 class ControllerChange(MtGObject):
     def _enable(self):

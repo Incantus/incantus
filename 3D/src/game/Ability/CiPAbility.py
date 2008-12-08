@@ -1,9 +1,9 @@
 from game.pydispatch import dispatcher
 from game.GameEvent import TimestepEvent
 from EffectsUtilities import do_override, do_replace, do_all, role_method
-from StaticAbility import CardStaticAbility
+from StaticAbility import SimpleStaticAbility
 
-class CiPAbility(CardStaticAbility):
+class CiPAbility(SimpleStaticAbility):
     def __init__(self, effects, txt='', keyword=''):
         super(CiPAbility, self).__init__(effects, zone="all", txt=txt, keyword=keyword)
     def copy(self): return self.__class__(self.effect_generator, self.txt, self.keyword)
