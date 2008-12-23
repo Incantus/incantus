@@ -69,8 +69,9 @@ class CardRole(MtGObject):
             if type(zone) == str:
                 zone = getattr(self.owner, zone)
             return zone.move_card(self, position)
+        else: return self
     def deal_damage(self, to, amount):
-        self.dealDamage(to, amount)
+        return self.dealDamage(to, amount)
     def add_counters(self, counter_type, number=1):
         if type(counter_type) == str: counter_type = Counter(counter_type)
         for counter in [counter_type.copy() for i in range(number)]:
@@ -109,7 +110,8 @@ class CardRole(MtGObject):
         #print "Deleting %s role for %s"%(self.__class__.__name__, self.name)
 
 # For token objects out of play
-class NoRole(CardRole): pass
+class NoRole(CardRole):
+    is_LKI = True
 
 # Cards on the stack
 class SpellRole(CardRole): pass
