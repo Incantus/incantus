@@ -103,6 +103,15 @@ class CardRole(MtGObject):
         self.facedown = True
     def faceUp(self):
         self.facedown = False
+    def clone(self, other, exclude=set(), extra={}):
+        # copyable values
+        reverse = []
+        copyable = set(["name", "cost", "text", "abilities", "color", "supertypes", "subtypes", "types", "base_power", "base_toughness", "base_loyalty"])
+        for name in copyable-exclude:
+            obj = getattr(self, name)
+            extra_copyable = extra.get(name, None)
+            reverse.append(obj.set_copy(getattr(other, name).copyable, extra_copyable))
+        return combine(*reverse)
     def __str__(self): return str(self.name)
     def __repr__(self): return "%s %s at %d"%(self.name, self.__class__.__name__, id(self))
     def __del__(self):
@@ -174,15 +183,6 @@ class Permanent(CardRole):
         self._continuously_in_play = False
         self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
 
-    def clone(self, other, exclude=set(), extra={}):
-        # copyable values
-        reverse = []
-        copyable = set(["name", "cost", "text", "abilities", "color", "supertypes", "subtypes", "types", "base_power", "base_toughness", "base_loyalty"])
-        for name in copyable-exclude:
-            obj = getattr(self, name)
-            extra_copyable = extra.get(name, None)
-            reverse.append(obj.set_copy(getattr(other, name).copyable, extra_copyable))
-        return combine(*reverse)
     def modifyEntering(self):
         # Add the necessary superclasses, depending on our type/subtypes
         self.__class__ = new.classobj("_Permanent", (self.__class__,), {})
