@@ -28,7 +28,9 @@ class CastSpell(CostAbility):
 class CastPermanentSpell(CastSpell):
     limit_type = sorcery
     def resolved(self):
-        self.source.move_to(self.controller.play)
+        source = self.source
+        if source.move_to(self.controller.play) == source: # didn't actually move
+            source.move_to("graveyard")
         super(CastPermanentSpell, self).resolved()
 
 class CastNonPermanentSpell(CastSpell):
