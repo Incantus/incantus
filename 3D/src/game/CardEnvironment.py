@@ -6,6 +6,7 @@ from GameKeeper import Keeper
 from Match import *
 from LazyInt import LazyInt
 from GameEvent import *
+from CardRoles import *
 
 from Ability.Decorators import *
 from Ability.ActivatedAbility import ActivatedAbility, ManaAbility
