@@ -85,12 +85,10 @@ def static(zone="play", txt=''):
         else: return CardStaticAbility(effects, zone, txt)
     return make_ability
 
-def attached(zone="attached", controller_dependent=False, txt=''):
+def attached(zone="attached", txt=''):
     def make_ability(ability):
         condition, effects = ability()
-        if controller_dependent:
-            ability = ControllerChangeCardStatic(effects, zone, txt)
-        elif condition:
+        if condition:
             ability = ConditionalStaticAbility(effects, condition, zone, txt)
         else:
             ability = CardStaticAbility(effects, zone, txt)
