@@ -39,6 +39,7 @@ class ColorModifiedEvent(Event): pass
 class SubtypesModifiedEvent(Event): pass
 class SupertypesModifiedEvent(Event): pass
 class AbilitiesModifiedEvent(Event): pass
+class PowerToughnessModifiedEvent(Event): pass
 
 class ManaAdded(Event): pass
 class ManaSpent(Event): pass
@@ -82,7 +83,6 @@ class CardSelectedEvent(Event): pass
 class AllDeselectedEvent(Event): pass
 class TargetedByEvent(Event): pass
 class InvalidTargetEvent(Event): pass
-class PowerToughnessChangedEvent(Event): pass
 
 class NewTurnEvent(Event): pass
 class TurnFinishedEvent(Event): pass

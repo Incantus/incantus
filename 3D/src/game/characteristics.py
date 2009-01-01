@@ -45,16 +45,17 @@ class stacked_controller(object):
         self.perm.summoningSickness()
         self.perm.send(ControllerChanged(), original=old_controller)
 
-# PowerToughnessChanged isn't needed, because the power/toughness is invalidated every timestep (and the gui calculates it)
+# PowerToughnessModified isn't needed, because the power/toughness is invalidated every timestep (and the gui calculates it)
 class PTModifiers(object):
-    def __init__(self):
+    def __init__(self, card):
         self._modifiers = []
+        self.card = card
     def add(self, PT):
         self._modifiers.append(PT)
-        #self.subrole.send(PowerToughnessChangedEvent())
+        self.card.send(PowerToughnessModifiedEvent())
         def remove():
             self._modifiers.remove(PT)
-            #self.subrole.send(PowerToughnessChangedEvent())
+            self.card.send(PowerToughnessModifiedEvent())
         return remove
     def calculate(self, power, toughness):
         return reduce(lambda PT, modifier: modifier.calculate(PT[0], PT[1]), self._modifiers, (power, toughness))

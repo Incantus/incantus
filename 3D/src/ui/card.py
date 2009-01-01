@@ -230,7 +230,7 @@ class StackCard(Card):
             glPopMatrix()
 
 from game.Match import isCreature
-from game.GameEvent import TypesModifiedEvent, TimestepEvent, PowerToughnessChangedEvent, CounterAddedEvent, CounterRemovedEvent
+from game.GameEvent import TypesModifiedEvent, TimestepEvent, PowerToughnessModifiedEvent, CounterAddedEvent, CounterRemovedEvent
 from game.pydispatch import dispatcher
 class PlayCard(Card):
     tapping = anim.Animatable()
@@ -262,7 +262,7 @@ class PlayCard(Card):
         self.power = 0 #gamecard.power
         self.toughness = 0 #gamecard.toughness
         self.damage = 0 #gamecard.currentDamage()
-        #dispatcher.connect(self.change_value, signal=PowerToughnessChangedEvent(), sender=gamecard)
+        #dispatcher.connect(self.change_value, signal=PowerToughnessModifiedEvent(), sender=gamecard)
         # XXX This will lead to a lot of events each time priority is passed
         # but I'm not sure how to do it otherwise for cards like "Coat of Arms", which use a lambda function
         # or for damage
