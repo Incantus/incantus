@@ -34,12 +34,16 @@ class MorphEvent(Event): pass
 class ClashEvent(Event): pass
 class CardCycledEvent(Event): pass
 
+class NameModifiedEvent(Event): pass
+class CostModifiedEvent(Event): pass
+class TextModifiedEvent(Event): pass
 class TypesModifiedEvent(Event): pass
 class ColorModifiedEvent(Event): pass
 class SubtypesModifiedEvent(Event): pass
 class SupertypesModifiedEvent(Event): pass
 class AbilitiesModifiedEvent(Event): pass
 class PowerToughnessModifiedEvent(Event): pass
+class LoyaltyModifiedEvent(Event): pass
 
 class ManaAdded(Event): pass
 class ManaSpent(Event): pass

@@ -1,6 +1,6 @@
 import weakref
 from pydispatch import dispatcher
-from GameEvent import ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent
+from GameEvent import NameModifiedEvent, CostModifiedEvent, TextModifiedEvent, ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent, PowerToughnessModifiedEvent, LoyaltyModifiedEvent
 from abilities import abilities, stacked_abilities
 from characteristics import stacked_variable, stacked_characteristic, stacked_type
 import CardDatabase
@@ -65,9 +65,9 @@ class GameObject(MtGObject):
         self._current_roles[self.key] = role
         # Set up base characteristics
         role.owner = self.owner
-        role.name = stacked_variable(self.base_name)
-        role.cost = stacked_variable(self.base_cost)
-        role.text = stacked_variable(self.base_text)
+        role.name = stacked_variable(proxy_role, self.base_name, NameModifiedEvent())
+        role.cost = stacked_variable(proxy_role, self.base_cost, CostModifiedEvent())
+        role.text = stacked_variable(proxy_role, self.base_text, TextModifiedEvent())
         role.color = stacked_characteristic(proxy_role, self.base_color, ColorModifiedEvent())
         role.types = stacked_type(proxy_role, self.base_types, TypesModifiedEvent())
         role.subtypes = stacked_characteristic(proxy_role, self.base_subtypes, SubtypesModifiedEvent())
@@ -76,9 +76,9 @@ class GameObject(MtGObject):
 
         role.play_spell = self.play_spell
 
-        role.base_power = stacked_variable(self.base_power)
-        role.base_toughness = stacked_variable(self.base_toughness)
-        role.base_loyalty = stacked_variable(self.base_loyalty)
+        role.base_power = stacked_variable(proxy_role, self.base_power, PowerToughnessModifiedEvent())
+        role.base_toughness = stacked_variable(proxy_role, self.base_toughness, PowerToughnessModifiedEvent())
+        role.base_loyalty = stacked_variable(proxy_role, self.base_loyalty, LoyaltyModifiedEvent())
         return role
 
     def __repr__(self):

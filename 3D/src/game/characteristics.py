@@ -1,22 +1,27 @@
 import copy
-from GameEvent import ControllerChanged
+from GameEvent import ControllerChanged, PowerToughnessModifiedEvent
 
 class stacked_variable(object):
     current = property(fget=lambda self: self._characteristics[-1][0])
-    def __init__(self, initial):
+    def __init__(self, card, initial, change_event):
         self._characteristics = [(initial,)]
+        self.card = card
+        self.change_event = change_event
         self._copyable_index = 0
     def cda(self, var):
         new = (var,)
         self._characteristics.append(new)
+        self.card.send(self.change_event)
         return lambda: self._characteristics.remove(new)
     copyable = property(fget=lambda self: self._characteristics[self._copyable_index][0])
     def set_copy(self, var, extra=None):
         new = (var,)
         self._copyable_index += 1
         self._characteristics.insert(self._copyable_index, new)
+        self.card.send(self.change_event)
         def reverse():
             self._characteristics.remove(new)
+            self.card.send(self.change_event)
             self._copyable_index -= 1
         return reverse
     def __getattr__(self, attr): return getattr(self.current, attr)
