@@ -1,5 +1,6 @@
 from game.pydispatch import dispatcher
 from game.GameEvent import TimestepEvent
+from game.CardRoles import Permanent
 from EffectsUtilities import do_override, do_replace, do_all, role_method
 from StaticAbility import SimpleStaticAbility
 
@@ -34,16 +35,16 @@ def comes_into_play_tapped(txt):
         yield CiP(source, enter_play_tapped, no_before, txt=txt)
     return CiPAbility(effects, txt=txt)
 
+# Comes into play functionality
+def enter_play_tapped(self):
+    '''Card comes into play tapped'''
+    self.tapped = True
+
 @role_method
 def move_to_play_tapped(card, txt):
     expire = CiP(card, enter_play_tapped, txt=txt)
     card.move_to("play")
     expire()
-
-# Comes into play functionality
-def enter_play_tapped(self):
-    '''Card comes into play tapped'''
-    self.tapped = True
 
 no_before = lambda source: True
 def CiP(obj, during, before=no_before, condition=None, txt=''):
@@ -55,9 +56,10 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
         if before(self):
             perm = self.move_to(zone, position)
             # At this point the card hasn't actually moved (it will on the next timestep event), so we can modify it's enteringZone function. This basically relies on the fact that entering play is batched and done on the timestep.
-            remove_entering = do_override(perm, "modifyEntering", during, combiner=do_all)
-            # XXX There might be timing issue, since we want to remove the override after the card is put into play
-            dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False, expiry=1)
+            if isinstance(perm, Permanent):
+                remove_entering = do_override(perm, "modifyEntering", lambda self: during(self), combiner=do_all)
+                # XXX There might be timing issue, since we want to remove the override after the card is put into play, but because of ordering the card isn't put into play until the TimestepEvent
+                #dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False, expiry=1)
             return perm
         else:
             # Don't actually move the card
