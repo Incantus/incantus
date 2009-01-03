@@ -127,17 +127,14 @@ class CardStaticAbility(StaticAbility):
         super(CardStaticAbility, self).__init__(effects, zone=zone, txt=txt, keyword=keyword)
         # XXX The zone is not quite right, for attached static abilities that can 
         # attach to something out of play
-        self.leave_trigger = LeaveTrigger("play", player="any")
         self.control_changed = Trigger(ControllerChanged(), sender="source")  # card with ability changed controller
         self.LKI_condition = lambda source, card: source == card
     def _enable(self):
         super(CardStaticAbility, self)._enable()
-        self.leave_trigger.setup_trigger(self.source, self.leaving, self.LKI_condition, priority=CONTINUOUS_PRIORITY)
         self.control_changed.setup_trigger(self.source, self.new_controller, priority=CONTINUOUS_PRIORITY)
         self.effect_tracking = [combine(*removal_func) if type(removal_func) == tuple else removal_func for removal_func in self.effect_generator(self.source)]
     def _disable(self):
         super(CardStaticAbility, self)._disable()
-        self.leave_trigger.clear_trigger()
         self.control_changed.clear_trigger()
         for remove in self.effect_tracking: remove()
         self.effect_tracking = []

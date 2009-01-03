@@ -14,7 +14,7 @@ class abilities(object):
             if ability.keyword: self._keywords[ability.keyword] = ability
     def enable(self, zone, source):
         for ability in self._abilities:
-            if (ability.zone == "all" or ability.zone == zone): ability.enable(source())
+            if (ability.zone == "all" or ability.zone == zone): ability.enable(source)
     def disable(self, zone):
         for ability in self._abilities:
             if (ability.zone == "all" or ability.zone == zone): ability.disable()
@@ -23,7 +23,7 @@ class abilities(object):
             if (ability.zone == "all" or ability.zone == zone): ability.toggle(val)
     abilities = property(fget=lambda self: [ability for ability in self._abilities if ability.enabled])
     def attached(self): return [ability for ability in self._abilities if ability.zone == "attached"]
-    def activated(self, source): return [ability for ability in self.abilities if hasattr(ability, "activated") and ability.playable(source())]
+    def activated(self, source): return [ability for ability in self.abilities if hasattr(ability, "activated") and ability.playable(source)]
     def __repr__(self): return '\n'.join(map(repr, self._abilities))
     def __str__(self): return '\n'.join(map(str, self.abilities))
     def __len__(self): return len(self.abilities)
@@ -61,11 +61,12 @@ class stacked_abilities(object):
     def add(self, *abilities):
         abilities = additional_abilities(*abilities)
         self._stacking.insert(0, abilities)
-        abilities.enable(self.zone, self.source)
-        #self.source.send(AbilitiesModifiedEvent())
+        abilities.enable(self.zone, self.source())
+        self.source().send(AbilitiesModifiedEvent())
         def restore():
-            self._stacking.remove(abilities)
-            abilities.disable(self.zone)
+            if not self.source().is_LKI:
+                self._stacking.remove(abilities)
+                abilities.disable(self.zone)
         return restore
     def remove(self, keyword):
         disabled = []
@@ -74,9 +75,10 @@ class stacked_abilities(object):
                 ability = group._keywords[keyword]
                 ability.toggle(False)
                 disabled.append(ability)
-        #self.source.send(AbilitiesModifiedEvent())
+        self.source().send(AbilitiesModifiedEvent())
         def restore():
-            for ability in disabled: ability.toggle(True)
+            if not self.source().is_LKI:
+                for ability in disabled: ability.toggle(True)
         return restore
     def remove_by_tag(self, tag):
         found = False
@@ -88,17 +90,18 @@ class stacked_abilities(object):
             if found: break
         else: raise Exception("Trying to remove a specific ability that doesn't exist")
         ability.toggle(False)
-        #self.source.send(AbilitiesModifiedEvent())
-        return lambda: ability.toggle(True)
+        self.source().send(AbilitiesModifiedEvent())
+        return lambda: not self.source().is_LKI and ability.toggle(True)
     def remove_all(self):
         # first disable all previous abilities
         disabled = []
         for group in self._stacking:
             disabled.append(group)
             group.toggle(self.zone, False)
-        #self.source.send(AbilitiesModifiedEvent())
+        self.source().send(AbilitiesModifiedEvent())
         def remove():
-            for group in disabled: group.toggle(self.zone, True)
+            if not self.source().is_LKI:
+                for group in disabled: group.toggle(self.zone, True)
         return remove
     copyable = property(fget=lambda self: tuple(self._current)[-1])
     def set_copy(self, abilities, extra_abilities=None):
@@ -117,20 +120,21 @@ class stacked_abilities(object):
             if not hasattr(group, "_copyable"): break
             disabled.append(group)
             group.toggle(self.zone, False)
-        abilities.enable(self.zone, self.source)
+        abilities.enable(self.zone, self.source())
         self._stacking.insert(i, abilities)
-        #self.source.send(AbilitiesModifiedEvent())
+        self.source().send(AbilitiesModifiedEvent())
         def restore():
-            self._stacking.remove(abilities)
-            abilities.disable(self.zone)
-            for group in disabled: group.toggle(self.zone, True)
+            if not self.source().is_LKI:
+                self._stacking.remove(abilities)
+                abilities.disable(self.zone)
+                for group in disabled: group.toggle(self.zone, True)
         return restore
     def process_stacked(self, func, total, *args):
         for group in self._current:
             total += getattr(group, func).__call__(*args)
         return total
     def attached(self): return self.process_stacked("attached", [])
-    def activated(self): return self.process_stacked("activated", [], self.source)
+    def activated(self): return self.process_stacked("activated", [], self.source())
     def __len__(self): return self.process_stacked("__len__", 0)
     def __contains__(self, keyword): return self.process_stacked("__contains__", False, keyword) > 0
     def __iter__(self):
@@ -138,8 +142,9 @@ class stacked_abilities(object):
             for ability in group: yield ability
     def enteringZone(self):
         # This is only called when the card is moved to a new zone
-        self.zone = str(self.source().zone)
-        for group in self._current: group.enable(self.zone, self.source)
+        source = self.source()
+        self.zone = str(source.zone)
+        for group in self._current: group.enable(self.zone, source)
     def leavingZone(self):
         for group in self._current: group.disable(self.zone)
         self.zone = None

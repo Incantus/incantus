@@ -1,4 +1,4 @@
-import new, copy
+import new, weakref
 from characteristics import stacked_controller, PTModifiers, stacked_characteristic, additional_characteristics
 from GameObjects import MtGObject
 from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
@@ -60,8 +60,8 @@ class CardRole(MtGObject):
         self.abilities.enteringZone()
         self.is_LKI = False
     def leavingZone(self):
-        self.abilities.leavingZone()
         self.is_LKI = True
+        self.abilities.leavingZone()
         self.zone = None
     # DSL functions
     def move_to(self, zone, position="top"):
@@ -296,9 +296,10 @@ class Creature(object):
         # Only accessed internally
         self.__damage = 0
 
-        self.PT_other_modifiers = PTModifiers() # layer 6b - other modifiers
-        self.PT_static_modifiers = PTModifiers() # layer 6d - static modifiers
-        self.PT_switch_modifiers = PTModifiers() # layer 6e - P/T switching modifiers
+        proxy = weakref.proxy(self)
+        self.PT_other_modifiers = PTModifiers(proxy) # layer 6b - other modifiers
+        self.PT_static_modifiers = PTModifiers(proxy) # layer 6d - static modifiers
+        self.PT_switch_modifiers = PTModifiers(proxy) # layer 6e - P/T switching modifiers
         self.in_combat = False
         self.attacking = False
         self.blocking = False

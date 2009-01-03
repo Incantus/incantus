@@ -12,7 +12,7 @@ class stacked_variable(object):
         new = (var,)
         self._characteristics.append(new)
         self.card.send(self.change_event)
-        return lambda: self._characteristics.remove(new)
+        return lambda: not self.card.is_LKI and self._characteristics.remove(new)
     copyable = property(fget=lambda self: self._characteristics[self._copyable_index][0])
     def set_copy(self, var, extra=None):
         new = (var,)
@@ -20,9 +20,10 @@ class stacked_variable(object):
         self._characteristics.insert(self._copyable_index, new)
         self.card.send(self.change_event)
         def reverse():
-            self._characteristics.remove(new)
-            self.card.send(self.change_event)
-            self._copyable_index -= 1
+            if not self.card.is_LKI:
+                self._characteristics.remove(new)
+                self.card.send(self.change_event)
+                self._copyable_index -= 1
         return reverse
     def __getattr__(self, attr): return getattr(self.current, attr)
     def __eq__(self, other): return self.current == other
@@ -42,9 +43,10 @@ class stacked_controller(object):
         self._controllers.append(contr)
         if not new_controller == old_controller: self.controller_change(old_controller)
         def remove():
-            orig = self.current
-            self._controllers.remove(contr)
-            if orig != self.current: self.controller_change(orig)
+            if not self.perm.is_LKI:
+                orig = self.current
+                self._controllers.remove(contr)
+                if orig != self.current: self.controller_change(orig)
         return remove
     def controller_change(self, old_controller):
         self.perm.summoningSickness()
@@ -59,8 +61,9 @@ class PTModifiers(object):
         self._modifiers.append(PT)
         self.card.send(PowerToughnessModifiedEvent())
         def remove():
-            self._modifiers.remove(PT)
-            self.card.send(PowerToughnessModifiedEvent())
+            if not self.card.is_LKI:
+                self._modifiers.remove(PT)
+                self.card.send(PowerToughnessModifiedEvent())
         return remove
     def calculate(self, power, toughness):
         return reduce(lambda PT, modifier: modifier.calculate(PT[0], PT[1]), self._modifiers, (power, toughness))
@@ -132,7 +135,7 @@ class stacked_characteristic(object):
         else: self._stacking.insert(pos, char)
         self.card.send(self.change_event)
         def remove():
-            if char in self._stacking:
+            if not self.card.is_LKI and char in self._stacking:
                 self._stacking.remove(char)
                 self.card.send(self.change_event)
         return remove
@@ -196,7 +199,7 @@ class stacked_type(stacked_characteristic):
         if str(self.card.zone) == "play": self.card.add_basecls()
         self.card.send(self.change_event)
         def remove():
-            if char in self._stacking:
+            if not self.card.is_LKI and char in self._stacking:
                 self._stacking.remove(char)
                 self.card.send(self.change_event)
         return remove
