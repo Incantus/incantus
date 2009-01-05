@@ -43,12 +43,6 @@ class CardRole(MtGObject):
         self._counters = []
         self.attachments = []
         self.facedown = False
-    def dealDamage(self, to, amount, combat=False):
-        final_dmg = 0
-        if to.canBeDamagedBy(self) and amount > 0:
-            final_dmg = to.assignDamage(amount, source=self, combat=combat)
-            if final_dmg > 0: self.send(DealsDamageToEvent(), to=to, amount=final_dmg, combat=combat)
-        return final_dmg
     def canBeTargetedBy(self, targeter): return True
     def canBeAttachedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
@@ -70,23 +64,25 @@ class CardRole(MtGObject):
                 zone = getattr(self.owner, zone)
             return zone.move_card(self, position)
         else: return self
-    def deal_damage(self, to, amount):
-        return self.dealDamage(to, amount)
+    def deal_damage(self, to, amount, combat=False):
+        if amount < 0: amount = 0
+        final_dmg = to.assignDamage(amount, source=self, combat=combat)
+        if final_dmg > 0:
+            self.send(DealsDamageToEvent(), to=to, amount=final_dmg, combat=combat)
+        return final_dmg
     def add_counters(self, counter_type, number=1):
         if type(counter_type) == str: counter_type = Counter(counter_type)
         for counter in [counter_type.copy() for i in range(number)]:
             self._counters.append(counter)
             self.send(CounterAddedEvent(), counter=counter)
     def remove_counters(self, counter_type=None, number=1):
-        num = 0
         if counter_type: counters = [counter for counter in self._counters if counter == counter_type]
         else: counters = self._counters[:]
         if not number == -1: counters = counters[:number]
         for counter in counters:
-            num += 1
             self._counters.remove(counter)
             self.send(CounterRemovedEvent(), counter=counter)
-        return num  # Return the number of counters we actually removed
+        return len(counters) # Return the number of counters we actually removed
     def num_counters(self, counter_type=None):
         if counter_type: return len([c for c in self._counters if c == counter_type])
         else: return len(self._counters)
@@ -310,8 +306,6 @@ class Creature(object):
     def leavingZone(self):
         self.unregister(self._new_timestep, TimestepEvent())
         super(Creature,self).leavingZone()
-    def canBeDamagedBy(self, damager):
-        return not self.is_LKI
     def combatDamage(self):
         return self.power
     def clearDamage(self):
@@ -321,7 +315,8 @@ class Creature(object):
     def lethalDamage(self):
         return self.toughness - self.__damage
     def assignDamage(self, amt, source, combat=False):
-        if amt > 0:
+        # Damage is always 0 or greater
+        if not self.is_LKI:
             if "wither" in source.abilities: self.add_counters(PowerToughnessCounter(-1, -1), amt)
             else: self.__damage += amt
         return amt

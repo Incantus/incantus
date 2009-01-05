@@ -261,11 +261,9 @@ class Player(MtGObject):
                 if not valid_untap:
                     prompt = "Invalid selection - select again"
         for card in permanents: card.untap()
-    def canBeDamagedBy(self, damager):
-        return True
     def assignDamage(self, amt, source, combat=False):
-        if amt > 0:
-            self.life -= amt
+        # amt is always 0 or greater
+        self.life -= amt
         return amt
     def canBeTargetedBy(self, targetter):
         # For protection spells - XXX these should be stackable

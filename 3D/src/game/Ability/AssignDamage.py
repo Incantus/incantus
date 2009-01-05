@@ -33,5 +33,5 @@ class AssignDamage(Ability):
         for damager, damage_assn in self.damages:
             total = 0
             for damagee, amt in damage_assn.iteritems():
-                if amt > 0: total += damager.dealDamage(damagee, amt, combat=True)
+                total += damager.deal_damage(damagee, amt, combat=True)
     def __str__(self): return self.txt

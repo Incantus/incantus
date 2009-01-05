@@ -104,8 +104,8 @@ def fear():
 def protection(condition, attribute):
     keyword = "protection from %s"%attribute
     # DEBT is an acronym. It stands for Damage, Enchantments/Equipment, Blocking, and Targeting
-    def canBeDamagedBy(self, damager):
-        return not condition(damager)
+    preventDamage = lambda self, amt, source, combat=False: 0
+    prevent_condition = lambda self, amt, source, combat=False: condition(source)
     def canBeAttachedBy(self, targeter):
         return not condition(targeter)
     def canBeBlockedBy(self, blocker):
@@ -114,7 +114,7 @@ def protection(condition, attribute):
         return not condition(targeter)
 
     def protection_effect(target):
-        yield combine(do_override(target, "canBeDamagedBy", canBeDamagedBy),
+        yield combine(do_replace(target, "assignDamage", preventDamage, msg="Protection effect", condition=prevent_condition),
                       do_override(target, "canBeAttachedBy", canBeAttachedBy),
                       do_override(target, "canBeBlockedBy", canBeBlockedBy),
                       do_override(target, "canBeTargetedBy", canBeTargetedBy))
