@@ -65,10 +65,11 @@ class CardRole(MtGObject):
             return zone.move_card(self, position)
         else: return self
     def deal_damage(self, to, amount, combat=False):
-        if amount < 0: amount = 0
-        final_dmg = to.assignDamage(amount, source=self, combat=combat)
-        if final_dmg > 0:
-            self.send(DealsDamageToEvent(), to=to, amount=final_dmg, combat=combat)
+        if amount > 0:
+            final_dmg = to.assignDamage(amount, source=self, combat=combat)
+            if final_dmg > 0:
+                self.send(DealsDamageToEvent(), to=to, amount=final_dmg, combat=combat)
+        else: final_dmg = 0
         return final_dmg
     def add_counters(self, counter_type, number=1):
         if type(counter_type) == str: counter_type = Counter(counter_type)
@@ -315,7 +316,7 @@ class Creature(object):
     def lethalDamage(self):
         return self.toughness - self.__damage
     def assignDamage(self, amt, source, combat=False):
-        # Damage is always 0 or greater
+        # Damage is always greater than 0
         if not self.is_LKI:
             if "wither" in source.abilities: self.add_counters(PowerToughnessCounter(-1, -1), amt)
             else: self.__damage += amt

@@ -39,7 +39,7 @@ class Planeswalker(object):
         super(Planeswalker, self).deactivateRole()
         self.redirect_expire()
     def assignDamage(self, amt, source, combat=False):
-        # amt is always 0 or greater
+        # amt is greater than 0
         self.remove_counters("loyalty", amt)
         return amt
     def shouldDestroy(self):

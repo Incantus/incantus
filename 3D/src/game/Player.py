@@ -262,7 +262,7 @@ class Player(MtGObject):
                     prompt = "Invalid selection - select again"
         for card in permanents: card.untap()
     def assignDamage(self, amt, source, combat=False):
-        # amt is always 0 or greater
+        # amt is greater than 0
         self.life -= amt
         return amt
     def canBeTargetedBy(self, targetter):
