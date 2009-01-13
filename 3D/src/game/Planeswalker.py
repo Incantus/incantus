@@ -35,8 +35,8 @@ class Planeswalker(object):
         self.add_counters("loyalty", self.loyalty)
         self.redirect_expire = redirect_to(self)
         self.abilities = planeswalker_abilities(weakref.ref(self), self.abilities)
-    def deactivateRole(self):
-        super(Planeswalker, self).deactivateRole()
+    def leavingZone(self):
+        super(Planeswalker, self).leavingZone()
         self.redirect_expire()
     def assignDamage(self, amt, source, combat=False):
         # amt is greater than 0
