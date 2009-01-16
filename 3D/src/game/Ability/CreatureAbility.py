@@ -1,9 +1,10 @@
 from functools import partial
 from game.Match import isPlayer, isCreature, isLand, isArtifact
+from game.GameEvent import BlockerDeclaredEvent
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from TriggeredAbility import TriggeredAbility
-from Trigger import DealDamageTrigger
+from Trigger import Trigger, DealDamageTrigger
 from EffectsUtilities import until_end_of_turn, do_override, do_replace, logical_or, logical_and, combine, permanent_method
 
 def override_effect(func_name, func, combiner=logical_and):
