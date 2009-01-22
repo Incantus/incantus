@@ -132,6 +132,7 @@ protection_from_le_cmc = lambda n: protection(condition = lambda other: other.co
 protection_from_artifacts = partial(protection, condition = lambda other: isArtifact(other), attribute="artifacts")
 protection_from_monocolored = partial(protection, condition = lambda other: len(other.color) == 1, attribute="monocolored")
 protection_from_multicolored = partial(protection, condition = lambda other: len(other.color) > 1, attribute="multicolored")
+protection_from_everything = partial(protection, condition = lambda other: True, attribute="everything")
 
 # Unless I completely misunderstand, this is for auras which say "Enchanted creature gains protection from <attribute>. This protection does not remove CARDNAME." I hope that's what it's for, anyway, because otherwise, I'm clueless. -MK17
 def aura_protection(aura, condition, attribute):
@@ -141,7 +142,7 @@ def aura_protection(aura, condition, attribute):
         return lambda self, by: not cond(by)
 
     def effects(target):
-        yield combine(*[do_override(target, func_name, mk_override(cond)) for func_name, cond in [("canBeDamagedBy", condition), ("canBeAttachedBy", lambda o: not o==aura and condition(o)), ("canBeBlockedBy", condition), ("canBeTargetedBy", condition)]])
+        yield combine(*[do_override(target, func_name, mk_override(cond)) for func_name, cond in [("canBeAttachedBy", lambda o: not o==aura and condition(o)), ("canBeBlockedBy", condition), ("canBeTargetedBy", condition)]]+[do_replace(target, "assignDamage", preventDamage, msg="Protection effect", condition=lambda self, amt, source, combat=False: condition(source))])
 
     return CardStaticAbility(effects=effects, keyword=keyword)
 
