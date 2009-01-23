@@ -47,6 +47,8 @@ def execCode(card, code):
     card.abilities = card.base_abilities
     try:
         exec str(code) in vars(CardEnvironment), vars(card)
+    except ZeroDivisionError:
+        raise
     except Exception:
         code = code.split("\n")
         print ''

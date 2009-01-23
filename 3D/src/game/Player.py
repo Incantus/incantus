@@ -101,9 +101,9 @@ class Player(MtGObject):
             return True
         else:
             return False
-    def create_tokens(self, info, number):
+    def create_tokens(self, info, number=1):
         return [self.removed.add_new_card(Token.create(info, owner=self)) for _ in range(number)]
-    def play_tokens(self, info, number):
+    def play_tokens(self, info, number=1):
         return [token.move_to("play") for token in self.create_tokens(info, number)]
     def make_selection(self, sellist, number=1, required=True, prompt=''):
         if type(sellist[0]) == tuple: idx=False
