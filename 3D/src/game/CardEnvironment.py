@@ -41,5 +41,3 @@ from Ability.DissensionAbility import *
 from Ability.NemesisAbility import *
 
 nan = None
-Red = 'R'
-Green = 'G'
