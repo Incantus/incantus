@@ -47,7 +47,16 @@ class CardRole(MtGObject):
     def canBeAttachedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
         self.send(TargetedByEvent(), targeter=targeter)
-    def modifyEntering(self): pass
+    def modifyEntering(self):
+        # Add the necessary superclasses, depending on our type/subtypes
+        self.__class__ = new.classobj("_CardRole", (self.__class__,), {})
+        self.add_basecls()
+    def add_basecls(self):
+        cls = self.__class__
+        orig_bases = cls.__bases__
+        if self.types == "Land" and not Land in orig_bases:
+            cls.__bases__ = (Land,)+orig_bases
+            self.activateLand()
     def enteringZone(self, zone):
         self.zone = zone
         self.modifyEntering()
@@ -180,26 +189,19 @@ class Permanent(CardRole):
         self._continuously_in_play = False
         self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
 
-    def modifyEntering(self):
-        # Add the necessary superclasses, depending on our type/subtypes
-        self.__class__ = new.classobj("_Permanent", (self.__class__,), {})
-        self.add_basecls()
-        super(Permanent, self).modifyEntering()
     def add_basecls(self):
         cls = self.__class__
         orig_bases = cls.__bases__
         if self.types == "Creature" and not Creature in orig_bases:
             cls.__bases__ = (Creature,)+orig_bases
             self.activateCreature()
-        if self.types == "Land" and not Land in orig_bases:
-            cls.__bases__ = (Land,)+orig_bases
-            self.activateLand()
         if self.types == "Planeswalker" and not Planeswalker in orig_bases:
             cls.__bases__ = (Planeswalker,)+orig_bases
             self.activatePlaneswalker()
         if (self.subtypes.intersects(set(["Aura", "Equipment", "Fortification"]))) and not Attachment in orig_bases:
             cls.__bases__ = (Attachment,)+orig_bases
             self.activateAttachment()
+        super(Permanent, self).add_basecls()
 
 class TokenPermanent(Permanent):
     _token = True
