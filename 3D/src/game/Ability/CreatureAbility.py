@@ -5,12 +5,7 @@ from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from TriggeredAbility import TriggeredAbility
 from Trigger import Trigger, DealDamageTrigger
-from EffectsUtilities import until_end_of_turn, do_override, do_replace, logical_or, logical_and, combine, permanent_method
-
-def override_effect(func_name, func, combiner=logical_and):
-    def effects(target):
-        yield do_override(target, func_name, func, combiner=combiner)
-    return effects
+from EffectsUtilities import until_end_of_turn, do_override, do_replace, logical_or, logical_and, combine, permanent_method, override_effect
 
 def keyword_effect(target):
     yield lambda: None
