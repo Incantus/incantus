@@ -54,7 +54,7 @@ def role_method(func):
 do_override = override
 do_replace = replace
 
-def override_effect(func_name, func, combiner=logical_and):
+def override_effects(func_name, func, combiner=logical_and):
     def effects(target):
         yield do_override(target, func_name, func, combiner=combiner)
     return effects
