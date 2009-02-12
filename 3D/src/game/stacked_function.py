@@ -48,7 +48,6 @@ class stacked_function(object):
         self.global_overrides = []
         self.overrides = []
         self.replacements = []
-        self.unmark()
         self.setup_overrides(f_name, f_class)
     def set_combiner(self, combiner):
         self.combiner = combiner
@@ -70,6 +69,7 @@ class stacked_function(object):
         stacked_list.append(func)
         if obj: func.obj = obj
         else: func.obj = "all"
+        func.seen = False
         def restore():
             if func in stacked_list: # avoid being called twice
                 stacked_list.remove(func)
@@ -87,15 +87,6 @@ class stacked_function(object):
     def add_global_override(self, func, obj=None):
         func.expire = self._add(self.global_overrides, func, obj)
         return func.expire
-    def mark_as_seen(self, rpls):
-        #print "Marking %s in %s"%(self.f_name, self.f_class)
-        self._first_call = True
-        self._seen.update(rpls)
-    def unmark(self):
-        #print "Unmarking %s in %s"%(self.f_name, self.f_class)
-        self._first_call = False
-        self._seen = set()
-        self.__current_replacements = []
     def build_replacements(self, *args, **kw):
         obj = args[0]
         replacements = set()
@@ -104,20 +95,15 @@ class stacked_function(object):
             if self.f_name in cls.__dict__:
                 func = getattr(cls, self.f_name)
                 if hasattr(func, "stacked"):
-                    rpls = [f for f in func.replacements if not f in func._seen and (f.obj == "all" or f.obj == obj) and f.cond(*args, **kw)]
-                    replacements.update(rpls)
-                    func.mark_as_seen(rpls)
+                    replacements.update([f for f in func.replacements if not f.seen and (f.obj == "all" or f.obj == obj) and f.cond(*args, **kw)])
         return replacements
-
     def __call__(self, *args, **kw):
         from Match import isPlayer, isCard
         obj = args[0]
         global_overrides = [f for f in self.global_overrides[::-1] if f.obj == "all" or f.obj == obj]
         if global_overrides: return global_overrides[0](*args, **kw)
         else:
-            self.__current_replacements.extend(self.build_replacements(*args, **kw))
-            funcs = self.__current_replacements
-            #print funcs
+            funcs = self.build_replacements(*args, **kw)
             if funcs:
                 if len(funcs) > 1:
                     if isPlayer(obj): player = affected = obj
@@ -126,16 +112,15 @@ class stacked_function(object):
                     elif isCard(obj): player, affected = obj.controller, obj
                     func = player.make_selection([(f.msg, f) for f in funcs], number=1, prompt="Choose replacement effect to affect %s"%(affected))
                     funcs.remove(func)
-                else: func = funcs.pop(0)
+                else: func = funcs.pop()
                 # *** This where we could potentially recurse
+                func.seen = True
                 result = func(*args, **kw)
                 # No more replacements - unmark this stacked_function
-                #print func, self._first_call
-                if self._first_call: self.unmark()
+                func.seen = False
                 return result
             else:
                 overrides = [f for f in self.overrides[::-1] if f.obj == "all" or f.obj == obj]+[self.original]
-                if self._first_call: self.unmark()
                 return self.combiner(overrides, *args, **kw)
 
     def __get__(self, obj, objtype=None):
