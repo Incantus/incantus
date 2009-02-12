@@ -3,7 +3,7 @@ from ActivatedAbility import ActivatedAbility, ManaAbility
 from StaticAbility import CardStaticAbility
 from Target import NoTarget, Target
 from Cost import ManaCost, TapCost
-from EffectsUtilities import do_override, override_effects
+from EffectsUtilities import do_override, override_effect
 from Limit import no_limit, sorcery
 
 def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plains='W',Mountain='R',Swamp='B')):
