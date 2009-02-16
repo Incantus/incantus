@@ -108,8 +108,8 @@ class stacked_abilities(object):
         # abilities is an abilities object (a group of abilities)
         abilities = abilities.copy()
         if extra_abilities:
-            if not type(extra_abilities) == list or type(extra_abilities) == tuple: extra_abilities = [extra_abilities.copy()]
-            else: extra_abilities = [ability.copy() for ability in extra_abilities]
+            if type(extra_abilities) == list or type(extra_abilities) == tuple: extra_abilities = [ability.copy() for ability in extra_abilities]
+            else: extra_abilities = [extra_abilities.copy()]
             abilities.add(*extra_abilities)
         abilities._copyable = True
 
