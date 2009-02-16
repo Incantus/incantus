@@ -128,7 +128,6 @@ class Token(GameObject):
         CardDatabase.execCode(self, info)
         self.out_play_role = self.stack_role = NoRole
         self.in_play_role = TokenPermanent
-        self.base_name = "%s Token"%self.base_name
         self._add_to_map()
 
     @classmethod
