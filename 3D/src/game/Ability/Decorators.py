@@ -20,7 +20,7 @@ def play_aura():
         target = yield Target(source.target_type, zone=source.target_zone, player=source.target_player)
         source.attach_on_enter = target
         yield
-    return CastPermanentSpell(effects)
+    return CastPermanentSpell(effects, txt="Play spell")
 
 # Decorators for effects of cards
 def play_sorcery():
