@@ -25,7 +25,7 @@ class abilities(object):
     def attached(self): return [ability for ability in self._abilities if ability.zone == "attached"]
     def activated(self, source): return [ability for ability in self.abilities if hasattr(ability, "activated") and ability.playable(source)]
     def __repr__(self): return '\n'.join(map(repr, self._abilities))
-    def __str__(self): return '\n'.join(map(str, self.abilities))
+    def __str__(self): return '\n'.join([str(ability) for ability in self.abilities if str(ability)])
     def __len__(self): return len(self.abilities)
     def __iter__(self): return iter(self.abilities)
     def __contains__(self, keyword): # This is to match keyword abilities
@@ -140,6 +140,10 @@ class stacked_abilities(object):
     def __iter__(self):
         for group in self._current:
             for ability in group: yield ability
+    def find_tag(self, tag):
+        for ability in self:
+            if tag == ability.tag: return True
+        else: return False
     def enteringZone(self):
         # This is only called when the card is moved to a new zone
         source = self.source()
@@ -149,5 +153,5 @@ class stacked_abilities(object):
         for group in self._current: group.disable(self.zone)
         self.zone = None
     def __str__(self):
-        return '\n'.join([str(group) for group in self._current])
+        return '\n'.join([str(group) for group in self._current if str(group)])
     def __repr__(self): return "[%s]"%('\n%s\n'%('-'*80)).join(map(repr, self._stacking))
