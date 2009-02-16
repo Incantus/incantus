@@ -9,7 +9,7 @@ def recover(cost):
     def condition(source, card):
         return isCreature(card)
 
-    def recover(controller, source):
+    def effects(controller, source):
         target = yield NoTarget()
         if controller.you_may_pay(source, cost):
             source.move_to("hand")
