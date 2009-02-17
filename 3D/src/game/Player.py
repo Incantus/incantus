@@ -7,6 +7,7 @@ from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
 from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isPlaneswalker, OpponentMatch
 from stacked_function import replace
+from Ability.Cost import ManaCost
 
 class life(int):
     def __add__(self, other):
@@ -88,6 +89,7 @@ class Player(MtGObject):
         self.library.shuffle()
     def you_may(self, msg): return self.getIntention(prompt="You may %s"%msg,msg="Would you like to %s?"%msg)
     def you_may_pay(self, source, cost):
+        if type(cost) == str: cost = ManaCost(cost)
         intent = self.getIntention(prompt="You may pay %s"%cost, msg="Would you like to pay %s"%cost)
         if intent and cost.precompute(source, self) and cost.compute(source, self):
             cost.pay(source, self)

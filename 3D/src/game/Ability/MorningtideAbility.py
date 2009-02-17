@@ -4,14 +4,13 @@ from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
 from StaticAbility import CardStaticAbility
 from Target import NoTarget, Target
-from Cost import ManaCost, DiscardCost
+from Cost import DiscardCost
 from Trigger import Trigger, EnterTrigger, PhaseTrigger
 from Counters import PowerToughnessCounter
 from MemoryVariable import MemoryVariable
 from EffectsUtilities import keyword_action
 
 def reinforce(cost, number=1):
-    if type(cost) == str: cost = ManaCost(cost)
     def effects(controller, source):
         payment = yield cost+DiscardCost()
         target = yield Target(isCreature)
@@ -39,7 +38,6 @@ class ProwlVariable(MemoryVariable):
 # XXX This doesn't work, since by the time it's installed, I'm already running the original play_spell
 # Need to redo alternative costs
 def prowl(prowl_cost):
-    if type(prowl_cost) == str: prowl_cost = ManaCost(prowl_cost)
     # You may play this for its prowl cost if you dealt combat damage to a player this turn with a [card subtypes]
     def prowl_effect(card):
         orig_spell = card.play_spell

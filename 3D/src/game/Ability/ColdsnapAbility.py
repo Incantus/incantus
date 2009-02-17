@@ -1,11 +1,9 @@
 from game.Match import isCreature
-from Cost import ManaCost
 from TriggeredAbility import TriggeredAbility
 from Target import NoTarget
 from Trigger import EnterFromTrigger
 
 def recover(cost):
-    if type(cost) == str: cost = ManaCost(cost)
     def condition(source, card):
         return isCreature(card)
 

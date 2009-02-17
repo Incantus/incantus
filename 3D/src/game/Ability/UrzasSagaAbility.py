@@ -1,14 +1,11 @@
 from game.pydispatch import dispatcher
 from game.GameEvent import UpkeepStepEvent, ControllerChanged
-from Cost import ManaCost
 from Trigger import PhaseTrigger
 from Target import NoTarget
 from TriggeredAbility import SpecialTriggeredAbility
 
 def echo(cost):
     #At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.
-    if type(cost) == str: cost = ManaCost(cost)
-
     def buildup(source):
         def controller_changed(sender, original):
             if sender == source: source._echo_controller = sender.controller

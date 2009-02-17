@@ -1,5 +1,6 @@
 from Ability import Ability
 from Limit import no_limit
+from Cost import ManaCost
 
 class CostAbility(Ability):
     zone = "play"
@@ -18,6 +19,7 @@ class CostAbility(Ability):
         source, player = self.source, self.controller
         self.effects = self.effect_generator(player, source)  # Start up generator
         self.cost = self.effects.next()
+        if type(self.cost) == str: self.cost = ManaCost(self.cost)
         if (self.cost.precompute(source, player) and
            self.get_targets() and
            self.cost.compute(source, player)):

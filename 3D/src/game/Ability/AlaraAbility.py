@@ -9,7 +9,6 @@ from EffectsUtilities import until_end_of_turn, delay, do_replace, no_condition
 from Target import NoTarget
 from Trigger import Trigger, PhaseTrigger
 from Counters import PowerToughnessCounter
-from Cost import ManaCost
 from Limit import sorcery
 
 def exalted():
@@ -43,7 +42,6 @@ def devour(value):
     return CiPAbility(effects, txt=txt, keyword="devour")
 
 def unearth(cost):
-    if type(cost) == str: cost = ManaCost(cost)
     def effects(controller, source):
         yield cost
         yield NoTarget()

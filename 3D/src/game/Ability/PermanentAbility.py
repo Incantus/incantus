@@ -2,7 +2,7 @@ from game.Match import isCard, isCreature, isLand
 from ActivatedAbility import ActivatedAbility, ManaAbility
 from StaticAbility import CardStaticAbility
 from Target import NoTarget, Target
-from Cost import ManaCost, TapCost
+from Cost import TapCost
 from EffectsUtilities import do_override, override_effect
 from Limit import no_limit, sorcery
 
@@ -16,7 +16,6 @@ def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plain
     return ManaAbility(effects, txt="T: Add %s to your mana pool"%color)
 
 def attach_artifact(cost, keyword, limit=no_limit):
-    if type(cost) == str: cost = ManaCost(cost)
     def effects(controller, source):
         yield cost
         target = yield Target(source.target_type, player='you')
