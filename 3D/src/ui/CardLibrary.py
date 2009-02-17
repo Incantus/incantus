@@ -1,6 +1,6 @@
 # This file should always be imported at module level scope
 
-import glob, os
+import sys, glob, os, string
 import urllib
 import bsddb
 from cStringIO import StringIO
@@ -11,7 +11,9 @@ from card import Card, PlayCard, HandCard, StackCard
 
 token_img_info = [("10e", ["Soldier","Zombie","Dragon","Goblin","Saproling","Wasp"]),
 ("lorwyn",["Avatar","Elemental","Kithkin Soldier","Merfolk Wizard","Goblin Rogue","Elemental Shaman","Beast","Elemental","Elf Warrior","Wolf","Shapeshifter"]),
-("morningtide",["Giant Warrior","Faerie Rogue","Treefolk Shaman"]),]
+("morningtide",["Giant Warrior","Faerie Rogue","Treefolk Shaman"]),
+("dueldecks",["Elemental","Elf Warrior","Goblin"]),
+("shadowmoor",["Kithkin Soldier","Spirit","Rat","Elemental","Elf Warrior","Spider","Wolf","Faerie Rogue","Elemental","Giant Warrior","Goblin Warrior","Elf Warrior"]),]
 token_cards = {}
 for ed, names in token_img_info:
     for i,n in enumerate(names):
@@ -41,18 +43,24 @@ class _CardLibrary:
                 self.cardfile[name] = data
 
     def loadImage(self, name):
-        imagename = name.replace(" ", "_").replace("-", "_").replace("'","").replace(",","")
+        table = string.maketrans(" -", "__")
+        imagename = name.translate(table, "',")
+        altname = name.replace(" ", "_").replace("'","").replace(",","")
         if name in self.cardfile: data = self.cardfile[name]
         else:
             if name.endswith("Token"):
                 token_type = name[:-6]
                 if token_type in token_cards:
                     ed, number = token_cards[token_type]
-                    img_file = urllib.urlopen("http://magiccards.info/tokens/thumb/%s-%03d.jpg"%(ed,number))
-                    data = img_file.read()
-                    img_file.close()
-                    if "<HTML>" in data or "<h1>Service Unavailable</h1>" in data: return self.back
-                    else: self.cardfile[name] = data
+                    try:
+                        img_file = urllib.urlopen("http://magiccards.info/tokens/thumb/%s-%03d.jpg"%(ed,number))
+                        data = img_file.read()
+                        img_file.close()
+                        if "404 - Not Found" in data: return self.back
+                        else: self.cardfile[name] = data
+                    except:
+                        print sys.exc_info()
+                        return self.back
                 else: return self.back
             else:
                 # Try local directory
@@ -62,11 +70,20 @@ class _CardLibrary:
                     data = img_file.read()
                     img_file.close()
                 else: # Get it from wizards
-                    img_file = urllib.urlopen("http://www.wizards.com/global/images/magic/general/%s.jpg"%imagename)
-                    data = img_file.read()
-                    img_file.close()
-                    if "<HTML>" in data or "<h1>Service Unavailable</h1>" in data: return self.notfound
-                    else: self.cardfile[name] = data
+                    try:
+                        img_file = urllib.urlopen("http://www.wizards.com/global/images/magic/general/%s.jpg"%imagename)
+                        data = img_file.read()
+                        img_file.close()
+                        if "<HTML>" in data or "<h1>Service Unavailable</h1>" in data:
+                            img_file = urllib.urlopen("http://www.wizards.com/global/images/magic/general/%s.jpg"%altname)
+                            data = img_file.read()
+                            img_file.close()
+                            if "<HTML>" in data or "<h1>Service Unavailable</h1>" in data: return self.notfound
+                            else: self.cardfile[name] = data
+                        else: self.cardfile[name] = data
+                    except:
+                        print sys.exc_info()
+                        return self.notfound
         return pyglet.image.load(imagename, file=StringIO(data)).texture
 
     def getCard(self, gamecard, card_cls=Card):
