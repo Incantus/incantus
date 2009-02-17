@@ -49,7 +49,8 @@ class CardRole(MtGObject):
         self.send(TargetedByEvent(), targeter=targeter)
     def modifyEntering(self):
         # Add the necessary superclasses, depending on our type/subtypes
-        self.__class__ = new.classobj("_CardRole", (self.__class__,), {})
+        cls = self.__class__
+        self.__class__ = new.classobj("_%s"%cls.__name__, (cls,), {})
         self.add_basecls()
     def add_basecls(self):
         cls = self.__class__
