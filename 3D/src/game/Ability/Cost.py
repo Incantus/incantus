@@ -82,6 +82,7 @@ class ManaCost(Cost):
     def __init__(self, cost):
         super(ManaCost,self).__init__()
         self._mana_amt = cost
+        self._num_X = sum([1 for symbol in cost if symbol == "X"])
         self._X = 0
     X = property(fget=lambda self: self._X)
     def is_mana_cost(self): return True
@@ -93,7 +94,7 @@ class ManaCost(Cost):
         if self.isHybrid(): cost = player.make_selection(Mana.generate_hybrid_choices(self.cost), 1, prompt="Choose hybrid cost")
         else: cost = self.cost
         self.final_cost = Mana.convert_mana_string(cost)
-        self.final_cost[-1] += self._X
+        self.final_cost[-1] += self._X*self._num_X
         self.payment = "0"
         return self._X >= 0
     def compute(self, source, player):
@@ -117,7 +118,7 @@ class ManaCost(Cost):
         mp.spend(payment)
         self.payment = payment
     def hasX(self):
-        return 'X' in self.cost
+        return self._num_X > 0
     def isHybrid(self):
         # XXX this is hacky
         return '(' in self.cost
