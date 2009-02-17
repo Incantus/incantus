@@ -231,10 +231,11 @@ class UntapCost(Cost):
         return 'Q%s'%who
 
 class SacrificeCost(Cost):
-    def __init__(self, cardtype=None, number=1):
+    def __init__(self, cardtype=None, number=1, msg=''):
         super(SacrificeCost,self).__init__()
         self.cardtype = cardtype
         self.number = number
+        self.msg = msg
     def precompute(self, source, player):
         if self.cardtype == None: return True
         else: return len(player.play.get(self.cardtype)) >= self.number
@@ -246,6 +247,7 @@ class SacrificeCost(Cost):
             else: return False
         else:
             prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
+            if self.msg: prompt = self.msg
             while True:
                 target = player.getTarget(self.cardtype, zone="play", from_player="you", required=False, prompt=prompt)
                 if target == False: return False
@@ -255,6 +257,7 @@ class SacrificeCost(Cost):
                 else:
                     self.targets.append(target)
                     prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
+                    if self.msg: prompt = self.msg
                 if len(self.targets) == self.number: break
         return True
     def pay(self, source, player):
@@ -294,9 +297,13 @@ class ChangeZoneCost(Cost):
                 if len(self.targets) == self.number: break
         return True
     def pay(self, source, player):
+        self.payment = {}
+        self.payment['after'] = []
         for target in self.targets:
-            target.move_to(self.to_zone)
-        self.payment = self.targets
+            result = target.move_to(self.to_zone)
+            if str(result.zone) == self.to_zone: self.payment['after'].append(result)
+            else: self.payment['after'].append(None)
+        self.payment['before'] = self.targets
     def __str__(self):
         if self.cardtype: txt = ' '+str(self.cardtype)
         else: txt = ''
@@ -324,12 +331,12 @@ class RemoveFromGraveyardCost(ChangeZoneCost):
         self.action_txt = "remove%s from graveyard"
 
 class RemoveCounterCost(Cost):
-    def __init__(self, counter_type, cardtype=None, number=1):
+    def __init__(self, counter_type=None, cardtype=None, number=1):
         self.counter_type = counter_type
         self.number = number
         self.cardtype = cardtype
     def enough_counters(self, perm):
-        return perm.num_counters(self.counter_type) >= self.number
+        return perm.num_counters(self.counter_type) >= self.number if self.counter_type else perm.num_counters() >= self.number
     def precompute(self, source, player):
         if self.cardtype == None: return True
         else: return any((True for perm in player.play.get(self.cardtype) if self.enough_counters(perm)))
@@ -340,6 +347,7 @@ class RemoveCounterCost(Cost):
             else: return False
         else:
             prompt = "Select %s from which to remove %d %s counter(s)"%(self.cardtype, self.number, self.counter_type)
+            if not self.counter_type: prompt = "Select %s from which to remove %d counter(s)"%(self.cardtype, self.number)
             while True:
                 target = player.getTarget(self.cardtype, zone="play", from_player="you", required=False, prompt=prompt)
                 if target == False: return False
@@ -349,6 +357,10 @@ class RemoveCounterCost(Cost):
                 else:
                     self.target = target
                     break
+        if not self.counter_type:
+            sellist = list(set([counter.ctype for counter in self.target.counters]))
+            if len(sellist) == 1: self.counter_type = sellist[0]
+            else: self.counter_type = player.make_selection(sellist, prompt='Choose a counter')
         return True
     def pay(self, source, player):
         self.payment = self.target.remove_counters(self.counter_type, self.number)
@@ -405,7 +417,7 @@ class ConditionalCost(Cost):
 class LifeCost(Cost):
     def __init__(self, amt):
         self.amt = amt
-    def compute(self, source, player):
+    def precompute(self, source, player):
         return player.life - self.amt > 0
     def pay(self, source, player):
         player.life -= self.amt
@@ -488,7 +500,7 @@ class DiscardCost(Cost):
 class LoyaltyCost(Cost):
     def __init__(self, number=0):
         self.number = number
-    def compute(self, source, player):
+    def precompute(self, source, player):
         if self.number < 0: return source.num_counters("loyalty") >= -self.number
         else: return True
     def pay(self, source, player):
