@@ -51,6 +51,7 @@ class GameKeeper(MtGObject):
         self.stack = Stack(self)
         self.play = Play(self)
 
+        self.loadMods()
         self._tokens_out_play = []
         self.register(lambda sender: setattr(sender, "is_LKI", True) or self._tokens_out_play.append(sender), TokenLeavingPlay(), weak=False)
 
@@ -66,6 +67,18 @@ class GameKeeper(MtGObject):
                 break
         self._player_order = tuple(players[idx:]+players[:idx])
         self.player_cycler = player_cycler(self.players)
+
+    def loadMods(self):
+        import glob, traceback, CardEnvironment
+        for mod in glob.glob("./data/rulemods/*.py"):
+            code = open(mod, "r").read()
+            try:
+                exec code in vars(CardEnvironment)
+            except Exception:
+                code = code.split("\n")
+                print "\n%s\n"%'\n'.join(["%03d\t%s"%(i+1, line) for i, line in zip(range(len(code)), code)])
+                traceback.print_exc(4)
+            file.close()
 
     def start(self):
         self.send(TimestepEvent())
