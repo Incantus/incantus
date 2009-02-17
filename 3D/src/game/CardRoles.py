@@ -448,7 +448,7 @@ class Attachment(object):
         elif self.subtypes == "Fortification":
             self.target_type = isLand
     def leavingZone(self):
-        self.unattach()
+        self.unattach(True)
         super(Attachment,self).leavingZone()
     def attach(self, target):
         if self._attached_to != None: self.unattach()
@@ -457,12 +457,12 @@ class Attachment(object):
         for ability in self.attached_abilities: ability.enable(self)
         self.send(AttachedEvent(), attached=self._attached_to)
         return self.unattach
-    def unattach(self):
+    def unattach(self, is_LKI=False):
         if self._attached_to:
             for ability in self.attached_abilities: ability.disable()
             self._attached_to.attachments.remove(self)
             self.send(UnAttachedEvent(), unattached=self._attached_to)
-        self._attached_to = None
+            if not is_LKI: self._attached_to = None
     def isValidAttachment(self, attachment=None):
         return self.canBeAttachedTo(self.attached_to)
     def canBeAttachedTo(self, attachment):
