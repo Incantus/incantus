@@ -303,6 +303,7 @@ class Creature(object):
         self.attacking = False
         self.blocking = False
         self.blocked = False
+        self.blockers = set()
         self.cached_PT_dirty = True
 
         self.register(self._new_timestep, TimestepEvent())
@@ -362,6 +363,7 @@ class Creature(object):
             self.attacking = False
             self.send(AttackerClearedEvent())
             self.blocked = False
+            self.blockers.clear()
         elif self.blocking:
             self.blocking = False
             self.send(BlockerClearedEvent())
@@ -373,9 +375,9 @@ class Creature(object):
         self.attacking = True
         self.send(AttackerDeclaredEvent())
     def setBlocked(self, blockers):
-        if blockers:
-            self.blocked = True
-            self.send(AttackerBlockedEvent(), blockers=blockers)
+        self.blocked = True
+        self.blockers.update(blockers)
+        self.send(AttackerBlockedEvent(), blockers=blockers)
     def setBlocking(self, attacker):
         self.setCombat(True)
         self.blocking = True
