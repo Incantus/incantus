@@ -11,6 +11,10 @@ class Cost(object):
         if isinstance(other, str): return MultipleCosts([self,ManaCost(other)])
         elif isinstance(other, MultipleCosts): return MultipleCosts([self]+other.costs)
         elif isinstance(other, Cost): return MultipleCosts([self, other])
+    def __radd__(self, other):
+        if isinstance(other, str): return MultipleCosts([self,ManaCost(other)])
+        elif isinstance(other, MultipleCosts): return MultipleCosts([self]+other.costs)
+        elif isinstance(other, Cost): return MultipleCosts([self, other])
     def __eq__(self, other):
         return False
     def __str__(self):
