@@ -9,8 +9,14 @@ class NoTarget(object):
     def check_target(self, source): return True
     def get_targeted(self): return None
 
+class InvalidTarget(object):
+    def __init__(self, original):
+        self.original = original
+    def no_op(self, *args, **kw): pass
+    def __getattr__(self, attr): return self.no_op
+
 class MultipleTargets(object):
-    def __init__(self, target_types, number=1, up_to=False, distribute=0, distribute_type='', msg='', selector="controller", player=None):
+    def __init__(self, target_types, number=1, up_to=False, distribute=0, distribute_type='', msg='', selector="controller", player=None, zone="play"):
         self.number = number
         self.distribute = distribute
         self.distribute_type = distribute_type
@@ -19,7 +25,8 @@ class MultipleTargets(object):
             self.number = self.distribute
         self.target = []
         self.up_to = up_to
-        self.msg = msg
+        if msg and not (type(msg) == list or type(msg) == tuple): self.msg = (msg,)
+        else: self.msg = msg
         self.selector = selector
         self.player = player
         if not (type(target_types) == tuple or type(target_types) == list):
@@ -30,39 +37,54 @@ class MultipleTargets(object):
                 if match(card): return True
             else: return False
         self.match_type = match_type
+        self.zone = zone
     def get_targeted(self):
         if self.distribute == 0: return self.target
-        else: return [(target, self.distribution[target]) for target in self.target] # only return valid targets
+        else: return [(target, self.distribution.get(target, 0)) for target in self.target] # only return valid targets
     def check_target(self, source):
         # Remove any targets no longer in the correct zone, or no longer matching the original condition
         final_targets = []
         for target in self.target:
-            if not isPlayer(target):
-                if not target.is_LKI and self.match_type(target) and target.canBeTargetedBy(source): final_targets.append(target)
-            else:
-                if target.canBeTargetedBy(source): final_targets.append(target)
+            if not isinstance(target, InvalidTarget) and (not isPlayer(target) or (not target.is_LKI and self.match_type(target))) and target.canBeTargetedBy(source): final_targets.append(target)
+            else: final_targets.append(InvalidTarget(target))
         self.target = final_targets
-        return True
+        return len(self.target) == 0 or any([True for target in self.target if not isinstance(target, InvalidTarget)])
     def get_prompt(self, curr, source):
         number = self.number-curr
         if curr > 0: another = "another "
-        else: another = "" 
+        else: another = ""
         if self.up_to: another = "up to "+another
 
-        if self.msg: prompt=self.msg
-        elif self.target_types: prompt="Target %s%d %s(s) for %s"%(another,number, ' or '.join([str(t) for t in self.target_types]), source)
-        else: prompt = "Select %s%d target(s) for %s"%(another,number,source)
+        if self.zone == "play":
+            if isPlayer(self.player): zl = " %s controls"%self.player
+            elif self.player == None: zl = ""
+            elif self.player == "you": zl = " you control"
+            else: zl = " opponent controls"
+        else:
+            if isPlayer(self.player): zl = " in %s's %s"%(self.player, self.zone)
+            elif self.player == None: zl = " in any %s"%self.zone
+            elif self.player == "you": zl = " in your %s"%self.zone
+            else: zl = " in opponent's %s"%self.zone
+
+        if self.msg:
+            if curr <= len(self.msg): prompt=self.msg[curr]
+            else: prompt = self.msg[-1]
+        elif self.target_types: prompt="Target %s%d %s(s) %s for %s"%(another,number, ' or '.join([str(t) for t in self.target_types]),zl,source)
+        else: prompt = "Select %s%d target(s) %s for %s"%(another,number,zl,source)
         return prompt
-    def get(self, source): 
-        if self.selector == "opponent": selector = source.controller.choose_opponent()
-        elif self.selector == "current_player":
-            import game.GameKeeper
-            selector = game.GameKeeper.Keeper.current_player
+    def get(self, source):
+        if type(self.selector) == str:
+            if self.selector == "opponent": selector = source.controller.choose_opponent()
+            elif self.selector == "current_player":
+                import game.GameKeeper
+                selector = game.GameKeeper.Keeper.current_player
+            else: selector = source.controller
+        if isPlayer(self.selector): selector = self.selector
         else: selector = source.controller
         i = 0
         targets = []
         while i < self.number:
-            target = selector.getTarget(self.target_types,zone="play",from_player=self.player,required=False,prompt=self.get_prompt(i, source.name))
+            target = selector.getTarget(self.target_types,zone=self.zone,from_player=self.player,required=False,prompt=self.get_prompt(i, source.name))
             if target == False:
                 if not self.up_to or len(targets) == 0: return False
                 else: break
@@ -80,12 +102,6 @@ class MultipleTargets(object):
             target.isTargetedBy(source)
         self.target = targets
         return True
-
-class InvalidTarget(object):
-    def __init__(self, original):
-        self.original = original
-    def no_op(self, *args, **kw): pass
-    def __getattr__(self, attr): return self.no_op
 
 # When I add a new argument to constructor, make sure to add it to the copy function
 # or use the copy module
