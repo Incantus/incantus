@@ -113,7 +113,7 @@ cost = NoCost()
         power, toughness = card_dict["P/T"]
         fields["extra"] = "power = %d\ntoughness = %d\n"%(power, toughness)
     elif "loyalty" in card_dict:
-        fields["extra"] = "loyalty = %d\n"card_dict["loyalty"]
+        fields["extra"] = "loyalty = %d\n"%card_dict["loyalty"]
     else:
         fields["extra"] = ''
 
