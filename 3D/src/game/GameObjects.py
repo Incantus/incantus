@@ -91,7 +91,7 @@ class GameObject(MtGObject):
     _current_roles = {}
     _cardmap = {}
     def _add_to_map(self):
-        self.key = (GameObject._counter, self.base_name)
+        self.key = (GameObject._counter, self._key_name)
         self._cardmap[self.key] = self
         GameObject._counter += 1
 
@@ -112,6 +112,7 @@ class Card(GameObject):
             from game.Ability.CiPAbility import attach_on_enter
             self.base_abilities.add(attach_on_enter())
 
+        self._key_name = self.base_name
         self._add_to_map()
 
     @classmethod
@@ -128,6 +129,7 @@ class Token(GameObject):
         CardDatabase.execCode(self, info)
         self.out_play_role = self.stack_role = NoRole
         self.in_play_role = TokenPermanent
+        self._key_name = self.base_name + " Token"
         self._add_to_map()
 
     @classmethod
