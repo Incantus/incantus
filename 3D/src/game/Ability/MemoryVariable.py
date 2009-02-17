@@ -20,22 +20,24 @@ class ZoneMoveVariable(MemoryVariable):
     def __init__(self, from_zone, to_zone):
         self.from_zone = from_zone
         self.to_zone = to_zone
-        self.moved = set()
+        self.moved = {}
         self.register(self.filter, CardEnteringZoneFrom())
         super(ZoneMoveVariable, self).__init__()
     def reset(self):
-        self.moved.clear()
+        self.moved = {}
     def filter(self, sender, from_zone, oldcard, newcard):
         if str(sender) == self.to_zone and str(from_zone) == self.from_zone:
             # Keep track of the new object - we know where it came from
             # Should I track the object it used to be in case of rollback?
-            self.moved.add(newcard)
+            self.moved[oldcard] = newcard
     def __len__(self): return len(self.moved)
     def value(self): return len(self)
     def __contains__(self, card): return card in self.moved
-    def get(self, match=lambda c:True):
-        return (card for card in self.moved if match(card))
+    def get(self, match=lambda c: True):
+        return [card for card in self.moved if match(card)]
     def __iter__(self): return iter(self.get())
+    def get_linked(self, card):
+        return self.moved.get(card, None)
 
 class DamageTrackingVariable(MemoryVariable):
     def __init__(self):
@@ -93,6 +95,46 @@ class SpellRecordVariable(MemoryVariable):
             return temp
         else: return []
 
+# XXX This isn't really necessary, since the cards contain who they are blocked by
+# It might be useful for cards who need to track who they blocked, but I haven't seen any
+# cards like that
+class CombatTrackingVariable(MemoryVariable):
+    def __init__(self):
+        self.reset()
+        self.register(self.attacker, event=AttackerDeclaredEvent())
+        self.register(self.blocker, event=BlockerDeclaredEvent())
+        self.register(self.clear_local, event=EndCombatEvent())
+        super(CombatTrackingVariable, self).__init__()
+    def reset(self):
+        self.attackers = {}
+        self.blockers = {}
+        self.attacked = {}
+        self.blocked = {}
+    def attacker(self, sender):
+        self.attackers[sender] = []
+        self.attacked[sender] = []
+    def blocker(self, sender, attacker):
+        self.blockers[sender] = [attacker]
+        if not sender in self.blocked: self.blocked[sender] = [attacker]
+        else: self.blocked[sender].append(attacker)
+        self.attackers[attacker].append(sender)
+        self.attacked[attacker].append(sender)
+    def clear_local(self):
+        self.attackers = {}
+        self.blockers = {}
+    def value(self): return 0
+    def get_blocked_by(self, blocker, entire_turn=True):
+        if entire_turn and blocker in self.blocked: return self.blocked[blocker]
+        elif blocker in self.blockers: return self.blockers[blocker]
+        else: return []
+    def get_attacked(self, attacker, entire_turn=True):
+        if entire_turn: return attacker in self.attacked
+        else: return attacker in self.attacker
+    def get_blocked_attacker(self, attacker, entire_turn=True):
+        if entire_turn and attacker in self.attacked: return self.attacked[attacker]
+        elif attacker in self.attackers: return self.attackers[attacker]
+        else: return []
+
 # This should never be referred to... it's solely to make damage triggers work properly
 class TimestepDamageTrackingVariable(MemoryVariable):
     def __init__(self):
@@ -130,4 +172,4 @@ timestep_damage_tracker = TimestepDamageTrackingVariable()
 damage_tracker = DamageTrackingVariable()
 graveyard_tracker = ZoneMoveVariable(from_zone="play", to_zone="graveyard")
 spell_record = SpellRecordVariable()
-
+combat_tracker = CombatTrackingVariable()
