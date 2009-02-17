@@ -30,6 +30,7 @@ class stacked_variable(object):
     def __str__(self): return str(self.current)
     def __repr__(self): return repr(self._characteristics)
     def __int__(self): return int(self.current)
+    def __iter__(self): return iter(self.current)
 
 class stacked_controller(object):
     current = property(fget=lambda self: self._controllers[-1][0])
