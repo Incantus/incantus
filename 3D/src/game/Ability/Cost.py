@@ -433,19 +433,23 @@ class RevealCost(Cost):
         return len(player.hand.get(self.cardtype)) >= self.number
     def compute(self, source, player):
         self.reveals = []
-        if self.number > 1: a='s'
-        else: a = ''
-        num = 0
-        prompt = "Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
-        while num < self.number:
-            target = player.getTarget(self.cardtype, zone="hand", from_player="you", required=False,prompt=prompt)
-            if not target: return False
-            if not target in self.reveals:
-                self.reveals.append(target)
-                num += 1
-                prompt = "Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
-            else:
-                prompt = "Card already selected. Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
+        if self.number == -1:
+            # Reveal entire hand
+            self.reveals.extend([c for c in player.hand])
+        else:
+            if self.number > 1: a='s'
+            else: a = ''
+            num = 0
+            prompt = "Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
+            while num < self.number:
+                target = player.getTarget(self.cardtype, zone="hand", from_player="you", required=False,prompt=prompt)
+                if not target: return False
+                if not target in self.reveals:
+                    self.reveals.append(target)
+                    num += 1
+                    prompt = "Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
+                else:
+                    prompt = "Card already selected. Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
         return True
     def pay(self, source, player):
         player.reveal_cards(self.reveals)
