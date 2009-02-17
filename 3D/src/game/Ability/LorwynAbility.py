@@ -2,6 +2,7 @@ from game.Match import isCreature, isPermanent
 from game.GameEvent import ClashEvent
 from TriggeredAbility import TriggeredAbility
 from CiPAbility import comes_into_play_tapped
+from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from Trigger import EnterTrigger, LeaveTrigger, DealDamageToTrigger
 from Subtypes import all_creatures
@@ -27,13 +28,13 @@ def clash(controller, opponent=None):
         msg = "No one wins the clash"
 
     # XXX This is buggered
-    controller.revealCard(cards, msgs=[controller.name, opponent.name], title=msg, prompt=msg)
+    controller.reveal_cards([card0, card1], msg)
 
-    for player, card in zip((controller, opponent), cards):
+    for player, card in zip((controller, opponent), (card0, card1)):
         player.send(ClashEvent(), winner=winner)
-        msg = "Move %s to the bottom of your library?"%card
-        if player.getIntention(msg, msg):
-            card.move_to("library", position="bottom")
+        if card:
+            msg = "Move %s to the bottom of your library?"%card
+            if player.getIntention(msg): card.move_to("library", position="bottom")
     return winner == controller
 
 def champion(types=None, subtypes=None):
@@ -63,7 +64,7 @@ def champion(types=None, subtypes=None):
     champion_send = TriggeredAbility(EnterTrigger("play"),
             condition = lambda source, card: source == card,
             effects = champion1,
-            txt = "Champion %s"%cardtype)
+            txt = "Champion a %s"%cardtype)
 
     def champion2(controller, source):
         target = yield NoTarget()
