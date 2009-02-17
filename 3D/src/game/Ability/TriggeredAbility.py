@@ -71,7 +71,7 @@ def modal_triggered_effects(*modes, **kw):
     def modal_effects(**keys):
         controller = keys['controller']
         source = keys['source']
-        selected = controller.make_selection([(mode.__doc__,mode) for mode in modes], choose, msg='Select %d mode(s):'%choose)
+        selected = controller.make_selection([(mode.__doc__,mode) for mode in modes], choose, prompt='Select %d mode(s):'%choose)
         if choose > 1: chosen = tuple((robustApply(mode, **keys) for mode in selected))
         else: chosen = (robustApply(selected, **keys), )
         # get the targets

@@ -84,7 +84,7 @@ def hideaway(cost="0"):
         yield NoTarget()
         topcards = controller.library.top(4)
         if topcards:
-            card = controller.choose_from(topcards, number=1, prompt="Choose 1 card to hideaway")[0]
+            card = controller.choose_from(topcards, number=1, prompt="Choose 1 card to hideaway")
             source.hidden = card
             card.move_to("removed")
             card.faceDown()

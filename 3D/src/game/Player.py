@@ -128,7 +128,7 @@ class Player(MtGObject):
     def choose_from(self, cards, number, cardtype=isCard, required=True, prompt=''):
         if not prompt: prompt = "Choose %d card(s)"%number
         selected = self.getCardSelection(cards, number, cardtype=cardtype, required=required, prompt=prompt)
-        if number == 1: return selected[0]
+        if number == 1: return selected[0] if selected else None
         else: return selected
     def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action='', required=True, all=False):
         cards_in_zone = getattr(self, zone).get(cardtype)
@@ -169,7 +169,7 @@ class Player(MtGObject):
             self.send(DrawCardEvent())
     def discard(self, card):
         if str(card.zone) == "hand":
-            card = card.move_to(self.graveyard)
+            card = card.move_to("graveyard")
             self.send(DiscardCardEvent(), card=card)
             return card
         else: return None
@@ -183,7 +183,7 @@ class Player(MtGObject):
         else: return []
     def sacrifice(self, perm):
         if perm.controller == self and str(perm.zone) == "play":
-            card = perm.move_to(self.graveyard)
+            card = perm.move_to("graveyard")
             self.send(PermanentSacrificedEvent(), card=perm)
             return card
         else: return None

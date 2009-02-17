@@ -17,7 +17,7 @@ def reinforce(cost, number=1):
         target = yield Target(isCreature)
         target.add_counters(PowerToughnessCounter(1, 1), number)
         yield
-    return ActivatedAbility(effects, zone="hand", keyword="Reinforce %d")
+    return ActivatedAbility(effects, zone="hand", txt="Reinforce %d"%number, keyword="Reinforce")
 
 class ProwlVariable(MemoryVariable):
     def __init__(self):
@@ -75,6 +75,7 @@ def kinship_triggered(txt=''):
 def kinship(player, card):
     if player.you_may("look at the top card of your library"):
         topcard = player.library.top()
+        player.look_at(topcard)
         if topcard and card.subtypes.intersects(topcard.subtypes) and player.getIntention("Reveal card?"):
             player.reveal_cards(topcard, msg="Top card of library")
             return True
