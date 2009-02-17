@@ -81,7 +81,8 @@ class Player(MtGObject):
         if len(amount) > 1:
             amount = self.make_selection(amount, 1, prompt="Choose mana to add")
         else: amount = amount[0]
-        # XXX This is a bit hacky - need to combine with other hybrid calcs
+        # XXX This is a bit hacky - used by, ex Calciform Pools
+        # Add X mana in any combination of W and/or U to your manapool
         if "(" in amount:
             amount = self.make_selection(generate_hybrid_choices(amount), 1, prompt="Choose mana to add")
         self.manapool.add(amount)
