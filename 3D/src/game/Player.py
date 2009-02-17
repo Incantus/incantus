@@ -160,13 +160,16 @@ class Player(MtGObject):
                     if zone == "library": self.shuffle()
         return cards
     def do_draw(self, number=1):
-        for i in range(number): self.draw()
+        return sum([self.draw() for i in range(number)])
     def draw(self):
         card = self.library.top()
+        num = 0
         if card == None: self.draw_empty = True
         else:
-            card.move_to(self.hand)
+            num = 1
+            card.move_to("hand")
             self.send(DrawCardEvent())
+        return num
     def discard(self, card):
         if str(card.zone) == "hand":
             card = card.move_to("graveyard")
