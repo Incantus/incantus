@@ -39,5 +39,6 @@ from Ability.DarksteelAbility import *
 from Ability.ColdsnapAbility import *
 from Ability.DissensionAbility import *
 from Ability.NemesisAbility import *
+from Ability.ConfluxAbility import *
 
 nan = None
