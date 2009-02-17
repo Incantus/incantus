@@ -114,9 +114,9 @@ class ManaCost(Cost):
         payment = mp.distribute(self.final_cost)
         if not payment:
             # Ask the player to distribute
-            payment = player.getManaChoice(str(player.manapool), Mana.convert_to_mana_string(self.final_cost))
+            payment = Mana.convert_mana_string(player.getManaChoice(str(player.manapool), Mana.convert_to_mana_string(self.final_cost)))
         mp.spend(payment)
-        self.payment = payment
+        self.payment = Mana.convert_to_mana_string(payment)
     def hasX(self):
         return self._num_X > 0
     def isHybrid(self):
