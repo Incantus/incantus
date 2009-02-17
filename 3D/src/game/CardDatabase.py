@@ -99,8 +99,7 @@ supertypes = %(supertypes)s
 subtypes = %(subtypes)s
 color = %(color)s
 cost = NoCost()
-%(P/T)s
-
+%(extra)s
 %(abilities)s'''
     fields = {}
     for attr in ["types", "supertypes", "subtypes", "color"]:
@@ -112,11 +111,15 @@ cost = NoCost()
 
     if "P/T" in card_dict:
         power, toughness = card_dict["P/T"]
-        fields["P/T"] = "power = %d\ntoughness = %d"%(power, toughness)
+        fields["extra"] = "power = %d\ntoughness = %d\n"%(power, toughness)
+    elif "loyalty" in card_dict:
+        fields["extra"] = "loyalty = %d\n"card_dict["loyalty"]
+    else:
+        fields["extra"] = ''
 
     name = card_dict.get("name", None)
     if not name:
-        subtypes = card_dict["subtypes"]
+        subtypes = card_dict.get("subtypes", ())
         if not (type(subtypes) == list or type(subtypes) == tuple): subtypes = (subtypes,)
         name = " ".join(subtypes)
     fields["name"] = repr(name)
