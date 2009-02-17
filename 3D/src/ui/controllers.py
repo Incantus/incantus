@@ -198,7 +198,7 @@ class CardSelector(object):
                 self.window.user_action = Action.MultipleCardsSelected([card.gamecard for card in self.zone_view.cards])
                 self.deactivate()
             else:
-                if (self.number == -1) or (len(selection) == self.number) or (len(self.zone_view.cards) == 0 and len(selection) < self.number):
+                if (self.number == -1) or (len(selection) == self.number) or (len(self.zone_view.cards) == 0 and len(selection) < self.number) or (len(selection) < self.number and not self.required):
                     self.window.user_action = Action.MultipleCardsSelected(selection)
                     self.deactivate()
             return True
