@@ -261,10 +261,10 @@ class PlayView(Widget):
     def card_unattached(self, sender, unattached):
         attachment = self.get_card(sender)
         unattached = self.get_card(unattached)
-        if attachment and unattached and attachment in self.attached:
+        if attachment and attachment in self.attached:
             self.attached.remove(attachment)
             attachment._row.append(attachment)
-            if Match.isBasicLand(unattached.gamecard):
+            if unattached and Match.isBasicLand(unattached.gamecard):
                 self.lands["Other"].remove(unattached)
                 unattached._row.append(unattached)
             self.layout()
