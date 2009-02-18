@@ -1,0 +1,20 @@
+name = 'Murderous Betrayal'
+cardnum = 147
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'BBB'
+color = characteristic(['B'])
+text = ["BB, Pay half your life rounded up: Destroy target nonblack creature. It can't be regenerated."]
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

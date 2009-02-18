@@ -1,0 +1,20 @@
+name = 'Hollow Dogs'
+cardnum = 139
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Zombie', 'Hound'])
+cost = '4B'
+color = characteristic(['B'])
+text = ['Whenever Hollow Dogs attacks, it gets +2/+0 until end of turn.']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,20 @@
+name = 'Deepwood Ghoul'
+cardnum = 127
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Zombie'])
+cost = '2B'
+color = characteristic(['B'])
+text = ['Pay 2 life: Regenerate Deepwood Ghoul.']
+
+subrole = Creature(2, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

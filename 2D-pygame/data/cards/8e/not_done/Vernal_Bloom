@@ -1,0 +1,20 @@
+name = 'Vernal Bloom'
+cardnum = 286
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3G'
+color = characteristic(['G'])
+text = ['Whenever a Forest is tapped for mana, its controller adds G to his or her mana pool.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

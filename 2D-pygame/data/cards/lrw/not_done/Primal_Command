@@ -1,0 +1,10 @@
+name = 'Primal Command'
+cardnum = 233
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3GG'
+color = characteristic(['G'])
+text = ["Choose two - Target player gains 7 life; or put target noncreature permanent on top of its owner's library; or target player shuffles his or her graveyard into his or her library; or search your library for a creature card, reveal it, put it into your hand, then shuffle your library."]
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

@@ -1,0 +1,27 @@
+name = 'Lure'
+cardnum = 276
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic(['Aura'])
+cost = '1GG'
+color = characteristic(['G'])
+text = ['Enchant creature', 'All creatures able to block enchanted creature do so.']
+
+target_type = isCreature
+out_play_role.abilities = [CastPermanentSpell(card, cost,
+                               target=Target(target_types=target_type),
+                               effects=AttachToPermanent())]
+subrole = Aura(target_type)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+subrole.attached_abilities = [AuraStaticAbility(card,
+                                        effects=GiveKeyword(lambda role: override(role, "mustBeBlocked", lambda self: True, chain=False), keyword="Must be blocked if able", expire=False))
+]
+
+#################################

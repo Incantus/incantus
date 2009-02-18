@@ -1,0 +1,23 @@
+name = 'Upwelling'
+cardnum = 306
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3G'
+color = characteristic(['G'])
+text = ["Mana pools don't empty at the end of phases or turns."]
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+from game.Player import Player
+subrole.static_abilities = [GlobalStaticAbility(card,
+                                    effects=OverrideGlobal(lambda self: None, "manaBurn", Player, combiner=last_only, expire=False))
+]
+
+#################################

@@ -1,0 +1,22 @@
+name = 'Benalish Knight'
+cardnum = 11
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Knight'])
+cost = '2W'
+color = characteristic(['W'])
+text = ['Flash', 'First strike']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+play_action = PlayInstant
+first_strike(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

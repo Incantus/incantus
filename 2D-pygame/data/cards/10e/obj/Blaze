@@ -1,0 +1,11 @@
+name = 'Blaze'
+cardnum = 190
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'XR'
+color = characteristic(['R'])
+text = ['Blaze deals X damage to target creature or player.']
+
+mc = ManaCost(cost)
+out_play_role.abilities = [CastNonPermanentSpell(card, mc, target=Target(target_types=[isCreature, isPlayer]), effects=DealDamage(mc.X))]

@@ -1,0 +1,19 @@
+name = "Auntie's Hovel"
+cardnum = 267
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ["As Auntie's Hovel comes into play, you may reveal a Goblin card from your hand. If you don't, Auntie's Hovel comes into play tapped.", 'T Add B or R to your mana pool.']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('C'))]
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+
+#################################

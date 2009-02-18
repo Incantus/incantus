@@ -1,0 +1,20 @@
+name = 'Warren Pilferers'
+cardnum = 146
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin', 'Rogue'])
+cost = '4B'
+color = characteristic(['B'])
+text = ['When Warren Pilferers comes into play, return target creature card from your graveyard to your hand. If that card is a Goblin card, Warren Pilferers gains haste until end of turn.']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

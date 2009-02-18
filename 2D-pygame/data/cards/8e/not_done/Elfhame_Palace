@@ -1,0 +1,19 @@
+name = 'Elfhame Palace'
+cardnum = 324
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ['Elfhame Palace comes into play tapped.', 'T Add G or W to your mana pool.']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('C'))]
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+
+#################################

@@ -1,0 +1,20 @@
+name = 'Horned Turtle'
+cardnum = 81
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Turtle'])
+cost = '2U'
+color = characteristic(['U'])
+text = []
+
+subrole = Creature(1, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

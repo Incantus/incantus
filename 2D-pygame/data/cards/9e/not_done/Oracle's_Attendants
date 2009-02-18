@@ -1,0 +1,20 @@
+name = "Oracle's Attendants"
+cardnum = 30
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Soldier'])
+cost = '3W'
+color = characteristic(['W'])
+text = ["T All damage that would be dealt to target creature this turn by a source of your choice is dealt to Oracle's Attendants instead."]
+
+subrole = Creature(1, 5)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

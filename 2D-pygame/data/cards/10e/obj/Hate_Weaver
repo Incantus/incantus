@@ -1,0 +1,23 @@
+name = 'Hate Weaver'
+cardnum = 147
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Zombie', 'Wizard'])
+cost = '1B'
+color = characteristic(['B'])
+text = ['2: Target blue or red creature gets +1/+0 until end of turn.']
+
+subrole = Creature(2, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, "2",
+                                target=Target(target_types=isCreature.with(lambda c: c.color == "U" or c.color == "R")),
+                                effects=AugmentPowerToughness(power=1, toughness=0))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

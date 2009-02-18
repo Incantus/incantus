@@ -1,0 +1,20 @@
+name = 'Orcish Spy'
+cardnum = 208
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Orc'])
+cost = 'R'
+color = characteristic(['R'])
+text = ["T Look at the top three cards of target player's library."]
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

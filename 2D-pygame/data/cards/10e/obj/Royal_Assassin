@@ -1,0 +1,23 @@
+name = 'Royal Assassin'
+cardnum = 174
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Assassin'])
+cost = '1BB'
+color = characteristic(['B'])
+text = ['T Destroy target tapped creature.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, TapCost(),
+                                target=Target(target_types=isCreature.with(lambda c: c.tapped)),
+                                effects=Destroy())
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,20 @@
+name = 'Craw Wurm'
+cardnum = 257
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Wurm'])
+cost = '4GG'
+color = characteristic(['G'])
+text = []
+
+subrole = Creature(6, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

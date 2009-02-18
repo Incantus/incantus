@@ -1,0 +1,20 @@
+name = 'Phyrexian Colossus'
+cardnum = 309
+type = characteristic('Creature')
+supertype = characteristic('Artifact')
+subtypes = characteristic(['Golem'])
+cost = '7'
+color = characteristic(['C'])
+text = ["Phyrexian Colossus doesn't untap during your untap step.", 'Pay 8 life: Untap Phyrexian Colossus.', "Phyrexian Colossus can't be blocked except by three or more creatures."]
+
+subrole = Creature(8, 8)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

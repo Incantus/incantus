@@ -1,0 +1,20 @@
+name = 'Maro'
+cardnum = 254
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental'])
+cost = '2GG'
+color = characteristic(['G'])
+text = ["Maro's power and toughness are each equal to the number of cards in your hand."]
+
+subrole = Creature(-1, -1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

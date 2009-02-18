@@ -1,0 +1,20 @@
+name = "Urza's Armor"
+cardnum = 318
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '6'
+color = characteristic(['C'])
+text = ['If a source would deal damage to you, prevent 1 of that damage.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

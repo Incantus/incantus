@@ -1,0 +1,20 @@
+name = 'Paperfin Rascal'
+cardnum = 77
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Merfolk', 'Rogue'])
+cost = '2U'
+color = characteristic(['U'])
+text = ['When Paperfin Rascal comes into play, clash with an opponent. If you win, put a +1/+1 counter on Paperfin Rascal.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

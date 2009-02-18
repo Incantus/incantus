@@ -1,0 +1,21 @@
+name = 'Planar Void'
+cardnum = 3
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'B'
+color = characteristic(['B'])
+text = ['Whenever a card is put into a graveyard, remove that card from the game.']
+
+subrole = Enchantment()
+in_play_role = Permanent(card, subrole)
+
+subrole.abilities = []
+trigger = EnterTrigger(zone="graveyard", any=True)
+subrole.triggered_abilities = [TriggeredAbility(card, 
+					trigger=trigger,
+					match_condition = isCard,
+					ability=Ability(card, target=Target(targeting=lambda t=trigger: t.matched_card),
+                                                 effects=ChangeZone(from_zone="graveyard", to_zone="removed")))
+]
+

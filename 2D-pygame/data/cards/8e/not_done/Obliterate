@@ -1,0 +1,10 @@
+name = 'Obliterate'
+cardnum = 204
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '6RR'
+color = characteristic(['R'])
+text = ["Obliterate can't be countered.", "Destroy all artifacts, creatures, and lands. They can't be regenerated."]
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

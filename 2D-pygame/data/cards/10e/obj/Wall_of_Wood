@@ -1,0 +1,21 @@
+name = 'Wall of Wood'
+cardnum = 309
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Wall'])
+cost = 'G'
+color = characteristic(['G'])
+text = ['Defender']
+
+subrole = Creature(0, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+defender(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

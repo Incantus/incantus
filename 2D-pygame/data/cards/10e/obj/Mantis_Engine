@@ -1,0 +1,24 @@
+name = 'Mantis Engine'
+cardnum = 333
+type = characteristic(['Creature', 'Artifact'])
+supertype = characteristic('')
+subtypes = characteristic(['Insect'])
+cost = '5'
+color = characteristic(['C'])
+text = ['2: Mantis Engine gains flying until end of turn.', '2: Mantis Engine gains first strike until end of turn.']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, [subrole, Artifact()])
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, "2", target=Target(targeting="self"),
+                           effects=GiveKeyword(flying, keyword="flying")),
+                     ActivatedAbility(card, "2", target=Target(targeting="self"),
+                           effects=GiveKeyword(flying, keyword="first_strike")),
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

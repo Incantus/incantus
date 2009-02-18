@@ -1,0 +1,10 @@
+name = "Aquitect's Will"
+cardnum = 52
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic(['Merfolk'])
+cost = 'U'
+color = characteristic(['U'])
+text = ['Put a flood counter on target land. That land is an Island in addition to its other types as long as it has a flood counter on it. If you control a Merfolk, draw a card.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

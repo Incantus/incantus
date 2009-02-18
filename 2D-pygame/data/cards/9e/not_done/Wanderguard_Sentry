@@ -1,0 +1,20 @@
+name = 'Wanderguard Sentry'
+cardnum = 111
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Drone'])
+cost = '4U'
+color = characteristic(['U'])
+text = ["When Wanderguard Sentry comes into play, look at target opponent's hand."]
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,16 @@
+
+Things that don't work:
+
+Targeting is broken in one of two ways, based on what happens when the ability is copied for playing it:
+
+12/10/07 - this has been fixed by adding an attribute, copy_targets to the Ability class. Non permanent spells (like sorceries and instants) don't need to copy their targets (since they can only be played once per instance of the card) so they don't copy their targets. Everything else does by default. (although Duct Crawler is still broken, since the target is required for its activated ability)
+
+* When I make a copy of the target, any abilities that use closures on the original target ('grep "^target" -l *' to find the cards) won't work, since they refer to the original target. So these cards won't work:
+	Cone of Flame
+	Cryoclasm
+	Duct Crawler
+	Hurkyl's Recall
+	Reminisce	
+
+* If I don't make a copy, then abilities that can be placed multiple times on the stack will all use the same target (since they all point to the same target object).
+

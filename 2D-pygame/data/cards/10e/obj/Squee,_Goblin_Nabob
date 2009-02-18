@@ -1,0 +1,28 @@
+name = 'Squee, Goblin Nabob'
+cardnum = 239
+type = characteristic('Creature')
+supertype = characteristic('Legendary')
+subtypes = characteristic(['Goblin'])
+cost = '2R'
+color = characteristic(['R'])
+text = ['At the beginning of your upkeep, you may return Squee, Goblin Nabob from your graveyard to your hand.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card, always_on=True,
+                                      trigger = PlayerTrigger(event=UpkeepStepEvent()),
+                                      match_condition = lambda player, card=card: player == card.owner and card.zone == card.owner.graveyard,
+                                      ability = ChoiceAbility(card, "0",
+                                                        msg="move %s from graveyard to your hand?"%card.name,
+                                                        choice_target=Target(targeting="owner"),
+                                                        target=Target(targeting="self"),
+                                                        effects=ChangeZone(from_zone="graveyard", to_zone="hand")))
+]
+subrole.static_abilities = []
+
+#################################

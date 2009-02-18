@@ -1,0 +1,20 @@
+name = 'Ancient Silverback'
+cardnum = 230
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Ape'])
+cost = '4GG'
+color = characteristic(['G'])
+text = ['G: Regenerate Ancient Silverback.']
+
+subrole = Creature(6, 5)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

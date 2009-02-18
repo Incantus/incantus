@@ -1,0 +1,23 @@
+name = 'Mogg Fanatic'
+cardnum = 219
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin'])
+cost = 'R'
+color = characteristic(['R'])
+text = ['Sacrifice Mogg Fanatic: Mogg Fanatic deals 1 damage to target creature or player.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, SacrificeCost(),
+                                target=Target(target_types=[isCreature,isPlayer]),
+                                effects=DealDamage(1))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

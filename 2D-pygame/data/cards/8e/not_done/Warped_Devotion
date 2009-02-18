@@ -1,0 +1,20 @@
+name = 'Warped Devotion'
+cardnum = 172
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2B'
+color = characteristic(['B'])
+text = ["Whenever a permanent is returned to a player's hand, that player discards a card."]
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

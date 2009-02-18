@@ -1,0 +1,20 @@
+name = 'Harpoon Sniper'
+cardnum = 19
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Merfolk', 'Archer'])
+cost = '2W'
+color = characteristic(['W'])
+text = ['W, T Harpoon Sniper deals X damage to target attacking or blocking creature, where X is the number of Merfolk you control.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

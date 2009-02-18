@@ -1,0 +1,15 @@
+name = 'Luminesce'
+cardnum = 28
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'W'
+color = characteristic(['W'])
+text = ['Prevent all damage that black sources and red sources would deal this turn.']
+
+def canDealDamage(self): return not (self.card.color == "R" or self.card.color == "B")
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+                                effects=[OverrideGlobal(canDealDamage, "canDealDamage", Spell, combiner=logical_and),
+                                         OverrideGlobal(canDealDamage, "canDealDamage", Permanent, combiner=logical_and)])
+]

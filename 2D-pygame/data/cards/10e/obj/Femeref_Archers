@@ -1,0 +1,23 @@
+name = 'Femeref Archers'
+cardnum = 264
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Archer'])
+cost = '2G'
+color = characteristic(['G'])
+text = ['T Femeref Archers deals 4 damage to target attacking creature with flying.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, TapCost(),
+                                target=Target(target_types=isCreature.with(lambda c: c.attacking and 'flying' in c.keywords)),
+                                effects=DealDamage(4))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

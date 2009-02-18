@@ -1,0 +1,20 @@
+name = 'Force of Nature'
+cardnum = 242
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental'])
+cost = '2GGGG'
+color = characteristic(['G'])
+text = ['Trample', 'At the beginning of your upkeep, Force of Nature deals 8 damage to you unless you pay GGGG.']
+
+subrole = Creature(8, 8)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

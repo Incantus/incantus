@@ -1,0 +1,21 @@
+name = 'Giant Spider'
+cardnum = 267
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Spider'])
+cost = '3G'
+color = characteristic(['G'])
+text = ['Reach']
+
+subrole = Creature(2, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+reach(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

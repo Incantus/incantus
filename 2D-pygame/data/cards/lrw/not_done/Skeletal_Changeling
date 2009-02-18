@@ -1,0 +1,20 @@
+name = 'Skeletal Changeling'
+cardnum = 140
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Shapeshifter'])
+cost = '1B'
+color = characteristic(['B'])
+text = ['Changeling', '1B: Regenerate Skeletal Changeling.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

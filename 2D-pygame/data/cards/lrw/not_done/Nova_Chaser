@@ -1,0 +1,20 @@
+name = 'Nova Chaser'
+cardnum = 187
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental', 'Warrior'])
+cost = '3R'
+color = characteristic(['R'])
+text = ['Trample', 'Champion an Elemental']
+
+subrole = Creature(10, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

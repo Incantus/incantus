@@ -1,0 +1,10 @@
+name = 'Thoughtseize'
+cardnum = 145
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'B'
+color = characteristic(['B'])
+text = ['Target player reveals his or her hand. You choose a nonland card from it. That player discards that card. You lose 2 life.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

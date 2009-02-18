@@ -1,0 +1,29 @@
+name = 'Sleeper Agent'
+cardnum = 178
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Minion'])
+cost = 'B'
+color = characteristic(['B'])
+text = ['When Sleeper Agent comes into play, target opponent gains control of it.', 'At the beginning of your upkeep, Sleeper Agent deals 2 damage to you.']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                      trigger = EnterTrigger("play"),
+                                      match_condition = SelfMatch(card),
+                                      ability=Ability(card, target=Target(targeting="opponent"),
+                                                 effects=ChangeSelfController())),
+                                    TriggeredAbility(card,
+                                      trigger = PlayerTrigger(event=UpkeepStepEvent()),
+                                      match_condition = lambda player, card=card: player == card.controller,
+                                      ability = Ability(card, target=Target(targeting="controller"),
+                                                        effects=DealDamage(2)))]
+subrole.static_abilities = []
+
+#################################

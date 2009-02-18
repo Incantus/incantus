@@ -1,0 +1,20 @@
+name = 'Boggart Harbinger'
+cardnum = 102
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin', 'Shaman'])
+cost = '2B'
+color = characteristic(['B'])
+text = ['When Boggart Harbinger comes into play, you may search your library for a Goblin card, reveal it, then shuffle your library and put that card on top of it.']
+
+subrole = Creature(2, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

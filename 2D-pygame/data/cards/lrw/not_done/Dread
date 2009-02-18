@@ -1,0 +1,20 @@
+name = 'Dread'
+cardnum = 107
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental', 'Incarnation'])
+cost = '3BBB'
+color = characteristic(['B'])
+text = ['Fear', 'Whenever a creature deals damage to you, destroy it.', "When Dread is put into a graveyard from anywhere, shuffle it into its owner's library."]
+
+subrole = Creature(6, 6)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

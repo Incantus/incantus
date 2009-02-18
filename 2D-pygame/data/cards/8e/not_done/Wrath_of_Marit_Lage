@@ -1,0 +1,20 @@
+name = 'Wrath of Marit Lage'
+cardnum = 115
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3UU'
+color = characteristic(['U'])
+text = ['When Wrath of Marit Lage comes into play, tap all red creatures.', "Red creatures don't untap during their controllers' untap steps."]
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

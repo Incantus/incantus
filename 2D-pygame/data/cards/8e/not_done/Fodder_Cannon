@@ -1,0 +1,20 @@
+name = 'Fodder Cannon'
+cardnum = 302
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '4'
+color = characteristic(['C'])
+text = ['4, T, Sacrifice a creature: Fodder Cannon deals 4 damage to target creature.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

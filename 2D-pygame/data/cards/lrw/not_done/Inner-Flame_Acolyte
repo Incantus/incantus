@@ -1,0 +1,20 @@
+name = 'Inner-Flame Acolyte'
+cardnum = 181
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental', 'Shaman'])
+cost = '1RR'
+color = characteristic(['R'])
+text = ['When Inner-Flame Acolyte comes into play, target creature gets +2/+0 and gains haste until end of turn.', 'Evoke R']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

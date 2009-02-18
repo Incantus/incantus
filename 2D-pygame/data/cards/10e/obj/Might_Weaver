@@ -1,0 +1,23 @@
+name = 'Might Weaver'
+cardnum = 278
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Wizard'])
+cost = '1G'
+color = characteristic(['G'])
+text = ['2: Target red or white creature gains trample until end of turn.']
+
+subrole = Creature(2, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, "2",
+                                target=Target(target_types=isCreature.with(lambda c: c.color=="R" or c.color=="W")),
+                                effects=GiveKeyword(trample, keyword="trample"))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

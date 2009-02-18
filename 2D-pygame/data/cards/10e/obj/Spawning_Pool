@@ -1,0 +1,31 @@
+name = 'Spawning Pool'
+cardnum = 358
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ['Spawning Pool comes into play tapped.', 'T Add B to your mana pool.', '1B: Spawning Pool becomes a 1/1 black Skeleton creature with "B: Regenerate this creature" until end of turn. It\'s still a land.']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('C'))]
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+new_role = Creature(1,1)
+role_info = {"type": "Creature", "subtypes": "Skeleton", "color": "B"}
+new_role.abilities = [ActivatedAbility(card, cost="B",
+                        target=Target(targeting="self"),
+                        effects=GiveKeyword(regenerate, keyword="regenerate"))
+]
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('B')),
+                          ActivatedAbility(card, cost="1B",
+                                target=Target(targeting="self"),
+                                effects=AddSubRole(new_role, role_info))
+]
+in_play_role.tapped = True
+
+#################################

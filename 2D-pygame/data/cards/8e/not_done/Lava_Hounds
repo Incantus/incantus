@@ -1,0 +1,20 @@
+name = 'Lava Hounds'
+cardnum = 198
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Hound'])
+cost = '2RR'
+color = characteristic(['R'])
+text = ['Haste', 'When Lava Hounds comes into play, it deals 4 damage to you.']
+
+subrole = Creature(4, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

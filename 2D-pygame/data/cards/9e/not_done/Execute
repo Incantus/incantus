@@ -1,0 +1,10 @@
+name = 'Execute'
+cardnum = 128
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2B'
+color = characteristic(['B'])
+text = ["Destroy target white creature. It can't be regenerated.", 'Draw a card.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

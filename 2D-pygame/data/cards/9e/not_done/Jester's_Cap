@@ -1,0 +1,20 @@
+name = "Jester's Cap"
+cardnum = 301
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '4'
+color = characteristic(['C'])
+text = ["2, T, Sacrifice Jester's Cap: Search target player's library for three cards and remove them from the game. Then that player shuffles his or her library."]
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

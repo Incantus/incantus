@@ -1,0 +1,20 @@
+name = 'Thoughtweft Trio'
+cardnum = 44
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Kithkin', 'Soldier'])
+cost = '2WW'
+color = characteristic(['W'])
+text = ['First strike, vigilance', 'Champion a Kithkin', 'Thoughtweft Trio can block any number of creatures.']
+
+subrole = Creature(5, 5)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

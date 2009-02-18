@@ -1,0 +1,20 @@
+name = 'Carrion Wall'
+cardnum = 121
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Wall'])
+cost = '1BB'
+color = characteristic(['B'])
+text = ['Defender', '1B: Regenerate Carrion Wall.']
+
+subrole = Creature(3, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

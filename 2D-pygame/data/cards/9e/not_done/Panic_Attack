@@ -1,0 +1,10 @@
+name = 'Panic Attack'
+cardnum = 207
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2R'
+color = characteristic(['R'])
+text = ["Up to three target creatures can't block this turn."]
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

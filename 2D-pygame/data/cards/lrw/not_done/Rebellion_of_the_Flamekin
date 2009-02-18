@@ -1,0 +1,20 @@
+name = 'Rebellion of the Flamekin'
+cardnum = 188
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental'])
+cost = '3R'
+color = characteristic(['R'])
+text = ['Whenever you clash, you may pay 1. If you do, put a 3/1 red Elemental Shaman creature token into play. If you won, that token gains haste until end of turn.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

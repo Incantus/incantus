@@ -1,0 +1,20 @@
+name = 'Spellstutter Sprite'
+cardnum = 89
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Faerie', 'Wizard'])
+cost = '1U'
+color = characteristic(['U'])
+text = ['Flash', 'Flying', 'When Spellstutter Sprite comes into play, counter target spell with converted mana cost X or less, where X is the number of Faeries you control.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,21 @@
+name = 'Doran, the Siege Tower'
+cardnum = 247
+type = characteristic('Creature')
+supertype = characteristic('Legendary')
+subtypes = characteristic(['Treefolk', 'Shaman'])
+cost = 'BGW'
+color = characteristic(['G', 'B', 'W'])
+text = ['Each creature assigns combat damage equal to its toughness rather than its power.']
+
+subrole = Creature(0, 5)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = [GlobalStaticAbility(card,
+                                        effects=OverrideGlobal(lambda self: self.toughness, "combatDamage", Creature, combiner=last_only, expire=False)),]
+
+#################################

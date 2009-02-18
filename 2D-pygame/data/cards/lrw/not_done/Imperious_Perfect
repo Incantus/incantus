@@ -1,0 +1,20 @@
+name = 'Imperious Perfect'
+cardnum = 220
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf', 'Warrior'])
+cost = '2G'
+color = characteristic(['G'])
+text = ['Other Elf creatures you control get +1/+1.', 'G, T Put a 1/1 green Elf Warrior creature token into play.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

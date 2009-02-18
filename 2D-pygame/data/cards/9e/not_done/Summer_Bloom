@@ -1,0 +1,10 @@
+name = 'Summer Bloom'
+cardnum = 273
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1G'
+color = characteristic(['G'])
+text = ['You may play up to three additional lands this turn.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

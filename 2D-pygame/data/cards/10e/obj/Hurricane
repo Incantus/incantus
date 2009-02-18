@@ -1,0 +1,15 @@
+name = 'Hurricane'
+cardnum = 270
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'XG'
+color = characteristic(['G'])
+text = ['Hurricane deals X damage to each creature with flying and each player.']
+
+mc = ManaCost(cost)
+out_play_role.abilities = [CastNonPermanentSpell(card, mc,
+                                #target=[AllPlayerTargets(), AllPermanentTargets(target_types=isCreature.with(lambda c: "flying" in c.keywords))],
+                                target=[AllPlayerTargets(), AllPermanentTargets(target_types=isCreature)],
+                                effects=[ForEach(DealDamage(mc.X)), ForEach(DealDamage(mc.X))])
+]

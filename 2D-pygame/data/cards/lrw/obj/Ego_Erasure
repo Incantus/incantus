@@ -1,0 +1,15 @@
+name = 'Ego Erasure'
+cardnum = 59
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic(['Shapeshifter'])
+cost = '2U'
+color = characteristic(['U'])
+text = ['Changeling', 'Creatures target player controls get -2/-0 and lose all creature types until end of turn.']
+
+changeling(out_play_role, card)
+target = Target(target_types=isPlayer)
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+				target = [target, AllPermanentTargets(target_types=isCreature.with(lambda c, t=target: c.controller == t.target))],
+				effects= [NullEffect(), ForEach(MultipleEffects([AugmentPowerToughness(-2,0),ModifySubType(no_characteristic())]))],)
+]

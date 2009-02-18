@@ -1,0 +1,20 @@
+name = 'Dawnfluke'
+cardnum = 12
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental'])
+cost = '3W'
+color = characteristic(['W'])
+text = ['Flash', 'When Dawnfluke comes into play, prevent the next 3 damage that would be dealt to target creature or player this turn.', 'Evoke W']
+
+subrole = Creature(0, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

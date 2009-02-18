@@ -1,0 +1,20 @@
+name = 'Sabretooth Tiger'
+cardnum = 217
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Cat'])
+cost = '2R'
+color = characteristic(['R'])
+text = ['First strike']
+
+subrole = Creature(2, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,20 @@
+name = 'Sanctum Guardian'
+cardnum = 40
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Cleric'])
+cost = '1WW'
+color = characteristic(['W'])
+text = ['Sacrifice Sanctum Guardian: The next time a source of your choice would deal damage to target creature or player this turn, prevent that damage.']
+
+subrole = Creature(1, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

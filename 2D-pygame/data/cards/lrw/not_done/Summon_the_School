@@ -1,0 +1,10 @@
+name = 'Summon the School'
+cardnum = 42
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic(['Merfolk'])
+cost = '3W'
+color = characteristic(['W'])
+text = ['Put two 1/1 blue Merfolk Wizard creature tokens into play.', 'Tap four untapped Merfolk you control: Return Summon the School from your graveyard to your hand.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

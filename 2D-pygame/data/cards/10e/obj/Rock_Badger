@@ -1,0 +1,21 @@
+name = 'Rock Badger'
+cardnum = 226
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Badger', 'Beast'])
+cost = '4R'
+color = characteristic(['R'])
+text = ['Mountainwalk']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+mountainwalk(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

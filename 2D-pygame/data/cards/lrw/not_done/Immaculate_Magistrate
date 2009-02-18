@@ -1,0 +1,20 @@
+name = 'Immaculate Magistrate'
+cardnum = 219
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf', 'Shaman'])
+cost = '3G'
+color = characteristic(['G'])
+text = ['T Put a +1/+1 counter on target creature for each Elf you control.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

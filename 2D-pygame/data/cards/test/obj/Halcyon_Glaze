@@ -1,0 +1,24 @@
+name = 'Halcyon Glaze'
+cardnum = 54
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1UU'
+color = characteristic(['U'])
+text = ["Whenever you play a creature spell, Halcyon Glaze becomes a 4/4 Illusion creature with flying until end of turn. It's still an enchantment."]
+
+subrole = Enchantment()
+in_play_role = Permanent(card, subrole)
+
+subrole.abilities = []
+
+new_role = Creature(4,4)
+flying(new_role)
+role_info = {"type": "Creature", "subtypes": "Illusion"}
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                      trigger=CardTrigger(event=PlaySpellEvent()),
+                                      match_condition=lambda card, self=card: card.controller == self.controller and isCreatureType(card) and not isCreature(self),
+                                      ability=Ability(card, target=Target(targeting="self"),
+                                                 effects=AddSubRole(new_role, role_info)))
+]
+

@@ -1,0 +1,10 @@
+name = 'Lash Out'
+cardnum = 183
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1R'
+color = characteristic(['R'])
+text = ["Lash Out deals 3 damage to target creature. Clash with an opponent. If you win, Lash Out deals 3 damage to that creature's controller."]
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

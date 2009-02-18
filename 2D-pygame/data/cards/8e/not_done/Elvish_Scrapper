@@ -1,0 +1,20 @@
+name = 'Elvish Scrapper'
+cardnum = 245
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf'])
+cost = 'G'
+color = characteristic(['G'])
+text = ['G, T, Sacrifice Elvish Scrapper: Destroy target artifact.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,23 @@
+name = 'Horseshoe Crab'
+cardnum = 87
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Crab'])
+cost = '2U'
+color = characteristic(['U'])
+text = ['U: Untap Horseshoe Crab.']
+
+subrole = Creature(1, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, "U", 
+                                target=Target(targeting="self"),
+                                effects=UntapTargetPermanent())
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

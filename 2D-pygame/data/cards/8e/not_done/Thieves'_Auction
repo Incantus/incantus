@@ -1,0 +1,10 @@
+name = "Thieves' Auction"
+cardnum = 227
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '4RRR'
+color = characteristic(['R'])
+text = ['Set aside all nontoken permanents. Starting with you, each player chooses one of the cards set aside and puts it into play tapped under his or her control. Repeat this process until all those cards have been chosen.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

@@ -1,0 +1,22 @@
+name = 'Cloud Elemental'
+cardnum = 74
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental'])
+cost = '2U'
+color = characteristic(['U'])
+text = ['Flying', 'Cloud Elemental can block only creatures with flying.']
+
+subrole = Creature(2, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flying(subrole)
+only_block(subrole, "flying")
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

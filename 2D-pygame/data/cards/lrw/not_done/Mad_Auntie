@@ -1,0 +1,20 @@
+name = 'Mad Auntie'
+cardnum = 123
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin', 'Shaman'])
+cost = '2B'
+color = characteristic(['B'])
+text = ['Other Goblin creatures you control get +1/+1.', 'T Regenerate another target Goblin.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

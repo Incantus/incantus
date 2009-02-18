@@ -1,0 +1,34 @@
+name = 'Contaminated Bond'
+cardnum = 132
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic(['Aura'])
+cost = '1B'
+color = characteristic(['B'])
+text = ['Enchant creature', 'Whenever enchanted creature attacks or blocks, its controller loses 3 life.']
+
+target_type = isCreature
+out_play_role.abilities = [CastPermanentSpell(card, cost,
+                               target=Target(target_types=target_type),
+                               effects=AttachToPermanent())]
+subrole = Aura(target_type)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = Trigger(AttackerDeclaredEvent()),
+                                        match_condition = lambda sender, c=card: sender==c.attached_to,
+                                        ability = Ability(card, target=Target(targeting=lambda c=card: c.attached_to.controller),
+                                                    effects=ChangeLife(-3))),
+                                    TriggeredAbility(card,
+                                        trigger = Trigger(BlockerDeclaredEvent()),
+                                        match_condition = lambda sender, c=card: sender==c.attached_to,
+                                        ability = Ability(card, target=Target(targeting=lambda c=card: c.attached_to.controller),
+                                                    effects=ChangeLife(-3))),
+]
+subrole.static_abilities = []
+
+#################################

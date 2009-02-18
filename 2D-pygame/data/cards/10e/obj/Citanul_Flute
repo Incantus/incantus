@@ -1,0 +1,28 @@
+name = 'Citanul Flute'
+cardnum = 315
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '5'
+color = characteristic(['C'])
+text = ['X, T Search your library for a creature card with converted mana cost X or less, reveal it, and put it into your hand. Then shuffle your library.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+mc = ManaCost("X")
+subrole.abilities = [ActivatedAbility(card, MultipleCosts([mc, TapCost()]),
+                            target=Target(targeting="controller"),
+                            effects=[MoveTargetCards(from_zone="library", to_zone="hand",
+                                        number=1,
+                                        card_types=isCreatureType.with(lambda c, mc=mc: c.cost <= mc.X),
+                                        reveal=True),
+                                        ShuffleLibrary()])
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

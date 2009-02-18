@@ -1,0 +1,20 @@
+name = 'Rogue Kavu'
+cardnum = 213
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Kavu'])
+cost = '1R'
+color = characteristic(['R'])
+text = ['Whenever Rogue Kavu attacks alone, it gets +2/+0 until end of turn.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

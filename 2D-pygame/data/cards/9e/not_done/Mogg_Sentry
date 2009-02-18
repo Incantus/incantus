@@ -1,0 +1,20 @@
+name = 'Mogg Sentry'
+cardnum = 204
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin', 'Warrior'])
+cost = 'R'
+color = characteristic(['R'])
+text = ['Whenever an opponent plays a spell, Mogg Sentry gets +2/+2 until end of turn.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

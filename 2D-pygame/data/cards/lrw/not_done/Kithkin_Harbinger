@@ -1,0 +1,20 @@
+name = 'Kithkin Harbinger'
+cardnum = 26
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Kithkin', 'Wizard'])
+cost = '2W'
+color = characteristic(['W'])
+text = ['When Kithkin Harbinger comes into play, you may search your library for a Kithkin card, reveal it, then shuffle your library and put that card on top of it.']
+
+subrole = Creature(1, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

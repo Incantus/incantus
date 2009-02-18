@@ -1,0 +1,20 @@
+name = 'Deathgazer'
+cardnum = 124
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Lizard'])
+cost = '3B'
+color = characteristic(['B'])
+text = ['Whenever Deathgazer blocks or becomes blocked by a nonblack creature, destroy that creature at end of combat.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

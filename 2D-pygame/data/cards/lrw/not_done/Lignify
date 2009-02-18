@@ -1,0 +1,25 @@
+name = 'Lignify'
+cardnum = 228
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic(['Treefolk', 'Aura'])
+cost = '1G'
+color = characteristic(['G'])
+text = ['Enchant creature', 'Enchanted creature is a 0/4 Treefolk with no abilities.']
+
+out_play_role.abilities = [EnchantCreature(cost)]
+target_type = isCreature
+out_play_role.abilities = [CastPermanentSpell(card, cost,
+                               target=Target(target_types=target_type),
+                               effects=AttachToPermanent())]
+subrole = Aura(target_type)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

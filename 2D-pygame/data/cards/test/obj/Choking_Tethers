@@ -1,0 +1,15 @@
+name = 'Choking Tethers'
+cardnum = 74
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3U'
+color = characteristic(['U'])
+text = ['Tap up to four target creatures.', 'Cycling 1U', 'When you cycle Choking Tethers, you may tap target creature.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+				target=MultipleTargets(number=4, target_types=isCreature, exact=False),
+				effects=ForEach(TapTargetPermanent())),
+			   Cycling(card, "1U", triggered=Ability(card, target=Target(target_types=isCreature),
+						   effects=TapTargetPermanent()))
+]

@@ -1,0 +1,20 @@
+name = 'Sylvan Echoes'
+cardnum = 237
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'G'
+color = characteristic(['G'])
+text = ['Whenever you clash and win, you may draw a card.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

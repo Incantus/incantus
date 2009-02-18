@@ -1,0 +1,10 @@
+name = 'Enrage'
+cardnum = 180
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'XR'
+color = characteristic(['R'])
+text = ['Target creature gets +X/+0 until end of turn.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

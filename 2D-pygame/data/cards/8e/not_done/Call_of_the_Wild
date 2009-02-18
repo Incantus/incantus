@@ -1,0 +1,20 @@
+name = 'Call of the Wild'
+cardnum = 235
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2GG'
+color = characteristic(['G'])
+text = ["2GG: Reveal the top card of your library. If it's a creature card, put it into play. Otherwise, put it into your graveyard."]
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

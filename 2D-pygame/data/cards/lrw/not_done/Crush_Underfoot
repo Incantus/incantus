@@ -1,0 +1,10 @@
+name = 'Crush Underfoot'
+cardnum = 162
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic(['Giant'])
+cost = '1R'
+color = characteristic(['R'])
+text = ['Choose a Giant creature you control. It deals damage equal to its power to target creature.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

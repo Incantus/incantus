@@ -1,0 +1,27 @@
+name = 'Holy Strength'
+cardnum = 22
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic(['Aura'])
+cost = 'W'
+color = characteristic(['W'])
+text = ['Enchant creature', 'Enchanted creature gets +1/+2.']
+
+target_type = isCreature
+out_play_role.abilities = [CastPermanentSpell(card, cost,
+                               target=Target(target_types=target_type),
+                               effects=AttachToPermanent())]
+subrole = Aura(target_type)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+subrole.attached_abilities = [AuraStaticAbility(card,
+                                        effects=AugmentPowerToughness(power=1,toughness=2,expire=False)),
+]
+
+#################################

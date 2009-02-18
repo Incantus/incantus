@@ -1,0 +1,20 @@
+name = 'Oaken Brawler'
+cardnum = 33
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Treefolk', 'Warrior'])
+cost = '3W'
+color = characteristic(['W'])
+text = ['When Oaken Brawler comes into play, clash with an opponent. If you win, put a +1/+1 counter on Oaken Brawler.']
+
+subrole = Creature(2, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

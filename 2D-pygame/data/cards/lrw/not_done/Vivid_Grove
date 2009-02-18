@@ -1,0 +1,19 @@
+name = 'Vivid Grove'
+cardnum = 277
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ['Vivid Grove comes into play tapped with two charge counters on it.', 'T Add G to your mana pool.', 'T, Remove a charge counter from Vivid Grove: Add one mana of any color to your mana pool.']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('C'))]
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+
+#################################

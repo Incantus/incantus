@@ -1,0 +1,20 @@
+name = 'Blood Moon'
+cardnum = 176
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2R'
+color = characteristic(['R'])
+text = ['Nonbasic lands are Mountains.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

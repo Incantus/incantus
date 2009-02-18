@@ -1,0 +1,20 @@
+name = 'Imaginary Pet'
+cardnum = 82
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Illusion'])
+cost = '1U'
+color = characteristic(['U'])
+text = ["At the beginning of your upkeep, if you have a card in hand, return Imaginary Pet to its owner's hand."]
+
+subrole = Creature(4, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

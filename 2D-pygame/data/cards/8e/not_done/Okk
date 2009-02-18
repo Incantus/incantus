@@ -1,0 +1,20 @@
+name = 'Okk'
+cardnum = 206
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin'])
+cost = '1R'
+color = characteristic(['R'])
+text = ["Okk can't attack unless a creature with greater power also attacks.", "Okk can't block unless a creature with greater power also blocks."]
+
+subrole = Creature(4, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

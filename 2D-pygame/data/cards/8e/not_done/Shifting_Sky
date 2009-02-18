@@ -1,0 +1,20 @@
+name = 'Shifting Sky'
+cardnum = 100
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2U'
+color = characteristic(['U'])
+text = ['As Shifting Sky comes into play, choose a color.', 'All nonland permanents are the chosen color.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

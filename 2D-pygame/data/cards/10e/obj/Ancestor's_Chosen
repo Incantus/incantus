@@ -1,0 +1,25 @@
+name = "Ancestor's Chosen"
+cardnum = 1
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Cleric'])
+cost = '5WW'
+color = characteristic(['W'])
+text = ['First strike', "When Ancestor's Chosen comes into play, you gain 1 life for each card in your graveyard."]
+
+subrole = Creature(4, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+first_strike(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger=EnterTrigger("play"),
+                                        match_condition=SelfMatch(card),
+                                        ability=Ability(card, target=Target(targeting="controller"),
+                                                effects=ChangeLife(lambda l,c=card: l+len(c.controller.graveyard))))]
+subrole.static_abilities = []
+
+#################################

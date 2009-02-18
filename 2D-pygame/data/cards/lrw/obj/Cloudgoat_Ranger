@@ -1,0 +1,29 @@
+name = 'Cloudgoat Ranger'
+cardnum = 10
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Giant', 'Warrior'])
+cost = '3WW'
+color = characteristic(['W'])
+text = ['When Cloudgoat Ranger comes into play, put three 1/1 white Kithkin Soldier creature tokens into play.', 'Tap three untapped Kithkin you control: Cloudgoat Ranger gets +2/+0 and gains flying until end of turn.']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, TapCost(cardtype=isCreature.with(lambda c: c.subtypes == "Kithkin"), number=3),
+                        target=Target(targeting="self"),
+			effects=[AugmentPowerToughness(2,0),GiveKeyword(flying, keyword="flying")])
+]
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                      trigger = EnterTrigger("play"),
+                                      match_condition=SelfMatch(card),
+                                      ability=Ability(card,
+                                                target=Target(targeting="controller"),
+                                                effects=ForN(3, CreateToken({"name":"Kithkin Soldier", "type":"Creature", "color":"W", "subtypes":["Kithkin", "Soldier"], "role": TokenCreature(1,1)}))))
+]
+subrole.static_abilities = []
+
+#################################

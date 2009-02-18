@@ -1,0 +1,20 @@
+name = 'Phyrexian Gargantua'
+cardnum = 153
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Horror'])
+cost = '4BB'
+color = characteristic(['B'])
+text = ['When Phyrexian Gargantua comes into play, you draw two cards and you lose 2 life.']
+
+subrole = Creature(4, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

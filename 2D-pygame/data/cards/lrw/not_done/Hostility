@@ -1,0 +1,20 @@
+name = 'Hostility'
+cardnum = 176
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental', 'Incarnation'])
+cost = '3RRR'
+color = characteristic(['R'])
+text = ['Haste', 'If a spell you control would deal damage to an opponent, prevent that damage. Put a 3/1 red Elemental Shaman creature token with haste into play for each 1 damage prevented this way.', "When Hostility is put into a graveyard from anywhere, shuffle it into its owner's library."]
+
+subrole = Creature(6, 6)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

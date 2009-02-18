@@ -1,0 +1,383 @@
+1	Ancestor's Chosen
+2	Angel of Mercy
+3	Angelic Blessing
+4	Angelic Chorus
+5	Angelic Wall
+6	Aura of Silence
+7	Aven Cloudchaser
+8	Ballista Squad
+9	Bandage
+10	Beacon of Immortality
+11	Benalish Knight
+12	Cho-Manno, Revolutionary
+13	Condemn
+14	Demystify
+15	Field Marshal
+16	Ghost Warden
+17	Glorious Anthem
+18	Hail of Arrows
+19	Heart of Light
+20	High Ground
+21	Holy Day
+22	Holy Strength
+23	Honor Guard
+24	Icatian Priest
+25	Kjeldoran Royal Guard
+26	Loxodon Mystic
+27	Loyal Sentry
+28	Luminesce
+29	Mobilization
+30	Nomad Mythmaker
+31	Pacifism
+32	Paladin en-Vec
+33	Pariah
+34	Reviving Dose
+35	Reya Dawnbringer
+36	Righteousness
+37	Rule of Law
+38	Samite Healer
+39	Serra Angel
+40	Serra's Embrace
+41	Skyhunter Patrol
+42	Skyhunter Prowler
+43	Skyhunter Skirmisher
+44	Soul Warden
+45	Spirit Link
+46	Spirit Weaver
+47	Starlight Invoker
+48	Steadfast Guard
+49	Story Circle
+50	Suntail Hawk
+51	Tempest of Light
+52	Treasure Hunter
+53	True Believer
+54	Tundra Wolves
+55	Venerable Monk
+56	Voice of All
+57	Wall of Swords
+58	Warrior's Honor
+59	Wild Griffin
+60	Windborn Muse
+61	Wrath of God
+62	Youthful Knight
+63	Academy Researchers
+64	Air Elemental
+65	Ambassador Laquatus
+66	Arcanis the Omnipotent
+67	Aura Graft
+68	Aven Fisher
+69	Aven Windreader
+70	Boomerang
+71	Cancel
+72	Cephalid Constable
+73	Clone
+74	Cloud Elemental
+75	Cloud Sprite
+76	Counsel of the Soratami
+77	Crafty Pathmage
+78	Dehydration
+79	Deluge
+80	Denizen of the Deep
+81	Discombobulate
+82	Dreamborn Muse
+83	Evacuation
+84	Flashfreeze
+85	Fog Elemental
+86	Fugitive Wizard
+87	Horseshoe Crab
+88	Hurkyl's Recall
+89	Lumengrid Warden
+90	Mahamoti Djinn
+91	March of the Machines
+92	Merfolk Looter
+93	Mind Bend
+94	Peek
+95	Persuasion
+96	Phantom Warrior
+97	Plagiarize
+98	Puppeteer
+99	Reminisce
+100	Remove Soul
+101	Robe of Mirrors
+102	Rootwater Commando
+103	Rootwater Matriarch
+104	Sage Owl
+105	Scalpelexis
+106	Sea Monster
+107	Shimmering Wings
+108	Sift
+109	Sky Weaver
+110	Snapping Drake
+111	Spiketail Hatchling
+112	Sunken Hope
+113	Telepathy
+114	Telling Time
+115	Thieving Magpie
+116	Tidings
+117	Time Stop
+118	Time Stretch
+119	Traumatize
+120	Twincast
+121	Twitch
+122	Unsummon
+123	Vedalken Mastermind
+124	Wall of Air
+125	Afflict
+126	Agonizing Memories
+127	Ascendant Evincar
+128	Assassinate
+129	Beacon of Unrest
+130	Bog Wraith
+131	Consume Spirit
+132	Contaminated Bond
+133	Cruel Edict
+134	Deathmark
+135	Diabolic Tutor
+136	Distress
+137	Doomed Necromancer
+138	Dross Crocodile
+139	Drudge Skeletons
+140	Dusk Imp
+141	Essence Drain
+142	Fear
+143	Festering Goblin
+144	Grave Pact
+145	Graveborn Muse
+146	Gravedigger
+147	Hate Weaver
+148	Head Games
+149	Hidden Horror
+150	Highway Robber
+151	Hypnotic Specter
+152	Knight of Dusk
+153	Looming Shade
+154	Lord of the Pit
+155	Lord of the Undead
+156	Mass of Ghouls
+157	Megrim
+158	Midnight Ritual
+159	Mind Rot
+160	Mortal Combat
+161	Mortivore
+162	Nantuko Husk
+163	Nekrataal
+164	Nightmare
+165	No Rest for the Wicked
+166	Phage the Untouchable
+167	Phyrexian Rager
+168	Plague Beetle
+169	Plague Wind
+170	Rain of Tears
+171	Ravenous Rats
+172	Recover
+173	Relentless Rats
+174	Royal Assassin
+175	Scathe Zombies
+176	Sengir Vampire
+177	Severed Legion
+178	Sleeper Agent
+179	Soul Feast
+180	Spineless Thug
+181	Stronghold Discipline
+182	Terror
+183	Thrull Surgeon
+184	Underworld Dreams
+185	Unholy Strength
+186	Vampire Bats
+187	Anaba Bodyguard
+188	Arcane Teachings
+189	Beacon of Destruction
+190	Blaze
+191	Bloodfire Colossus
+192	Bloodrock Cyclops
+193	Bogardan Firefiend
+194	Cone of Flame
+195	Cryoclasm
+196	Demolish
+197	Dragon Roost
+198	Duct Crawler
+199	Earth Elemental
+200	Firebreathing
+201	Fists of the Anvil
+202	Flamewave Invoker
+203	Flowstone Slide
+204	Furnace of Rath
+205	Furnace Whelp
+206	Goblin Elite Infantry
+207	Goblin King
+208	Goblin Lore
+209	Goblin Piker
+210	Goblin Sky Raider
+211	Guerrilla Tactics
+212	Hill Giant
+213	Incinerate
+214	Kamahl, Pit Fighter
+215	Lava Axe
+216	Lavaborn Muse
+217	Lightning Elemental
+218	Manabarbs
+219	Mogg Fanatic
+220	Orcish Artillery
+221	Prodigal Pyromancer
+222	Pyroclasm
+223	Rage Weaver
+224	Raging Goblin
+225	Relentless Assault
+226	Rock Badger
+227	Scoria Wurm
+228	Seismic Assault
+229	Shatterstorm
+230	Shivan Dragon
+231	Shivan Hellkite
+232	Shock
+233	Shunt
+234	Siege-Gang Commander
+235	Smash
+236	Soulblast
+237	Spark Elemental
+238	Spitting Earth
+239	Squee, Goblin Nabob
+240	Stun
+241	Sudden Impact
+242	Threaten
+243	Thundering Giant
+244	Uncontrollable Anger
+245	Viashino Runner
+246	Viashino Sandscout
+247	Wall of Fire
+248	Warp World
+249	Abundance
+250	Aggressive Urge
+251	Avatar of Might
+252	Birds of Paradise
+253	Blanchwood Armor
+254	Canopy Spider
+255	Civic Wayfinder
+256	Commune with Nature
+257	Craw Wurm
+258	Creeping Mold
+259	Elven Riders
+260	Elvish Berserker
+261	Elvish Champion
+262	Elvish Piper
+263	Enormous Baloth
+264	Femeref Archers
+265	Gaea's Herald
+266	Giant Growth
+267	Giant Spider
+268	Grizzly Bears
+269	Hunted Wumpus
+270	Hurricane
+271	Joiner Adept
+272	Karplusan Strider
+273	Kavu Climber
+274	Llanowar Elves
+275	Llanowar Sentinel
+276	Lure
+277	Might of Oaks
+278	Might Weaver
+279	Mirri, Cat Warrior
+280	Molimo, Maro-Sorcerer
+281	Natural Spring
+282	Naturalize
+283	Overgrowth
+284	Overrun
+285	Pincher Beetles
+286	Primal Rage
+287	Quirion Dryad
+288	Rampant Growth
+289	Recollect
+290	Regeneration
+291	Rhox
+292	Root Maze
+293	Rootwalla
+294	Rushwood Dryad
+295	Scion of the Wild
+296	Seedborn Muse
+297	Skyshroud Ranger
+298	Spined Wurm
+299	Stalking Tiger
+300	Stampeding Wildebeests
+301	Sylvan Basilisk
+302	Sylvan Scrying
+303	Tangle Spider
+304	Treetop Bracers
+305	Troll Ascetic
+306	Upwelling
+307	Verdant Force
+308	Viridian Shaman
+309	Wall of Wood
+310	Yavimaya Enchantress
+311	Angel's Feather
+312	Bottle Gnomes
+313	Chimeric Staff
+314	Chromatic Star
+315	Citanul Flute
+316	Coat of Arms
+317	Colossus of Sardia
+318	Composite Golem
+319	Crucible of Worlds
+320	Demon's Horn
+321	Doubling Cube
+322	Dragon's Claw
+323	Fountain of Youth
+324	The Hive
+325	Howling Mine
+326	Icy Manipulator
+327	Jayemdae Tome
+328	Juggernaut
+329	Kraken's Eye
+330	Legacy Weapon
+331	Leonin Scimitar
+332	Loxodon Warhammer
+333	Mantis Engine
+334	Millstone
+335	Mind Stone
+336	Ornithopter
+337	Phyrexian Vault
+338	Pithing Needle
+339	Platinum Angel
+340	Razormane Masticore
+341	Rod of Ruin
+342	Sculpting Steel
+343	Spellbook
+344	Steel Golem
+345	Whispersilk Cloak
+346	Wurm's Tooth
+347	Adarkar Wastes
+348	Battlefield Forge
+349	Brushland
+350	Caves of Koilos
+351	Faerie Conclave
+352	Forbidding Watchtower
+353	Ghitu Encampment
+354	Karplusan Forest
+355	Llanowar Wastes
+356	Quicksand
+357	Shivan Reef
+358	Spawning Pool
+359	Sulfurous Springs
+360	Terramorphic Expanse
+361	Treetop Village
+362	Underground River
+363	Yavimaya Coast
+364	Plains
+365	Plains
+366	Plains
+367	Plains
+368	Island
+369	Island
+370	Island
+371	Island
+372	Swamp
+373	Swamp
+374	Swamp
+375	Swamp
+376	Mountain
+377	Mountain
+378	Mountain
+379	Mountain
+380	Forest
+381	Forest
+382	Forest
+383	Forest

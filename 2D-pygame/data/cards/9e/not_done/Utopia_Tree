@@ -1,0 +1,20 @@
+name = 'Utopia Tree'
+cardnum = 277
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Plant'])
+cost = '1G'
+color = characteristic(['G'])
+text = ['T Add one mana of any color to your mana pool.']
+
+subrole = Creature(0, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

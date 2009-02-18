@@ -1,0 +1,25 @@
+name = 'March of the Machines'
+cardnum = 91
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3U'
+color = characteristic(['U'])
+text = ['Each noncreature artifact is an artifact creature with power and toughness each equal to its converted mana cost.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+# XXX Doesn't give the correct power/toughness
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = [PermanentTrackingAbility(card,
+                                        enter_condition = isArtifact.with(lambda a: not a.type == "Creature"),
+                                        leave_condition = isArtifact.with(lambda a: not a.type == "Creature"),
+                                        effects = AddSubRole(Creature(1,1), {"type": "Creature"})),
+]
+
+#################################

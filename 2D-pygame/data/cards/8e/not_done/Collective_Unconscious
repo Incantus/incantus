@@ -1,0 +1,10 @@
+name = 'Collective Unconscious'
+cardnum = 238
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '4GG'
+color = characteristic(['G'])
+text = ['Draw a card for each creature you control.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

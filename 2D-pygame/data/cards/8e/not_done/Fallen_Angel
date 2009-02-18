@@ -1,0 +1,20 @@
+name = 'Fallen Angel'
+cardnum = 133
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Angel'])
+cost = '3BB'
+color = characteristic(['B'])
+text = ['Flying', 'Sacrifice a creature: Fallen Angel gets +2/+1 until end of turn.']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

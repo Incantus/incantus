@@ -1,0 +1,10 @@
+name = 'Mind Sludge'
+cardnum = 146
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '4B'
+color = characteristic(['B'])
+text = ['Target player discards a card for each Swamp you control.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

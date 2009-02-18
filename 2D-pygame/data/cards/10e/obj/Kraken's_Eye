@@ -1,0 +1,24 @@
+name = "Kraken's Eye"
+cardnum = 329
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2'
+color = characteristic(['C'])
+text = ['Whenever a player plays a blue spell, you may gain 1 life.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = CardTrigger(event=PlaySpellEvent()),
+                                        match_condition = CardMatch(lambda card: card.color == "U"),
+                                        ability = ChoiceAbility(card, effects = ChangeLife(1)))
+]
+subrole.static_abilities = []
+
+#################################

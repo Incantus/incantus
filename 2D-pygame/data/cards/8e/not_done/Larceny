@@ -1,0 +1,20 @@
+name = 'Larceny'
+cardnum = 139
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3BB'
+color = characteristic(['B'])
+text = ['Whenever a creature you control deals combat damage to a player, that player discards a card.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

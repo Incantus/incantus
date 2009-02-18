@@ -1,0 +1,27 @@
+name = 'Ghitu Encampment'
+cardnum = 353
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ['Ghitu Encampment comes into play tapped.', 'T Add R to your mana pool.', "1R: Ghitu Encampment becomes a 2/1 red Warrior creature with first strike until end of turn. It's still a land."]
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+new_role = Creature(2,1)
+first_strike(new_role)
+role_info = {"type": "Creature", "subtypes": "Warrior", "color": "R"}
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('R')),
+                     ActivatedAbility(card, cost="1R",
+                            target=Target(targeting="self"),
+                            effects=AddSubRole(new_role, role_info))
+]
+in_play_role.tapped = True
+
+#################################

@@ -1,0 +1,31 @@
+name = 'Aven Riftwatcher'
+cardnum = 251
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Bird', 'Rebel', 'Soldier'])
+cost = '2W'
+color = characteristic(['W'])
+text = ['Flying', 'Vanishing 3', 'When Aven Fisher comes into play or leaves play, you gain 2 life']
+
+subrole = Creature(2, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flying(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+					trigger=EnterTrigger(zone="play"),
+					match_condition=SelfMatch(card),
+					ability = Ability(card, effects=ChangeLife(2))),
+			       TriggeredAbility(card,
+					trigger=LeaveTrigger(zone="play"),
+					match_condition=SelfMatch(card),
+					ability = Ability(card, effects=ChangeLife(2))),
+]
+subrole.static_abilities = []
+
+vanishing(subrole, card, number=3)
+
+#################################

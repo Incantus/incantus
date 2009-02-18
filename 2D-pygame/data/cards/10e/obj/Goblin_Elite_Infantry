@@ -1,0 +1,30 @@
+name = 'Goblin Elite Infantry'
+cardnum = 206
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin', 'Warrior'])
+cost = '1R'
+color = characteristic(['R'])
+text = ['Whenever Goblin Elite Infantry blocks or becomes blocked, it gets -1/-1 until end of turn.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = Trigger(AttackerBlockedEvent()),
+                                        match_condition = SelfMatch(card),
+                                        ability = Ability(card, target=Target(targeting="self"),
+                                                        effects=AugmentPowerToughness(power=-1, toughness=-1))),
+                                    TriggeredAbility(card,
+                                        trigger = Trigger(BlockerDeclaredEvent()),
+                                        match_condition = SelfMatch(card),
+                                        ability = Ability(card, target=Target(targeting="self"),
+                                                        effects=AugmentPowerToughness(power=-1, toughness=-1))),
+]
+subrole.static_abilities = []
+
+#################################

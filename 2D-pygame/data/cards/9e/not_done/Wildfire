@@ -1,0 +1,10 @@
+name = 'Wildfire'
+cardnum = 228
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '4RR'
+color = characteristic(['R'])
+text = ['Each player sacrifices four lands. Wildfire deals 4 damage to each creature.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

@@ -1,0 +1,15 @@
+name = 'Stronghold Discipline'
+cardnum = 181
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2BB'
+color = characteristic(['B'])
+text = ['Each player loses 1 life for each creature he or she controls.']
+
+num_creatures_self = lambda life, c=card: life-len(c.controller.play.get(isCreature))
+num_creatures_other = lambda life, c=card: life-len(c.controller.opponent.play.get(isCreature))
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+                                target=[Target(targeting="controller"), Target(targeting="opponent")],
+                                effects=[ChangeLife(num_creatures_self), ChangeLife(num_creatures_other)])
+]

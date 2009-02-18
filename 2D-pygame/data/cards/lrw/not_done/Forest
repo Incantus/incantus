@@ -1,0 +1,19 @@
+name = 'Forest'
+cardnum = 299
+type = characteristic('Land')
+supertype = characteristic('Basic')
+subtypes = characteristic(['Forest'])
+cost = ''
+color = characteristic(['G'])
+text = ['[G]']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('G'))]
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+
+#################################

@@ -1,0 +1,24 @@
+name = 'Skyshroud Ranger'
+cardnum = 297
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf'])
+cost = 'G'
+color = characteristic(['G'])
+text = ['T You may put a land card from your hand into play. Play this ability only any time you could play a sorcery.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, TapCost(),
+                                target=Target(targeting="controller"),
+                                effects=MoveTargetCards(from_zone="hand", to_zone="play", card_types=isLandType, number=1),
+                                limit=SorceryLimit(card))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

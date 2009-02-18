@@ -1,0 +1,20 @@
+name = 'Coastal Hornclaw'
+cardnum = 66
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Bird'])
+cost = '4U'
+color = characteristic(['U'])
+text = ['Sacrifice a land: Coastal Hornclaw gains flying until end of turn.']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

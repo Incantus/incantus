@@ -1,0 +1,20 @@
+name = 'Serpent Warrior'
+cardnum = 162
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Snake', 'Warrior'])
+cost = '2B'
+color = characteristic(['B'])
+text = ['When Serpent Warrior comes into play, you lose 3 life.']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

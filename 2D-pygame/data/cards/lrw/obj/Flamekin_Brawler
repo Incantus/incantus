@@ -1,0 +1,23 @@
+name = 'Flamekin Brawler'
+cardnum = 166
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental', 'Warrior'])
+cost = 'R'
+color = characteristic(['R'])
+text = ['R: Flamekin Brawler gets +1/+0 until end of turn.']
+
+subrole = Creature(0, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, "R",
+			target=Target(targeting="self"),
+			effects=AugmentPowerToughness(1,0))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

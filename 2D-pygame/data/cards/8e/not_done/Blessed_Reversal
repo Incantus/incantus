@@ -1,0 +1,10 @@
+name = 'Blessed Reversal'
+cardnum = 7
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1W'
+color = characteristic(['W'])
+text = ['You gain 3 life for each creature attacking you.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

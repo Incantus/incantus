@@ -1,0 +1,10 @@
+name = 'Profane Command'
+cardnum = 135
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'XBB'
+color = characteristic(['B'])
+text = ['Choose two - Target player loses X life; or return target creature card with converted mana cost X or less from your graveyard to play; or target creature gets -X/-X until end of turn; or up to X target creatures gain fear until end of turn.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

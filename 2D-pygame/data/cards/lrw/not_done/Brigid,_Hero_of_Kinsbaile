@@ -1,0 +1,20 @@
+name = 'Brigid, Hero of Kinsbaile'
+cardnum = 6
+type = characteristic('Creature')
+supertype = characteristic('Legendary')
+subtypes = characteristic(['Kithkin', 'Archer'])
+cost = '2WW'
+color = characteristic(['W'])
+text = ['First strike', 'T Brigid, Hero of Kinsbaile deals 2 damage to each attacking or blocking creature target player controls.']
+
+subrole = Creature(2, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,20 @@
+name = 'Death Pits of Rath'
+cardnum = 123
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3BB'
+color = characteristic(['B'])
+text = ["Whenever a creature is dealt damage, destroy it. It can't be regenerated."]
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,21 @@
+name = 'Raging Goblin'
+cardnum = 224
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin', 'Berserker'])
+cost = 'R'
+color = characteristic(['R'])
+text = ['Haste']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+haste(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

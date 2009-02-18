@@ -1,0 +1,20 @@
+name = 'Battle of Wits'
+cardnum = 65
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3UU'
+color = characteristic(['U'])
+text = ['At the beginning of your upkeep, if you have 200 or more cards in your library, you win the game.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

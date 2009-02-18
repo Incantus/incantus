@@ -1,0 +1,25 @@
+name = 'Viashino Sandscout'
+cardnum = 246
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Viashino', 'Scout'])
+cost = '1R'
+color = characteristic(['R'])
+text = ['Haste', "At end of turn, return Viashino Sandscout to its owner's hand."]
+
+subrole = Creature(2, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+haste(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = Trigger(event=CleanupEvent()),
+                                        match_condition = lambda sender: True,
+                                        ability = Ability(card, target=Target(targeting="self"),                                                effects=ChangeZoneFromPlay(to_zone="hand")))
+]
+subrole.static_abilities = []
+
+#################################

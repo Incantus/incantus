@@ -1,0 +1,20 @@
+name = 'Giant Harbinger'
+cardnum = 169
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Giant', 'Shaman'])
+cost = '4R'
+color = characteristic(['R'])
+text = ['When Giant Harbinger comes into play, you may search your library for a Giant card, reveal it, then shuffle your library and put that card on top of it.']
+
+subrole = Creature(3, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

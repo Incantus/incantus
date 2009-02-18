@@ -1,0 +1,20 @@
+name = 'Lairwatch Giant'
+cardnum = 29
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Giant', 'Warrior'])
+cost = '5W'
+color = characteristic(['W'])
+text = ['Lairwatch Giant can block an additional creature.', 'Whenever Lairwatch Giant blocks two or more creatures, it gains first strike until end of turn.']
+
+subrole = Creature(5, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

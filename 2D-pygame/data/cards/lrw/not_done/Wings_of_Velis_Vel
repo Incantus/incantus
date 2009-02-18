@@ -1,0 +1,10 @@
+name = 'Wings of Velis Vel'
+cardnum = 97
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic(['Shapeshifter'])
+cost = '1U'
+color = characteristic(['U'])
+text = ['Changeling', 'Target creature becomes 4/4, gains all creature types, and gains flying until end of turn.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

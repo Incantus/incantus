@@ -1,0 +1,20 @@
+name = 'Sunrise Sovereign'
+cardnum = 192
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Giant', 'Warrior'])
+cost = '5R'
+color = characteristic(['R'])
+text = ['Other Giant creatures you control get +2/+2 and have trample.']
+
+subrole = Creature(5, 5)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

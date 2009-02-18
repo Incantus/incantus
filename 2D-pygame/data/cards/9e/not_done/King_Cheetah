@@ -1,0 +1,20 @@
+name = 'King Cheetah'
+cardnum = 250
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Cat'])
+cost = '3G'
+color = characteristic(['G'])
+text = ['Flash']
+
+subrole = Creature(3, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

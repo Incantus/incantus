@@ -1,0 +1,10 @@
+name = 'Monstrous Growth'
+cardnum = 266
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1G'
+color = characteristic(['G'])
+text = ['Target creature gets +4/+4 until end of turn.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

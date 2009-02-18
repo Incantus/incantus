@@ -1,0 +1,10 @@
+name = 'Sacred Nectar'
+cardnum = 38
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1W'
+color = characteristic(['W'])
+text = ['You gain 4 life.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

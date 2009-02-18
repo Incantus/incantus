@@ -1,0 +1,10 @@
+name = 'Rewind'
+cardnum = 94
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2UU'
+color = characteristic(['U'])
+text = ['Counter target spell, then untap up to four lands.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

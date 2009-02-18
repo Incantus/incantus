@@ -1,0 +1,20 @@
+name = 'Flowstone Crusher'
+cardnum = 184
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Beast'])
+cost = '3RR'
+color = characteristic(['R'])
+text = ['R: Flowstone Crusher gets +1/-1 until end of turn.']
+
+subrole = Creature(4, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

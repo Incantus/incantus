@@ -1,0 +1,20 @@
+name = 'Shard Phoenix'
+cardnum = 217
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Phoenix'])
+cost = '4R'
+color = characteristic(['R'])
+text = ['Flying', 'Sacrifice Shard Phoenix: Shard Phoenix deals 2 damage to each creature without flying.', 'RRR: Return Shard Phoenix from your graveyard to your hand. Play this ability only during your upkeep.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

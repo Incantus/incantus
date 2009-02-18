@@ -1,0 +1,20 @@
+name = 'Twinning Glass'
+cardnum = 264
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '4'
+color = characteristic(['C'])
+text = ['1, T You may play a nonland card from your hand without paying its mana cost if it has the same name as a spell that was played this turn.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

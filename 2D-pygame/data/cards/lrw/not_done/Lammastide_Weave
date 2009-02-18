@@ -1,0 +1,10 @@
+name = 'Lammastide Weave'
+cardnum = 226
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1G'
+color = characteristic(['G'])
+text = ['Name a card, then target player puts the top card of his or her library into his or her graveyard. If that card is the named card, you gain life equal to its converted mana cost.', 'Draw a card.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

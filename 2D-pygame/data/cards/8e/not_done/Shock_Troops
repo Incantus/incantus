@@ -1,0 +1,20 @@
+name = 'Shock Troops'
+cardnum = 223
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Soldier'])
+cost = '3R'
+color = characteristic(['R'])
+text = ['Sacrifice Shock Troops: Shock Troops deals 2 damage to target creature or player.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,20 @@
+name = 'Moonglove Winnower'
+cardnum = 126
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf', 'Rogue'])
+cost = '3B'
+color = characteristic(['B'])
+text = ['Deathtouch']
+
+subrole = Creature(2, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

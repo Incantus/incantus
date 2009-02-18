@@ -1,0 +1,13 @@
+name = 'Hunting Triad'
+cardnum = 300
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic(['Elf'])
+cost = '3G'
+color = characteristic(['G'])
+text = ['Put 3 1/1 green Elf Warrior creature tokens into play.', 'Reinforce 3']
+
+token_info = {"name": "Elf Warrior", "type": "Creature", "subtypes": ["Elf", "Warrior"], "color": "G", "role": TokenCreature(1,1)}
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+				effects=CreateToken(token_info, number=3))]
+reinforce(out_play_role, "3G", number=3)

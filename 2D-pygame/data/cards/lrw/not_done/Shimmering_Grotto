@@ -1,0 +1,19 @@
+name = 'Shimmering Grotto'
+cardnum = 273
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ['T Add 1 to your mana pool.', '1, T Add one mana of any color to your mana pool.']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('C'))]
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+
+#################################

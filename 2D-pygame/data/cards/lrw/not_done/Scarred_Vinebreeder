@@ -1,0 +1,20 @@
+name = 'Scarred Vinebreeder'
+cardnum = 138
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf', 'Shaman'])
+cost = '1B'
+color = characteristic(['B'])
+text = ['2B, Remove an Elf card in your graveyard from the game: Scarred Vinebreeder gets +3/+3 until end of turn.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

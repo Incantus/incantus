@@ -1,0 +1,28 @@
+name = 'Ascendant Evincar'
+cardnum = 127
+type = characteristic('Creature')
+supertype = characteristic('Legendary')
+subtypes = characteristic(['Vampire'])
+cost = '4BB'
+color = characteristic(['B'])
+text = ['Flying', 'Other black creatures get +1/+1.', 'Nonblack creatures get -1/-1.']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = [PermanentTrackingAbility(card,
+                                        enter_condition = isCreature.with(lambda c, self=card: not c == self and c.color == "B"),
+                                        leave_condition = isCreature.with(lambda c, self=card: not c == self and c.color == "B"),
+                                        effects = AugmentPowerToughness(power=1, toughness=1, expire=False)),
+                                 PermanentTrackingAbility(card,
+                                        enter_condition = isCreature.with(lambda c, self=card: not c == self and not c.color == "B"),
+                                        leave_condition = isCreature.with(lambda c, self=card: not c == self and not c.color == "B"),
+                                        effects = AugmentPowerToughness(power=-1, toughness=-1, expire=False)),
+]
+
+#################################

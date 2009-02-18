@@ -1,0 +1,20 @@
+name = 'Thorntooth Witch'
+cardnum = 144
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Treefolk', 'Shaman'])
+cost = '5B'
+color = characteristic(['B'])
+text = ['Whenever you play a Treefolk spell, you may have target creature get +3/-3 until end of turn.']
+
+subrole = Creature(3, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

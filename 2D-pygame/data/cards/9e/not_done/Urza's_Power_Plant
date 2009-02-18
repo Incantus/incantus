@@ -1,0 +1,19 @@
+name = "Urza's Power Plant"
+cardnum = 328
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ["T Add 1 to your mana pool. If you control an Urza's Mine and an Urza's Tower, add 2 to your mana pool instead."]
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('C'))]
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+
+#################################

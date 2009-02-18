@@ -1,0 +1,24 @@
+name = "Wolf-Skull Shaman"
+cardnum = 302
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf', 'Shaman'])
+cost = '1G'
+color = characteristic(['G'])
+text = ['Kinship']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+
+token_info={"name": "Wolf", "type": "Creature", "subtypes": ["Wolf"], "color": "G", "role": TokenCreature(2,2)}
+kinship_ability = KinshipAbility(card, "0", effects=CreateToken(token_info))
+kinship(subrole, card, kinship_ability)
+subrole.static_abilities = []
+
+#################################

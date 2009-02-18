@@ -1,0 +1,20 @@
+name = 'Trade Routes'
+cardnum = 108
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1U'
+color = characteristic(['U'])
+text = ["1: Return target land you control to its owner's hand.", '1, Discard a land card: Draw a card.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

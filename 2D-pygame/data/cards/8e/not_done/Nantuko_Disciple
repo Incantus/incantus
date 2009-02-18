@@ -1,0 +1,20 @@
+name = 'Nantuko Disciple'
+cardnum = 268
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Insect', 'Druid'])
+cost = '3G'
+color = characteristic(['G'])
+text = ['G, T Target creature gets +2/+2 until end of turn.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

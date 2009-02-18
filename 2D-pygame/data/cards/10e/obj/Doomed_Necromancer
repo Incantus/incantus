@@ -1,0 +1,23 @@
+name = 'Doomed Necromancer'
+cardnum = 137
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Cleric', 'Mercenary'])
+cost = '2B'
+color = characteristic(['B'])
+text = ['B, T, Sacrifice Doomed Necromancer: Return target creature card from your graveyard to play.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("B"), TapCost(), SacrificeCost()]),
+                                target=Target(targeting="controller"),
+                                effects=MoveTargetCards(from_zone="graveyard", to_zone="play", card_types=isCreatureType))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

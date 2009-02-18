@@ -1,0 +1,18 @@
+name = 'Broken Ambitions'
+cardnum = 54
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'XU'
+color = characteristic(['U'])
+text = ["Counter target spell unless its controller pays X. Clash with an opponent. If you win, that spell's controller puts the top four cards of his or her library into his or her graveyard."]
+
+mc = ManaCost(cost)
+out_play_role.abilities = [MultipleAbilities(card,
+				abilities=[CastDoOrNonPermanentSpell(card, cost=mc,
+                                target=Target(targeting="opponent"),
+                                failure_target=CounterTarget(target_types=isSpellAbility),
+                                effects=PayExtraCost(ManaCost(mc.X)),
+                                failed=CounterAbility()),
+					   ClashAbility(card, "0", target=Target(targeting="opponent"), effects=MoveTargetCards(from_zone="library", from_position="top", to_zone="graveyard", number=4))])
+]

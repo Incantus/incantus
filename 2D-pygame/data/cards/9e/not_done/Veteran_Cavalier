@@ -1,0 +1,20 @@
+name = 'Veteran Cavalier'
+cardnum = 52
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Knight'])
+cost = 'WW'
+color = characteristic(['W'])
+text = ['Vigilance']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

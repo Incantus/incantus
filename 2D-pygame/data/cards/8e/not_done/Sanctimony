@@ -1,0 +1,20 @@
+name = 'Sanctimony'
+cardnum = 42
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1W'
+color = characteristic(['W'])
+text = ['Whenever an opponent taps a Mountain for mana, you may gain 1 life.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

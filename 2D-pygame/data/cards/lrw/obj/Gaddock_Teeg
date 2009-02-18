@@ -1,0 +1,27 @@
+name = 'Gaddock Teeg'
+cardnum = 248
+type = characteristic('Creature')
+supertype = characteristic('Legendary')
+subtypes = characteristic(['Kithkin', 'Advisor'])
+cost = 'GW'
+color = characteristic(['G', 'W'])
+text = ["Noncreature spells with converted mana cost 4 or greater can't be played.", "Noncreature spells with X in their mana costs can't be played."]
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+def is_limited(self, card=card):
+    if not (self.card.type == "Creature"):
+        if self.cost.hasX() or self.cost.converted_cost() >= 4: return True
+    else: return False
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = [GlobalStaticAbility(card,
+                                        effects=OverrideGlobal(is_limited, "is_limited", CastSpell, combiner=logical_or, expire=False)),
+]
+
+#################################

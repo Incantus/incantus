@@ -1,0 +1,10 @@
+name = 'Reclaim'
+cardnum = 264
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'G'
+color = characteristic(['G'])
+text = ['Put target card from your graveyard on top of your library.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

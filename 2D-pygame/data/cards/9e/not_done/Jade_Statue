@@ -1,0 +1,20 @@
+name = 'Jade Statue'
+cardnum = 300
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '4'
+color = characteristic(['C'])
+text = ['2: Jade Statue becomes a 3/6 Golem artifact creature until end of combat. Play this ability only during combat.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

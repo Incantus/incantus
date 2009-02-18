@@ -1,0 +1,20 @@
+name = 'Blessed Orator'
+cardnum = 6
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Cleric'])
+cost = '3W'
+color = characteristic(['W'])
+text = ['Other creatures you control get +0/+1.']
+
+subrole = Creature(1, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,20 @@
+name = 'Glarewielder'
+cardnum = 171
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental', 'Shaman'])
+cost = '4R'
+color = characteristic(['R'])
+text = ['Haste', "When Glarewielder comes into play, up to two target creatures can't block this turn.", 'Evoke 1R']
+
+subrole = Creature(3, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

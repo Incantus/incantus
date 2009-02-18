@@ -1,0 +1,2165 @@
+Abundance
+2GG
+Enchantment
+If you would draw a card, you may instead choose land or nonland and reveal cards from the top of your library until you reveal a card of the chosen kind. Put that card into your hand and put all other cards revealed this way on the bottom of your library in any order.
+
+Academy Researchers
+1UU
+Creature - Human Wizard
+2/2
+When Academy Researchers comes into play, you may put an Aura card from your hand into play attached to Academy Researchers.
+
+Adarkar Wastes
+Land
+T Add 1 to your mana pool.
+T Add W or U to your mana pool. Adarkar Wastes deals 1 damage to you.
+
+Afflict
+2B
+Instant
+Target creature gets -1/-1 until end of turn.
+Draw a card.
+
+Aggressive Urge
+1G
+Instant
+Target creature gets +1/+1 until end of turn.
+Draw a card.
+
+Agonizing Memories
+2BB
+Sorcery
+Look at target player's hand and choose two cards from it. Put them on top of that player's library in any order.
+
+Air Elemental
+3UU
+Creature - Elemental
+4/4
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+
+Ambassador Laquatus
+1UU
+Legendary Creature - Merfolk Wizard
+1/3
+3: Target player puts the top three cards of his or her library into his or her graveyard.
+
+Anaba Bodyguard
+3R
+Creature - Minotaur
+2/3
+First strike (This creature deals combat damage before creatures without first strike.)
+
+Ancestor's Chosen
+5WW
+Creature - Human Cleric
+4/4
+First strike (This creature deals combat damage before creatures without first strike.)
+When Ancestor's Chosen comes into play, you gain 1 life for each card in your graveyard.
+
+Angel of Mercy
+4W
+Creature - Angel
+3/3
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+When Angel of Mercy comes into play, you gain 3 life.
+
+Angelic Blessing
+2W
+Sorcery
+Target creature gets +3/+3 and gains flying until end of turn. (It can't be blocked except by creatures with flying or reach.)
+
+Angelic Chorus
+3WW
+Enchantment
+Whenever a creature comes into play under your control, you gain life equal to its toughness.
+
+Angelic Wall
+1W
+Creature - Wall
+0/4
+Defender, flying (This creature can't attack, and it can block creatures with flying.)
+
+Angel's Feather
+2
+Artifact
+Whenever a player plays a white spell, you may gain 1 life.
+
+Arcane Teachings
+2R
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Enchanted creature gets +2/+2 and has "T This creature deals 1 damage to target creature or player."
+
+Arcanis the Omnipotent
+3UUU
+Legendary Creature - Wizard
+3/4
+T Draw three cards.
+2UU: Return Arcanis the Omnipotent to its owner's hand.
+
+Ascendant Evincar
+4BB
+Legendary Creature - Vampire
+3/3
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+Other black creatures get +1/+1. 
+Nonblack creatures get -1/-1.
+
+Assassinate
+2B
+Sorcery
+Destroy target tapped creature.
+
+Aura Graft
+1U
+Instant
+Gain control of target Aura that's attached to a permanent. Attach it to another permanent it can enchant.
+
+Aura of Silence
+1WW
+Enchantment
+Artifact and enchantment spells your opponents play cost 2 more to play.
+Sacrifice Aura of Silence: Destroy target artifact or enchantment.
+
+Avatar of Might
+6GG
+Creature - Avatar
+8/8
+If an opponent controls at least four more creatures than you, Avatar of Might costs 6 less to play.
+Trample (If this creature would deal enough combat damage to its blockers to destroy them, you may have it deal the rest of its damage to defending player.)
+
+Aven Cloudchaser
+3W
+Creature - Bird Soldier
+2/2
+Flying (This creature can't be blocked except by creatures with flying or reach.) 
+When Aven Cloudchaser comes into play, destroy target enchantment.
+
+Aven Fisher
+3U
+Creature - Bird Soldier
+2/2
+Flying (This creature can't be blocked except by creatures with flying or reach.) 
+When Aven Fisher is put into a graveyard from play, you may draw a card.
+
+Aven Windreader
+3UU
+Creature - Bird Soldier Wizard
+3/3
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+1U: Target player reveals the top card of his or her library.
+
+Ballista Squad
+3W
+Creature - Human Rebel
+2/2
+XW, T Ballista Squad deals X damage to target attacking or blocking creature.
+
+Bandage
+W
+Instant
+Prevent the next 1 damage that would be dealt to target creature or player this turn.
+Draw a card.
+
+Battlefield Forge
+Land
+T Add 1 to your mana pool.
+T Add R or W to your mana pool. Battlefield Forge deals 1 damage to you.
+
+Beacon of Destruction
+3RR
+Instant
+Beacon of Destruction deals 5 damage to target creature or player. Shuffle Beacon of Destruction into its owner's library.
+
+Beacon of Immortality
+5W
+Instant
+Double target player's life total. Shuffle Beacon of Immortality into its owner's library.
+
+Beacon of Unrest
+3BB
+Sorcery
+Put target artifact or creature card in a graveyard into play under your control. Shuffle Beacon of Unrest into its owner's library.
+
+Benalish Knight
+2W
+Creature - Human Knight
+2/2
+Flash (You may play this spell any time you could play an instant.)
+First strike (This creature deals combat damage before creatures without first strike.)
+
+Birds of Paradise
+G
+Creature - Bird
+0/1
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+T Add one mana of any color to your mana pool.
+
+Blanchwood Armor
+2G
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Enchanted creature gets +1/+1 for each Forest you control.
+
+Blaze
+XR
+Sorcery
+Blaze deals X damage to target creature or player.
+
+Bloodfire Colossus
+6RR
+Creature - Giant
+6/6
+R, Sacrifice Bloodfire Colossus: Bloodfire Colossus deals 6 damage to each creature and each player.
+
+Bloodrock Cyclops
+2R
+Creature - Cyclops
+3/3
+Bloodrock Cyclops attacks each turn if able.
+
+Bog Wraith
+3B
+Creature - Wraith
+3/3
+Swampwalk (This creature is unblockable as long as defending player controls a Swamp.)
+
+Bogardan Firefiend
+2R
+Creature - Elemental Spirit
+2/1
+When Bogardan Firefiend is put into a graveyard from play, it deals 2 damage to target creature.
+
+Boomerang
+UU
+Instant
+Return target permanent to its owner's hand.
+
+Bottle Gnomes
+3
+Artifact Creature - Gnome
+1/3
+Sacrifice Bottle Gnomes: You gain 3 life.
+
+Brushland
+Land
+T Add 1 to your mana pool.
+T Add G or W to your mana pool. Brushland deals 1 damage to you.
+
+Cancel
+1UU
+Instant
+Counter target spell.
+
+Canopy Spider
+1G
+Creature - Spider
+1/3
+Reach (This creature can block creatures with flying.)
+
+Caves of Koilos
+Land
+T Add 1 to your mana pool.
+T Add W or B to your mana pool. Caves of Koilos deals 1 damage to you.
+
+Cephalid Constable
+1UU
+Creature - Cephalid Wizard
+1/1
+Whenever Cephalid Constable deals combat damage to a player, return up to that many target permanents that player controls to their owners' hands.
+
+Chimeric Staff
+4
+Artifact
+X: Chimeric Staff becomes an X/X Construct artifact creature until end of turn.
+
+Cho-Manno, Revolutionary
+2WW
+Legendary Creature - Human Rebel
+2/2
+Prevent all damage that would be dealt to Cho-Manno, Revolutionary.
+
+Chromatic Star
+1
+Artifact
+1, T, Sacrifice Chromatic Star: Add one mana of any color to your mana pool.
+When Chromatic Star is put into a graveyard from play, draw a card.
+
+Citanul Flute
+5
+Artifact
+X, T Search your library for a creature card with converted mana cost X or less, reveal it, and put it into your hand. Then shuffle your library.
+
+Civic Wayfinder
+2G
+Creature - Elf Warrior Druid
+2/2
+When Civic Wayfinder comes into play, you may search your library for a basic land card, reveal it, and put it into your hand. If you do, shuffle your library.
+
+Clone
+3U
+Creature - Shapeshifter
+0/0
+As Clone comes into play, you may choose a creature in play. If you do, Clone comes into play as a copy of that creature.
+
+Cloud Elemental
+2U
+Creature - Elemental
+2/3
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+Cloud Elemental can block only creatures with flying.
+
+Cloud Sprite
+U
+Creature - Faerie
+1/1
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+Cloud Sprite can block only creatures with flying.
+
+Coat of Arms
+5
+Artifact
+Each creature gets +1/+1 for each other creature in play that shares a creature type with it. (For example, if a Goblin Warrior, a Goblin Scout, and a Zombie Goblin are in play, each gets +2/+2.)
+
+Colossus of Sardia
+9
+Artifact Creature - Golem
+9/9
+Trample (If this creature would deal enough combat damage to its blockers to destroy them, you may have it deal the rest of its damage to defending player.)
+Colossus of Sardia doesn't untap during your untap step.
+9: Untap Colossus of Sardia. Play this ability only during your upkeep.
+
+Commune with Nature
+G
+Sorcery
+Look at the top five cards of your library. You may reveal a creature card from among them and put it into your hand. Put the rest on the bottom of your library in any order.
+
+Composite Golem
+6
+Artifact Creature - Golem
+4/4
+Sacrifice Composite Golem: Add WUBRG to your mana pool.
+
+Condemn
+W
+Instant
+Put target attacking creature on the bottom of its owner's library. Its controller gains life equal to its toughness.
+
+Cone of Flame
+3RR
+Sorcery
+Cone of Flame deals 1 damage to target creature or player, 2 damage to another target creature or player, and 3 damage to a third target creature or player.
+
+Consume Spirit
+X1B
+Sorcery
+Spend only black mana on X.
+Consume Spirit deals X damage to target creature or player and you gain X life.
+
+Contaminated Bond
+1B
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Whenever enchanted creature attacks or blocks, its controller loses 3 life.
+
+Counsel of the Soratami
+2U
+Sorcery
+Draw two cards.
+
+Crafty Pathmage
+2U
+Creature - Human Wizard
+1/1
+T Target creature with power 2 or less is unblockable this turn.
+
+Craw Wurm
+4GG
+Creature - Wurm
+6/4
+
+Creeping Mold
+2GG
+Sorcery
+Destroy target artifact, enchantment, or land.
+
+Crucible of Worlds
+3
+Artifact
+You may play land cards from your graveyard.
+
+Cruel Edict
+1B
+Sorcery
+Target opponent sacrifices a creature.
+
+Cryoclasm
+2R
+Sorcery
+Destroy target Plains or Island. Cryoclasm deals 3 damage to that land's controller.
+
+Deathmark
+B
+Sorcery
+Destroy target green or white creature.
+
+Dehydration
+3U
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Enchanted creature doesn't untap during its controller's untap step.
+
+Deluge
+2U
+Instant
+Tap all creatures without flying.
+
+Demolish
+3R
+Sorcery
+Destroy target artifact or land.
+
+Demon's Horn
+2
+Artifact
+Whenever a player plays a black spell, you may gain 1 life.
+
+Demystify
+W
+Instant
+Destroy target enchantment.
+
+Denizen of the Deep
+6UU
+Creature - Serpent
+11/11
+When Denizen of the Deep comes into play, return each other creature you control to its owner's hand.
+
+Diabolic Tutor
+2BB
+Sorcery
+Search your library for a card and put that card into your hand. Then shuffle your library.
+
+Discombobulate
+2UU
+Instant
+Counter target spell. Look at the top four cards of your library, then put them back in any order.
+
+Distress
+BB
+Sorcery
+Target player reveals his or her hand. You choose a nonland card from it. That player discards that card.
+
+Doomed Necromancer
+2B
+Creature - Human Cleric Mercenary
+2/2
+B, T, Sacrifice Doomed Necromancer: Return target creature card from your graveyard to play.
+
+Doubling Cube
+2
+Artifact
+3, T Double the amount of each type of mana in your mana pool.
+
+Dragon Roost
+4RR
+Enchantment
+5RR: Put a 5/5 red Dragon creature token with flying into play. (It can't be blocked except by creatures with flying or reach.)
+
+Dragon's Claw
+2
+Artifact
+Whenever a player plays a red spell, you may gain 1 life.
+
+Dreamborn Muse
+2UU
+Creature - Spirit
+2/2
+At the beginning of each player's upkeep, that player puts the top X cards of his or her library into his or her graveyard, where X is the number of cards in his or her hand.
+
+Dross Crocodile
+3B
+Creature - Zombie Crocodile
+5/1
+
+Drudge Skeletons
+1B
+Creature - Skeleton
+1/1
+B: Regenerate Drudge Skeletons. (The next time this creature would be destroyed this turn, it isn't. Instead tap it, remove all damage from it, and remove it from combat.)
+
+Duct Crawler
+R
+Creature - Insect
+1/1
+1R: Target creature can't block Duct Crawler this turn.
+
+Dusk Imp
+2B
+Creature - Imp
+2/1
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+
+Earth Elemental
+3RR
+Creature - Elemental
+4/5
+
+Elven Riders
+3GG
+Creature - Elf
+3/3
+Elven Riders can't be blocked except by Walls and/or creatures with flying.
+
+Elvish Berserker
+G
+Creature - Elf Berserker
+1/1
+Whenever Elvish Berserker becomes blocked, it gets +1/+1 until end of turn for each creature blocking it.
+
+Elvish Champion
+1GG
+Creature - Elf
+2/2
+Other Elf creatures get +1/+1 and have forestwalk. (They're unblockable as long as defending player controls a Forest.)
+
+Elvish Piper
+3G
+Creature - Elf Shaman
+1/1
+G, T You may put a creature card from your hand into play.
+
+Enormous Baloth
+6G
+Creature - Beast
+7/7
+
+Essence Drain
+4B
+Sorcery
+Essence Drain deals 3 damage to target creature or player and you gain 3 life.
+
+Evacuation
+3UU
+Instant
+Return all creatures to their owners' hands.
+
+Faerie Conclave
+Land
+Faerie Conclave comes into play tapped.
+T Add U to your mana pool.
+1U: Faerie Conclave becomes a 2/1 blue Faerie creature with flying until end of turn. It's still a land. (It can't be blocked except by creatures with flying or reach.)
+
+Fear
+BB
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Enchanted creature has fear. (It can't be blocked except by artifact creatures and/or black creatures.)
+
+Femeref Archers
+2G
+Creature - Human Archer
+2/2
+T Femeref Archers deals 4 damage to target attacking creature with flying.
+
+Festering Goblin
+B
+Creature - Zombie Goblin
+1/1
+When Festering Goblin is put into a graveyard from play, target creature gets -1/-1 until end of turn.
+
+Field Marshal
+1WW
+Creature - Human Soldier
+2/2
+Other Soldier creatures get +1/+1 and have first strike. (They deal combat damage before creatures without first strike.)
+
+Firebreathing
+R
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+R: Enchanted creature gets +1/+0 until end of turn.
+
+Fists of the Anvil
+1R
+Instant
+Target creature gets +4/+0 until end of turn.
+
+Flamewave Invoker
+2R
+Creature - Goblin Mutant
+2/2
+7R: Flamewave Invoker deals 5 damage to target player.
+
+Flashfreeze
+1U
+Instant
+Counter target red or green spell.
+
+Flowstone Slide
+X2RR
+Sorcery
+All creatures get +X/-X until end of turn.
+
+Fog Elemental
+2U
+Creature - Elemental
+4/4
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+When Fog Elemental attacks or blocks, sacrifice it at end of combat.
+
+Forbidding Watchtower
+Land
+Forbidding Watchtower comes into play tapped.
+T Add W to your mana pool.
+1W: Forbidding Watchtower becomes a 1/5 white Soldier creature until end of turn. It's still a land.
+
+Forest
+Basic Land - Forest
+[G]
+
+Forest
+Basic Land - Forest
+[G]
+
+Forest
+Basic Land - Forest
+[G]
+
+Forest
+Basic Land - Forest
+[G]
+
+Fountain of Youth
+0
+Artifact
+2, T You gain 1 life.
+
+Fugitive Wizard
+U
+Creature - Human Wizard
+1/1
+
+Furnace of Rath
+1RRR
+Enchantment
+If a source would deal damage to a creature or player, it deals double that damage to that creature or player instead.
+
+Furnace Whelp
+2RR
+Creature - Dragon
+2/2
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+R: Furnace Whelp gets +1/+0 until end of turn.
+
+Gaea's Herald
+1G
+Creature - Elf
+1/1
+Creature spells can't be countered.
+
+Ghitu Encampment
+Land
+Ghitu Encampment comes into play tapped.
+T Add R to your mana pool.
+1R: Ghitu Encampment becomes a 2/1 red Warrior creature with first strike until end of turn. It's still a land. (It deals combat damage before creatures without first strike.)
+
+Ghost Warden
+1W
+Creature - Spirit
+1/1
+T Target creature gets +1/+1 until end of turn.
+
+Giant Growth
+G
+Instant
+Target creature gets +3/+3 until end of turn.
+
+Giant Spider
+3G
+Creature - Spider
+2/4
+Reach (This creature can block creatures with flying.)
+
+Glorious Anthem
+1WW
+Enchantment
+Creatures you control get +1/+1.
+
+Goblin Elite Infantry
+1R
+Creature - Goblin Warrior
+2/2
+Whenever Goblin Elite Infantry blocks or becomes blocked, it gets -1/-1 until end of turn.
+
+Goblin King
+1RR
+Creature - Goblin
+2/2
+Other Goblin creatures get +1/+1 and have mountainwalk. (They're unblockable as long as defending player controls a Mountain.)
+
+Goblin Lore
+1R
+Sorcery
+Draw four cards, then discard three cards at random.
+
+Goblin Piker
+1R
+Creature - Goblin Warrior
+2/1
+
+Goblin Sky Raider
+2R
+Creature - Goblin Warrior
+1/2
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+
+Grave Pact
+1BBB
+Enchantment
+Whenever a creature you control is put into a graveyard from play, each other player sacrifices a creature.
+
+Graveborn Muse
+2BB
+Creature - Zombie Spirit
+3/3
+At the beginning of your upkeep, you draw X cards and you lose X life, where X is the number of Zombies you control.
+
+Gravedigger
+3B
+Creature - Zombie
+2/2
+When Gravedigger comes into play, you may return target creature card from your graveyard to your hand.
+
+Grizzly Bears
+1G
+Creature - Bear
+2/2
+
+Guerrilla Tactics
+1R
+Instant
+Guerrilla Tactics deals 2 damage to target creature or player.
+When a spell or ability an opponent controls causes you to discard Guerrilla Tactics, Guerrilla Tactics deals 4 damage to target creature or player.
+
+Hail of Arrows
+XW
+Instant
+Hail of Arrows deals X damage divided as you choose among any number of target attacking creatures.
+
+Hate Weaver
+1B
+Creature - Zombie Wizard
+2/1
+2: Target blue or red creature gets +1/+0 until end of turn.
+
+Head Games
+3BB
+Sorcery
+Target opponent puts the cards from his or her hand on top of his or her library. Search that player's library for that many cards. The player puts those cards into his or her hand, then shuffles his or her library.
+
+Heart of Light
+2W
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Prevent all damage that would be dealt to and dealt by enchanted creature.
+
+Hidden Horror
+1BB
+Creature - Horror
+4/4
+When Hidden Horror comes into play, sacrifice it unless you discard a creature card.
+
+High Ground
+W
+Enchantment
+Each creature you control can block an additional creature.
+
+Highway Robber
+2BB
+Creature - Human Rogue Mercenary
+2/2
+When Highway Robber comes into play, you gain 2 life and target opponent loses 2 life.
+
+Hill Giant
+3R
+Creature - Giant
+3/3
+
+Holy Day
+W
+Instant
+Prevent all combat damage that would be dealt this turn.
+
+Holy Strength
+W
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Enchanted creature gets +1/+2.
+
+Honor Guard
+W
+Creature - Human Soldier
+1/1
+W: Honor Guard gets +0/+1 until end of turn.
+
+Horseshoe Crab
+2U
+Creature - Crab
+1/3
+U: Untap Horseshoe Crab.
+
+Howling Mine
+2
+Artifact
+At the beginning of each player's draw step, if Howling Mine is untapped, that player draws a card.
+
+Hunted Wumpus
+3G
+Creature - Beast
+6/6
+When Hunted Wumpus comes into play, each other player may put a creature card from his or her hand into play.
+
+Hurkyl's Recall
+1U
+Instant
+Return all artifacts target player owns to his or her hand.
+
+Hurricane
+XG
+Sorcery
+Hurricane deals X damage to each creature with flying and each player.
+
+Hypnotic Specter
+1BB
+Creature - Specter
+2/2
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+Whenever Hypnotic Specter deals damage to an opponent, that player discards a card at random.
+
+Icatian Priest
+W
+Creature - Human Cleric
+1/1
+1WW: Target creature gets +1/+1 until end of turn.
+
+Icy Manipulator
+4
+Artifact
+1, T Tap target artifact, creature, or land.
+
+Incinerate
+1R
+Instant
+Incinerate deals 3 damage to target creature or player. A creature dealt damage this way can't be regenerated this turn.
+
+Island
+Basic Land - Island
+[U]
+
+Island
+Basic Land - Island
+[U]
+
+Island
+Basic Land - Island
+[U]
+
+Island
+Basic Land - Island
+[U]
+
+Jayemdae Tome
+4
+Artifact
+4, T Draw a card.
+
+Joiner Adept
+1G
+Creature - Elf Druid
+2/1
+Lands you control have "T Add one mana of any color to your mana pool."
+
+Juggernaut
+4
+Artifact Creature - Juggernaut
+5/3
+Juggernaut attacks each turn if able.
+Juggernaut can't be blocked by Walls.
+
+Kamahl, Pit Fighter
+4RR
+Legendary Creature - Human Barbarian
+6/1
+Haste (This creature can attack and T as soon as it comes under your control.)
+T Kamahl, Pit Fighter deals 3 damage to target creature or player.
+
+Karplusan Forest
+Land
+T Add 1 to your mana pool.
+T Add R or G to your mana pool. Karplusan Forest deals 1 damage to you.
+
+Karplusan Strider
+3G
+Creature - Yeti
+3/4
+Karplusan Strider can't be the target of blue or black spells.
+
+Kavu Climber
+3GG
+Creature - Kavu
+3/3
+When Kavu Climber comes into play, draw a card.
+
+Kjeldoran Royal Guard
+3WW
+Creature - Human Soldier
+2/5
+T All combat damage that would be dealt to you by unblocked creatures this turn is dealt to Kjeldoran Royal Guard instead.
+
+Knight of Dusk
+1BB
+Creature - Human Knight
+2/2
+BB: Destroy target creature blocking Knight of Dusk.
+
+Kraken's Eye
+2
+Artifact
+Whenever a player plays a blue spell, you may gain 1 life.
+
+Lava Axe
+4R
+Sorcery
+Lava Axe deals 5 damage to target player.
+
+Lavaborn Muse
+3R
+Creature - Spirit
+3/3
+At the beginning of each opponent's upkeep, if that player has two or fewer cards in hand, Lavaborn Muse deals 3 damage to him or her.
+
+Legacy Weapon
+7
+Legendary Artifact
+WUBRG: Remove target permanent from the game.
+If Legacy Weapon would be put into a graveyard from anywhere, reveal Legacy Weapon and shuffle it into its owner's library instead.
+
+Leonin Scimitar
+1
+Artifact - Equipment
+Equipped creature gets +1/+1.
+Equip 1 (1: Attach to target creature you control. Equip only as a sorcery.)
+
+Lightning Elemental
+3R
+Creature - Elemental
+4/1
+Haste (This creature can attack and T as soon as it comes under your control.)
+
+Llanowar Elves
+G
+Creature - Elf Druid
+1/1
+T Add G to your mana pool.
+
+Llanowar Sentinel
+2G
+Creature - Elf
+2/3
+When Llanowar Sentinel comes into play, you may pay 1G. If you do, search your library for a card named Llanowar Sentinel and put that card into play. Then shuffle your library.
+
+Llanowar Wastes
+Land
+T Add 1 to your mana pool.
+T Add B or G to your mana pool. Llanowar Wastes deals 1 damage to you.
+
+Looming Shade
+2B
+Creature - Shade
+1/1
+B: Looming Shade gets +1/+1 until end of turn.
+
+Lord of the Pit
+4BBB
+Creature - Demon
+7/7
+Flying, trample (This creature can't be blocked except by creatures with flying or reach. If this creature would deal enough combat damage to its blockers to destroy them, you may have it deal the rest of its damage to defending player.)
+At the beginning of your upkeep, sacrifice a creature other than Lord of the Pit. If you can't, Lord of the Pit deals 7 damage to you.
+
+Lord of the Undead
+1BB
+Creature - Zombie
+2/2
+Other Zombie creatures get +1/+1.
+1B, T Return target Zombie card from your graveyard to your hand.
+
+Loxodon Mystic
+3WW
+Creature - Elephant Cleric
+3/3
+W, T Tap target creature.
+
+Loxodon Warhammer
+3
+Artifact - Equipment
+Equipped creature gets +3/+0 and has lifelink and trample. (When it deals damage, you gain that much life. If it would deal enough combat damage to its blockers to destroy them, you may have it deal the rest of its damage to defending player.)
+Equip 3 (3: Attach to target creature you control. Equip only as a sorcery.)
+
+Loyal Sentry
+W
+Creature - Human Soldier
+1/1
+When Loyal Sentry blocks a creature, destroy that creature and Loyal Sentry.
+
+Lumengrid Warden
+1U
+Creature - Human Wizard
+1/3
+
+Luminesce
+W
+Instant
+Prevent all damage that black sources and red sources would deal this turn.
+
+Lure
+1GG
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+All creatures able to block enchanted creature do so.
+
+Mahamoti Djinn
+4UU
+Creature - Djinn
+5/6
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+
+Manabarbs
+3R
+Enchantment
+Whenever a player taps a land for mana, Manabarbs deals 1 damage to that player.
+
+Mantis Engine
+5
+Artifact Creature - Insect
+3/3
+2: Mantis Engine gains flying until end of turn. (It can't be blocked except by creatures with flying or reach.)
+2: Mantis Engine gains first strike until end of turn. (It deals combat damage before creatures without first strike.)
+
+March of the Machines
+3U
+Enchantment
+Each noncreature artifact is an artifact creature with power and toughness each equal to its converted mana cost. (Equipment that's a creature can't equip a creature.)
+
+Mass of Ghouls
+3BB
+Creature - Zombie Warrior
+5/3
+
+Megrim
+2B
+Enchantment
+Whenever an opponent discards a card, Megrim deals 2 damage to that player.
+
+Merfolk Looter
+1U
+Creature - Merfolk Rogue
+1/1
+T Draw a card, then discard a card.
+
+Midnight Ritual
+X2B
+Sorcery
+Remove X target creature cards in your graveyard from the game. For each creature card removed this way, put a 2/2 black Zombie creature token into play.
+
+Might of Oaks
+3G
+Instant
+Target creature gets +7/+7 until end of turn.
+
+Might Weaver
+1G
+Creature - Human Wizard
+2/1
+2: Target red or white creature gains trample until end of turn. (If it would deal enough combat damage to its blockers to destroy them, you may have it deal the rest of its damage to defending player.)
+
+Millstone
+2
+Artifact
+2, T Target player puts the top two cards of his or her library into his or her graveyard.
+
+Mind Bend
+U
+Instant
+Change the text of target permanent by replacing all instances of one color word with another or one basic land type with another. (For example, you may change "nonblack creature" to "nongreen creature" or "forestwalk" to "islandwalk." This effect doesn't end at end of turn.)
+
+Mind Rot
+2B
+Sorcery
+Target player discards two cards.
+
+Mind Stone
+2
+Artifact
+T Add 1 to your mana pool.
+1, T, Sacrifice Mind Stone: Draw a card.
+
+Mirri, Cat Warrior
+1GG
+Legendary Creature - Cat Warrior
+2/3
+First strike, forestwalk, vigilance (This creature deals combat damage before creatures without first strike, it's unblockable as long as defending player controls a Forest, and attacking doesn't cause this creature to tap.)
+
+Mobilization
+2W
+Enchantment
+Soldier creatures have vigilance. (Attacking doesn't cause them to tap.)
+2W: Put a 1/1 white Soldier creature token into play.
+
+Mogg Fanatic
+R
+Creature - Goblin
+1/1
+Sacrifice Mogg Fanatic: Mogg Fanatic deals 1 damage to target creature or player.
+
+Molimo, Maro-Sorcerer
+4GGG
+Legendary Creature - Elemental
+*/*
+Trample (If this creature would deal enough combat damage to its blockers to destroy them, you may have it deal the rest of its damage to defending player.)
+Molimo, Maro-Sorcerer's power and toughness are each equal to the number of lands you control.
+
+Mortal Combat
+2BB
+Enchantment
+At the beginning of your upkeep, if twenty or more creature cards are in your graveyard, you win the game.
+
+Mortivore
+2BB
+Creature - Lhurgoyf
+*/*
+Mortivore's power and toughness are each equal to the number of creature cards in all graveyards.
+B: Regenerate Mortivore. (The next time this creature would be destroyed this turn, it isn't. Instead tap it, remove all damage from it, and remove it from combat.)
+
+Mountain
+Basic Land - Mountain
+[R]
+
+Mountain
+Basic Land - Mountain
+[R]
+
+Mountain
+Basic Land - Mountain
+[R]
+
+Mountain
+Basic Land - Mountain
+[R]
+
+Nantuko Husk
+2B
+Creature - Zombie Insect
+2/2
+Sacrifice a creature: Nantuko Husk gets +2/+2 until end of turn.
+
+Natural Spring
+3GG
+Sorcery
+Target player gains 8 life.
+
+Naturalize
+1G
+Instant
+Destroy target artifact or enchantment.
+
+Nekrataal
+2BB
+Creature - Human Assassin
+2/1
+First strike (This creature deals combat damage before creatures without first strike.)
+When Nekrataal comes into play, destroy target nonartifact, nonblack creature. That creature can't be regenerated.
+
+Nightmare
+5B
+Creature - Nightmare Horse
+*/*
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+Nightmare's power and toughness are each equal to the number of Swamps you control.
+
+No Rest for the Wicked
+1B
+Enchantment
+Sacrifice No Rest for the Wicked: Return to your hand all creature cards that were put into your graveyard from play this turn.
+
+Nomad Mythmaker
+2W
+Creature - Human Nomad Cleric
+2/2
+W, T Put target Aura card in a graveyard into play attached to a creature you control. (You control that Aura.)
+
+Orcish Artillery
+1RR
+Creature - Orc Warrior
+1/3
+T Orcish Artillery deals 2 damage to target creature or player and 3 damage to you.
+
+Ornithopter
+0
+Artifact Creature - Thopter
+0/2
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+
+Overgrowth
+2G
+Enchantment - Aura
+Enchant land (Target a land as you play this. This card comes into play attached to that land.)
+Whenever enchanted land is tapped for mana, its controller adds GG to his or her mana pool.
+
+Overrun
+2GGG
+Sorcery
+Creatures you control get +3/+3 and gain trample until end of turn. (If a creature you control would deal enough combat damage to its blockers to destroy them, you may have it deal the rest of its damage to defending player.)
+
+Pacifism
+1W
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Enchanted creature can't attack or block.
+
+Paladin en-Vec
+1WW
+Creature - Human Knight
+2/2
+First strike, protection from black, protection from red (This creature deals combat damage before creatures without first strike. It can't be blocked, targeted, dealt damage, or enchanted by anything black or red.)
+
+Pariah
+2W
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+All damage that would be dealt to you is dealt to enchanted creature instead.
+
+Peek
+U
+Instant
+Look at target player's hand.
+Draw a card.
+
+Persuasion
+3UU
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+You control enchanted creature.
+
+Phage the Untouchable
+3BBBB
+Legendary Creature - Minion
+4/4
+When Phage the Untouchable comes into play, if you didn't play it from your hand, you lose the game. 
+Whenever Phage deals combat damage to a creature, destroy that creature. It can't be regenerated. 
+Whenever Phage deals combat damage to a player, that player loses the game.
+
+Phantom Warrior
+1UU
+Creature - Illusion Warrior
+2/2
+Phantom Warrior is unblockable.
+
+Phyrexian Rager
+2B
+Creature - Horror
+2/2
+When Phyrexian Rager comes into play, you draw a card and you lose 1 life.
+
+Phyrexian Vault
+3
+Artifact
+2, T, Sacrifice a creature: Draw a card.
+
+Pincher Beetles
+2G
+Creature - Insect
+3/1
+Shroud (This creature can't be the target of spells or abilities.)
+
+Pithing Needle
+1
+Artifact
+As Pithing Needle comes into play, name a card.
+Activated abilities of sources with the chosen name can't be played unless they're mana abilities.
+
+Plagiarize
+3U
+Instant
+Until end of turn, if target player would draw a card, instead that player skips that draw and you draw a card.
+
+Plague Beetle
+B
+Creature - Insect
+1/1
+Swampwalk (This creature is unblockable as long as defending player controls a Swamp.)
+
+Plague Wind
+7BB
+Sorcery
+Destroy all creatures you don't control. They can't be regenerated.
+
+Plains
+Basic Land - Plains
+[W]
+
+Plains
+Basic Land - Plains
+[W]
+
+Plains
+Basic Land - Plains
+[W]
+
+Plains
+Basic Land - Plains
+[W]
+
+Platinum Angel
+7
+Artifact Creature - Angel
+4/4
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+You can't lose the game and your opponents can't win the game.
+
+Primal Rage
+1G
+Enchantment
+Creatures you control have trample. (If a creature you control would deal enough combat damage to its blockers to destroy them, you may have it deal the rest of its damage to defending player.)
+
+Prodigal Pyromancer
+2R
+Creature - Human Wizard
+1/1
+T Prodigal Pyromancer deals 1 damage to target creature or player.
+
+Puppeteer
+2U
+Creature - Human Wizard
+1/2
+U, T You may tap or untap target creature.
+
+Pyroclasm
+1R
+Sorcery
+Pyroclasm deals 2 damage to each creature.
+
+Quicksand
+Land
+T Add 1 to your mana pool.
+T, Sacrifice Quicksand: Target attacking creature without flying gets -1/-2 until end of turn.
+
+Quirion Dryad
+1G
+Creature - Dryad
+1/1
+Whenever you play a white, blue, black, or red spell, put a +1/+1 counter on Quirion Dryad.
+
+Rage Weaver
+1R
+Creature - Human Wizard
+2/1
+2: Target black or green creature gains haste until end of turn. (It can attack and T this turn.)
+
+Raging Goblin
+R
+Creature - Goblin Berserker
+1/1
+Haste (This creature can attack and T as soon as it comes under your control.)
+
+Rain of Tears
+1BB
+Sorcery
+Destroy target land.
+
+Rampant Growth
+1G
+Sorcery
+Search your library for a basic land card and put that card into play tapped. Then shuffle your library.
+
+Ravenous Rats
+1B
+Creature - Rat
+1/1
+When Ravenous Rats comes into play, target opponent discards a card.
+
+Razormane Masticore
+5
+Artifact Creature - Masticore
+5/5
+First strike (This creature deals combat damage before creatures without first strike.)
+At the beginning of your upkeep, sacrifice Razormane Masticore unless you discard a card.
+At the beginning of your draw step, you may have Razormane Masticore deal 3 damage to target creature.
+
+Recollect
+2G
+Sorcery
+Return target card from your graveyard to your hand.
+
+Recover
+2B
+Sorcery
+Return target creature card from your graveyard to your hand.
+Draw a card.
+
+Regeneration
+1G
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+G: Regenerate enchanted creature. (The next time that creature would be destroyed this turn, it isn't. Instead tap it, remove all damage from it, and remove it from combat.)
+
+Relentless Assault
+2RR
+Sorcery
+Untap all creatures that attacked this turn. After this main phase, there is an additional combat phase followed by an additional main phase.
+
+Relentless Rats
+1BB
+Creature - Rat
+2/2
+Relentless Rats gets +1/+1 for each other creature in play named Relentless Rats.
+A deck can have any number of cards named Relentless Rats.
+
+Reminisce
+2U
+Sorcery
+Target player shuffles his or her graveyard into his or her library.
+
+Remove Soul
+1U
+Instant
+Counter target creature spell.
+
+Reviving Dose
+2W
+Instant
+You gain 3 life.
+Draw a card.
+
+Reya Dawnbringer
+6WWW
+Legendary Creature - Angel
+4/6
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+At the beginning of your upkeep, you may return target creature card from your graveyard to play.
+
+Rhox
+4GG
+Creature - Rhino Beast
+5/5
+You may have Rhox deal its combat damage to defending player as though it weren't blocked.
+2G: Regenerate Rhox. (The next time this creature would be destroyed this turn, it isn't. Instead tap it, remove all damage from it, and remove it from combat.)
+
+Righteousness
+W
+Instant
+Target blocking creature gets +7/+7 until end of turn.
+
+Robe of Mirrors
+U
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Enchanted creature has shroud. (It can't be the target of spells or abilities.)
+
+Rock Badger
+4R
+Creature - Badger Beast
+3/3
+Mountainwalk (This creature is unblockable as long as defending player controls a Mountain.)
+
+Rod of Ruin
+4
+Artifact
+3, T Rod of Ruin deals 1 damage to target creature or player.
+
+Root Maze
+G
+Enchantment
+Artifacts and lands come into play tapped.
+
+Rootwalla
+2G
+Creature - Lizard
+2/2
+1G: Rootwalla gets +2/+2 until end of turn. Play this ability only once each turn.
+
+Rootwater Commando
+2U
+Creature - Merfolk
+2/2
+Islandwalk (This creature is unblockable as long as defending player controls an Island.)
+
+Rootwater Matriarch
+2UU
+Creature - Merfolk
+2/3
+T Gain control of target creature as long as that creature is enchanted.
+
+Royal Assassin
+1BB
+Creature - Human Assassin
+1/1
+T Destroy target tapped creature.
+
+Rule of Law
+2W
+Enchantment
+Each player can't play more than one spell each turn.
+
+Rushwood Dryad
+1G
+Creature - Dryad
+2/1
+Forestwalk (This creature is unblockable as long as defending player controls a Forest.)
+
+Sage Owl
+1U
+Creature - Bird
+1/1
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+When Sage Owl comes into play, look at the top four cards of your library, then put them back in any order.
+
+Samite Healer
+1W
+Creature - Human Cleric
+1/1
+T Prevent the next 1 damage that would be dealt to target creature or player this turn.
+
+Scalpelexis
+4U
+Creature - Beast
+1/5
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+Whenever Scalpelexis deals combat damage to a player, that player removes the top four cards of his or her library from the game. If two or more of those cards have the same name, repeat this process.
+
+Scathe Zombies
+2B
+Creature - Zombie
+2/2
+
+Scion of the Wild
+1GG
+Creature - Avatar
+*/*
+Scion of the Wild's power and toughness are each equal to the number of creatures you control.
+
+Scoria Wurm
+4R
+Creature - Wurm
+7/7
+At the beginning of your upkeep, flip a coin. If you lose the flip, return Scoria Wurm to its owner's hand.
+
+Sculpting Steel
+3
+Artifact
+As Sculpting Steel comes into play, you may choose an artifact in play. If you do, Sculpting Steel comes into play as a copy of that artifact.
+
+Sea Monster
+4UU
+Creature - Serpent
+6/6
+Sea Monster can't attack unless defending player controls an Island.
+
+Seedborn Muse
+3GG
+Creature - Spirit
+2/4
+Untap all permanents you control during each other player's untap step.
+
+Seismic Assault
+RRR
+Enchantment
+Discard a land card: Seismic Assault deals 2 damage to target creature or player.
+
+Sengir Vampire
+3BB
+Creature - Vampire
+4/4
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+Whenever a creature dealt damage by Sengir Vampire this turn is put into a graveyard, put a +1/+1 counter on Sengir Vampire.
+
+Serra Angel
+3WW
+Creature - Angel
+4/4
+Flying, vigilance (This creature can't be blocked except by creatures with flying or reach, and attacking doesn't cause this creature to tap.)
+
+Serra's Embrace
+2WW
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Enchanted creature gets +2/+2 and has flying and vigilance. (It can't be blocked except by creatures with flying or reach, and attacking doesn't cause it to tap.)
+
+Severed Legion
+1BB
+Creature - Zombie
+2/2
+Fear (This creature can't be blocked except by artifact creatures and/or black creatures.)
+
+Shatterstorm
+2RR
+Sorcery
+Destroy all artifacts. They can't be regenerated.
+
+Shimmering Wings
+U
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Enchanted creature has flying. (It can't be blocked except by creatures with flying or reach.)
+U: Return Shimmering Wings to its owner's hand.
+
+Shivan Dragon
+4RR
+Creature - Dragon
+5/5
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+R: Shivan Dragon gets +1/+0 until end of turn.
+
+Shivan Hellkite
+5RR
+Creature - Dragon
+5/5
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+1R: Shivan Hellkite deals 1 damage to target creature or player.
+
+Shivan Reef
+Land
+T Add 1 to your mana pool.
+T Add U or R to your mana pool. Shivan Reef deals 1 damage to you.
+
+Shock
+R
+Instant
+Shock deals 2 damage to target creature or player.
+
+Shunt
+1RR
+Instant
+Change the target of target spell with a single target.
+
+Siege-Gang Commander
+3RR
+Creature - Goblin
+2/2
+When Siege-Gang Commander comes into play, put three 1/1 red Goblin creature tokens into play.
+1R, Sacrifice a Goblin: Siege-Gang Commander deals 2 damage to target creature or player.
+
+Sift
+3U
+Sorcery
+Draw three cards, then discard a card.
+
+Sky Weaver
+1U
+Creature - Metathran Wizard
+2/1
+2: Target white or black creature gains flying until end of turn. (It can't be blocked except by creatures with flying or reach.)
+
+Skyhunter Patrol
+2WW
+Creature - Cat Knight
+2/3
+Flying, first strike (This creature can't be blocked except by creatures with flying or reach, and it deals combat damage before creatures without first strike.)
+
+Skyhunter Prowler
+2W
+Creature - Cat Knight
+1/3
+Flying, vigilance (This creature can't be blocked except by creatures with flying or reach, and attacking doesn't cause this creature to tap.)
+
+Skyhunter Skirmisher
+1WW
+Creature - Cat Knight
+1/1
+Flying, double strike (This creature can't be blocked except by creatures with flying or reach, and it deals both first-strike and regular combat damage.)
+
+Skyshroud Ranger
+G
+Creature - Elf
+1/1
+T You may put a land card from your hand into play. Play this ability only any time you could play a sorcery.
+
+Sleeper Agent
+B
+Creature - Minion
+3/3
+When Sleeper Agent comes into play, target opponent gains control of it. 
+At the beginning of your upkeep, Sleeper Agent deals 2 damage to you.
+
+Smash
+2R
+Instant
+Destroy target artifact.
+Draw a card.
+
+Snapping Drake
+3U
+Creature - Drake
+3/2
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+
+Soul Feast
+3BB
+Sorcery
+Target player loses 4 life and you gain 4 life.
+
+Soul Warden
+W
+Creature - Human Cleric
+1/1
+Whenever another creature comes into play, you gain 1 life.
+
+Soulblast
+3RRR
+Instant
+As an additional cost to play Soulblast, sacrifice all creatures you control. 
+Soulblast deals damage to target creature or player equal to the total power of the sacrificed creatures.
+
+Spark Elemental
+R
+Creature - Elemental
+3/1
+Trample, haste (If this creature would deal enough combat damage to its blockers to destroy them, you may have it deal the rest of its damage to defending player. This creature can attack and T as soon as it comes under your control.)
+At end of turn, sacrifice Spark Elemental.
+
+Spawning Pool
+Land
+Spawning Pool comes into play tapped.
+T Add B to your mana pool.
+1B: Spawning Pool becomes a 1/1 black Skeleton creature with "B: Regenerate this creature" until end of turn. It's still a land. (If it regenerates, the next time it would be destroyed this turn, it isn't. Instead tap it, remove all damage from it, and remove it from combat.)
+
+Spellbook
+0
+Artifact
+You have no maximum hand size.
+
+Spiketail Hatchling
+1U
+Creature - Drake
+1/1
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+Sacrifice Spiketail Hatchling: Counter target spell unless its controller pays 1.
+
+Spined Wurm
+4G
+Creature - Wurm
+5/4
+
+Spineless Thug
+1B
+Creature - Zombie Mercenary
+2/2
+Spineless Thug can't block.
+
+Spirit Link
+W
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Whenever enchanted creature deals damage, you gain that much life.
+
+Spirit Weaver
+1W
+Creature - Human Wizard
+2/1
+2: Target green or blue creature gets +0/+1 until end of turn.
+
+Spitting Earth
+1R
+Sorcery
+Spitting Earth deals damage equal to the number of Mountains you control to target creature.
+
+Squee, Goblin Nabob
+2R
+Legendary Creature - Goblin
+1/1
+At the beginning of your upkeep, you may return Squee, Goblin Nabob from your graveyard to your hand.
+
+Stalking Tiger
+3G
+Creature - Cat
+3/3
+Stalking Tiger can't be blocked by more than one creature.
+
+Stampeding Wildebeests
+2GG
+Creature - Antelope Beast
+5/4
+Trample (If this creature would deal enough combat damage to its blockers to destroy them, you may have it deal the rest of its damage to defending player.)
+At the beginning of your upkeep, return a green creature you control to its owner's hand.
+
+Starlight Invoker
+1W
+Creature - Human Cleric Mutant
+1/3
+7W: You gain 5 life.
+
+Steadfast Guard
+WW
+Creature - Human Rebel
+2/2
+Vigilance (Attacking doesn't cause this creature to tap.)
+
+Steel Golem
+3
+Artifact Creature - Golem
+3/4
+You can't play creature spells.
+
+Story Circle
+1WW
+Enchantment
+As Story Circle comes into play, choose a color.
+W: The next time a source of your choice of the chosen color would deal damage to you this turn, prevent that damage.
+
+Stronghold Discipline
+2BB
+Sorcery
+Each player loses 1 life for each creature he or she controls.
+
+Stun
+1R
+Instant
+Target creature can't block this turn.
+Draw a card.
+
+Sudden Impact
+3R
+Instant
+Sudden Impact deals damage equal to the number of cards in target player's hand to that player.
+
+Sulfurous Springs
+Land
+T Add 1 to your mana pool.
+T Add B or R to your mana pool. Sulfurous Springs deals 1 damage to you.
+
+Sunken Hope
+3UU
+Enchantment
+At the beginning of each player's upkeep, that player returns a creature he or she controls to its owner's hand.
+
+Suntail Hawk
+W
+Creature - Bird
+1/1
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+
+Swamp
+Basic Land - Swamp
+[B]
+
+Swamp
+Basic Land - Swamp
+[B]
+
+Swamp
+Basic Land - Swamp
+[B]
+
+Swamp
+Basic Land - Swamp
+[B]
+
+Sylvan Basilisk
+3GG
+Creature - Basilisk
+2/4
+Whenever Sylvan Basilisk becomes blocked by a creature, destroy that creature.
+
+Sylvan Scrying
+1G
+Sorcery
+Search your library for a land card, reveal it, and put it into your hand. Then shuffle your library.
+
+Tangle Spider
+4GG
+Creature - Spider
+3/4
+Flash (You may play this spell any time you could play an instant.)
+Reach (This creature can block creatures with flying.)
+
+Telepathy
+U
+Enchantment
+Your opponents play with their hands revealed.
+
+Telling Time
+1U
+Instant
+Look at the top three cards of your library. Put one of those cards into your hand, one on top of your library, and one on the bottom of your library.
+
+Tempest of Light
+2W
+Instant
+Destroy all enchantments.
+
+Terramorphic Expanse
+Land
+T, Sacrifice Terramorphic Expanse: Search your library for a basic land card and put it into play tapped. Then shuffle your library.
+
+Terror
+1B
+Instant
+Destroy target nonartifact, nonblack creature. It can't be regenerated.
+
+The Hive
+5
+Artifact
+5, T Put a 1/1 Insect artifact creature token with flying named Wasp into play. (It can't be blocked except by creatures with flying or reach.)
+
+Thieving Magpie
+2UU
+Creature - Bird
+1/3
+Flying (This creature can't be blocked except by creatures with flying or reach.) 
+Whenever Thieving Magpie deals damage to an opponent, you draw a card.
+
+Threaten
+2R
+Sorcery
+Untap target creature and gain control of it until end of turn. That creature gains haste until end of turn. (It can attack and T this turn.)
+
+Thrull Surgeon
+1B
+Creature - Thrull
+1/1
+1B, Sacrifice Thrull Surgeon: Look at target player's hand and choose a card from it. That player discards that card. Play this ability only any time you could play a sorcery.
+
+Thundering Giant
+3RR
+Creature - Giant
+4/3
+Haste (This creature can attack and T as soon as it comes under your control.)
+
+Tidings
+3UU
+Sorcery
+Draw four cards.
+
+Time Stop
+4UU
+Instant
+End the turn. (Remove all spells and abilities on the stack from the game, including this card. The player whose turn it is discards down to his or her maximum hand size. Damage wears off, and "this turn" and "until end of turn" effects end.)
+
+Time Stretch
+8UU
+Sorcery
+Target player takes two extra turns after this one.
+
+Traumatize
+3UU
+Sorcery
+Target player puts the top half of his or her library, rounded down, into his or her graveyard.
+
+Treasure Hunter
+2W
+Creature - Human
+2/2
+When Treasure Hunter comes into play, you may return target artifact card from your graveyard to your hand.
+
+Treetop Bracers
+1G
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Enchanted creature gets +1/+1 and can't be blocked except by creatures with flying.
+
+Treetop Village
+Land
+Treetop Village comes into play tapped.
+T Add G to your mana pool.
+1G: Treetop Village becomes a 3/3 green Ape creature with trample until end of turn. It's still a land. (If it would deal enough combat damage to its blockers to destroy them, you may have it deal the rest of its damage to defending player.)
+
+Troll Ascetic
+1GG
+Creature - Troll Shaman
+3/2
+Troll Ascetic can't be the target of spells or abilities your opponents control.
+1G: Regenerate Troll Ascetic. (The next time this creature would be destroyed this turn, it isn't. Instead tap it, remove all damage from it, and remove it from combat.)
+
+True Believer
+WW
+Creature - Human Cleric
+2/2
+You have shroud. (You can't be the target of spells or abilities.)
+
+Tundra Wolves
+W
+Creature - Wolf
+1/1
+First strike (This creature deals combat damage before creatures without first strike.)
+
+Twincast
+UU
+Instant
+Copy target instant or sorcery spell. You may choose new targets for the copy.
+
+Twitch
+2U
+Instant
+You may tap or untap target artifact, creature, or land.
+Draw a card.
+
+Uncontrollable Anger
+2RR
+Enchantment - Aura
+Flash (You may play this spell any time you could play an instant.)
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Enchanted creature gets +2/+2 and attacks each turn if able.
+
+Underground River
+Land
+T Add 1 to your mana pool.
+T Add U or B to your mana pool. Underground River deals 1 damage to you.
+
+Underworld Dreams
+BBB
+Enchantment
+Whenever an opponent draws a card, Underworld Dreams deals 1 damage to him or her.
+
+Unholy Strength
+B
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+Enchanted creature gets +2/+1.
+
+Unsummon
+U
+Instant
+Return target creature to its owner's hand.
+
+Upwelling
+3G
+Enchantment
+Mana pools don't empty at the end of phases or turns. (This effect stops mana burn.)
+
+Vampire Bats
+B
+Creature - Bat
+0/1
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+B: Vampire Bats gets +1/+0 until end of turn. Play this ability no more than twice each turn.
+
+Vedalken Mastermind
+UU
+Creature - Vedalken Wizard
+1/2
+U, T Return target permanent you control to its owner's hand.
+
+Verdant Force
+5GGG
+Creature - Elemental
+7/7
+At the beginning of each upkeep, put a 1/1 green Saproling creature token into play under your control.
+
+Viashino Runner
+3R
+Creature - Viashino
+3/2
+Viashino Runner can't be blocked except by two or more creatures.
+
+Viashino Sandscout
+1R
+Creature - Viashino Scout
+2/1
+Haste (This creature can attack and T as soon as it comes under your control.)
+At end of turn, return Viashino Sandscout to its owner's hand. (Return it only if it's in play.)
+
+Viridian Shaman
+2G
+Creature - Elf Shaman
+2/2
+When Viridian Shaman comes into play, destroy target artifact.
+
+Voice of All
+2WW
+Creature - Angel
+2/2
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+As Voice of All comes into play, choose a color. 
+Voice of All has protection from the chosen color. (It can't be blocked, targeted, dealt damage, or enchanted by anything of the chosen color.)
+
+Wall of Air
+1UU
+Creature - Wall
+1/5
+Defender, flying (This creature can't attack, and it can block creatures with flying.)
+
+Wall of Fire
+1RR
+Creature - Wall
+0/5
+Defender (This creature can't attack.)
+R: Wall of Fire gets +1/+0 until end of turn.
+
+Wall of Swords
+3W
+Creature - Wall
+3/5
+Defender, flying (This creature can't attack, and it can block creatures with flying.)
+
+Wall of Wood
+G
+Creature - Wall
+0/3
+Defender (This creature can't attack.)
+
+Warp World
+5RRR
+Sorcery
+Each player shuffles all permanents he or she owns into his or her library, then reveals that many cards from the top of his or her library. Each player puts all artifact, creature, and land cards revealed this way into play, then puts all enchantment cards revealed this way into play, then puts all cards revealed this way that weren't put into play on the bottom of his or her library in any order.
+
+Warrior's Honor
+2W
+Instant
+Creatures you control get +1/+1 until end of turn.
+
+Whispersilk Cloak
+3
+Artifact - Equipment
+Equipped creature is unblockable and has shroud. (It can't be the target of spells or abilities.)
+Equip 2 (2: Attach to target creature you control. Equip only as a sorcery.)
+
+Wild Griffin
+2W
+Creature - Griffin
+2/2
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+
+Windborn Muse
+3W
+Creature - Spirit
+2/3
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+Creatures can't attack you unless their controller pays 2 for each creature he or she controls that's attacking you.
+
+Wrath of God
+2WW
+Sorcery
+Destroy all creatures. They can't be regenerated.
+
+Wurm's Tooth
+2
+Artifact
+Whenever a player plays a green spell, you may gain 1 life.
+
+Yavimaya Coast
+Land
+T Add 1 to your mana pool.
+T Add G or U to your mana pool. Yavimaya Coast deals 1 damage to you.
+
+Yavimaya Enchantress
+2G
+Creature - Human Druid
+2/2
+Yavimaya Enchantress gets +1/+1 for each enchantment in play.
+
+Youthful Knight
+1W
+Creature - Human Knight
+2/1
+First strike (This creature deals combat damage before creatures without first strike.)
+

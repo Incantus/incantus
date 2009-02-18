@@ -1,0 +1,10 @@
+name = 'Peach Garden Oath'
+cardnum = 34
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'W'
+color = characteristic(['W'])
+text = ['You gain 2 life for each creature you control.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

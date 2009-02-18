@@ -1,0 +1,19 @@
+name = 'Vivid Meadow'
+cardnum = 279
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ['Vivid Meadow comes into play tapped with two charge counters on it.', 'T Add W to your mana pool.', 'T, Remove a charge counter from Vivid Meadow: Add one mana of any color to your mana pool.']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('C'))]
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+
+#################################

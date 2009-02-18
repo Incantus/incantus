@@ -1,0 +1,20 @@
+name = 'Zealous Inquisitor'
+cardnum = 57
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Cleric'])
+cost = '2W'
+color = characteristic(['W'])
+text = ['1W: The next 1 damage that would be dealt to Zealous Inquisitor this turn is dealt to target creature instead.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

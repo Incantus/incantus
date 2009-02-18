@@ -1,0 +1,20 @@
+name = 'Kinsbaile Skirmisher'
+cardnum = 24
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Kithkin', 'Soldier'])
+cost = '1W'
+color = characteristic(['W'])
+text = ['When Kinsbaile Skirmisher comes into play, target creature gets +1/+1 until end of turn.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

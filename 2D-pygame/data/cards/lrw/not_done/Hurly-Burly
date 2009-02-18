@@ -1,0 +1,10 @@
+name = 'Hurly-Burly'
+cardnum = 177
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1R'
+color = characteristic(['R'])
+text = ['Hurly-Burly deals 1 damage to each creature without flying', 'Hurly-Burly deals 1 damage to each creature with flying.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

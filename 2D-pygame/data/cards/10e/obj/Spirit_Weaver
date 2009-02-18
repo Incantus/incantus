@@ -1,0 +1,23 @@
+name = 'Spirit Weaver'
+cardnum = 46
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Wizard'])
+cost = '1W'
+color = characteristic(['W'])
+text = ['2: Target green or blue creature gets +0/+1 until end of turn.']
+
+subrole = Creature(2, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, "2",
+                                target=Target(target_types=isCreature.with(lambda c: c.color == "G" or c.color == "U")),
+                                effects=AugmentPowerToughness(power=0,toughness=1))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

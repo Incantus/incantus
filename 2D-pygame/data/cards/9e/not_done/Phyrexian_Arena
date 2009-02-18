@@ -1,0 +1,20 @@
+name = 'Phyrexian Arena'
+cardnum = 152
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1BB'
+color = characteristic(['B'])
+text = ['At the beginning of your upkeep, you draw a card and you lose 1 life.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

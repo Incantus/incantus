@@ -1,0 +1,19 @@
+name = 'Chandra Nalaar'
+cardnum = 159
+type = characteristic('Planeswalker - Chandra')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3RR'
+color = characteristic(['R'])
+text = ['6', '+1: Chandra Nalaar deals 1 damage to target player.', '-X: Chandra Nalaar deals X damage to target creature.', '-8: Chandra Nalaar deals 10 damage to target player and each creature he or she controls.']
+
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

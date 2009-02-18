@@ -1,0 +1,23 @@
+name = 'Stonybrook Schoolmaster'
+cardnum = 303
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Merfolk', 'Wizard'])
+cost = '2W'
+color = characteristic(['W'])
+text = ['Whenever Stonybrook Schoolmaster becomes tapped, you may put a 1/1 blue Merfork Wizard creature token into play.']
+
+subrole = Creature(1, 2)
+in_play_role = Permanent(card, subrole)
+
+subrole.abilities = []
+trigger = Trigger(CardTapped())
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = trigger,
+                                        match_condition = SelfMatch(card),
+                                        ability = ChoiceAbility(card, "0", msg="place 1/1 blue Merfolk Wizard token?",
+							effects=CreateToken(token_info={"name": "Merfolk Wizard", "type": "Creature", "subtypes": ["Merfolk", "Wizard"], "color": "U", "role": TokenCreature(1,1)})))
+]
+
+subrole.static_abilities = []
+

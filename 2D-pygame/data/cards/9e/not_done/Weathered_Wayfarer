@@ -1,0 +1,20 @@
+name = 'Weathered Wayfarer'
+cardnum = 54
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Nomad', 'Cleric'])
+cost = 'W'
+color = characteristic(['W'])
+text = ['W, T Search your library for a land card, reveal it, and put it into your hand. Then shuffle your library. Play this ability only if an opponent controls more lands than you.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

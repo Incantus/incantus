@@ -1,0 +1,10 @@
+name = 'Sleight of Hand'
+cardnum = 99
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'U'
+color = characteristic(['U'])
+text = ['Look at the top two cards of your library. Put one of them into your hand and the other on the bottom of your library.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

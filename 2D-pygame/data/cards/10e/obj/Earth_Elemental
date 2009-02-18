@@ -1,0 +1,20 @@
+name = 'Earth Elemental'
+cardnum = 199
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental'])
+cost = '3RR'
+color = characteristic(['R'])
+text = []
+
+subrole = Creature(4, 5)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

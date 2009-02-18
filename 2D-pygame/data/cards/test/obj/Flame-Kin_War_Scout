@@ -1,0 +1,22 @@
+name = 'Flame-Kin War Scout'
+cardnum = 4
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental', 'Scout'])
+cost = '3R'
+color = characteristic(['R'])
+text = ['When another creature comes into play, sacrifice Flame-Kin War Scout. If you do, Flame-Kin War Scout deals 4 damage to that creature.']
+
+subrole = Creature(2,4)
+in_play_role = Permanent(card, subrole)
+
+subrole.abilities = []
+trigger = EnterTrigger("play", any=True)
+subrole.triggered_abilities = [TriggeredAbility(card, 
+					trigger=trigger,
+					match_condition = isCreature.with(lambda c, self=card: not c == self),
+					ability=Ability(card,
+						target=Target(targeting=lambda t=trigger: t.matched_card),
+                                                 effects=DependentEffects([SacrificeSelf(), DealDamage(4)]))),
+]
+

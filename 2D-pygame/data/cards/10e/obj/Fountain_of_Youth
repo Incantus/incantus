@@ -1,0 +1,20 @@
+name = 'Fountain of Youth'
+cardnum = 323
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '0'
+color = characteristic(['C'])
+text = ['2, T You gain 1 life.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("2"), TapCost()]), effects=ChangeLife(1))]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

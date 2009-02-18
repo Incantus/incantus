@@ -1,0 +1,26 @@
+name = 'Denizen of the Deep'
+cardnum = 80
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Serpent'])
+cost = '6UU'
+color = characteristic(['U'])
+text = ["When Denizen of the Deep comes into play, return each other creature you control to its owner's hand."]
+
+subrole = Creature(11, 11)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger=EnterTrigger("play"),
+                                        match_condition = SelfMatch(card),
+                                        ability=Ability(card,
+                                                  target=AllPermanentTargets(target_types=isCreature.with(lambda creature, card=card: creature.controller==card.controller and creature!=card)),
+                                                  effects=ForEach(ChangeZoneFromPlay(to_zone="hand"))))
+]
+subrole.static_abilities = []
+
+#################################

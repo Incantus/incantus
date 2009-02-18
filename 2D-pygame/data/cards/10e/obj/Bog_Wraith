@@ -1,0 +1,21 @@
+name = 'Bog Wraith'
+cardnum = 130
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Wraith'])
+cost = '3B'
+color = characteristic(['B'])
+text = ['Swampwalk']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+swampwalk(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

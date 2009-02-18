@@ -1,0 +1,20 @@
+name = 'Rings of Brighthearth'
+cardnum = 259
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3'
+color = characteristic(['C'])
+text = ["Whenever you play an activated ability, if it isn't a mana ability, you may pay 2. If you do, copy that ability. You may choose new targets for the copy."]
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

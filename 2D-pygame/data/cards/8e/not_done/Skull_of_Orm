@@ -1,0 +1,20 @@
+name = 'Skull of Orm'
+cardnum = 313
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3'
+color = characteristic(['C'])
+text = ['5, T Return target enchantment card from your graveyard to your hand.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

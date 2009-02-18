@@ -1,0 +1,20 @@
+name = 'Whip Sergeant'
+cardnum = 227
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Soldier'])
+cost = '2R'
+color = characteristic(['R'])
+text = ['R: Target creature gains haste until end of turn.']
+
+subrole = Creature(2, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

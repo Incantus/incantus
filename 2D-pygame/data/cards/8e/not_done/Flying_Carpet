@@ -1,0 +1,20 @@
+name = 'Flying Carpet'
+cardnum = 301
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '4'
+color = characteristic(['C'])
+text = ['2, T Target creature gains flying until end of turn.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,20 @@
+name = 'Ley Druid'
+cardnum = 251
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Druid'])
+cost = '2G'
+color = characteristic(['G'])
+text = ['T Untap target land.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

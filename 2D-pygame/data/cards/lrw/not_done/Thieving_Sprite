@@ -1,0 +1,20 @@
+name = 'Thieving Sprite'
+cardnum = 143
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Faerie', 'Rogue'])
+cost = '2B'
+color = characteristic(['B'])
+text = ['Flying', 'When Thieving Sprite comes into play, target player reveals X cards from his or her hand, where X is the number of Faeries you control. You choose one of those cards. That player discards that card.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

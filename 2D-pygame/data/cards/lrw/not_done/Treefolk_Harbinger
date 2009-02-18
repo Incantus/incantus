@@ -1,0 +1,20 @@
+name = 'Treefolk Harbinger'
+cardnum = 239
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Treefolk', 'Druid'])
+cost = 'G'
+color = characteristic(['G'])
+text = ['When Treefolk Harbinger comes into play, you may search your library for a Treefolk or Forest card, reveal it, then shuffle your library and put that card on top of it.']
+
+subrole = Creature(0, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

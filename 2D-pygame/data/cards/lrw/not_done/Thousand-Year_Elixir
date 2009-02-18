@@ -1,0 +1,20 @@
+name = 'Thousand-Year Elixir'
+cardnum = 263
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3'
+color = characteristic(['C'])
+text = ['You may play the activated abilities of creatures you control as though those creatures had haste.', '1, T Untap target creature.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

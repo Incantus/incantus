@@ -1,0 +1,27 @@
+name = 'Treasure Hunter'
+cardnum = 52
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human'])
+cost = '2W'
+color = characteristic(['W'])
+text = ['When Treasure Hunter comes into play, you may return target artifact card from your graveyard to your hand.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                      trigger = EnterTrigger("play"),
+                                      match_condition=SelfMatch(card),
+                                      ability=ChoiceAbility(card, "0",
+                                                 choice_target=Target(targeting="controller"),
+                                                 target=Target(targeting="controller"),
+                                                 effects=MoveTargetCards(from_zone="graveyard", to_zone="hand", card_types=isArtifactType))),
+]
+subrole.static_abilities = []
+
+#################################

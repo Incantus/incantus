@@ -1,0 +1,20 @@
+name = 'Smokebraider'
+cardnum = 189
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental', 'Shaman'])
+cost = '1R'
+color = characteristic(['R'])
+text = ['T Add two mana in any combination of colors to your mana pool. Spend this mana only to play Elemental spells or activated abilities of Elementals.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

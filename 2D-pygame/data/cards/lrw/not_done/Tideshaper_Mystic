@@ -1,0 +1,20 @@
+name = 'Tideshaper Mystic'
+cardnum = 93
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Merfolk', 'Wizard'])
+cost = 'U'
+color = characteristic(['U'])
+text = ['T Target land becomes the basic land type of your choice until end of turn. Play this ability only during your turn.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

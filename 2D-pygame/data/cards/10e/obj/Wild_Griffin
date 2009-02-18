@@ -1,0 +1,21 @@
+name = 'Wild Griffin'
+cardnum = 59
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Griffin'])
+cost = '2W'
+color = characteristic(['W'])
+text = ['Flying']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flying(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

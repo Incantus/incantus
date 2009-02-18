@@ -1,0 +1,23 @@
+name = 'Flamewave Invoker'
+cardnum = 202
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin', 'Mutant'])
+cost = '2R'
+color = characteristic(['R'])
+text = ['7R: Flamewave Invoker deals 5 damage to target player.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, "7R",
+                                target=Target(target_types=isPlayer),
+                                effects=DealDamage(5))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

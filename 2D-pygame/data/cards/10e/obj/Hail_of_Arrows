@@ -1,0 +1,14 @@
+name = 'Hail of Arrows'
+cardnum = 18
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = 'XW'
+color = characteristic(['W'])
+text = ['Hail of Arrows deals X damage divided as you choose among any number of target attacking creatures.']
+
+mc = ManaCost("XW")
+out_play_role.abilities = [CastNonPermanentSpell(card, mc,
+				target=AllPermanentTargets(isCreature.with(lambda c: c.attacking)),
+				effects=DistributeDamage(amount=mc.X))
+]

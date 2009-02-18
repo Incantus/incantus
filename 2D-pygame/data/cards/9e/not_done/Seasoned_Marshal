@@ -1,0 +1,20 @@
+name = 'Seasoned Marshal'
+cardnum = 42
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Soldier'])
+cost = '2WW'
+color = characteristic(['W'])
+text = ['Whenever Seasoned Marshal attacks, you may tap target creature.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

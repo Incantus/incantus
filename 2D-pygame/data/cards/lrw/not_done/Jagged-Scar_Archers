@@ -1,0 +1,20 @@
+name = 'Jagged-Scar Archers'
+cardnum = 222
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf', 'Archer'])
+cost = '1GG'
+color = characteristic(['G'])
+text = ["Jagged-Scar Archers's power and toughness are each equal to the number of Elves you control.", 'T Jagged-Scar Archers deals damage equal to its power to target creature with flying.']
+
+subrole = Creature(-1, -1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

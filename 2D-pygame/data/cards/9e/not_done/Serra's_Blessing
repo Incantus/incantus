@@ -1,0 +1,20 @@
+name = "Serra's Blessing"
+cardnum = 44
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1W'
+color = characteristic(['W'])
+text = ['Creatures you control have vigilance.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

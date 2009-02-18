@@ -1,0 +1,20 @@
+name = 'Tree Monkey'
+cardnum = 275
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Ape'])
+cost = 'G'
+color = characteristic(['G'])
+text = ['Reach']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

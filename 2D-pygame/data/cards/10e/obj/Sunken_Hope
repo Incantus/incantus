@@ -1,0 +1,27 @@
+name = 'Sunken Hope'
+cardnum = 112
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3UU'
+color = characteristic(['U'])
+text = ["At the beginning of each player's upkeep, that player returns a creature he or she controls to its owner's hand."]
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+trigger = PlayerTrigger(event=UpkeepStepEvent())
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                      trigger = trigger,
+                                      match_condition = lambda player: True,
+                                      ability = StacklessAbility(card,
+                                                        target=Target(target_types=isCreature.with(lambda c, t=trigger: c.controller == t.player), required=True, selector="current_player"),
+                                                        effects=ChangeZoneFromPlay(to_zone="hand")))
+]
+subrole.static_abilities = []
+
+#################################

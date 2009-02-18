@@ -1,0 +1,20 @@
+name = 'Fungusaur'
+cardnum = 250
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Fungus'])
+cost = '3G'
+color = characteristic(['G'])
+text = ['Whenever Fungusaur is dealt damage, put a +1/+1 counter on it.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

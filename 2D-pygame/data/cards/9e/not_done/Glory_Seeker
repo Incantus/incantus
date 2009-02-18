@@ -1,0 +1,20 @@
+name = 'Glory Seeker'
+cardnum = 17
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Soldier'])
+cost = '1W'
+color = characteristic(['W'])
+text = []
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

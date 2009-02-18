@@ -1,0 +1,20 @@
+name = 'Death Pit Offering'
+cardnum = 124
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2BB'
+color = characteristic(['B'])
+text = ['When Death Pit Offering comes into play, sacrifice all creatures you control.', 'Creatures you control get +2/+2.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

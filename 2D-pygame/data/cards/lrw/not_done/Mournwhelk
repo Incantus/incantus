@@ -1,0 +1,20 @@
+name = 'Mournwhelk'
+cardnum = 127
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental'])
+cost = '6B'
+color = characteristic(['B'])
+text = ['When Mournwhelk comes into play, target player discards two cards.', 'Evoke 3B']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

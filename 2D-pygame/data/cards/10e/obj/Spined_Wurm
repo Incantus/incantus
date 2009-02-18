@@ -1,0 +1,20 @@
+name = 'Spined Wurm'
+cardnum = 298
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Wurm'])
+cost = '4G'
+color = characteristic(['G'])
+text = []
+
+subrole = Creature(5, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

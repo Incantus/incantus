@@ -1,0 +1,20 @@
+name = 'Boggart Sprite-Chaser'
+cardnum = 156
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin', 'Warrior'])
+cost = '1R'
+color = characteristic(['R'])
+text = ['As long as you control a Faerie, Boggart Sprite-Chaser gets +1/+1 and has flying.']
+
+subrole = Creature(1, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

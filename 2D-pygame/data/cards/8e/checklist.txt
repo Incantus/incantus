@@ -1,0 +1,148 @@
+2	Angelic Page
+3	Ardent Militia
+4	Avatar of Hope
+7	Blessed Reversal
+11	Circle of Protection: Blue
+12	Circle of Protection: Green
+14	Circle of Protection: White
+17	Diving Griffin
+18	Elite Archers
+19	Elite Javelineer
+22	Healing Salve
+26	Intrepid Hero
+28	Karma
+31	Noble Purpose
+34	Peach Garden Oath
+35	Rain of Blades
+36	Razorfoot Griffin
+37	Redeem
+38	Rolling Stones
+42	Sanctimony
+46	Solidarity
+48	Standing Troops
+49	Staunch Defenders
+52	Sunweb
+53	Sword Dancer
+62	Balance of Power
+64	Bribery
+65	Catalog
+66	Coastal Hornclaw
+67	Coastal Piracy
+68	Concentrate
+70	Coral Eel
+72	Curiosity
+74	Deflection
+77	Fighting Drake
+78	Flash Counter
+82	Hibernation
+84	Index
+85	Inspiration
+86	Intruder Alarm
+87	Invisibility
+90	Merchant of Secrets
+91	Merchant Scroll
+97	Sage of Lat-Nam
+100	Shifting Sky
+101	Sneaky Homunculus
+103	Steal Artifact
+111	Twiddle
+115	Wrath of Marit Lage
+117	Abyssal Specter
+118	Ambition's Cost
+121	Carrion Wall
+124	Death Pit Offering
+127	Deepwood Ghoul
+131	Eastern Paladin
+133	Fallen Angel
+139	Larceny
+142	Maggot Carrier
+145	Mind Slash
+146	Mind Sludge
+147	Murderous Betrayal
+148	Nausea
+153	Phyrexian Plaguelord
+156	Primeval Shambler
+162	Sever Soul
+170	Vampiric Spirit
+171	Vicious Hunger
+172	Warped Devotion
+173	Western Paladin
+179	Bloodshot Cyclops
+180	Boil
+181	Canyon Wildcat
+182	Cinder Wall
+184	Dwarven Demolition Team
+189	Goblin Glider
+191	Goblin Raider
+193	Hammer of Bogardan
+195	Hulking Cyclops
+196	Inferno
+198	Lava Hounds
+199	Lesser Gargadon
+200	Lightning Blast
+204	Obliterate
+206	Okk
+208	Orcish Spy
+211	Pyrotechnics
+215	Ridgeline Rager
+217	Sabretooth Tiger
+218	Searing Wind
+223	Shock Troops
+224	Sizzle
+227	Thieves' Auction
+228	Tremor
+229	Two-Headed Dragon
+232	Wall of Stone
+235	Call of the Wild
+237	Choke
+238	Collective Unconscious
+242	Elvish Lyrist
+243	Elvish Pioneer
+245	Elvish Scrapper
+247	Fecundity
+248	Fertile Ground
+249	Foratog
+250	Fungusaur
+251	Fyndhorn Elder
+253	Giant Badger
+257	Horned Troll
+259	Lhurgoyf
+260	Living Terrain
+262	Lone Wolf
+266	Monstrous Growth
+267	Moss Monster
+268	Nantuko Disciple
+272	Plow Under
+273	Primeval Force
+276	Revive
+280	Spitting Spider
+281	Spreading Algae
+283	Thorn Elemental
+286	Vernal Bloom
+287	Vine Trellis
+288	Wing Snare
+293	Brass Herald
+295	Crystal Rod
+297	Dingus Egg
+299	Distorting Lens
+300	Ensnaring Bridge
+301	Flying Carpet
+302	Fodder Cannon
+304	Iron Star
+305	Ivory Cup
+308	Patagia Golem
+309	Phyrexian Colossus
+311	Planar Portal
+313	Skull of Orm
+315	Star Compass
+317	Throne of Bone
+318	Urza's Armor
+319	Vexing Arcanix
+320	Wall of Spears
+321	Wooden Sphere
+322	City of Brass
+323	Coastal Tower
+324	Elfhame Palace
+325	Salt Marsh
+326	Shivan Oasis
+327	Urborg Volcano

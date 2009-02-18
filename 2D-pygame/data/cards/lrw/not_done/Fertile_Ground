@@ -1,0 +1,25 @@
+name = 'Fertile Ground'
+cardnum = 211
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic(['Aura'])
+cost = '1G'
+color = characteristic(['G'])
+text = ['Enchant land', 'Whenever enchanted land is tapped for mana, its controller adds one mana of any color to his or her mana pool.']
+
+out_play_role.abilities = [EnchantCreature(cost)]
+target_type = isCreature
+out_play_role.abilities = [CastPermanentSpell(card, cost,
+                               target=Target(target_types=target_type),
+                               effects=AttachToPermanent())]
+subrole = Aura(target_type)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

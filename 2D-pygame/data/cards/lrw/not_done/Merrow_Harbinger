@@ -1,0 +1,20 @@
+name = 'Merrow Harbinger'
+cardnum = 73
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Merfolk', 'Wizard'])
+cost = '3U'
+color = characteristic(['U'])
+text = ['Islandwalk', 'When Merrow Harbinger comes into play, you may search your library for a Merfolk card, reveal it, then shuffle your library and put that card on top of it.']
+
+subrole = Creature(2, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,10 @@
+name = 'Boiling Seas'
+cardnum = 178
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3R'
+color = characteristic(['R'])
+text = ['Destroy all Islands.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

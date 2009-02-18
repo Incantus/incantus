@@ -1,0 +1,29 @@
+name = 'Benthicore'
+cardnum = 53
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elemental'])
+cost = '6U'
+color = characteristic(['U'])
+text = ['When Benthicore comes into play, put two 1/1 blue Merfolk Wizard creature tokens into play.', 'Tap two untapped Merfolk you control: Untap Benthicore. It gains shroud until end of turn.']
+
+subrole = Creature(5, 5)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, TapCost(cardtype=isCreature.with(lambda c: c.subtypes == "Merfolk"), number=2),
+                        target=Target(targeting="self"),
+                        effects=[UntapTargetPermanent(), GiveKeyword(shroud, keyword="shroud")])
+]
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                      trigger = EnterTrigger("play"),
+                                      match_condition=SelfMatch(card),
+                                      ability=Ability(card,
+                                                target=Target(targeting="controller"),
+                                                effects=ForN(2, CreateToken({"name":"Merfolk Wizard", "type":"Creature", "color":"U", "subtypes":["Merfolk", "Wizard"], "role": TokenCreature(1,1)}))))
+]
+subrole.static_abilities = []
+
+#################################

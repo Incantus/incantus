@@ -1,0 +1,10 @@
+name = 'Withering Gaze'
+cardnum = 113
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2U'
+color = characteristic(['U'])
+text = ['Target opponent reveals his or her hand. You draw a card for each Forest and green card in it.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

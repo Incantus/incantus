@@ -1,0 +1,26 @@
+name = 'Lord of the Undead'
+cardnum = 155
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Zombie'])
+cost = '1BB'
+color = characteristic(['B'])
+text = ['Other Zombie creatures get +1/+1.', '1B, T Return target Zombie card from your graveyard to your hand.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, MultipleCosts([ManaCost("1B"), TapCost()]),
+                                target=Target(targeting="controller"),
+                                effects=MoveTargetCards(from_zone="graveyard", to_zone="hand", card_types=isCreatureType.with(lambda c: c.subtypes == "Zombie")))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = [PermanentTrackingAbility(card,
+                                        enter_condition = isCreature.with(lambda c, self=card: not c == self and c.subtypes == "Zombie"),                
+                                        leave_condition = isCreature.with(lambda c, self=card: not c == self and c.subtypes == "Zombie"),
+                                        effects = AugmentPowerToughness(power=1, toughness=1, expire=False)),]
+
+#################################

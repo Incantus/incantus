@@ -1,0 +1,20 @@
+name = 'Goldmeadow Dodger'
+cardnum = 16
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Kithkin', 'Rogue'])
+cost = 'W'
+color = characteristic(['W'])
+text = ["Goldmeadow Dodger can't be blocked by creatures with power 4 or greater."]
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

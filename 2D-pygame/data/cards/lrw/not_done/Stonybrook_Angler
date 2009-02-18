@@ -1,0 +1,20 @@
+name = 'Stonybrook Angler'
+cardnum = 90
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Merfolk', 'Wizard'])
+cost = '1U'
+color = characteristic(['U'])
+text = ['1U, T You may tap or untap target creature.']
+
+subrole = Creature(1, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

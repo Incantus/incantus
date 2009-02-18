@@ -1,0 +1,19 @@
+name = 'Liliana Vess'
+cardnum = 121
+type = characteristic('Planeswalker - Liliana')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3BB'
+color = characteristic(['B'])
+text = ['5', '+1: Target player discards a card.', '-2: Search your library for a card, then shuffle your library and put that card on top of it.', '-8: Put all creature cards in all graveyards into play under your control.']
+
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

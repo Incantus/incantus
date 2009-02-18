@@ -1,0 +1,20 @@
+name = 'Favor of the Mighty'
+cardnum = 14
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic(['Giant'])
+cost = '1W'
+color = characteristic(['W'])
+text = ['Each creature with the highest converted mana cost has protection from all colors.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,24 @@
+name = 'Aven Windreader'
+cardnum = 69
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Bird', 'Soldier', 'Wizard'])
+cost = '3UU'
+color = characteristic(['U'])
+text = ['Flying', '1U: Target player reveals the top card of his or her library.']
+
+subrole = Creature(3, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flying(subrole)
+subrole.abilities = [ActivatedAbility(card, "1U",
+                                        target=Target(target_types=isPlayer),
+                                        effects=RevealCard(lambda target: target.library[0], both=True)),
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

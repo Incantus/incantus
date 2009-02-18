@@ -1,0 +1,29 @@
+name = 'Shimmering Wings'
+cardnum = 107
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic(['Aura'])
+cost = 'U'
+color = characteristic(['U'])
+text = ['Enchant creature', 'Enchanted creature has flying.', "U: Return Shimmering Wings to its owner's hand."]
+
+target_type = isCreature
+out_play_role.abilities = [CastPermanentSpell(card, cost,
+                               target=Target(target_types=target_type),
+                               effects=AttachToPermanent())]
+subrole = Aura(target_type)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, "U",
+                                target=Target(targeting="self"),
+                                effects=ChangeZoneFromPlay(to_zone="hand"))]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+subrole.attached_abilities = [AuraStaticAbility(card,
+                                        effects=GiveKeyword(flying, keyword="flying", expire=False))
+]
+
+#################################

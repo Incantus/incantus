@@ -1,0 +1,10 @@
+name = 'Super Card'
+cardnum = 2
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '0'
+color = characteristic(['C'])
+text = ['add BBBBBUUUUUGGGGGRRRRRWWWWW to your mana pool', 'take an extra turn after this one', 'empty your mana pool', 'Super Card deals 3 damaga to target creature', 'destroy target permanent', 'draw 20 cards.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

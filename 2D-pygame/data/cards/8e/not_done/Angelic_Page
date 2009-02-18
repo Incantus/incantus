@@ -1,0 +1,20 @@
+name = 'Angelic Page'
+cardnum = 2
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Angel', 'Spirit'])
+cost = '1W'
+color = characteristic(['W'])
+text = ['Flying', 'T Target attacking or blocking creature gets +1/+1 until end of turn.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

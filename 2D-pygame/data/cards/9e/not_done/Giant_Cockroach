@@ -1,0 +1,20 @@
+name = 'Giant Cockroach'
+cardnum = 133
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Insect'])
+cost = '3B'
+color = characteristic(['B'])
+text = []
+
+subrole = Creature(4, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,20 @@
+name = 'Exiled Boggart'
+cardnum = 109
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Goblin', 'Rogue'])
+cost = '1B'
+color = characteristic(['B'])
+text = ['When Exiled Boggart is put into a graveyard from play, discard a card.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

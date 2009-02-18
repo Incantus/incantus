@@ -1,0 +1,20 @@
+name = 'Dreamspoiler Witches'
+cardnum = 108
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Faerie', 'Wizard'])
+cost = '3B'
+color = characteristic(['B'])
+text = ['Flying', "Whenever you play a spell during an opponent's turn, you may have target creature get -1/-1 until end of turn."]
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

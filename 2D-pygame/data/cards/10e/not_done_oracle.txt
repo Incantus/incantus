@@ -1,0 +1,231 @@
+Abundance
+2GG
+Enchantment
+If you would draw a card, you may instead choose land or nonland and reveal cards from the top of your library until you reveal a card of the chosen kind. Put that card into your hand and put all other cards revealed this way on the bottom of your library in any order.
+
+Clone
+3U
+Creature - Shapeshifter
+0/0
+As Clone comes into play, you may choose a creature in play. If you do, Clone comes into play as a copy of that creature.
+
+Coat of Arms
+5
+Artifact
+Each creature gets +1/+1 for each other creature in play that shares a creature type with it. (For example, if a Goblin Warrior, a Goblin Scout, and a Zombie Goblin are in play, each gets +2/+2.)
+
+Commune with Nature
+G
+Sorcery
+Look at the top five cards of your library. You may reveal a creature card from among them and put it into your hand. Put the rest on the bottom of your library in any order.
+
+Consume Spirit
+X1B
+Sorcery
+Spend only black mana on X.
+Consume Spirit deals X damage to target creature or player and you gain X life.
+
+Crucible of Worlds
+3
+Artifact
+You may play land cards from your graveyard.
+
+Furnace of Rath
+1RRR
+Enchantment
+If a source would deal damage to a creature or player, it deals double that damage to that creature or player instead.
+
+Guerrilla Tactics
+1R
+Instant
+Guerrilla Tactics deals 2 damage to target creature or player.
+When a spell or ability an opponent controls causes you to discard Guerrilla Tactics, Guerrilla Tactics deals 4 damage to target creature or player.
+
+High Ground
+W
+Enchantment
+Each creature you control can block an additional creature.
+
+Incinerate
+1R
+Instant
+Incinerate deals 3 damage to target creature or player. A creature dealt damage this way can't be regenerated this turn.
+
+Kjeldoran Royal Guard
+3WW
+Creature - Human Soldier
+2/5
+T All combat damage that would be dealt to you by unblocked creatures this turn is dealt to Kjeldoran Royal Guard instead.
+
+Knight of Dusk
+1BB
+Creature - Human Knight
+2/2
+BB: Destroy target creature blocking Knight of Dusk.
+
+Legacy Weapon
+7
+Legendary Artifact
+WUBRG: Remove target permanent from the game.
+If Legacy Weapon would be put into a graveyard from anywhere, reveal Legacy Weapon and shuffle it into its owner's library instead.
+
+March of the Machines
+3U
+Enchantment
+Each noncreature artifact is an artifact creature with power and toughness each equal to its converted mana cost. (Equipment that's a creature can't equip a creature.)
+
+Mind Bend
+U
+Instant
+Change the text of target permanent by replacing all instances of one color word with another or one basic land type with another. (For example, you may change "nonblack creature" to "nongreen creature" or "forestwalk" to "islandwalk." This effect doesn't end at end of turn.)
+
+No Rest for the Wicked
+1B
+Enchantment
+Sacrifice No Rest for the Wicked: Return to your hand all creature cards that were put into your graveyard from play this turn.
+
+Pariah
+2W
+Enchantment - Aura
+Enchant creature (Target a creature as you play this. This card comes into play attached to that creature.)
+All damage that would be dealt to you is dealt to enchanted creature instead.
+
+Peek
+U
+Instant
+Look at target player's hand.
+Draw a card.
+
+Phage the Untouchable
+3BBBB
+Legendary Creature - Minion
+4/4
+When Phage the Untouchable comes into play, if you didn't play it from your hand, you lose the game. 
+Whenever Phage deals combat damage to a creature, destroy that creature. It can't be regenerated. 
+Whenever Phage deals combat damage to a player, that player loses the game.
+
+Pithing Needle
+1
+Artifact
+As Pithing Needle comes into play, name a card.
+Activated abilities of sources with the chosen name can't be played unless they're mana abilities.
+
+Plagiarize
+3U
+Instant
+Until end of turn, if target player would draw a card, instead that player skips that draw and you draw a card.
+
+Platinum Angel
+7
+Artifact Creature - Angel
+4/4
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+You can't lose the game and your opponents can't win the game.
+
+Relentless Assault
+2RR
+Sorcery
+Untap all creatures that attacked this turn. After this main phase, there is an additional combat phase followed by an additional main phase.
+
+Relentless Rats
+1BB
+Creature - Rat
+2/2
+Relentless Rats gets +1/+1 for each other creature in play named Relentless Rats.
+A deck can have any number of cards named Relentless Rats.
+
+Rhox
+4GG
+Creature - Rhino Beast
+5/5
+You may have Rhox deal its combat damage to defending player as though it weren't blocked.
+2G: Regenerate Rhox. (The next time this creature would be destroyed this turn, it isn't. Instead tap it, remove all damage from it, and remove it from combat.)
+
+Rule of Law
+2W
+Enchantment
+Each player can't play more than one spell each turn.
+
+Scoria Wurm
+4R
+Creature - Wurm
+7/7
+At the beginning of your upkeep, flip a coin. If you lose the flip, return Scoria Wurm to its owner's hand.
+
+Sea Monster
+4UU
+Creature - Serpent
+6/6
+Sea Monster can't attack unless defending player controls an Island.
+
+Seismic Assault
+RRR
+Enchantment
+Discard a land card: Seismic Assault deals 2 damage to target creature or player.
+
+Shunt
+1RR
+Instant
+Change the target of target spell with a single target.
+
+Soulblast
+3RRR
+Instant
+As an additional cost to play Soulblast, sacrifice all creatures you control. 
+Soulblast deals damage to target creature or player equal to the total power of the sacrificed creatures.
+
+Spellbook
+0
+Artifact
+You have no maximum hand size.
+
+Stalking Tiger
+3G
+Creature - Cat
+3/3
+Stalking Tiger can't be blocked by more than one creature.
+
+Story Circle
+1WW
+Enchantment
+As Story Circle comes into play, choose a color.
+W: The next time a source of your choice of the chosen color would deal damage to you this turn, prevent that damage.
+
+Telepathy
+U
+Enchantment
+Your opponents play with their hands revealed.
+
+Telling Time
+1U
+Instant
+Look at the top three cards of your library. Put one of those cards into your hand, one on top of your library, and one on the bottom of your library.
+
+Time Stop
+4UU
+Instant
+End the turn. (Remove all spells and abilities on the stack from the game, including this card. The player whose turn it is discards down to his or her maximum hand size. Damage wears off, and "this turn" and "until end of turn" effects end.)
+
+Time Stretch
+8UU
+Sorcery
+Target player takes two extra turns after this one.
+
+Viashino Runner
+3R
+Creature - Viashino
+3/2
+Viashino Runner can't be blocked except by two or more creatures.
+
+Voice of All
+2WW
+Creature - Angel
+2/2
+Flying (This creature can't be blocked except by creatures with flying or reach.)
+As Voice of All comes into play, choose a color. 
+Voice of All has protection from the chosen color. (It can't be blocked, targeted, dealt damage, or enchanted by anything of the chosen color.)
+
+Warp World
+5RRR
+Sorcery
+Each player shuffles all permanents he or she owns into his or her library, then reveals that many cards from the top of his or her library. Each player puts all artifact, creature, and land cards revealed this way into play, then puts all enchantment cards revealed this way into play, then puts all cards revealed this way that weren't put into play on the bottom of his or her library in any order.

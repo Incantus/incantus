@@ -1,0 +1,21 @@
+name = 'Dusk Imp'
+cardnum = 140
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Imp'])
+cost = '2B'
+color = characteristic(['B'])
+text = ['Flying']
+
+subrole = Creature(2, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flying(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

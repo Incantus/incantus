@@ -1,0 +1,20 @@
+name = 'Yawgmoth Demon'
+cardnum = 170
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Demon'])
+cost = '4BB'
+color = characteristic(['B'])
+text = ['Flying', 'First strike', "At the beginning of your upkeep, you may sacrifice an artifact. If you don't, tap Yawgmoth Demon and it deals 2 damage to you."]
+
+subrole = Creature(6, 6)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

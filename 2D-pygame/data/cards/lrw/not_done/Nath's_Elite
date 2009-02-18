@@ -1,0 +1,20 @@
+name = "Nath's Elite"
+cardnum = 231
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf', 'Warrior'])
+cost = '4G'
+color = characteristic(['G'])
+text = ["All creatures able to block Nath's Elite do so.", "When Nath's Elite comes into play, clash with an opponent. If you win, put a +1/+1 counter on Nath's Elite."]
+
+subrole = Creature(4, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

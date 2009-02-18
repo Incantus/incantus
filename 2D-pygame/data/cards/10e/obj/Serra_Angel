@@ -1,0 +1,22 @@
+name = 'Serra Angel'
+cardnum = 39
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Angel'])
+cost = '3WW'
+color = characteristic(['W'])
+text = ['Flying, vigilance']
+
+subrole = Creature(4, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flying(subrole)
+vigilance(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

@@ -1,0 +1,10 @@
+name = 'Reverse Damage'
+cardnum = 35
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1WW'
+color = characteristic(['W'])
+text = ['The next time a source of your choice would deal damage to you this turn, prevent that damage. You gain life equal to the damage prevented this way.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

@@ -1,0 +1,20 @@
+name = 'Wanderwine Prophets'
+cardnum = 95
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Merfolk', 'Wizard'])
+cost = '4UU'
+color = characteristic(['U'])
+text = ['Champion a Merfolk', 'Whenever Wanderwine Prophets deals combat damage to a player, you may sacrifice a Merfolk. If you do, take an extra turn after this one.']
+
+subrole = Creature(4, 4)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

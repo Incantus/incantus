@@ -1,0 +1,20 @@
+name = 'Beast of Burden'
+cardnum = 288
+type = characteristic('Creature')
+supertype = characteristic('Artifact')
+subtypes = characteristic(['Golem'])
+cost = '6'
+color = characteristic(['C'])
+text = ["Beast of Burden's power and toughness are each equal to the number of creatures in play."]
+
+subrole = Creature(-1, -1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

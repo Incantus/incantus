@@ -1,0 +1,20 @@
+name = 'Springjack Knight'
+cardnum = 41
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Kithkin', 'Knight'])
+cost = '2W'
+color = characteristic(['W'])
+text = ['Whenever Springjack Knight attacks, clash with an opponent. If you win, target creature gains double strike until end of turn.']
+
+subrole = Creature(2, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

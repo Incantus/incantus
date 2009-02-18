@@ -1,0 +1,183 @@
+4	Aven Flock
+6	Blessed Orator
+7	Blinding Angel
+8	Blinking Spirit
+9	Chastise
+10	Circle of Protection: Black
+11	Circle of Protection: Red
+12	Crossbow Infantry
+14	Foot Soldiers
+15	Gift of Estates
+17	Glory Seeker
+21	Infantry Veteran
+22	Inspirit
+23	Ivory Mask
+24	Kami of Old Stone
+25	Leonin Skyhunter
+26	Marble Titan
+27	Master Decoy
+28	Master Healer
+29	Mending Hands
+30	Oracle's Attendants
+33	Peace of Mind
+34	Pegasus Charger
+35	Reverse Damage
+37	Sacred Ground
+38	Sacred Nectar
+40	Sanctum Guardian
+41	Savannah Lions
+42	Seasoned Marshal
+44	Serra's Blessing
+52	Veteran Cavalier
+54	Weathered Wayfarer
+55	Worship
+57	Zealous Inquisitor
+59	Annex
+60	Archivist
+63	Azure Drake
+64	Baleful Stare
+65	Battle of Wits
+68	Confiscate
+70	Cowardice
+72	Daring Apprentice
+74	Dream Prowler
+76	Exhaustion
+77	Fishliver Oil
+78	Fleeting Image
+79	Flight
+81	Horned Turtle
+82	Imaginary Pet
+83	Levitation
+86	Mana Leak
+90	Polymorph
+94	Rewind
+95	Sage Aven
+97	Sea's Claim
+99	Sleight of Hand
+100	Storm Crow
+102	Temporal Adept
+104	Thought Courier
+105	Tidal Kraken
+107	Time Ebb
+108	Trade Routes
+110	Treasure Trove
+111	Wanderguard Sentry
+112	Wind Drake
+113	Withering Gaze
+114	Zur's Weirding
+115	Blackmail
+116	Bog Imp
+118	Coercion
+122	Dark Banishing
+123	Death Pits of Rath
+124	Deathgazer
+127	Enfeeblement
+128	Execute
+131	Final Punishment
+132	Foul Imp
+133	Giant Cockroach
+134	Gluttonous Zombie
+137	Hell's Caretaker
+139	Hollow Dogs
+140	Horror of Horrors
+146	Mindslicer
+151	Persecute
+152	Phyrexian Arena
+153	Phyrexian Gargantua
+156	Raise Dead
+158	Razortooth Rats
+162	Serpent Warrior
+163	Slay
+166	Swarm of Rats
+169	Will-o'-the-Wisp
+170	Yawgmoth Demon
+171	Zombify
+172	Anaba Shaman
+173	Anarchist
+174	Balduvian Barbarians
+176	Blood Moon
+178	Boiling Seas
+180	Enrage
+182	Flame Wave
+183	Flashfires
+184	Flowstone Crusher
+185	Flowstone Shambler
+187	Form of the Dragon
+189	Goblin Balloon Brigade
+190	Goblin Brigand
+191	Goblin Chariot
+193	Goblin Mountaineer
+198	Karplusan Yeti
+199	Kird Ape
+202	Magnivore
+203	Mana Clash
+204	Mogg Sentry
+205	Ogre Taskmaster
+207	Panic Attack
+210	Rathi Dragon
+211	Reflexes
+213	Rogue Kavu
+214	Rukh Egg
+215	Sandstone Warrior
+216	Seething Song
+217	Shard Phoenix
+218	Shatter
+221	Stone Rain
+224	Thundermare
+225	Viashino Sandstalker
+226	Volcanic Hammer
+227	Whip Sergeant
+228	Wildfire
+229	Anaconda
+230	Ancient Silverback
+231	Biorhythm
+235	Early Harvest
+236	Elvish Bard
+240	Elvish Warrior
+241	Emperor Crocodile
+242	Force of Nature
+245	Greater Good
+247	Groundskeeper
+250	King Cheetah
+251	Ley Druid
+252	Llanowar Behemoth
+254	Maro
+256	Natural Affinity
+259	Needle Storm
+260	Norwood Ranger
+261	Order of the Sacred Bell
+264	Reclaim
+266	River Bear
+267	Rootbreaker Wurm
+269	Scaled Wurm
+271	Silklash Spider
+272	Stream of Life
+273	Summer Bloom
+274	Trained Armodon
+275	Tree Monkey
+277	Utopia Tree
+279	Verduran Enchantress
+281	Web
+282	Weird Harvest
+283	Wood Elves
+285	Zodiac Monkey
+286	Aladdin's Ring
+288	Beast of Burden
+289	Booby Trap
+292	Dancing Scimitar
+293	Defense Grid
+295	Disrupting Scepter
+297	Fellwar Stone
+300	Jade Statue
+301	Jester's Cap
+306	Phyrexian Hulk
+308	Slate of Ancestry
+310	Storage Matrix
+311	Tanglebloom
+312	Teferi's Puzzle Box
+313	Thran Golem
+314	Ur-Golem's Eye
+315	Vulshok Morningstar
+327	Urza's Mine
+328	Urza's Power Plant
+329	Urza's Tower

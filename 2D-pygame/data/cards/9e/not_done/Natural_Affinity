@@ -1,0 +1,10 @@
+name = 'Natural Affinity'
+cardnum = 256
+type = characteristic('Instant')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2G'
+color = characteristic(['G'])
+text = ['Until end of turn, all lands become 2/2 creatures that are still lands.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,]

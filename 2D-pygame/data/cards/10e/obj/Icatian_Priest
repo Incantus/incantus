@@ -1,0 +1,23 @@
+name = 'Icatian Priest'
+cardnum = 24
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Cleric'])
+cost = 'W'
+color = characteristic(['W'])
+text = ['1WW: Target creature gets +1/+1 until end of turn.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = [ActivatedAbility(card, "1WW",
+                                target=Target(target_types=isCreature),
+                                effects=AugmentPowerToughness(power=1,toughness=1))
+]
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

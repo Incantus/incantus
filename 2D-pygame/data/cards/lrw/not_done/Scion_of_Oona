@@ -1,0 +1,20 @@
+name = 'Scion of Oona'
+cardnum = 83
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Faerie', 'Soldier'])
+cost = '2U'
+color = characteristic(['U'])
+text = ['Flash', 'Flying', 'Other Faerie creatures you control get +1/+1.', 'Other Faeries you control have shroud.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

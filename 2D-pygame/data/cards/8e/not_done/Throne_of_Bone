@@ -1,0 +1,20 @@
+name = 'Throne of Bone'
+cardnum = 317
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1'
+color = characteristic(['C'])
+text = ['Whenever a player plays a black spell, you may pay 1. If you do, you gain 1 life.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

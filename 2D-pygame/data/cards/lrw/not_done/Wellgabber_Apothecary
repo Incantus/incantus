@@ -1,0 +1,20 @@
+name = 'Wellgabber Apothecary'
+cardnum = 47
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Merfolk', 'Cleric'])
+cost = '4W'
+color = characteristic(['W'])
+text = ['1W: Prevent all damage that would be dealt to target tapped Merfolk or Kithkin creature this turn.']
+
+subrole = Creature(2, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

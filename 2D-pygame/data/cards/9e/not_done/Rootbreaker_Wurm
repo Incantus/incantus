@@ -1,0 +1,20 @@
+name = 'Rootbreaker Wurm'
+cardnum = 267
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Wurm'])
+cost = '5GG'
+color = characteristic(['G'])
+text = ['Trample']
+
+subrole = Creature(6, 6)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

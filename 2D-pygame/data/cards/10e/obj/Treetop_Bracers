@@ -1,0 +1,29 @@
+name = 'Treetop Bracers'
+cardnum = 304
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic(['Aura'])
+cost = '1G'
+color = characteristic(['G'])
+text = ['Enchant creature', "Enchanted creature gets +1/+1 and can't be blocked except by creatures with flying."]
+
+target_type = isCreature
+out_play_role.abilities = [CastPermanentSpell(card, cost,
+                               target=Target(target_types=target_type),
+                               effects=AttachToPermanent())]
+subrole = Aura(target_type)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+subrole.attached_abilities = [AuraStaticAbility(card,
+                                        effects=AugmentPowerToughness(power=1,toughness=1,expire=False)),
+                              AuraStaticAbility(card,
+                                        effects=GiveKeyword(lambda role: override(role, "canBeBlockedBy", lambda self,blocker: "flying" in blocker.keywords, chain=True), keyword="blocked by flying", expire=False))
+]
+
+#################################

@@ -1,0 +1,15 @@
+name = 'Relentless Assault'
+cardnum = 225
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2RR'
+color = characteristic(['R'])
+text = ['Untap all creatures that attacked this turn. After this main phase, there is an additional combat phase followed by an additional main phase.']
+
+# This doesn't catch the creatures that attacked since they will lose that status once combat is over
+# Maybe they should lose combat status but keep their status as attackers/blockers
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+				target=AllPermanentTargets(target_types=isCreature.with(lambda c: c.attacking)),
+				effects=[ForEach(UntapTargetPermanent()), NullEffect(lambda c,t,g=Keeper: g.game_phases.addPhases(["Combat", "Main2"]))])
+]

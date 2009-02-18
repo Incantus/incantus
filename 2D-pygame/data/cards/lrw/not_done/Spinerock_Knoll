@@ -1,0 +1,19 @@
+name = 'Spinerock Knoll'
+cardnum = 274
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ['Hideaway', 'T Add R to your mana pool.', 'R, T You may play the removed card without paying its mana cost if an opponent was dealt 7 or more damage this turn.']
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+subrole.abilities = [ManaAbility(card, TapCost(), effects=AddMana('C'))]
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+
+#################################

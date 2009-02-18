@@ -1,0 +1,20 @@
+name = 'Sower of Temptation'
+cardnum = 88
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Faerie', 'Wizard'])
+cost = '2UU'
+color = characteristic(['U'])
+text = ['Flying', 'When Sower of Temptation comes into play, gain control of target creature as long as Sower of Temptation remains in play.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

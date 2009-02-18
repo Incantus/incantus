@@ -1,0 +1,21 @@
+name = 'Thundering Giant'
+cardnum = 243
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Giant'])
+cost = '3RR'
+color = characteristic(['R'])
+text = ['Haste']
+
+subrole = Creature(4, 3)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+haste(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

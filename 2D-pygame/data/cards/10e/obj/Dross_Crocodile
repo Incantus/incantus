@@ -1,0 +1,20 @@
+name = 'Dross Crocodile'
+cardnum = 138
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Zombie', 'Crocodile'])
+cost = '3B'
+color = characteristic(['B'])
+text = []
+
+subrole = Creature(5, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

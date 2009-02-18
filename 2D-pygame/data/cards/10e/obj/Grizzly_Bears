@@ -1,0 +1,20 @@
+name = 'Grizzly Bears'
+cardnum = 268
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Bear'])
+cost = '1G'
+color = characteristic(['G'])
+text = []
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

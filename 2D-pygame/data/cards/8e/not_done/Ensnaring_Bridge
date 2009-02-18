@@ -1,0 +1,20 @@
+name = 'Ensnaring Bridge'
+cardnum = 300
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3'
+color = characteristic(['C'])
+text = ["Creatures with power greater than the number of cards in your hand can't attack."]
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

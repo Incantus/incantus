@@ -1,0 +1,24 @@
+name = 'Glorious Anthem'
+cardnum = 17
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '1WW'
+color = characteristic(['W'])
+text = ['Creatures you control get +1/+1.']
+
+subrole = Enchantment()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = [PermanentTrackingAbility(card,
+                                        enter_condition = isCreature.with(lambda c, self=card: c.controller==self.controller),
+                                        leave_condition = isCreature.with(lambda c, self=card: c.controller==self.controller),
+                                        effects = AugmentPowerToughness(power=1, toughness=1, expire=False))
+]
+
+#################################

@@ -1,0 +1,21 @@
+name = 'Sprouting Phytohydra'
+cardnum = 5
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Plant', 'Hydra'])
+cost = '4G'
+color = characteristic(['G'])
+text = ["Defender", "Whenever Sprouting Phytohydra is dealt damage, you may put a token into play that's a copy of Sprouting Phytohydra"]
+
+subrole = Creature(0,2)
+in_play_role = Permanent(card, subrole)
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = ReceiveDamageTrigger(),
+                                        match_condition = SelfMatch(card),
+					ability=Ability(card,
+						target=Target(targeting="controller"),
+						effects=CreateToken({"name":"Sprouting Phytohydra", "type":"Creature", "color":"G", "subtypes":['Plant', 'Hydra'], "role": subrole})))
+]
+

@@ -1,0 +1,25 @@
+name = 'Elvish Champion'
+cardnum = 261
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Elf'])
+cost = '1GG'
+color = characteristic(['G'])
+text = ['Other Elf creatures get +1/+1 and have forestwalk.']
+
+subrole = Creature(2, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = [PermanentTrackingAbility(card,
+                                        enter_condition = isCreature.with(lambda c, self=card: not c == self and c.subtypes == "Elf"),
+                                        leave_condition = isCreature.with(lambda c, self=card: not c == self and c.subtypes == "Elf"),
+                                        effects = [AugmentPowerToughness(power=1, toughness=1, expire=False),
+                                                   GiveKeyword(forestwalk, expire=False)])
+]
+
+#################################

@@ -1,0 +1,24 @@
+name = "Angel's Feather"
+cardnum = 311
+type = characteristic('Artifact')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '2'
+color = characteristic(['C'])
+text = ['Whenever a player plays a white spell, you may gain 1 life.']
+
+subrole = Artifact()
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger=CardTrigger(event=PlaySpellEvent()),
+                                        match_condition=CardMatch(lambda card: card.color == "W"),
+                                        ability=ChoiceAbility(card, 0, effects=ChangeLife(1)))
+]
+subrole.static_abilities = []
+
+#################################

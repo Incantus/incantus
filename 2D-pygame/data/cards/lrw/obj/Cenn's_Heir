@@ -1,0 +1,27 @@
+name = "Cenn's Heir"
+cardnum = 8
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Kithkin', 'Soldier'])
+cost = '1W'
+color = characteristic(['W'])
+text = ["Whenever Cenn's Heir attacks, it gets +1/+1 until end of turn for each other attacking Kithkin."]
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+kithkin_attacking = LazyInt(lambda card=card: len(card.controller.play.get(isCreature.with(lambda c: not c == card and c.attacking and c.subtypes == "Kithkin"))), finalize=True, event=CleanupEvent())
+
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = Trigger(DeclareAttackersEvent()),
+					match_condition = lambda attackers, self=card: self.attacking,
+					ability = Ability(card, target=Target(targeting="self"),
+						effects=AugmentPowerToughness(kithkin_attacking, kithkin_attacking))),
+]
+subrole.static_abilities = []
+
+#################################

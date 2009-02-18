@@ -1,0 +1,12 @@
+name = 'Sift'
+cardnum = 108
+type = characteristic('Sorcery')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = '3U'
+color = characteristic(['U'])
+text = ['Draw three cards, then discard a card.']
+
+out_play_role.abilities = [CastNonPermanentSpell(card, cost,
+                                effects=[DrawCard(3), DiscardCard(1)]
+]

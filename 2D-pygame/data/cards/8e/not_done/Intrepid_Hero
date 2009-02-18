@@ -1,0 +1,20 @@
+name = 'Intrepid Hero'
+cardnum = 26
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Human', 'Soldier'])
+cost = '2W'
+color = characteristic(['W'])
+text = ['T Destroy target creature with power 4 or greater.']
+
+subrole = Creature(1, 1)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################

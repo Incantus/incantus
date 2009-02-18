@@ -1,0 +1,30 @@
+name = 'Spirit Link'
+cardnum = 45
+type = characteristic('Enchantment')
+supertype = characteristic('')
+subtypes = characteristic(['Aura'])
+cost = 'W'
+color = characteristic(['W'])
+text = ['Enchant creature', 'Whenever enchanted creature deals damage, you gain that much life.']
+
+target_type = isCreature
+out_play_role.abilities = [CastPermanentSpell(card, cost,
+                               target=Target(target_types=target_type),
+                               effects=AttachToPermanent())]
+subrole = Aura(target_type)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+subrole.abilities = []
+trigger = DealDamageTrigger()
+subrole.triggered_abilities = [TriggeredAbility(card,
+                                        trigger = trigger,
+                                        match_condition = lambda sender, c=card: sender==c.attached_to,
+                                        ability = Ability(card, target=Target(targeting="controller"),
+                                                    effects=ChangeLife(lambda l, t=trigger: l+t.amount)))
+]
+subrole.static_abilities = []
+
+#################################

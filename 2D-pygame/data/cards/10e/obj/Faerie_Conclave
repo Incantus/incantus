@@ -1,0 +1,27 @@
+name = 'Faerie Conclave'
+cardnum = 351
+type = characteristic('Land')
+supertype = characteristic('')
+subtypes = characteristic([])
+cost = ''
+color = characteristic(['C'])
+text = ['Faerie Conclave comes into play tapped.', 'T Add U to your mana pool.', "1U: Faerie Conclave becomes a 2/1 blue Faerie creature with flying until end of turn. It's still a land."]
+
+out_play_role = NoRole(card)
+subrole = Land(color)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+new_role = Creature(2,1)
+flying(new_role)
+role_info = {"type": "Creature", "subtypes": "Faerie", "color": "U"}
+subrole.abilities = [ManaAbility(card, cost=TapCost(), effects=AddMana('U')),
+                          ActivatedAbility(card, cost="1U",
+                                target=Target(targeting="self"),
+                                effects=AddSubRole(new_role, role_info))
+]
+in_play_role.tapped = True
+
+#################################

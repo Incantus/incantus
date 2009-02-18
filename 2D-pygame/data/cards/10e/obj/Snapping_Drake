@@ -1,0 +1,21 @@
+name = 'Snapping Drake'
+cardnum = 110
+type = characteristic('Creature')
+supertype = characteristic('')
+subtypes = characteristic(['Drake'])
+cost = '3U'
+color = characteristic(['U'])
+text = ['Flying']
+
+subrole = Creature(3, 2)
+
+in_play_role = Permanent(card, subrole)
+
+#################################
+
+flying(subrole)
+subrole.abilities = []
+subrole.triggered_abilities = []
+subrole.static_abilities = []
+
+#################################
