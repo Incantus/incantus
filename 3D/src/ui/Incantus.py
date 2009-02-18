@@ -28,8 +28,8 @@ fourfv = GLfloat*4
 sixteenfv = GLfloat*16
 
 import CardLibrary
-import game
-from game.pydispatch import dispatcher
+import engine
+from engine.pydispatch import dispatcher
 
 class GameOverException(Exception): pass
 
@@ -241,9 +241,9 @@ class GameWindow(window.Window):
 
     def on_key_press(self, symbol, modifiers):
         if symbol == key.ENTER:
-            self.user_action = game.Action.PassPriority()
+            self.user_action = engine.Action.PassPriority()
         elif symbol == key.ESCAPE:
-            self.user_action = game.Action.CancelAction()
+            self.user_action = engine.Action.CancelAction()
         elif symbol == key.L and modifiers & key.MOD_SHIFT:
             self.game_status.toggle_gamelog()
         elif symbol == key.Q:
@@ -255,9 +255,9 @@ class GameWindow(window.Window):
             self.set_fullscreen(not self.fullscreen)
         elif symbol == key.F:
             self.finish_turn = True
-            self.user_action = game.Action.PassPriority()
+            self.user_action = engine.Action.PassPriority()
         #elif symbol == key.W:
-        #    if game.Keeper.current_player == self.player1: self.p1_stop_next = True
+        #    if engine.Keeper.current_player == self.player1: self.p1_stop_next = True
         #    else: self.p2_stop_next = True
         elif symbol == key.V and modifiers & key.MOD_SHIFT:
             self.camera.switch_viewpoint()
@@ -393,17 +393,17 @@ class GameWindow(window.Window):
             other_deck = self.connection.receive()
             self.connection.send(my_deck)
 
-        player1 = game.Player(playername, my_deck)
-        player2 = game.Player(otherplayername, other_deck)
+        player1 = engine.Player(playername, my_deck)
+        player2 = engine.Player(otherplayername, other_deck)
         player1.dirty_input = self.userinput
         player2.dirty_input = self.userinput_network_other
         self.player1 = player1
         self.player2 = player2
         dispatcher.reset()
         if isserver:
-            game.Keeper.init(player1, player2)
+            engine.Keeper.init(player1, player2)
         else:
-            game.Keeper.init(player2, player1)
+            engine.Keeper.init(player2, player1)
         self.make_connections(playercolor, otherplayercolor, soundfx=True)
 
         # Save info for replay
@@ -421,7 +421,7 @@ class GameWindow(window.Window):
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in [player1, player2]])
-        replaydump.stack = game.Keeper.stack
+        replaydump.stack = engine.Keeper.stack
 
         self.start_new_game = True
 
@@ -452,8 +452,8 @@ class GameWindow(window.Window):
             self.connection = networkcomm.Client(ipaddr, port)
             self.game_status.log("Connected to server")
 
-        player1 = game.Player(playername, my_deck)
-        player2 = game.Player(otherplayername, other_deck)
+        player1 = engine.Player(playername, my_deck)
+        player2 = engine.Player(otherplayername, other_deck)
         player1.dirty_input = self.userinput
         player2.dirty_input = self.userinput_network_other
         self.player1 = player1
@@ -463,12 +463,12 @@ class GameWindow(window.Window):
         random.seed(seed)
 
         dispatcher.reset()
-        game.Keeper.init(player1, player2)
+        engine.Keeper.init(player1, player2)
         self.make_connections(playercolor, otherplayercolor, soundfx=False)
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in [player1, player2]])
-        replaydump.stack = game.Keeper.stack
+        replaydump.stack = engine.Keeper.stack
 
         self.start_new_game = True
 
@@ -509,8 +509,8 @@ class GameWindow(window.Window):
             player2_color = self.dump_to_replay.read()
             other_deck = self.dump_to_replay.read()
 
-        player1 = game.Player(player1_name, my_deck)
-        player2 = game.Player(player2_name, other_deck)
+        player1 = engine.Player(player1_name, my_deck)
+        player2 = engine.Player(player2_name, other_deck)
         player1.dirty_input = self.userinput
         player2.dirty_input = self.userinput
 
@@ -521,15 +521,15 @@ class GameWindow(window.Window):
         random.seed(seed)
 
         dispatcher.reset()
-        game.Keeper.init(player1, player2)
+        engine.Keeper.init(player1, player2)
         self.make_connections(player1_color, player2_color, soundfx=not self.replay_fast)
 
         if self.conf.get("solitaire", "manaburn") == "No":
-            game.Keeper.manaBurn = lambda: None
+            engine.Keeper.manaBurn = lambda: None
 
         # This is hacky
         replaydump.players = dict([(player.name,player) for player in [player1, player2]])
-        replaydump.stack = game.Keeper.stack
+        replaydump.stack = engine.Keeper.stack
         self.start_new_game = True
 
     def make_connections(self, self_color, other_color, soundfx):
@@ -540,51 +540,51 @@ class GameWindow(window.Window):
         self.phase_status.setup_player_colors(self.player1, self_color, other_color)
         self.zone_animator.setup(self.mainplayer_status, self.otherplayer_status, self.stack, self.mainplay,self.otherplay,self.table)
 
-        dispatcher.connect(self.stack.finalize_announcement, signal=game.GameEvent.AbilityPlacedOnStack())
-        dispatcher.connect(self.stack.remove_ability, signal=game.GameEvent.AbilityCanceled())
+        dispatcher.connect(self.stack.finalize_announcement, signal=engine.GameEvent.AbilityPlacedOnStack())
+        dispatcher.connect(self.stack.remove_ability, signal=engine.GameEvent.AbilityCanceled())
 
-        dispatcher.connect(self.player_hand.add_card, signal=game.GameEvent.CardEnteredZone(), sender=self.player1.hand, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.player_hand.remove_card, signal=game.GameEvent.CardLeftZone(), sender=self.player1.hand, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.player_hand.remove_card, signal=game.GameEvent.CardCeasesToExist(), sender=self.player1.hand, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.player_hand.add_card, signal=engine.GameEvent.CardEnteredZone(), sender=self.player1.hand, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.player_hand.remove_card, signal=engine.GameEvent.CardLeftZone(), sender=self.player1.hand, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.player_hand.remove_card, signal=engine.GameEvent.CardCeasesToExist(), sender=self.player1.hand, priority=dispatcher.UI_PRIORITY)
 
-        dispatcher.connect(self.otherplayer_hand.add_card, signal=game.GameEvent.CardEnteredZone(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplayer_hand.remove_card, signal=game.GameEvent.CardLeftZone(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplayer_hand.remove_card, signal=game.GameEvent.CardCeasesToExist(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_hand.add_card, signal=engine.GameEvent.CardEnteredZone(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_hand.remove_card, signal=engine.GameEvent.CardLeftZone(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_hand.remove_card, signal=engine.GameEvent.CardCeasesToExist(), sender=self.player2.hand, priority=dispatcher.UI_PRIORITY)
 
-        dispatcher.connect(self.mainplayer_status.animate_life, signal=game.GameEvent.LifeGainedEvent(),sender=self.player1, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplayer_status.animate_life, signal=game.GameEvent.LifeGainedEvent(),sender=self.player2, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.mainplayer_status.animate_life, signal=game.GameEvent.LifeLostEvent(),sender=self.player1, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplayer_status.animate_life, signal=game.GameEvent.LifeLostEvent(),sender=self.player2, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.mainplayer_status.manapool.update_mana, signal=game.GameEvent.ManaAdded(), sender=self.player1.manapool, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.mainplayer_status.manapool.update_mana, signal=game.GameEvent.ManaSpent(), sender=self.player1.manapool, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.mainplayer_status.manapool.clear_mana, signal=game.GameEvent.ManaCleared(), sender=self.player1.manapool, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplayer_status.manapool.update_mana, signal=game.GameEvent.ManaAdded(), sender=self.player2.manapool, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplayer_status.manapool.update_mana, signal=game.GameEvent.ManaSpent(), sender=self.player2.manapool, priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplayer_status.manapool.clear_mana, signal=game.GameEvent.ManaCleared(), sender=self.player2.manapool, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplayer_status.animate_life, signal=engine.GameEvent.LifeGainedEvent(),sender=self.player1, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_status.animate_life, signal=engine.GameEvent.LifeGainedEvent(),sender=self.player2, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplayer_status.animate_life, signal=engine.GameEvent.LifeLostEvent(),sender=self.player1, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_status.animate_life, signal=engine.GameEvent.LifeLostEvent(),sender=self.player2, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplayer_status.manapool.update_mana, signal=engine.GameEvent.ManaAdded(), sender=self.player1.manapool, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplayer_status.manapool.update_mana, signal=engine.GameEvent.ManaSpent(), sender=self.player1.manapool, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplayer_status.manapool.clear_mana, signal=engine.GameEvent.ManaCleared(), sender=self.player1.manapool, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_status.manapool.update_mana, signal=engine.GameEvent.ManaAdded(), sender=self.player2.manapool, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_status.manapool.update_mana, signal=engine.GameEvent.ManaSpent(), sender=self.player2.manapool, priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_status.manapool.clear_mana, signal=engine.GameEvent.ManaCleared(), sender=self.player2.manapool, priority=dispatcher.UI_PRIORITY)
 
-        dispatcher.connect(self.phase_status.new_turn, signal=game.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.phase_status.set_phase, signal=game.GameEvent.GameStepEvent(), priority=dispatcher.UI_PRIORITY)
-        #dispatcher.connect(self.phase_status.pass_priority, signal=game.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.phase_status.change_focus, signal=game.GameEvent.GameFocusEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.game_status.log_event, signal=game.GameEvent.LogEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.mainplayer_status.new_turn, signal=game.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplayer_status.new_turn, signal=game.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.mainplayer_status.pass_priority, signal=game.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplayer_status.pass_priority, signal=game.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.phase_status.new_turn, signal=engine.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.phase_status.set_phase, signal=engine.GameEvent.GameStepEvent(), priority=dispatcher.UI_PRIORITY)
+        #dispatcher.connect(self.phase_status.pass_priority, signal=engine.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.phase_status.change_focus, signal=engine.GameEvent.GameFocusEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.game_status.log_event, signal=engine.GameEvent.LogEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplayer_status.new_turn, signal=engine.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_status.new_turn, signal=engine.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplayer_status.pass_priority, signal=engine.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplayer_status.pass_priority, signal=engine.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
 
-        dispatcher.connect(self.mainplay.card_tapped, signal=game.GameEvent.CardTapped(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplay.card_tapped, signal=game.GameEvent.CardTapped(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.mainplay.card_untapped, signal=game.GameEvent.CardUntapped(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplay.card_untapped, signal=game.GameEvent.CardUntapped(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.mainplay.card_attached, signal=game.GameEvent.AttachedEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplay.card_attached, signal=game.GameEvent.AttachedEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.mainplay.card_unattached, signal=game.GameEvent.UnAttachedEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.otherplay.card_unattached, signal=game.GameEvent.UnAttachedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplay.card_tapped, signal=engine.GameEvent.CardTapped(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplay.card_tapped, signal=engine.GameEvent.CardTapped(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplay.card_untapped, signal=engine.GameEvent.CardUntapped(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplay.card_untapped, signal=engine.GameEvent.CardUntapped(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplay.card_attached, signal=engine.GameEvent.AttachedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplay.card_attached, signal=engine.GameEvent.AttachedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.mainplay.card_unattached, signal=engine.GameEvent.UnAttachedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.otherplay.card_unattached, signal=engine.GameEvent.UnAttachedEvent(), priority=dispatcher.UI_PRIORITY)
 
-        dispatcher.connect(self.priority_stop, signal=game.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.phase_stop, signal=game.GameEvent.GameStepEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.play_ability, signal=game.GameEvent.AbilityPlayedEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.new_turn, signal=game.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.priority_stop, signal=engine.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.phase_stop, signal=engine.GameEvent.GameStepEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.play_ability, signal=engine.GameEvent.AbilityPlayedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.new_turn, signal=engine.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
         self.set_stops()
 
         if soundfx: self.soundfx.connect()
@@ -601,14 +601,14 @@ class GameWindow(window.Window):
         self.opponent_turn_stops = set([state for state, val in self.conf.items("opponent stops") if val == "No"])
     def keep_priority(self): self._keep_priority = True
     def priority_stop(self, player):
-        if game.Keeper.stack.empty():
+        if engine.Keeper.stack.empty():
             if (not self.p1_stop_next and
-               ((player == game.Keeper.other_player and self.state in self.opponent_turn_stops) or 
-               (player == game.Keeper.current_player and self.state in self.my_turn_stops))):
-                self.user_action = game.Action.PassPriority()
+               ((player == engine.Keeper.other_player and self.state in self.opponent_turn_stops) or 
+               (player == engine.Keeper.current_player and self.state in self.my_turn_stops))):
+                self.user_action = engine.Action.PassPriority()
                 return
             elif self.finish_turn:
-                self.user_action = game.Action.PassPriority()
+                self.user_action = engine.Action.PassPriority()
                 return
         if (player == self.player1):
             #self.player_hand.set_hidden(False)
@@ -624,7 +624,7 @@ class GameWindow(window.Window):
         self.state = state.lower()
     def play_ability(self, ability):
         if not self._keep_priority and not hasattr(ability, "mana_ability"):
-            self.user_action = game.Action.PassPriority()
+            self.user_action = engine.Action.PassPriority()
         else:
             # Keep priority after playing card
             self._keep_priority = False
@@ -653,7 +653,7 @@ class GameWindow(window.Window):
             self.clock.tick()
             self.draw()
             if self.start_new_game:
-                msg = game.Keeper.start()
+                msg = engine.Keeper.start()
                 self.msg_controller.notify(msg, action=False)
                 self.start_new_game = False
                 self.clear_game()

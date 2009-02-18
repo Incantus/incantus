@@ -1,8 +1,8 @@
 
 from pyglet import media
 import GUIEvent
-from game import GameEvent
-from game.pydispatch import dispatcher
+from engine import GameEvent
+from engine.pydispatch import dispatcher
 
 class SoundEffects(object):
     def __init__(self):

@@ -229,9 +229,9 @@ class StackCard(Card):
             glDisable(self._texture.target)
             glPopMatrix()
 
-from game.Match import isCreature
-from game.GameEvent import TypesModifiedEvent, TimestepEvent, PowerToughnessModifiedEvent, CounterAddedEvent, CounterRemovedEvent
-from game.pydispatch import dispatcher
+from engine.Match import isCreature
+from engine.GameEvent import TypesModifiedEvent, TimestepEvent, PowerToughnessModifiedEvent, CounterAddedEvent, CounterRemovedEvent
+from engine.pydispatch import dispatcher
 class PlayCard(Card):
     tapping = anim.Animatable()
     zooming = anim.Animatable()

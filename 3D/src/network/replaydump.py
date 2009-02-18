@@ -1,9 +1,9 @@
 from pickletools import genops
 import cPickle as pickle
-from game import Player, GameKeeper
-from game.Ability.Ability import Ability
-from game.GameObjects import GameObject
-from game.CardRoles import CardRole
+from engine import Player, GameKeeper
+from engine.Ability.Ability import Ability
+from engine.GameObjects import GameObject
+from engine.CardRoles import CardRole
 
 # This whole thing is ugly - i should probably replace it with a global object store with weakrefs (for the abilities)
 # or find a better way to pass this data back and forth

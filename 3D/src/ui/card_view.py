@@ -14,15 +14,15 @@ import euclid
 import GUIEvent
 from widget import Widget, Label
 from anim_euclid import BezierPath
-from game.pydispatch import dispatcher
+from engine.pydispatch import dispatcher
 
 sixteenfv = GLfloat*16
 
 import math
 import CardLibrary
 
-from game.Ability.CastingAbility import CastSpell
-from game.Ability.ActivatedAbility import ActivatedAbility
+from engine.Ability.CastingAbility import CastSpell
+from engine.Ability.ActivatedAbility import ActivatedAbility
 
 class CardView(Widget):
     focus_size = 1.0 #0.8

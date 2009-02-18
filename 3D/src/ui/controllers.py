@@ -1,7 +1,7 @@
 import euclid
 from pyglet.window import key, mouse
-from game import Action
-from game import Mana
+from engine import Action
+from engine import Mana
 
 class MessageController(object):
     def __init__(self, dialog, window):
@@ -835,8 +835,8 @@ class HandController(object):
             return True
         else: return False
 
-from game.Ability.Target import MultipleTargets
-from game.Match import isPlayer, isPermanent, isStackAbility
+from engine.Ability.Target import MultipleTargets
+from engine.Match import isPlayer, isPermanent, isStackAbility
 class StackController(object):
     def __init__(self, stack_gui, window):
         self.stack_gui = stack_gui
