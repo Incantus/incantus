@@ -1,0 +1,21 @@
+7  Forest
+2  Jungle Shrine
+3  Mountain
+2  Naya Panorama
+3  Plains
+1  Bull Cerodon
+1  Cavern Thoctar
+2  Cylian Elf
+2  Druid of the Anima
+1  Mosstodon
+1  Naya Battlemage
+2  Rakeclaw Gargantuan
+1  Spearbreaker Behemoth
+2  Wild Nacatl
+2  Woolly Thoctar
+1  Blaze
+2  Giant Growth
+2  Gift of the Gargantuan
+1  Naturalize
+2  Rampant Growth
+1  Titanic Ultimatum

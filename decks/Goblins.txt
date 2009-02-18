@@ -1,0 +1,28 @@
+1 Siege-Gang Commander		
+1 Akki Coalflinger		
+1 Clickslither		
+3 Emberwilde Augur		
+1 Flamewave Invoker		
+1 Gempalm Incinerator		
+3 Goblin Cohort		
+1 Goblin Matron		
+1 Goblin Ringleader		
+1 Goblin Sledder		
+1 Goblin Warchief		
+1 Ib Halfheart, Goblin Tactician		
+1 Mogg Fanatic		
+2 Mogg War Marshal		
+2 Mudbutton Torchrunner		
+2 Raging Goblin		
+1 Reckless One		
+2 Skirk Drill Sergeant		
+1 Skirk Fire Marshal		
+1 Skirk Prospector		
+1 Skirk Shaman		
+1 Tar Pitcher		
+2 Boggart Shenanigans		
+1 Spitting Earth		
+3 Tarfire		
+22 Mountain		
+1 Goblin Burrows		
+1 Forgotten Cave

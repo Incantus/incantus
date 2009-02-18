@@ -1,0 +1,26 @@
+14  Plains
+10  Swamp
+2  Apothecary Initiate
+1  Archon of Justice
+1  Divinity of Pride
+1  Flickerwisp
+1  Goldenglow Moth
+2  Gwyllion Hedge-Mage
+2  Kithkin Zealot
+3  Nip Gwyllion
+1  Resplendent Mentor
+1  Restless Apparition
+2  Safehold Sentry
+2  Smolder Initiate
+1  Soul Snuffers
+1  Suture Spirit
+2  Voracious Hatchling
+1  Woeleecher
+1  Batwing Brume
+1  Beckon Apparition
+1  Endure
+2  Recumbent Bliss
+1  Rite of Consumption
+2  Soul Reap
+2  Syphon Life
+2  Unmake

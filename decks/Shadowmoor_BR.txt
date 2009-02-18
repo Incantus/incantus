@@ -1,0 +1,20 @@
+12  Mountain
+12  Swamp
+2  Ashenmoor Cohort
+3  Ashenmoor Gouger
+1  Ashenmoor Liege
+2  Blistering Dieflyn
+3  Cinderbones
+2  Emberstrike Duo
+2  Kulrath Knight
+2  Mudbrawler Cohort
+2  Murderous Redcap
+2  Rattleblaze Scarecrow
+3  Blowfly Infestation
+1  Din of the Fireherd
+2  Fists of the Demigod
+2  Puncture Bolt
+3  Scar
+1  Smash to Smithereens
+2  Torrent of Souls
+1  Wild Swing

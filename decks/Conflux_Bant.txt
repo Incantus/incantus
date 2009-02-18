@@ -1,0 +1,23 @@
+3  Forest
+3  Island
+7  Plains
+2  Seaside Citadel
+2  Terramorphic Expanse
+1  Aerie Mystics
+2  Aven Squire
+1  Deft Duelist
+1  Frontline Sage
+1  Giltspire Avenger
+1  Gwafa Hazid, Profiteer
+1  Jhessian Balmgiver
+1  Outrider of Jhess
+2  Rhox Bodyguard
+1  Rhox Meditant
+1  Rhox War Monk
+2  Skyward Eye Prophets
+1  Suntail Hawk
+2  Valeron Outlander
+1  Asha's Favor
+2  Gleam of Resistance
+2  Pacifism
+1  Unsummon

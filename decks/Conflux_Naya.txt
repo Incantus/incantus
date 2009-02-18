@@ -1,0 +1,26 @@
+6  Forest
+1  Island
+3  Mountain
+3  Plains
+1  Swamp
+3  Terramorphic Expanse
+1  Aven Trailblazer
+1  Beacon Behemoth
+1  Ember Weaver
+1  Kranioceros
+2  Matca Rioters
+1  Meglonoth
+1  Paleoloth
+1  Vagrant Plowbeasts
+1  Wandering Goblins
+1  Woolly Thoctar
+1  Drag Down
+1  Kaleidostone
+1  Manaforce Mace
+1  Might of Alara
+1  Pacifism
+1  Path to Exile
+2  Rampant Growth
+1  Shard Convergence
+2  Spore Burst
+2  Sylvan Bounty

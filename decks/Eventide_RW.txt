@@ -1,0 +1,21 @@
+13  Mountain
+11  Plains
+1  Balefire Liege
+2  Ballynock Cohort
+2  Ballynock Trapper
+2  Battlegate Mimic
+2  Belligerent Hatchling
+2  Duergar Assailant
+3  Duergar Mine-Captain
+1  Hatchet Bully
+1  Hateflayer
+3  Hearthfire Hobgoblin
+2  Kithkin Spellduster
+2  Outrage Shaman
+1  Patrol Signaler
+1  Safehold Sentry
+2  Niveous Wisps
+2  Power of Fire
+2  Puncture Blast
+2  Puncture Bolt
+2  Scourge of the Nobilis

@@ -1,0 +1,23 @@
+2  Crumbling Necropolis
+3  Island
+3  Mountain
+7  Swamp
+2  Terramorphic Expanse
+1  Blood Tyrant
+1  Brackwater Elemental
+1  Dregscape Zombie
+1  Extractor Demon
+1  Fire-Field Ogre
+2  Grixis Slavedriver
+2  Kathari Screecher
+1  Kederekt Creeper
+1  Pestilent Kathari
+2  Sedraxis Alchemist
+2  Zombie Outlander
+2  Absorb Vis
+1  Agony Warp
+1  Bone Saw
+1  Elder Mastery
+1  Infest
+2  Shock
+1  Terror

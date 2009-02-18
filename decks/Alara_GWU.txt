@@ -1,0 +1,20 @@
+2  Bant Panorama
+3  Forest
+3  Island
+7  Plains
+2  Seaside Citadel
+2  Akrasan Squire
+1  Battlegrace Angel
+2  Guardians of Akrasa
+2  Knight of the Skyward Eye
+1  Knight-Captain of Eos
+2  Rhox War Monk
+1  Sigiled Paladin
+2  Steward of Valeron
+2  Suntail Hawk
+1  Waveskimmer Aven
+2  Wild Griffin
+1  Angelic Benediction
+2  Excommunicate
+1  Kiss of the Amesha
+2  Pacifism

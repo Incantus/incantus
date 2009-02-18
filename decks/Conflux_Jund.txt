@@ -1,0 +1,22 @@
+4  Forest
+5  Mountain
+2  Savage Lands
+4  Swamp
+2  Terramorphic Expanse
+2  Carrion Thrash
+1  Charnelhoard Wurm
+1  Ember Weaver
+1  Gluttonous Slime
+2  Goblin Outlander
+1  Hellkite Hatchling
+1  Scarland Thrinax
+1  Sprouting Thrinax
+1  Toxic Iguanar
+2  Tukatongue Thallid
+1  Viashino Slaughtermaster
+1  Voracious Dragon
+1  Branching Bolt
+2  Dark Temper
+2  Dragon Fodder
+2  Fiery Fall
+2  Incinerate

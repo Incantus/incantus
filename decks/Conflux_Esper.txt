@@ -1,0 +1,25 @@
+2  Arcane Sanctum
+7  Island
+3  Plains
+3  Swamp
+2  Terramorphic Expanse
+2  Court Homunculus
+1  Darklit Gargoyle
+1  Esper Cormorants
+1  Esperzoa
+1  Faerie Mechanist
+1  Inkwell Leviathan
+1  Magister Sphinx
+2  Parasitic Strix
+1  Salvage Slasher
+1  Scornful AEther-Lich
+1  Sludge Strider
+1  Tidehollow Sculler
+1  Vectis Agents
+2  Vedalken Outlander
+1  Windwright Mage
+1  Dehydration
+1  Executioner's Capsule
+1  Remove Soul
+1  Rod of Ruin
+2  Traumatic Visions
