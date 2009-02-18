@@ -46,7 +46,7 @@ class GameKeeper(MtGObject):
         return locals()
     current_player = property(**current_player())
 
-    def init(self, *players):
+    def init(self, players):
         self.current_step = "Pregame"
         self.stack = Stack(self)
         self.play = Play(self)
@@ -57,10 +57,12 @@ class GameKeeper(MtGObject):
 
         all_players = set(players)
         for player in players:
-            player.init(self.play, self.stack, all_players-set([player]))
+            player.init(self.play, self.stack, all_players-set((player,)))
+        self._player_order = players
 
-        # Determine starting player
-        players = list(players)
+    # Determine starting player
+    def start(self):
+        players = list(self.players)
         random.shuffle(players)
         for idx, start_player in enumerate(players):
             if idx == (len(players)-1) or start_player.getIntention("", "Would you like to go first?"):
@@ -68,19 +70,6 @@ class GameKeeper(MtGObject):
         self._player_order = tuple(players[idx:]+players[:idx])
         self.player_cycler = player_cycler(self.players)
 
-    def loadMods(self):
-        import glob, traceback, CardEnvironment
-        for mod in glob.glob("./data/rulemods/*.py"):
-            code = open(mod, "r").read()
-            try:
-                exec code in vars(CardEnvironment)
-            except Exception:
-                code = code.split("\n")
-                print "\n%s\n"%'\n'.join(["%03d\t%s"%(i+1, line) for i, line in zip(range(len(code)), code)])
-                traceback.print_exc(4)
-            file.close()
-
-    def start(self):
         self.send(TimestepEvent())
         for player in self.players:
             player.do_draw(7)
@@ -95,6 +84,18 @@ class GameKeeper(MtGObject):
             self.send(GameOverEvent())
             self.cleanup()
             return g.msg
+
+    def loadMods(self):
+        import glob, traceback, CardEnvironment
+        for mod in glob.glob("./data/rulemods/*.py"):
+            code = open(mod, "r").read()
+            try:
+                exec code in vars(CardEnvironment)
+            except Exception:
+                code = code.split("\n")
+                print "\n%s\n"%'\n'.join(["%03d\t%s"%(i+1, line) for i, line in zip(range(len(code)), code)])
+                traceback.print_exc(4)
+            file.close()
 
     def cleanup(self):
         for player in self.players: player.reset()
