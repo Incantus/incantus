@@ -5,6 +5,7 @@ from pyglet.gl import glColor4f, glVertex2f, glDisable, glEnable, glBegin, glEnd
 import anim
 import euclid
 from widget import Widget, Image, Label
+from engine import Mana
 
 class MessageDialog(Widget):
     alpha = anim.Animatable()
@@ -296,7 +297,6 @@ class ManaImage(Image):
 
 class ManaView(Widget):
     def __init__(self, pos=euclid.Vector3(0, 0, 0)):
-        from game import Mana
         super(ManaView,self).__init__(pos)
         self._pos.set_transition(dt=1.0, method="ease_out_circ")
         self.colors = ["white", "blue", "black", "red", "green", "colorless"]

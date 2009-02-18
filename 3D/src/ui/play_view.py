@@ -14,7 +14,7 @@ from anim_euclid import AnimatedVector3, AnimatedQuaternion
 
 import math
 import CardLibrary
-from game import Match
+from engine import Match
 
 from widget import Widget
 

@@ -5,7 +5,7 @@ import types
 import cPickle as pickle
 from cStringIO import StringIO
 import select
-import game
+import engine
 
 from replaydump import persistent_id, persistent_load
 
