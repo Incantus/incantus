@@ -1,7 +1,7 @@
 import copy
-from game.GameObjects import MtGObject
-from game.GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZoneFrom
-from game.pydispatch.dispatcher import Any, LOWEST_PRIORITY
+from engine.GameObjects import MtGObject
+from engine.GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZoneFrom
+from engine.pydispatch.dispatcher import Any, LOWEST_PRIORITY
 from EffectsUtilities import robustApply
 
 class Trigger(MtGObject):

@@ -1,5 +1,5 @@
-from game.GameEvent import DeclareAttackersEvent, InvalidTargetEvent, EndTurnStepEvent
-from game.Match import isCreature
+from engine.GameEvent import DeclareAttackersEvent, InvalidTargetEvent, EndTurnStepEvent
+from engine.Match import isCreature
 from Decorators import delayed_trigger
 from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility

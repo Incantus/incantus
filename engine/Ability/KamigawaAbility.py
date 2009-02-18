@@ -1,5 +1,5 @@
-from game.Match import isCard
-from game.GameEvent import BlockerDeclaredEvent, AttackerBlockedEvent
+from engine.Match import isCard
+from engine.GameEvent import BlockerDeclaredEvent, AttackerBlockedEvent
 from TriggeredAbility import TriggeredAbility, sender_match
 from Trigger import Trigger, EnterFromTrigger
 from Target import NoTarget

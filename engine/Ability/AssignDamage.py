@@ -1,5 +1,5 @@
-from game.GameEvent import DealsDamageEvent
-from game.Match import isPlayer
+from engine.GameEvent import DealsDamageEvent
+from engine.Match import isPlayer
 from Ability import Ability
 from Target import MultipleTargets
 

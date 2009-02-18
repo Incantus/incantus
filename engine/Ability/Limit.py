@@ -1,5 +1,5 @@
-from game.GameObjects import MtGObject
-from game.GameEvent import TurnFinishedEvent, UpkeepStepEvent, MainPhase1Event, MainPhase2Event, EndMainPhaseEvent, NewTurnEvent
+from engine.GameObjects import MtGObject
+from engine.GameEvent import TurnFinishedEvent, UpkeepStepEvent, MainPhase1Event, MainPhase2Event, EndMainPhaseEvent, NewTurnEvent
 
 class Limit(MtGObject):
     def __call__(self, card): raise Exception()

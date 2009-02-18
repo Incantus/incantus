@@ -1,4 +1,4 @@
-from game.Match import isLand
+from engine.Match import isLand
 from Subtypes import all_basic_lands
 
 def domain(player):

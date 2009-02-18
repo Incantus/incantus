@@ -1,6 +1,6 @@
-from game.GameObjects import MtGObject
-from game.Match import isPlayer
-from game.GameEvent import *
+from engine.GameObjects import MtGObject
+from engine.Match import isPlayer
+from engine.GameEvent import *
 
 
 class MemoryVariable(MtGObject):

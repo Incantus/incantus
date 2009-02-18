@@ -1,6 +1,6 @@
 from functools import partial
-from game.Match import isPlayer, isCreature, isLand, isArtifact
-from game.GameEvent import BlockerDeclaredEvent
+from engine.Match import isPlayer, isCreature, isLand, isArtifact
+from engine.GameEvent import BlockerDeclaredEvent, AttackerDeclaredEvent
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from TriggeredAbility import TriggeredAbility
@@ -84,7 +84,6 @@ def trample():
 def vigilance():
     keyword = "vigilance"
     def setAttacking(self):
-        from game.GameEvent import AttackerDeclaredEvent
         self.setCombat(True)
         self.attacking = True
         self.send(AttackerDeclaredEvent())

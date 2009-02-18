@@ -1,5 +1,5 @@
-from game.pydispatch import dispatcher
-from game.GameEvent import UpkeepStepEvent, ControllerChanged
+from engine.pydispatch import dispatcher
+from engine.GameEvent import UpkeepStepEvent, ControllerChanged
 from Trigger import PhaseTrigger
 from Target import NoTarget
 from TriggeredAbility import SpecialTriggeredAbility

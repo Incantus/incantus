@@ -1,5 +1,5 @@
 import copy
-from game.GameEvent import AbilityAnnounced, AbilityCanceled, AbilityCountered, AbilityResolved, TimestepEvent
+from engine.GameEvent import AbilityAnnounced, AbilityCanceled, AbilityCountered, AbilityResolved, TimestepEvent
 
 class Ability(object):
     def __init__(self, effects, txt=''):

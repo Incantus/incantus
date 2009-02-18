@@ -1,4 +1,4 @@
-from game.GameEvent import SpellPlayedEvent
+from engine.GameEvent import SpellPlayedEvent
 from ActivatedAbility import CostAbility
 from Limit import sorcery
 

@@ -1,4 +1,4 @@
-from game.Match import isCard, isCreature, isLand
+from engine.Match import isCard, isCreature, isLand
 from ActivatedAbility import ActivatedAbility, ManaAbility
 from StaticAbility import CardStaticAbility
 from Target import NoTarget, Target

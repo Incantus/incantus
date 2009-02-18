@@ -28,9 +28,9 @@ def persist():
 def wither(): return CardStaticAbility(effects=keyword_effect, zone="all", keyword="wither")
 
 # XXX
-#from game.GameEvent import CounterAddedEvent
-#from game.CardRoles import Creature
-#from game.stacked_function import logical_and
+#from engine.GameEvent import CounterAddedEvent
+#from engine.CardRoles import Creature
+#from engine.stacked_function import logical_and
 #def wither_as_override(card):
 #    # This doesn't let me return the amount of damage done, since the override code uses the return value
 #    # to indicate whether to process further overrides

@@ -1,6 +1,6 @@
-from game.pydispatch import dispatcher
-from game.GameEvent import TimestepEvent
-from game.CardRoles import Permanent
+from engine.pydispatch import dispatcher
+from engine.GameEvent import TimestepEvent
+from engine.CardRoles import Permanent
 from EffectsUtilities import do_override, do_replace, do_all, role_method
 from StaticAbility import SimpleStaticAbility
 

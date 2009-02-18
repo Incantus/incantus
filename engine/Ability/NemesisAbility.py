@@ -2,7 +2,7 @@ from CiPAbility import CiP, CiPAbility
 from TriggeredAbility import TriggeredAbility
 from Target import NoTarget
 from Trigger import PhaseTrigger
-from game.GameEvent import UpkeepStepEvent
+from engine.GameEvent import UpkeepStepEvent
 
 def fading(value):
     txt = "Fading %d"%value

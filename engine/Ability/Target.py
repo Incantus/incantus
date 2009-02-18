@@ -1,5 +1,5 @@
-from game.Match import isPermanent, isPlayer, PlayerMatch, OpponentMatch, PlayerOrCreatureMatch
-from game.GameEvent import InvalidTargetEvent
+from engine.Match import isPermanent, isPlayer, PlayerMatch, OpponentMatch, PlayerOrCreatureMatch
+from engine.GameEvent import InvalidTargetEvent
 
 # XXX Fix the targeting code when i do multiplayer
 
@@ -76,8 +76,8 @@ class MultipleTargets(object):
         if type(self.selector) == str:
             if self.selector == "opponent": selector = source.controller.choose_opponent()
             elif self.selector == "current_player":
-                import game.GameKeeper
-                selector = game.GameKeeper.Keeper.current_player
+                import engine.GameKeeper
+                selector = engine.GameKeeper.Keeper.current_player
             else: selector = source.controller
         if isPlayer(self.selector): selector = self.selector
         else: selector = source.controller
@@ -149,7 +149,7 @@ class Target(object):
             prompt="Target %s%s for %s"%(' or '.join([str(t) for t in self.target_types]), zl, source)
         if self.selector == "opponent": selector = source.controller.choose_opponent()
         elif self.selector == "current_player":
-            from game.GameKeeper import Keeper
+            from engine.GameKeeper import Keeper
             selector = Keeper.current_player
         else: selector = source.controller
         # If required, make sure there is actually a target available

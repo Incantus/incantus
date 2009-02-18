@@ -1,4 +1,4 @@
-from game.Match import isCreature
+from engine.Match import isCreature
 from TriggeredAbility import TriggeredAbility
 from Target import NoTarget
 from Trigger import EnterFromTrigger

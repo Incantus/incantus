@@ -1,4 +1,4 @@
-from game.Match import isLandCard
+from engine.Match import isLandCard
 from StaticAbility import CardStaticAbility
 from Cost import DiscardCost
 

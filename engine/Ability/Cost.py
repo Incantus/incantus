@@ -1,6 +1,6 @@
-from game import Mana
-from game.GameEvent import CounterAddedEvent, CounterRemovedEvent, InvalidTargetEvent
-from game.Match import isCard, isPermanent
+from engine import Mana
+from engine.GameEvent import CounterAddedEvent, CounterRemovedEvent, InvalidTargetEvent
+from engine.Match import isCard, isPermanent
 
 class Cost(object):
     def is_mana_cost(self): return False

@@ -1,5 +1,5 @@
-from game.GameEvent import UpkeepStepEvent, DealsDamageToEvent
-from game.Match import isCreature, isPlayer
+from engine.GameEvent import UpkeepStepEvent, DealsDamageToEvent
+from engine.Match import isCreature, isPlayer
 from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
 from StaticAbility import CardStaticAbility

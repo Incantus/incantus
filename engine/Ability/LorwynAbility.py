@@ -1,5 +1,5 @@
-from game.Match import isCreature, isPermanent
-from game.GameEvent import ClashEvent
+from engine.Match import isCreature, isPermanent
+from engine.GameEvent import ClashEvent
 from TriggeredAbility import TriggeredAbility
 from CiPAbility import comes_into_play_tapped
 from StaticAbility import CardStaticAbility

@@ -1,4 +1,4 @@
-from game.Match import isArtifactCreature
+from engine.Match import isArtifactCreature
 from TriggeredAbility import TriggeredAbility, source_match
 from Trigger import EnterFromTrigger
 from Target import Target

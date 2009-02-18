@@ -1,8 +1,8 @@
-from game.pydispatch import dispatcher
-from game.pydispatch.robustapply import function
-from game.GameEvent import CleanupEvent
-from game.stacked_function import global_override, override, replace, logical_and, logical_or, do_all
-from game.Match import isPlayer
+from engine.pydispatch import dispatcher
+from engine.pydispatch.robustapply import function
+from engine.GameEvent import CleanupEvent
+from engine.stacked_function import global_override, override, replace, logical_and, logical_or, do_all
+from engine.Match import isPlayer
 
 no_condition = None
 
@@ -40,15 +40,15 @@ def until_end_of_turn(*restores):
     dispatcher.connect(combine(*restores), signal=CleanupEvent(), weak=False, expiry=1)
 
 def keyword_action(func):
-    from game.Player import Player
+    from engine.Player import Player
     setattr(Player, func.__name__, func)
 
 def permanent_method(func):
-    from game.CardRoles import Permanent
+    from engine.CardRoles import Permanent
     setattr(Permanent, func.__name__, func)
 
 def role_method(func):
-    from game.CardRoles import CardRole
+    from engine.CardRoles import CardRole
     setattr(CardRole, func.__name__, func)
 
 do_override = override

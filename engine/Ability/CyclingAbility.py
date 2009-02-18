@@ -1,7 +1,7 @@
 from Cost import ManaCost, Cost
 from ActivatedAbility import ActivatedAbility
-from game.Match import isCard, isBasicLandCard
-from game.GameEvent import DiscardCardEvent, CardCycledEvent, TimestepEvent
+from engine.Match import isCard, isBasicLandCard
+from engine.GameEvent import DiscardCardEvent, CardCycledEvent, TimestepEvent
 from Target import NoTarget
 
 # A bit of a hack, but neccessary to make sure the event gets sent at the right time.
