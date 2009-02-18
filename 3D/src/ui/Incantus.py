@@ -401,9 +401,9 @@ class GameWindow(window.Window):
         self.player2 = player2
         dispatcher.reset()
         if isserver:
-            engine.Keeper.init(player1, player2)
+            engine.Keeper.init([player1, player2])
         else:
-            engine.Keeper.init(player2, player1)
+            engine.Keeper.init([player2, player1])
         self.make_connections(playercolor, otherplayercolor, soundfx=True)
 
         # Save info for replay
@@ -463,7 +463,7 @@ class GameWindow(window.Window):
         random.seed(seed)
 
         dispatcher.reset()
-        engine.Keeper.init(player1, player2)
+        engine.Keeper.init([player1, player2])
         self.make_connections(playercolor, otherplayercolor, soundfx=False)
 
         # XXX This is hacky - need to change it
@@ -521,7 +521,7 @@ class GameWindow(window.Window):
         random.seed(seed)
 
         dispatcher.reset()
-        engine.Keeper.init(player1, player2)
+        engine.Keeper.init([player1, player2])
         self.make_connections(player1_color, player2_color, soundfx=not self.replay_fast)
 
         if self.conf.get("solitaire", "manaburn") == "No":
