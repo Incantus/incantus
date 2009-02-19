@@ -301,6 +301,7 @@ class Creature(object):
         self.PT_static_modifiers = PTModifiers(proxy) # layer 6d - static modifiers
         self.PT_switch_modifiers = PTModifiers(proxy) # layer 6e - P/T switching modifiers
         self.in_combat = False
+        self.did_strike = False
         self.attacking = False
         self.blocking = False
         self.blocked = False
@@ -358,8 +359,16 @@ class Creature(object):
         return not (self.tapped or self.in_combat)
     def canBlockAttacker(self, attacker):
         return True
+    def didStrike(self):
+        self.did_strike = True
+    def canStrike(self, is_first_strike):
+        if is_first_strike:
+            return ("first strike" in self.abilities or "double strike" in self.abilities)
+        else:
+            return (not self.did_strike or "double strike" in self.abilities)
     def clearCombatState(self):
         self.setCombat(False)    # XXX Should be a property that sends a signal when set
+        self.did_strike = False
         if self.attacking:
             self.attacking = False
             self.send(AttackerClearedEvent())

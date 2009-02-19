@@ -246,7 +246,7 @@ class GameKeeper(MtGObject):
         self.setState("Main1")
         self.playSpells()
         self.setState("EndMain")
-    def calculateDamage(self, combat_assignment, first_strike=False):
+    def calculateDamage(self, combat_assignment, is_first_strike=False):
         new_combat_list = []
         # Remove all attackers and blockers that are no longer valid
         for attacker, blockers in combat_assignment:
@@ -262,11 +262,9 @@ class GameKeeper(MtGObject):
         damage_assignment = {}
 
         tramplers = []
-        def check_strike(card):
-            return ((first_strike and ("first strike" in card.abilities or "double strike" in card.abilities)) or
-               (not first_strike and not ("first strike" in card.abilities)))
         for attacker, blockers in new_combat_list:
-            if check_strike(attacker):
+            if attacker.canStrike(is_first_strike):
+                attacker.didStrike()
                 if not attacker.blocked:
                     # XXX I should check that the attacker can damage the player
                     damage = {attacker.opponent: attacker.combatDamage()}
@@ -286,12 +284,13 @@ class GameKeeper(MtGObject):
                 damage_assignment[attacker] = damage
             # attacker receives all damage from blockers
             for blocker in blockers:
-                if not check_strike(blocker): continue
-                # XXX Check whether the blocker can assign damage to attacker
-                damage = {attacker: blocker.combatDamage()}
-                # Handles the case where one blocker can block multiple creatures
-                if damage_assignment.has_key(blocker): damage_assignment[blocker].update(damage)
-                else: damage_assignment[blocker] = damage
+                if blocker.canStrike(is_first_strike):
+                    blocker.didStrike()
+                    # XXX Check whether the blocker can assign damage to attacker
+                    damage = {attacker: blocker.combatDamage()}
+                    # Handles the case where one blocker can block multiple creatures
+                    if damage_assignment.has_key(blocker): damage_assignment[blocker].update(damage)
+                    else: damage_assignment[blocker] = damage
 
         return tramplers, damage_assignment
     def handle_trample(self, tramplers, damage_assn):
@@ -301,7 +300,7 @@ class GameKeeper(MtGObject):
     def combatDamageStep(self, combat_assignment):
         self.setState("Damage")
 
-        tramplers, first_strike_damage = self.calculateDamage(combat_assignment, first_strike=True)
+        tramplers, first_strike_damage = self.calculateDamage(combat_assignment, is_first_strike=True)
         if first_strike_damage:
             # Handle trample
             if tramplers: self.handle_trample(tramplers, first_strike_damage)
