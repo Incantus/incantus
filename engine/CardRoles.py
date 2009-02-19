@@ -385,10 +385,9 @@ class Creature(object):
         self.attacking = True
         self.send(AttackerDeclaredEvent())
     def setBlocked(self, blockers):
-        if blockers:
-            self.blocked = True
-            self.blockers.update(blockers)
-            self.send(AttackerBlockedEvent(), blockers=blockers)
+        self.blocked = True
+        self.blockers.update(blockers)
+        self.send(AttackerBlockedEvent(), blockers=blockers)
     def setBlocking(self, attacker):
         self.setCombat(True)
         self.blocking = True

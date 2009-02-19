@@ -406,10 +406,11 @@ class Player(MtGObject):
                 invalid_block = len(invalid_blockers) > 0
                 if not invalid_block:
                     for attacker, blockers in combat_assignment.items():
-                        attacker.setBlocked(blockers)
-                        for blocker in blockers:
-                            blocker.payBlockCost()
-                            blocker.setBlocking(attacker)
+                        if blockers:
+                            attacker.setBlocked(blockers)
+                            for blocker in blockers:
+                                blocker.payBlockCost()
+                                blocker.setBlocking(attacker)
                 else:
                     blocker_prompt = "Invalid defense - choose another"
                     for creature in invalid_blockers: self.send(InvalidTargetEvent(), target=creature)
