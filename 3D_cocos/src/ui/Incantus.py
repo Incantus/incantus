@@ -299,15 +299,15 @@ class IncantusLayer(Layer):
 
     def greenlet_input(self, context, prompt=''):
         self.game_status.log(prompt)
-        self.process = context['process']
+        process = context['process']
         result = False
         if self.pending_actions:
-            result = self.process(self.pending_actions.pop())
+            result = process(self.pending_actions.pop())
             self.pending_actions = []
         while result is False:
             self.do_action(context)
             g_self = greenlet.getcurrent()
-            result = self.process(g_self.parent.switch())
+            result = process(g_self.parent.switch())
         if self.client: self.client.send_action(result)
         return result
 
@@ -388,7 +388,6 @@ class IncantusLayer(Layer):
         if client:
             client.call_action = lambda result: self.gamelet.switch(result)
             client.ready_to_play()
-        self.process = lambda action: False
         pyglet.clock.schedule_once(lambda dt: self.gamelet.switch(), 0.01)
 
 from network import realm
