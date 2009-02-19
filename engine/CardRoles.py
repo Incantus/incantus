@@ -7,6 +7,7 @@ from Ability.Counters import *
 from Ability.PermanentAbility import basic_mana_ability
 from Ability.EffectsUtilities import combine
 from Ability.Subtypes import all_basic_lands
+from Ability.Cost import MultipleCosts
 
 class CardRole(MtGObject):
     def info():
@@ -397,23 +398,17 @@ class Creature(object):
         if in_combat: self.send(CreatureInCombatEvent())
         else: self.send(CreatureCombatClearedEvent())
     def computeBlockCost(self):
-        self.block_cost = ["0"]
-        return True
+        self.block_cost = cost = MultipleCosts(["0"])
+        player = self.controller
+        return cost.precompute(self, player) and cost.compute(self, player)
     def payBlockCost(self):
-        from Ability.Cost import MultipleCosts
-        player = self.controller
-        cost = MultipleCosts(self.block_cost)
-        if cost.precompute(self, player) and cost.compute(self, player):
-            cost.pay(self, player)
+        self.block_cost.pay(self, self.controller)
     def computeAttackCost(self):
-        self.attack_cost = ["0"]
-        return True
-    def payAttackCost(self):
-        from Ability.Cost import MultipleCosts
+        self.attack_cost = cost = MultipleCosts(["0"])
         player = self.controller
-        cost = MultipleCosts(self.attack_cost)
-        if cost.precompute(self, player) and cost.compute(self, player):
-            cost.pay(self, player)
+        return cost.precompute(self, player) and cost.compute(self, player)
+    def payAttackCost(self):
+        self.attack_cost.pay(self, self.controller)
     def shouldDestroy(self):
         return self.__damage >= self.toughness and super(Creature, self).shouldDestroy()
 
