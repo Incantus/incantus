@@ -29,6 +29,7 @@ def search_cycling(match, cost, typestr):
         yield cost + CycleDiscard()
         yield NoTarget()
         for card in controller.choose_from_zone(number=1, cardtype=match, zone="library", action="put into your hand"):
+            controller.reveal_cards(card)
             card.move_to("hand")
         yield
     return ActivatedAbility(effects, zone="hand", txt="%scycling %s"%(typestr, str(cost)), keyword="cycling")
