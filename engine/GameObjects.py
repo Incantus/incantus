@@ -66,7 +66,7 @@ class GameObject(MtGObject):
         # Set up base characteristics
         role.owner = self.owner
         role.name = stacked_variable(proxy_role, self.base_name, NameModifiedEvent())
-        role.cost = self.base_cost #stacked_variable(proxy_role, self.base_cost, CostModifiedEvent())
+        role.cost = stacked_variable(proxy_role, self.base_cost, CostModifiedEvent())
         role.text = stacked_variable(proxy_role, self.base_text, TextModifiedEvent())
         role.color = stacked_characteristic(proxy_role, self.base_color, ColorModifiedEvent())
         role.types = stacked_type(proxy_role, self.base_types, TypesModifiedEvent())
