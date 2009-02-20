@@ -78,6 +78,7 @@ class Camera(object):
         ray = euclid.Ray3(euclid.Point3(x1.value, y1.value, z1.value),
                           euclid.Point3(x2.value, y2.value, z2.value))
         ray.v.normalize()
+        self.reset()
         return ray
     def project_to_window(self, x,y,z):
         self.setup()
@@ -90,4 +91,5 @@ class Camera(object):
 
         x1, y1, z1 = GLdouble(), GLdouble(), GLdouble()
         gluProject(x, y, z, model_view, projection, viewport, x1, y1, z1)
+        self.reset()
         return euclid.Vector3(x1.value, y1.value, z1.value)

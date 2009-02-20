@@ -78,7 +78,7 @@ class IncantusLayer(Layer):
         self.p1_stop_next = False
         self.p2_stop_next = False
 
-    def setup_3d(self):
+    def setup_lighting(self):
         glEnable(GL_LIGHTING)
         glLightModelfv(GL_LIGHT_MODEL_AMBIENT, fourfv(0.5,0.5,0.5,1.0))
         glEnable(GL_LIGHT0)
@@ -89,12 +89,11 @@ class IncantusLayer(Layer):
         # ColorMaterial use inspired by: http://www.sjbaker.org/steve/omniv/opengl_lighting.html
         glEnable ( GL_COLOR_MATERIAL )
         glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
-        self.camera.setup()
 
     def on_enter(self):
         super(IncantusLayer, self).on_enter()
         self.on_resize(self.width, self.height)
-        self.setup_3d()
+        self.setup_lighting()
         self.play_controller.activate()
         self.status_controller.activate()
         self.hand_controller.activate()
