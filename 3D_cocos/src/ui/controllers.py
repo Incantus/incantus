@@ -171,11 +171,12 @@ class CardSelector(object):
         self.otherstatus = otherstatus
         self.zone_view = zone_view
         self.window = window
-    def activate(self, sellist, from_zone, number=1, required=False, is_opponent=False, filter=None):
+    def activate(self, sellist, from_zone, number=1, required=False, is_opponent=False, filter=None, actionable=True):
         self.required = required
         self.number = number  # if number is -1 then we can select any number of cards
         self.tmp_dx = 0
         self.filter = filter
+        self.actionable = actionable
         director.window.push_handlers(self)
         # Figure out where to pop up
         # zone options are play, library, graveyard, and removed
@@ -196,16 +197,16 @@ class CardSelector(object):
         if symbol == key.ENTER:
             selection = [card.gamecard for card in self.zone_view.selected]
             if len(selection) == 0 and len(self.zone_view.cards) == self.number:
-                self.window.process_action(Action.MultipleCardsSelected([card.gamecard for card in self.zone_view.cards]))
+                if self.actionable: self.window.process_action(Action.MultipleCardsSelected([card.gamecard for card in self.zone_view.cards]))
                 self.deactivate()
             else:
                 if (self.number == -1) or (len(selection) == self.number) or (len(self.zone_view.cards) == 0 and len(selection) < self.number) or (len(selection) < self.number and not self.required):
-                    self.window.process_action(Action.MultipleCardsSelected(selection))
+                    if self.actionable: self.window.process_action(Action.MultipleCardsSelected(selection))
                     self.deactivate()
             return True
         elif symbol == key.ESCAPE:
             if not self.required: 
-                self.window.process_action(Action.CancelAction())
+                if self.actionable: self.window.process_action(Action.CancelAction())
                 self.deactivate()
             return True
         elif symbol == key.LEFT:

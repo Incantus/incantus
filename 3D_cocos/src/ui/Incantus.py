@@ -290,10 +290,17 @@ class IncantusLayer(Layer):
 
     def network_input(self, context, prompt=''):
         self.game_status.log("Waiting for %s"%prompt.split(":")[0])
-        self.pending_actions = []
+        self.pending_actions = []   # this is necessary to clear any extra actions
         self.network = True
-        g_self = greenlet.getcurrent()
-        result = g_self.parent.switch()
+        result = False
+        if context.get("reveal_card", False) and context["all"]:
+            process = context['process']
+            self.card_selector.activate(context['cards'], context['from_zone'], 0, required=False, is_opponent=(context['from_player'] != self.player1), actionable=False)
+            g_self = greenlet.getcurrent()
+            result = process(g_self.parent.switch())
+        else:
+            g_self = greenlet.getcurrent()
+            result = g_self.parent.switch()
         self.network = False
         return result
 
