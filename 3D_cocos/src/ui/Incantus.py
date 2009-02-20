@@ -293,13 +293,9 @@ class IncantusLayer(Layer):
         self.network = True
         result = False
         if context.get("reveal_card", False) and context["all"]:
-            process = context['process']
             self.card_selector.activate(context['cards'], context['from_zone'], 0, required=False, is_opponent=(context['from_player'] != self.player1), actionable=False)
-            g_self = greenlet.getcurrent()
-            result = process(g_self.parent.switch())
-        else:
-            g_self = greenlet.getcurrent()
-            result = g_self.parent.switch()
+        g_self = greenlet.getcurrent()
+        result = g_self.parent.switch()
         self.network = False
         return result
 
