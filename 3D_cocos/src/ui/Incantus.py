@@ -178,6 +178,8 @@ class IncantusLayer(Layer):
             self.phase_controller.activate(other=False)
         elif symbol == key.F3:
             self.phase_controller.activate(other=True)
+        elif symbol == key.Q:
+            quit()
         else:
             return event.EVENT_UNHANDLED
         return True
@@ -315,6 +317,7 @@ class IncantusLayer(Layer):
 
     def process_action(self, action):
         if not self.network:
+            #this is like pushing an event onto the pyglet loop
             pyglet.clock.schedule_once(lambda dt: self.gamelet.switch(action), 0.0001)
 
     def do_action(self, context):
@@ -464,7 +467,7 @@ def resume_game():
     #director.push(ZoomTransition(gamescene, 1.))
 
 def quit():
-    pass
+    director.pop()
 
 def load_deckfile(filename):
     deckfile = [l.strip().split() for l in file(filename, "rU").readlines() if not (l[0] == "#" or l[:2] == "//")]

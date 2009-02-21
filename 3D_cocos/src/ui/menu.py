@@ -91,7 +91,7 @@ class InGameMenu(IncantusMenu):
         items = []
         items.append(MenuItem('Resume Game', self.on_quit))
         items.append(SubMenuItem('Options', options))
-        items.append(MenuItem('Quit Game', self.on_quit_game))
+        items.append(MenuItem('Exit Game', self.on_quit_game))
         self.create_menu(items)
     def on_quit(self):
         # Quitting the menu
