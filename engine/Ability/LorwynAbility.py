@@ -123,4 +123,7 @@ def changeling():
 #            ability=Ability(card, target=Target(targeting="self"),
 #                effects=[SacrificeSelf(), NullEffect(lambda c, t: evoke_cost.reset())]))
 #    card.abilities.add(evoke)
-
+def evoke(cost):  # Essentially a noop
+    def effects(source):
+        yield lambda: None
+    return CardStaticAbility(effects, keyword="evoke", zone="all")

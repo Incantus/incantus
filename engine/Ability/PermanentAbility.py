@@ -94,3 +94,8 @@ def doesntUntapAbility(txt):
 #            if isinstance(limit, SorceryLimit): break
 #        casting_ability.limit.limits.pop(i)
 
+def flash():  # Essentially a noop
+    def effects(source):
+        yield lambda: None
+    return CardStaticAbility(effects, keyword="flash", zone="all")
+
