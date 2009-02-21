@@ -70,16 +70,16 @@ def doesntUntapAbility(txt):
 #
 #def dredge(card, number):
 #    condition = lambda self: len(self.graveyard) >= number
-#    def draw(self):
+#    def draw_single(self):
 #        if self.getIntention("Would you like to dredge %s?"%card, "Dredge %s"%card):
 #            top_N = self.library.top(number)
 #            for c in top_N: c.move_to("graveyard")
 #            card.move_to("hand")
 #        else:
-#            self.draw()
+#            self.draw_single()
 #
 #    dredge_ability = GlobalStaticAbility(card,
-#      effects=ReplacementEffect(draw, "draw", txt='%s - dredge?'%card, expire=False, condition=condition), zone="graveyard")
+#      effects=ReplacementEffect(draw_single, "draw_single", txt='%s - dredge?'%card, expire=False, condition=condition), zone="graveyard")
 #    card.abilities.add(dredge_ability)
 
 #def suspend(card, number):

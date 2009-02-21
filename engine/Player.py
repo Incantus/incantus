@@ -169,9 +169,9 @@ class Player(MtGObject):
                     cards = self.getCardSelection(selection, number=number, cardtype=cardtype, required=required, prompt="Search your %s for %s %s to %s."%(zone, a, cardtype, action))
                     if zone == "library": self.shuffle()
         return cards
-    def do_draw(self, number=1):
-        return sum([self.draw() for i in range(number)])
-    def draw(self):
+    def draw(self, number=1):
+        return sum([self.draw_single() for i in range(number)])
+    def draw_single(self):
         card = self.library.top()
         num = 0
         if card == None: self.draw_empty = True
@@ -231,7 +231,7 @@ class Player(MtGObject):
                 for card in self.hand: card.move_to(self.library)
                 self.shuffle()
                 yield
-                for i in range(number): self.draw()
+                self.draw(number)
                 yield True
             else: break
         yield False

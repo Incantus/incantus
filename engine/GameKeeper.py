@@ -72,7 +72,7 @@ class GameKeeper(MtGObject):
 
         self.send(TimestepEvent())
         for player in self.players:
-            player.do_draw(7)
+            player.draw(7)
         self.send(TimestepEvent())
         for player in self.players:
             for did_mulligan in player.mulligan():
