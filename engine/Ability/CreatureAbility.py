@@ -99,7 +99,7 @@ def fear():
 def protection(condition, attribute):
     keyword = "protection from %s"%attribute
     # DEBT is an acronym. It stands for Damage, Enchantments/Equipment, Blocking, and Targeting
-    preventDamage = lambda self, amt, source, combat=False: 0
+    prevent_damage = lambda self, amt, source, combat=False: 0
     prevent_condition = lambda self, amt, source, combat=False: condition(source)
     def canBeAttachedBy(self, targeter):
         return not condition(targeter)
@@ -109,7 +109,7 @@ def protection(condition, attribute):
         return not condition(targeter)
 
     def protection_effect(target):
-        yield combine(do_replace(target, "assignDamage", preventDamage, msg="Protection effect", condition=prevent_condition),
+        yield combine(prevent_damage(target, -1, txt="Protection effect", condition=prevent_condition),
                       do_override(target, "canBeAttachedBy", canBeAttachedBy),
                       do_override(target, "canBeBlockedBy", canBeBlockedBy),
                       do_override(target, "canBeTargetedBy", canBeTargetedBy))
@@ -132,11 +132,12 @@ protection_from_everything = partial(protection, condition = lambda other: True,
 def aura_protection(aura, condition, attribute):
     keyword = "protection from %s"%attribute
     # DEBT is an acronym. It stands for Damage, Enchantments/Equipment, Blocking, and Targeting
+    prevent_condition = lambda self, amt, source, combat=False: condition(source)
     def mk_override(cond):
         return lambda self, by: not cond(by)
 
     def effects(target):
-        yield combine(*[do_override(target, func_name, mk_override(cond)) for func_name, cond in [("canBeAttachedBy", lambda o: not o==aura and condition(o)), ("canBeBlockedBy", condition), ("canBeTargetedBy", condition)]]+[do_replace(target, "assignDamage", preventDamage, msg="Protection effect", condition=lambda self, amt, source, combat=False: condition(source))])
+        yield combine(*[do_override(target, func_name, mk_override(cond)) for func_name, cond in [("canBeAttachedBy", lambda o: not o==aura and condition(o)), ("canBeBlockedBy", condition), ("canBeTargetedBy", condition)]]+[prevent_damage(target, -1, txt="Protection effect", condition=prevent_condition)])
 
     return CardStaticAbility(effects=effects, keyword=keyword)
 
