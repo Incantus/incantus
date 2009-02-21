@@ -27,6 +27,7 @@ from Ability.PermanentAbility import *
 from Ability.CyclingAbility import *
 
 from Ability.GeneralAbility import *
+from Ability.PortalThreeKingdomsAbility import *
 from Ability.FifthDawnAbility import *
 from Ability.UrzasSagaAbility import *
 from Ability.LorwynAbility import *
