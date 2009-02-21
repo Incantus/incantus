@@ -99,7 +99,6 @@ def fear():
 def protection(condition, attribute):
     keyword = "protection from %s"%attribute
     # DEBT is an acronym. It stands for Damage, Enchantments/Equipment, Blocking, and Targeting
-    prevent_damage = lambda self, amt, source, combat=False: 0
     prevent_condition = lambda self, amt, source, combat=False: condition(source)
     def canBeAttachedBy(self, targeter):
         return not condition(targeter)
