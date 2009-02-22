@@ -6,7 +6,7 @@ from engine.GameObjects import MtGObject
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger
 from EffectsUtilities import combine
 
-__all__ = ["SimpleStaticAbility", "CardStaticAbility", "ConditionalStaticAbility", "CardTrackingAbility"]
+__all__ = ["SimpleStaticAbility", "CardStaticAbility", "ConditionalStaticAbility", "CardTrackingAbility", "ConditionalTrackingAbility"]
 
 # Static abilities always function while the permanent is in the relevant zone
 class StaticAbility(object):
@@ -147,19 +147,19 @@ class CardStaticAbility(StaticAbility):
 
 # The condition is checked every timestep
 class Conditional(MtGObject):
-    def init_condition(self, condition=lambda source: True):
-        self.condition = condition
+    def init_conditional(self, conditional=lambda source: True):
+        self.conditional = conditional
         self.__enabled = False
     def _enable(self):
-        self.register(self.check_condition, event=TimestepEvent())
-        self.check_condition()
+        self.register(self.check_conditional, event=TimestepEvent())
+        self.check_conditional()
     def _disable(self):
-        self.unregister(self.check_condition, event=TimestepEvent())
+        self.unregister(self.check_conditional, event=TimestepEvent())
         if self.__enabled:
             self.__enabled = False
             super(Conditional, self)._disable()
-    def check_condition(self):
-        pass_condition = self.condition(self.source)
+    def check_conditional(self):
+        pass_condition = self.conditional(self.source)
         if not self.__enabled and pass_condition:
             super(Conditional, self)._enable()
             self.__enabled = True
@@ -168,7 +168,14 @@ class Conditional(MtGObject):
             self.__enabled = False
 
 class ConditionalStaticAbility(Conditional, CardStaticAbility):
-    def __init__(self, effects, condition, zone="play", txt=''):
+    def __init__(self, effects, conditional, zone="play", txt=''):
         super(ConditionalStaticAbility, self).__init__(effects, zone, txt)
-        self.init_condition(condition)
-    def copy(self): return self.__class__(self.effect_generator, self.condition, self.zone, self.txt)
+        self.init_conditional(conditional)
+    def copy(self): return self.__class__(self.effect_generator, self.conditional, self.zone, self.txt)
+
+class ConditionalTrackingAbility(Conditional, CardTrackingAbility):
+    def __init__(self, effects, condition, conditional, events = [], tracking="play", zone="play", txt=''):
+        super(ConditionalTrackingAbility, self).__init__(effects, condition, events, tracking, zone, txt)
+        self.init_conditional(conditional)
+    def copy(self):
+        return self.__class__(self.effect_generator, self.condition, self.conditional, self.events, self.tracking, self.zone, self.txt)
