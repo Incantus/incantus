@@ -35,7 +35,7 @@ class Ability(object):
     def check_targets(self): return any([target.check_target(self.source) for target in self.targets])
     def resolve(self):
         if self.check_targets():
-            targets = [target.get_targeted() for target in self.targets]
+            targets = tuple((target.get_targeted() for target in self.targets))
             if len(targets) == 1: targets = targets[0]
             self.effects.send(targets)
             self.source.send(TimestepEvent())

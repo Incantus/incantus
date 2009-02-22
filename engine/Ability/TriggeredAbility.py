@@ -1,5 +1,6 @@
 from Ability import Ability
 from EffectsUtilities import robustApply
+from Utils import flatten, unflatten
 
 source_match = lambda source, card: source == card
 sender_match = lambda source, sender: source == sender
@@ -75,8 +76,10 @@ def modal_triggered_effects(*modes, **kw):
         if choose > 1: chosen = tuple((robustApply(mode, **keys) for mode in selected))
         else: chosen = (robustApply(selected, **keys), )
         # get the targets
-        targets = yield tuple((mode.next() for mode in chosen))
+        targets = tuple((mode.next() for mode in chosen))
+        demux = [len(target) if type(target) == tuple else 1 for target in targets]
+        targets = yield tuple(flatten(targets))
         if not hasattr(targets, "__len__"): targets = (targets, )
-        yield tuple((mode.send(t) for t, mode in zip(targets, chosen)))
+        yield tuple((mode.send(t) for t, mode in zip(tuple(unflatten(targets, demux)), chosen)))
 
     return modal_effects

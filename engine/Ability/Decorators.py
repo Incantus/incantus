@@ -6,6 +6,7 @@ from Target import NoTarget, Target
 from Cost import ManaCost
 from CiPAbility import CiP, CiPAbility
 from EffectsUtilities import robustApply
+from Utils import flatten, unflatten
 
 def play_permanent():
     def effects(controller, source):
@@ -41,13 +42,17 @@ def modal(*modes, **kw):
             if choose > 1: chosen = tuple((mode(controller, source) for mode in selected))
             else: chosen = (selected(controller, source), )
             # get the costs
+            # We need to have a payment = yield NoCost in the mode to pass
+            # back the cost in case the mode needs to reference is (see Profane Command)
             costs = tuple((mode.next() for mode in chosen))
             payment = yield effects(controller, source).next()
 
-            # get the targets
-            targets = yield tuple((mode.send(payment) for mode in chosen))
+            # get the targets - demultiplex them
+            targets = tuple((mode.send(payment) for mode in chosen))
+            demux = [len(target) if type(target) == tuple else 1 for target in targets]
+            targets = yield tuple(flatten(targets))
             if not hasattr(targets, "__len__"): targets = (targets, )
-            yield tuple((mode.send(t) for t, mode in zip(targets, chosen)))
+            yield tuple((mode.send(t) for t, mode in zip(tuple(unflatten(targets, demux)), chosen)))
 
         return modal_effects
     return make_modal
