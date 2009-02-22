@@ -21,4 +21,4 @@ portal_limit = PortalLimit()
 
 def horsemanship():
     keyword = "horsemanship"
-    return CardStaticAbility(effects=override_effect("canBeBlockedBy", lambda blocker: keyword in blocker.abilities), keyword=keyword)
+    return CardStaticAbility(effects=override_effect("canBeBlockedBy", lambda self, blocker: keyword in blocker.abilities), keyword=keyword)
