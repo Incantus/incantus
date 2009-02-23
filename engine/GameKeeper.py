@@ -47,7 +47,7 @@ class GameKeeper(MtGObject):
     current_player = property(**current_player())
 
     def init(self, players):
-        self.current_step = "Pregame"
+        self.current_phase = "Pregame"
         self.stack = Stack(self)
         self.play = Play(self)
 
@@ -116,7 +116,7 @@ class GameKeeper(MtGObject):
 
     def setState(self, state):
         # Send notice that state changed
-        self.current_step = state
+        self.current_phase = state
         self.send(GameStepEvent(), state=state)
         self.send(state_map[state](), player=self.current_player)
     def manaBurn(self):
