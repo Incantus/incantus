@@ -136,6 +136,7 @@ class HandView(CardView):
         newcard.size = anim.animate(newcard.size, newcard.size, dt=0.2, method="sine")
         newcard.alpha = anim.animate(0, 1.0, dt=1.0, method="ease_out_circ")
         self.cards.append(newcard)
+        self.cards.sort(key=lambda c: str(c), reverse=True)
         self.layout()
     def remove_card(self, card):
         card = self._card_map.pop(card.key)
