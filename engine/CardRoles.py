@@ -1,7 +1,7 @@
 import new, weakref
 from characteristics import stacked_controller, PTModifiers, stacked_characteristic, additional_characteristics
 from GameObjects import MtGObject
-from GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
+from GameEvent import DealsDamageToEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
 from Planeswalker import Planeswalker
 from Ability.Counters import *
 from Ability.PermanentAbility import basic_mana_ability
@@ -76,10 +76,7 @@ class CardRole(MtGObject):
             return zone.move_card(self, position)
         else: return self
     def deal_damage(self, to, amount, combat=False):
-        if amount > 0:
-            final_dmg = to.assignDamage(amount, source=self, combat=combat)
-            if final_dmg > 0:
-                self.send(DealsDamageToEvent(), to=to, amount=final_dmg, combat=combat)
+        if amount > 0: final_dmg = to.assignDamage(amount, source=self, combat=combat)
         else: final_dmg = 0
         return final_dmg
     def add_counters(self, counter_type, number=1):
@@ -326,6 +323,7 @@ class Creature(object):
         if not self.is_LKI:
             if "wither" in source.abilities: self.add_counters(PowerToughnessCounter(-1, -1), amt)
             else: self.__damage += amt
+        source.send(DealsDamageToEvent(), to=self, amount=amt, combat=combat)
         return amt
     def trample(self, damage_assn):
         from Match import isCreature

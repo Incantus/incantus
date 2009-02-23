@@ -1,7 +1,7 @@
 
 from GameObjects import MtGObject, Card, Token
 from GameKeeper import Keeper
-from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent, GameOverException
+from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent, GameOverException, DealsDamageToEvent
 from Mana import ManaPool, generate_hybrid_choices
 from Zone import Library, Hand, Graveyard, Removed
 from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
@@ -275,6 +275,7 @@ class Player(MtGObject):
     def assignDamage(self, amt, source, combat=False):
         # amt is greater than 0
         self.life -= amt
+        source.send(DealsDamageToEvent(), to=self, amount=amt, combat=combat)
         return amt
     def canBeTargetedBy(self, targetter):
         # For protection spells - XXX these should be stackable

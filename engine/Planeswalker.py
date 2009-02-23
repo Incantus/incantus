@@ -3,6 +3,7 @@ from stacked_function import replace
 from abilities import stacked_abilities
 from Ability.Counters import Counter
 from Ability.Limit import SorceryLimit, CountLimit
+from GameEvent import DealsDamageToEvent
 
 sorcery = SorceryLimit()
 
@@ -41,6 +42,7 @@ class Planeswalker(object):
     def assignDamage(self, amt, source, combat=False):
         # amt is greater than 0
         self.remove_counters("loyalty", amt)
+        source.send(DealsDamageToEvent(), to=self, amount=amt, combat=combat)
         return amt
     def shouldDestroy(self):
         return self.num_counters("loyalty") <= 0
