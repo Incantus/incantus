@@ -56,13 +56,17 @@ class DamageTrackingVariable(MemoryVariable):
     def received(self, to, source=None):
         if source: return self.dealt(source, to)
         else: return any([True for dealing in self.dealing.values() if to in dealing])
+    def dealt_by(self, source):
+        return self.dealing.get(source, {}).keys()
+    def received_by(self, to):
+        return [source for source, dealing in self.dealing.items() if to in dealing]
     def amount_dealt(self, source, to=None):
         if not source in self.dealing: return 0
         elif to == None: return sum(self.dealing[source].values())
         else: return self.dealing[source][to]
     def amount_received(self, to, source=None):
         if source: return self.amount_dealt(source, to)
-        else: return sum([dealing[to] for dealing in self.dealing.values if to in dealing])
+        else: return sum([dealing[to] for dealing in self.dealing.values() if to in dealing])
 
 class PlaySpellVariable(MemoryVariable):
     def __init__(self, condition):
