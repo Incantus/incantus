@@ -139,6 +139,8 @@ class PlayView(object):
     def __iter__(self):
         # Top of the cards is the end of the list
         return iter(self.get())
+    def __len__(self):
+        return len(self.get())
     def get(self, match=all_match, all=False):
         cards = self.play.get(match)
         if not all: cards = [card for card in cards if card.controller == self.player]
