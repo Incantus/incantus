@@ -104,9 +104,9 @@ class Player(MtGObject):
             return True
         else:
             return False
-    def create_tokens(self, info, number=1):
+    def create_tokens(self, info, number=1, tag=''):
         return [self.removed.add_new_card(Token.create(info, owner=self)) for _ in range(number)]
-    def play_tokens(self, info, number=1):
+    def play_tokens(self, info, number=1, tag=''):
         return [token.move_to("play") for token in self.create_tokens(info, number)]
     def make_selection(self, sellist, number=1, required=True, prompt=''):
         if type(sellist[0]) == tuple: idx=False
@@ -356,7 +356,7 @@ class Player(MtGObject):
         combat_assignment = dict([(attacker, []) for attacker in attackers])
         # Make sure you have creatures to block
         all_on_blocking_side = self.play.get(isCreature)
-        if len(all_on_blocking_side) == 0: return combat_assignment.items()
+        if len(all_on_blocking_side) == 0: return combat_assignment
 
         invalid_block = True
         blocker_prompt = "Declare blockers (Enter to accept, Escape to reset)"
@@ -417,7 +417,7 @@ class Player(MtGObject):
                     for creature in invalid_blockers: self.send(InvalidTargetEvent(), target=creature)
             else: blocker_prompt = "Declare blockers (Enter to accept, Escape to reset)"
 
-        return combat_assignment.items()
+        return combat_assignment
 
     def __str__(self): return self.name
     def __repr__(self): return "%s at %s"%(self.name, id(self))

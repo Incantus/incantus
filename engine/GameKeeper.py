@@ -249,7 +249,7 @@ class GameKeeper(MtGObject):
     def calculateDamage(self, combat_assignment, is_first_strike=False):
         new_combat_list = []
         # Remove all attackers and blockers that are no longer valid
-        for attacker, blockers in combat_assignment:
+        for attacker, blockers in combat_assignment.items():
             # Do the attacker first - make sure it is still valid
             if Match.isCreature(attacker) and str(attacker.zone) == "play" and attacker.in_combat:
                 newblockers = []
@@ -321,7 +321,7 @@ class GameKeeper(MtGObject):
         # Beginning of combat
         self.setState("BeginCombat")
         self.playInstantaneous()
-        combat_assignment = []
+        combat_assignment = {}
         if self.current_player.attackingIntention():
             # Attacking
             self.setState("Attack")
@@ -344,13 +344,9 @@ class GameKeeper(MtGObject):
         # trigger effects that happen at end of combat
         # Clear off attacking and blocking status?
         self.setState("EndCombat")
-        for attacker, blockers in combat_assignment:
-            # Make sure attackers and blockers are still in play
-            # XXX this is really ugle, but i don't know how else to do it
-            # What property can I check to make sure they are still in play?
-            if hasattr(attacker, "clearCombatState"): attacker.clearCombatState()
-            for b in blockers:
-                if hasattr(b, "clearCombatState"): b.clearCombatState()
+        for attacker, blockers in combat_assignment.items():
+            attacker.clearCombatState()
+            for blocker in blockers: blocker.clearCombatState()
         self.playInstantaneous()
     def mainPhase2(self):
         self.setState("Main2")
