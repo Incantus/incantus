@@ -1,6 +1,5 @@
 import itertools, random
 from GameObjects import MtGObject
-from Action import PassPriority
 import Match
 from GameEvent import *
 from Zone import Play
@@ -389,15 +388,14 @@ class GameKeeper(MtGObject):
             if self.stack.empty(): stack_less_action = self.playStackSpells()
             else: self.playStackInstant()
     def playStackSpells(self):
-        while self.checkSBE():
+        while self.checkSBE():    # XXX This seems wrong
             if not self.stack.empty():
                 self.playStackInstant()
                 return False
         self.stack.process_triggered()
         self.send(HasPriorityEvent(), player=self.current_player)
-        action = self.current_player.getMainAction()
-        if not isinstance(action, PassPriority):
-            action.perform(self.current_player)
+        print self.current_player, "playing stack spell"
+        if self.current_player.getMainAction():
             if not self.stack.empty(): self.playStackInstant()
             else: return True
         else: self.playStackInstant(skip_first=True)
@@ -418,16 +416,12 @@ class GameKeeper(MtGObject):
             response = self.continuePlay(self.other_player)
     def continuePlay(self, player):
         responding = False
-        priorityPassed = False
-        while not priorityPassed:
+        while True:
             while self.checkSBE(): pass
             self.stack.process_triggered()
             self.send(HasPriorityEvent(), player=player)
-            action = player.getAction()
-            if not isinstance(action, PassPriority):
-                # if something is done in response
-                responding = action.perform(player)
-            else: priorityPassed = True
+            if player.getAction(): responding = True
+            else: break
         return responding
 
 Keeper = GameKeeper()
