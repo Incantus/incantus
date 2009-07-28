@@ -430,38 +430,69 @@ class Player(MtGObject):
     def input(self, context, prompt):
         self.send(GameFocusEvent())
         return self.dirty_input(context, prompt)
-    def get(self, process=None, prompt=''):
+    def getMoreMana(self, required): # if necessary when paying a cost
         def convert_gui_action(action):
-            if isinstance(action, PassPriority) or isinstance(action, CancelAction): return action
+            if isinstance(action, PassPriority): return False
+            if isinstance(action, CancelAction): return action
+            sel = action.selection
+            if not isPlayer(sel) and sel.controller == self and str(sel.zone) == "play":
+                return ActivateForMana(sel)
+                for a in self.allowable_actions:
+                    if isinstance(action, a): return action
+            else: return False
+        context = {"get_ability": True, "process": convert_gui_action}
+        prompt = "Need %s - play mana abilities (Esc to cancel)"%required
+        self.allowable_actions.extend([CancelAction, ActivateForMana])
+        cancel = False    # This is returned - it's a way to back out of playing an ability
+        # This loop seems really ugly - is there a way to structure it better?
+        while True:
+            action = self.input(context, "%s: %s"%(self.name, prompt))
+            if isinstance(action, CancelAction):
+                cancel = True
+                break
+            elif action.perform(self):
+                break
+        [self.allowable_actions.pop() for i in range(2)]
+        return not cancel
+    def getAction(self, process=None, prompt=''):
+        def convert_gui_action(action):
+            if isinstance(action, PassPriority): return action
+            elif isinstance(action, CancelAction): return False
             sel = action.selection
             if not isPlayer(sel) and sel.controller == self:
-                if isLandCard(sel) and not str(sel.zone) == "play": return PlayLand(sel)
-                else: return PlayAbility(sel)
-            else: return False
+                if isLandCard(sel) and not str(sel.zone) == "play": action =  PlayLand(sel)
+                else: action =  PlayAbility(sel)
+                # Now check if it's valid
+                for a in self.allowable_actions:
+                    if isinstance(action, a): return action
+            return False
+
         if not process: process = convert_gui_action
         context = {"get_ability": True, "process": process}
+
+        passed = False
         while True:
             action = self.input(context, "%s: %s"%(self.name,prompt))
-            # check if action is valid
-            allowed = False
-            for a in self.allowable_actions:
-                if isinstance(action, a):
-                    allowed = True
-                    break
-            if allowed: break
-            #else: print self.name, str(action)+" not allowed"
-        return action
+            if isinstance(action, PassPriority):
+                passed = True
+                break
+            elif action.perform(self): 
+                passed = False
+                break
+        return not passed
+
     def getMainAction(self):
-        self.allowable_actions.extend([PlayLand, ActivateForMana, PlayAbility])
-        num_added_actions = 3
-        action = self.get(prompt="Play Spells or Activated Abilities")
+        self.allowable_actions.extend([PlayLand, PlayAbility])
+        num_added_actions = 2
+        passed = self.getAction(prompt="Play Spells or Activated Abilities")
         [self.allowable_actions.pop() for i in range(num_added_actions)]
-        return action
-    def getAction(self):
-        self.allowable_actions.extend([ActivateForMana, PlayAbility])
-        action = self.get(prompt="Play Instants or Activated Abilities")
-        [self.allowable_actions.pop() for i in range(2)]
-        return action
+        return passed
+    def getInstantAction(self):
+        self.allowable_actions.extend([PlayAbility])
+        num_added_actions = 1
+        passed = self.getAction(prompt="Play Instants or Activated Abilities")
+        [self.allowable_actions.pop() for i in range(num_added_actions)]
+        return passed
     def getIntention(self, prompt='', msg="", notify=False):
         def filter(action):
             if not (isinstance(action, OKAction) or isinstance(action, CancelAction)): return False
@@ -566,27 +597,6 @@ class Player(MtGObject):
 
         if isinstance(target, CancelAction) or isinstance(target, PassPriority): return False
         return target
-    def getMoreMana(self, required): # if necessary when paying a cost
-        def convert_gui_action(action):
-            if isinstance(action, PassPriority): return False
-            if isinstance(action, CancelAction): return action
-            sel = action.selection
-            if not isPlayer(sel) and sel.controller == self and str(sel.zone) == "play":
-                return ActivateForMana(sel)
-            else: return False
-        self.allowable_actions.extend([CancelAction, ActivateForMana])
-        manaplayed = False
-        cancel = False    # This is returned - it's a way to back out of playing an ability
-        # This loop seems really ugly - is there a way to structure it better?
-        while not manaplayed:
-            action = self.get(process = convert_gui_action, prompt="Need %s - play mana abilities (Esc to cancel)"%required)
-            # XXX Should this be done here?
-            if isinstance(action, CancelAction):
-                cancel = True
-                break
-            else: manaplayed = action.perform(self)
-        [self.allowable_actions.pop() for i in range(2)]
-        return not cancel
     def getManaChoice(self, manapool_str, total_required, prompt="Select mana to spend"):
         def filter(action):
             if isinstance(action, CancelAction): return action

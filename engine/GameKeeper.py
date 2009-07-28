@@ -1,6 +1,5 @@
 import itertools, random
 from GameObjects import MtGObject
-from Action import PassPriority
 import Match
 from GameEvent import *
 from Zone import Play
@@ -122,7 +121,7 @@ class GameKeeper(MtGObject):
     def manaBurn(self):
         for player in self.players:
             while not player.manaBurn():
-                self.playInstantaneous()
+                self.playInstants()
     def checkSBE(self):
         #State-Based Effects - rule 420.5
         # check every time someone gets priority (rule 408.1b)
@@ -237,14 +236,14 @@ class GameKeeper(MtGObject):
         self.current_player.untapStep()
     def upkeepStep(self):
         self.setState("Upkeep")
-        self.playInstantaneous()
+        self.playInstants()
     def drawStep(self):
         self.setState("Draw")
         self.current_player.draw()
-        self.playInstantaneous()
+        self.playInstants()
     def mainPhase1(self):
         self.setState("Main1")
-        self.playSpells()
+        self.playNonInstants()
         self.setState("EndMain")
     def calculateDamage(self, combat_assignment, is_first_strike=False):
         new_combat_list = []
@@ -307,7 +306,7 @@ class GameKeeper(MtGObject):
             damages = AssignDamage(first_strike_damage.items(),"First Strike Damage")
             self.stack.push(damages)
             # Send message about damage going on stack
-            self.playInstantaneous()
+            self.playInstants()
 
         tramplers, regular_combat_damage = self.calculateDamage(combat_assignment)
         # Handle trample
@@ -316,11 +315,11 @@ class GameKeeper(MtGObject):
             damages = AssignDamage(regular_combat_damage.items(), "Regular Combat Damage")
             self.stack.push(damages)
             # Send message about damage going on stack
-            self.playInstantaneous()
+            self.playInstants()
     def combatPhase(self):
         # Beginning of combat
         self.setState("BeginCombat")
-        self.playInstantaneous()
+        self.playInstants()
         combat_assignment = {}
         if self.current_player.attackingIntention():
             # Attacking
@@ -329,7 +328,7 @@ class GameKeeper(MtGObject):
             opponents = sum([player.play.get(Match.isPlaneswalker) for player in self.current_player.opponents], list(self.current_player.opponents))
             attackers = self.current_player.declareAttackers(opponents)
             if attackers: self.send(DeclareAttackersEvent(), attackers=attackers)
-            self.playInstantaneous()
+            self.playInstants()
             # After playing instants, the list of attackers could be modified (if a creature was put into play "attacking", so we regenerate the list
             attackers = self.play.get(Match.isCreature.with_condition(lambda c: c.attacking))
             if attackers:
@@ -337,7 +336,7 @@ class GameKeeper(MtGObject):
                 self.setState("Block")
                 combat_assignment = self.other_player.declareBlockers(attackers)
                 self.send(DeclareBlockersEvent(), combat_assignment=combat_assignment)
-                self.playInstantaneous()
+                self.playInstants()
                 # Damage
                 self.combatDamageStep(combat_assignment)
         # End of Combat
@@ -347,17 +346,17 @@ class GameKeeper(MtGObject):
         for attacker, blockers in combat_assignment.items():
             attacker.clearCombatState()
             for blocker in blockers: blocker.clearCombatState()
-        self.playInstantaneous()
+        self.playInstants()
     def mainPhase2(self):
         self.setState("Main2")
-        self.playSpells()
+        self.playNonInstants()
         self.setState("EndMain")
     def endPhase(self):
         # End of turn
         self.setState("EndTurn")
         #  - trigger "at end of turn" abilities - if new "at end of turn" event occurs doesn't happen until next turn
         #  - can play instants or abilities
-        self.playInstantaneous()
+        self.playInstants()
 
         # Cleanup
         # - discard down to current hand limit
@@ -374,42 +373,51 @@ class GameKeeper(MtGObject):
             triggered_once = False
             while self.checkSBE(): triggered_once = True
             if self.stack.process_triggered(): triggered_once = True
-            if triggered_once: self.playInstantaneous()
+            if triggered_once: self.playInstants()
             else: break
         self.send(TurnFinishedEvent(), player=self.current_player)
 
-    # The next set of functions deals with the operation of the stack
-    # It may seem recursive but it's not
-    def playSpells(self):
-        stack_less_action = self.playStackSpells()
-        # Time to unwind
-        while not self.stack.empty() or stack_less_action:
-            if not stack_less_action: self.stack.resolve()
-            # Now it's the active player's turn to play something
-            if self.stack.empty(): stack_less_action = self.playStackSpells()
-            else: self.playStackInstant()
-    def playStackSpells(self):
-        while self.checkSBE():
-            if not self.stack.empty():
-                self.playStackInstant()
-                return False
-        self.stack.process_triggered()
-        self.send(HasPriorityEvent(), player=self.current_player)
-        action = self.current_player.getMainAction()
-        if not isinstance(action, PassPriority):
-            action.perform(self.current_player)
+    def givePriority(self, player):
+        # Check SBEs - rule 704.3
+        repeat_SBE = True
+        while repeat_SBE:
+            while self.checkSBE(): pass
+            repeat_SBE = self.stack.process_triggered()
+        # Now player gets priority
+        self.send(HasPriorityEvent(), player=player)
+
+    def playNonInstants(self):
+        # Loop for playing spells when non-instants can be played
+        while True:
+            self.givePriority(self.current_player)
+            # If the stack is not empty (because of a trigger), play instants
+            # XXX One bug is that the player will get priority again even
+            # though nothing has happened
             if not self.stack.empty(): self.playStackInstant()
-            else: return True
-        else: self.playStackInstant(skip_first=True)
-        return False
-    def playInstantaneous(self):
-        self.playStackInstant()
-        # Time to unwind
-        while not self.stack.empty():
-            self.stack.resolve()
-            # Now it's the active player's turn to play something
+            else: self.playStackSpells()
+            # Both players have passed
+            if not self.stack.empty(): self.stack.resolve()
+            else: break
+    def playInstants(self):
+        # A round of playing instants - returns when the stack is empty
+        while True:
             self.playStackInstant()
+            if not self.stack.empty(): self.stack.resolve()
+            else: break
+
+    def playStackSpells(self):
+        # The stack is empty at this point
+        assert(self.stack.empty())
+        if self.current_player.getMainAction():
+            # Let active player continue to play instant speed stuff
+            self.playStackInstant()
+        else:
+            # Active player passed - start with next player
+            self.playStackInstant(skip_first=True)
     def playStackInstant(self, skip_first=False):
+        # One back and forth stack interaction until all players pass
+        # skip_first is for when the stack is empty and the active player passes
+        # Active player first
         if not skip_first: self.continuePlay(self.current_player)
         response = self.continuePlay(self.other_player)
         while response:
@@ -417,17 +425,13 @@ class GameKeeper(MtGObject):
             if not response: break
             response = self.continuePlay(self.other_player)
     def continuePlay(self, player):
+        # Allows player to keep playing valid spells/abilities
+        # Returns whether the player responded before passing
         responding = False
-        priorityPassed = False
-        while not priorityPassed:
-            while self.checkSBE(): pass
-            self.stack.process_triggered()
-            self.send(HasPriorityEvent(), player=player)
-            action = player.getAction()
-            if not isinstance(action, PassPriority):
-                # if something is done in response
-                responding = action.perform(player)
-            else: priorityPassed = True
+        while True:
+            self.givePriority(player)
+            if player.getInstantAction(): responding = True
+            else: break
         return responding
 
 Keeper = GameKeeper()
