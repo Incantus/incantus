@@ -36,15 +36,15 @@ class GameKeeper(MtGObject):
     players = property(fget=lambda self: self._player_order)
     other_player = property(fget=lambda self: self._player_order[1])
 
-    def active_player():
-        def fget(self): return self._player_order[0]
-        def fset(self, player):
-            players = list(self._player_order)
-            idx = players.index(player)
-            self._player_order = tuple(players[idx:]+players[:idx])
-        return locals()
-    active_player = property(**active_player())
-    current_player = property(fget=lambda self: self._player_order[0])
+    def nextActivePlayer(self):
+        next_player = self.player_cycler.next()
+        # Now rearrange the list of players
+        players = list(self._player_order)
+        idx = players.index(next_player)
+        self._player_order = tuple(players[idx:]+players[:idx])
+
+    active_player = property(fget=lambda self: self._player_order[0])
+    current_player = active_player
 
     def init(self, players):
         self.current_phase = "Pregame"
@@ -226,7 +226,7 @@ class GameKeeper(MtGObject):
 
     def newTurn(self):
         # Next player is current player
-        self.active_player = self.player_cycler.next()
+        self.nextActivePlayer()
         self.send(NewTurnEvent(), player=self.active_player)
         self.active_player.newTurn()
     def untapStep(self):
