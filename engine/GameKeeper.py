@@ -390,40 +390,33 @@ class GameKeeper(MtGObject):
 
     def playNonInstants(self):
         # Loop for playing spells when non-instants can be played
+        active_player = self.active_player
         while True:
-            self.givePriority(self.active_player)
-            # If the stack is not empty (because of a trigger), play instants
-            # XXX One bug is that the player will get priority again even
-            # though nothing has happened
-            if not self.stack.empty(): self.playStackInstant()
-            else: self.playStackSpells()
-            # Both players have passed
-            if not self.stack.empty(): self.stack.resolve()
-            else: break
-    def playInstants(self):
-        # A round of playing instants - returns when the stack is empty
-        while True:
-            self.playStackInstant()
+            self.givePriority(active_player)
+            if self.stack.empty():
+                played = active_player.getMainAction()
+            else:
+                played = active_player.getAction()
+            self.playStackInteraction(played)
+            # All players have passed
             if not self.stack.empty(): self.stack.resolve()
             else: break
 
-    def playStackSpells(self):
-        # The stack is empty at this point
-        assert(self.stack.empty())
-        if self.active_player.getMainAction():
-            # Let active player continue to play instant speed stuff
-            self.playStackInstant()
-        else:
-            # Active player passed - start with next player
-            self.playStackInstant(skip_first=True)
-    def playStackInstant(self, skip_first=False):
+    def playInstants(self):
+        # A round of playing instants - returns when the stack is empty
+        while True:
+            self.playStackInteraction()
+            if not self.stack.empty(): self.stack.resolve()
+            else: break
+
+    def playStackInteraction(self, do_active=False):
         # One back and forth stack interaction until all players pass
-        # skip_first is for when the stack is empty and the active player passes
+        # do_active is for when the stack is empty and the active player passes
         players = itertools.cycle(self.players)
 
         # Keep track of active player first
         last_to_play = players.next()
-        if not skip_first: self.continuePlay(last_to_play)
+        if do_active: self.continuePlay(last_to_play)
 
         for player in players:
             # If we've cycled back to the last player to play
