@@ -417,13 +417,18 @@ class GameKeeper(MtGObject):
     def playStackInstant(self, skip_first=False):
         # One back and forth stack interaction until all players pass
         # skip_first is for when the stack is empty and the active player passes
-        # Active player first
-        if not skip_first: self.continuePlay(self.current_player)
-        response = self.continuePlay(self.other_player)
-        while response:
-            response = self.continuePlay(self.current_player)
-            if not response: break
-            response = self.continuePlay(self.other_player)
+        players = itertools.cycle(self.players)
+
+        # Keep track of active player first
+        last_to_play = players.next()
+        if not skip_first: self.continuePlay(last_to_play)
+
+        for player in players:
+            # If we've cycled back to the last player to play
+            # (everybody passed without playing) then exit
+            if player == last_to_play: break
+            if self.continuePlay(player): last_to_play = player
+
     def continuePlay(self, player):
         # Allows player to keep playing valid spells/abilities
         # Returns whether the player responded before passing
