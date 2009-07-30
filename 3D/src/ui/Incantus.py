@@ -603,8 +603,8 @@ class GameWindow(window.Window):
     def priority_stop(self, player):
         if engine.Keeper.stack.empty():
             if (not self.p1_stop_next and
-               ((player == engine.Keeper.other_player and self.state in self.opponent_turn_stops) or 
-               (player == engine.Keeper.current_player and self.state in self.my_turn_stops))):
+               ((player != engine.Keeper.active_player and self.state in self.opponent_turn_stops) or 
+               (player == engine.Keeper.active_player and self.state in self.my_turn_stops))):
                 self.user_action = engine.Action.PassPriority()
                 return
             elif self.finish_turn:
