@@ -327,7 +327,6 @@ class Player(MtGObject):
                                 target = self.getTarget(target_types=(OpponentMatch(self), isPlaneswalker), zone="play", prompt="Select opponent to attack")
                                 if target in opponents:
                                     creature.setOpponent(target)
-                                    target.send(TargetedByEvent(), targeter=creature)
                                     break
                                 else: prompt = "Can't attack %s. Select again"%target
                         else: creature.setOpponent(opponents[0])
