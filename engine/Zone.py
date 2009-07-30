@@ -31,10 +31,6 @@ class Zone(MtGObject):
     def get(self, match=all_match):
         # Retrieve all of a type of Card in current location
         return [card for card in iter(self._cards[::-1]) if match(card)]
-    def cease_to_exist(self, card):
-        self._remove_card(card, CardCeasesToExist())
-        card.leavingZone()
-        del GameObject._cardmap[card.key]
     def _remove_card(self, card, event=CardLeftZone()):
         self._cards.remove(card)
         self.send(event, card=card)
@@ -95,6 +91,10 @@ class OutPlayMixin(object):
     def setup_new_role(self, card):
         cardtmpl = GameObject._cardmap[card.key]
         return cardtmpl.new_role(cardtmpl.out_play_role)
+    def cease_to_exist(self, card):
+        self._remove_card(card, CardCeasesToExist())
+        card.leavingZone()
+        del GameObject._cardmap[card.key]
 
 class AddCardsMixin(object):
     def add_new_card(self, card):
