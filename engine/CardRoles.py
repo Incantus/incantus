@@ -43,7 +43,6 @@ class CardRole(MtGObject):
         self.zone = None
         self._counters = []
         self.attachments = []
-        self.facedown = False
     def canBeTargetedBy(self, targeter): return True
     def canBeAttachedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
@@ -104,10 +103,6 @@ class CardRole(MtGObject):
     power = property(fget=lambda self: int(self.base_power))
     toughness = property(fget=lambda self: int(self.base_toughness))
     loyalty = property(fget=lambda self: int(self.base_loyalty))
-    def faceDown(self):
-        self.facedown = True
-    def faceUp(self):
-        self.facedown = False
     def clone(self, other, exclude=set(), extra={}):
         # copyable values
         reverse = []
@@ -144,9 +139,9 @@ class Permanent(CardRole):
         self.flipped = False
         self.facedown = False
         self._continuously_in_play = False
-    def faceDown(self):
+    def facedown(self):
         self.facedown = True
-    def faceUp(self):
+    def faceup(self):
         self.facedown = False
     def canBeTapped(self): # Called by game action (such as an effect)
         return not self.tapped
