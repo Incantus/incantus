@@ -78,38 +78,3 @@ class PlayLand(CardAction):
         player.send(LandPlayedEvent(), card=card)
         player.send(LogEvent(), msg="%s plays %s"%(player.name,card))
         return True
-
-class PlayAbility(CardAction):
-    def perform(self, player):
-        card = self.card
-
-        abilities = card.abilities.activated()
-        # Include the casting ability
-        if card.play_spell and card.play_spell.playable(card): abilities.append(card.play_spell)
-        numabilities = len(abilities)
-        if numabilities == 0: return False
-        elif numabilities == 1: ability = abilities[0]
-        else:
-            ability = player.make_selection(abilities, 1, required=False, prompt="%s: Select ability"%self.card)
-            if ability == False: return False
-        ability = ability.copy()
-        if ability.announce(card, player):
-            player.send(AbilityPlayedEvent(), ability=ability)
-            return True
-        else:
-            return False
-
-class ActivateForMana(CardAction):
-    def perform(self, player):
-        card = self.card
-        # Check if the card can be provide mana
-        abilities = [ability for ability in card.abilities.activated() if hasattr(ability, "mana_ability")]
-
-        numabilities = len(abilities)
-        if numabilities == 0: return False
-        elif numabilities == 1: ability = abilities[0]
-        else:
-            ability = player.make_selection(abilities, 1, required=False, prompt="%s - Mana abilities"%self.card)
-            if ability is False: return False
-        ability.copy().announce(card, player)
-        return True

@@ -4,7 +4,7 @@ from GameKeeper import Keeper
 from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent, GameOverException, DealsDamageToEvent
 from Mana import ManaPool, generate_hybrid_choices
 from Zone import Library, Hand, Graveyard, Removed
-from Action import ActivateForMana, PlayAbility, PlayLand, CancelAction, PassPriority, OKAction
+from Action import CancelAction, PassPriority, OKAction
 from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isPlaneswalker, OpponentMatch
 from stacked_function import replace
 from Ability.Cost import ManaCost
@@ -41,7 +41,6 @@ class Player(MtGObject):
         self.name = name
         self._life = 20
         self.poison = 0
-        self.allowable_actions = [PassPriority]
         self.land_actions = -1
         self.hand_limit = 7
         self.draw_empty = False
@@ -421,6 +420,20 @@ class Player(MtGObject):
 
         return combat_assignment
 
+    def doNonInstantAction(self):
+        return self.getAction(prompt="Play Spells or Activated Abilities")
+    def doInstantAction(self):
+        return self.getAction(prompt="Play Instants or Activated Abilities")
+    def chooseAndDoAbility(self, card, abilities):
+        numabilities = len(abilities)
+        if numabilities == 0: return False
+        elif numabilities == 1: ability = abilities[0]
+        else:
+            ability = self.make_selection(abilities, 1, required=False, prompt="%s: Select ability"%card)
+            if ability == False: return False
+        return ability.copy().announce(card, self)
+
+
     def __str__(self): return self.name
     def __repr__(self): return "%s at %s"%(self.name, id(self))
 
@@ -435,66 +448,47 @@ class Player(MtGObject):
     def getMoreMana(self, required): # if necessary when paying a cost
         def convert_gui_action(action):
             if isinstance(action, PassPriority): return False
-            if isinstance(action, CancelAction): return action
+            elif isinstance(action, CancelAction): return action
             sel = action.selection
-            if not isPlayer(sel) and sel.controller == self and str(sel.zone) == "play":
-                return ActivateForMana(sel)
-                for a in self.allowable_actions:
-                    if isinstance(action, a): return action
+            if not isPlayer(sel) and sel.controller == self: return action
             else: return False
+        
         context = {"get_ability": True, "process": convert_gui_action}
         prompt = "Need %s - play mana abilities (Esc to cancel)"%required
-        self.allowable_actions.extend([CancelAction, ActivateForMana])
-        cancel = False    # This is returned - it's a way to back out of playing an ability
         # This loop seems really ugly - is there a way to structure it better?
+        cancel = False    # This is returned - it's a way to back out of playing an ability
         while True:
             action = self.input(context, "%s: %s"%(self.name, prompt))
             if isinstance(action, CancelAction):
                 cancel = True
                 break
-            elif action.perform(self):
-                break
-        [self.allowable_actions.pop() for i in range(2)]
+            card = action.selection
+            abilities = [ability for ability in card.abilities.activated() if hasattr(ability, "mana_ability")]
+            if self.chooseAndDoAbility(card, abilities): break
         return not cancel
-    def getAction(self, process=None, prompt=''):
+    def getAction(self, prompt=''):
         def convert_gui_action(action):
             if isinstance(action, PassPriority): return action
             elif isinstance(action, CancelAction): return False
             sel = action.selection
-            if not isPlayer(sel) and sel.controller == self:
-                if isLandCard(sel) and not str(sel.zone) == "play": action =  PlayLand(sel)
-                else: action =  PlayAbility(sel)
-                # Now check if it's valid
-                for a in self.allowable_actions:
-                    if isinstance(action, a): return action
-            return False
+            if not isPlayer(sel) and sel.controller == self: return action
+            else: return False
 
-        if not process: process = convert_gui_action
-        context = {"get_ability": True, "process": process}
-
+        context = {"get_ability": True, "process": convert_gui_action}
+        # This loop seems really ugly - is there a way to structure it better?
         passed = False
         while True:
             action = self.input(context, "%s: %s"%(self.name,prompt))
             if isinstance(action, PassPriority):
                 passed = True
                 break
-            elif action.perform(self): 
-                passed = False
-                break
+            card = action.selection
+            abilities = card.abilities.activated()
+            # Include the casting ability
+            if card.play_spell and card.play_spell.playable(card): abilities.append(card.play_spell)
+            if self.chooseAndDoAbility(card, abilities): break
         return not passed
 
-    def getMainAction(self):
-        self.allowable_actions.extend([PlayLand, PlayAbility])
-        num_added_actions = 2
-        passed = self.getAction(prompt="Play Spells or Activated Abilities")
-        [self.allowable_actions.pop() for i in range(num_added_actions)]
-        return passed
-    def getInstantAction(self):
-        self.allowable_actions.extend([PlayAbility])
-        num_added_actions = 1
-        passed = self.getAction(prompt="Play Instants or Activated Abilities")
-        [self.allowable_actions.pop() for i in range(num_added_actions)]
-        return passed
     def getIntention(self, prompt='', msg="", notify=False):
         def filter(action):
             if not (isinstance(action, OKAction) or isinstance(action, CancelAction)): return False

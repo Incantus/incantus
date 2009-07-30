@@ -394,9 +394,9 @@ class GameKeeper(MtGObject):
         while True:
             self.givePriority(active_player)
             if self.stack.empty():
-                played = active_player.getMainAction()
+                played = active_player.doNonInstantAction()
             else:
-                played = active_player.getAction()
+                played = active_player.doInstantAction()
             self.playStackInteraction(played)
             # All players have passed
             if not self.stack.empty(): self.stack.resolve()
@@ -430,7 +430,7 @@ class GameKeeper(MtGObject):
         responding = False
         while True:
             self.givePriority(player)
-            if player.getInstantAction(): responding = True
+            if player.doInstantAction(): responding = True
             else: break
         return responding
 
