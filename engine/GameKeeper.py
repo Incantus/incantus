@@ -34,7 +34,6 @@ class player_cycler(object):
 class GameKeeper(MtGObject):
     keeper = True
     players = property(fget=lambda self: self._player_order)
-    other_player = property(fget=lambda self: self._player_order[1])
 
     def nextActivePlayer(self):
         next_player = self.player_cycler.next()
@@ -322,11 +321,13 @@ class GameKeeper(MtGObject):
         self.setState("BeginCombat")
         self.playInstants()
         combat_assignment = {}
-        if self.active_player.attackingIntention():
+        active_player = self.active_player
+        if active_player.attackingIntention():
             # Attacking
             self.setState("Attack")
+            defending_player = active_player.declareDefendingPlayer()
             # Get all the players/planeswalkers
-            opponents = sum([player.play.get(Match.isPlaneswalker) for player in self.active_player.opponents], list(self.active_player.opponents))
+            opponents = [defending_player] + defending_player.play.get(Match.isPlaneswalker)
             attackers = self.active_player.declareAttackers(opponents)
             if attackers: self.send(DeclareAttackersEvent(), attackers=attackers)
             self.playInstants()
@@ -335,7 +336,7 @@ class GameKeeper(MtGObject):
             if attackers:
                 # Blocking
                 self.setState("Block")
-                combat_assignment = self.other_player.declareBlockers(attackers)
+                combat_assignment = defending_player.declareBlockers(attackers)
                 self.send(DeclareBlockersEvent(), combat_assignment=combat_assignment)
                 self.playInstants()
                 # Damage

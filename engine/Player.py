@@ -290,6 +290,8 @@ class Player(MtGObject):
             self.manapool.clear()
             self.life -= manaburn
         return True
+    def declareDefendingPlayer(self):
+        return self.choose_opponent()
     def attackingIntention(self):
         # First check to make sure you have cards in play
         # XXX although if you have creatures with Flash this might not work since you can play it anytime
