@@ -75,9 +75,9 @@ class MultipleTargets(object):
     def get(self, source):
         if type(self.selector) == str:
             if self.selector == "opponent": selector = source.controller.choose_opponent()
-            elif self.selector == "current_player":
+            elif self.selector == "active_player":
                 import engine.GameKeeper
-                selector = engine.GameKeeper.Keeper.current_player
+                selector = engine.GameKeeper.Keeper.active_player
             else: selector = source.controller
         if isPlayer(self.selector): selector = self.selector
         else: selector = source.controller
@@ -148,9 +148,9 @@ class Target(object):
                 else: zl = " opponent controls"
             prompt="Target %s%s for %s"%(' or '.join([str(t) for t in self.target_types]), zl, source)
         if self.selector == "opponent": selector = source.controller.choose_opponent()
-        elif self.selector == "current_player":
+        elif self.selector == "active_player":
             from engine.GameKeeper import Keeper
-            selector = Keeper.current_player
+            selector = Keeper.active_player
         else: selector = source.controller
         # If required, make sure there is actually a target available
         if self.required and not self.targeting_player:

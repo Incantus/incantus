@@ -107,7 +107,7 @@ class stacked_function(object):
             if funcs:
                 if len(funcs) > 1:
                     if isPlayer(obj): player = affected = obj
-                    elif hasattr(obj, "keeper"): player = affected = obj.current_player
+                    elif hasattr(obj, "keeper"): player = affected = obj.active_player
                     # In this case it is a role
                     elif isCard(obj): player, affected = obj.controller, obj
                     func = player.make_selection([(f.msg, f) for f in funcs], number=1, prompt="Choose replacement effect to affect %s"%(affected))

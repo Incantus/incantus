@@ -13,7 +13,7 @@ from Limit import sorcery
 
 def exalted():
     def condition(source, sender, attackers):
-        return sender.current_player == source.controller and len(attackers) == 1
+        return sender.active_player == source.controller and len(attackers) == 1
     def effects(controller, source, attackers):
         yield NoTarget()
         until_end_of_turn(attackers[0].augment_power_toughness(1, 1))

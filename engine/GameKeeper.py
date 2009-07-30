@@ -36,14 +36,15 @@ class GameKeeper(MtGObject):
     players = property(fget=lambda self: self._player_order)
     other_player = property(fget=lambda self: self._player_order[1])
 
-    def current_player():
+    def active_player():
         def fget(self): return self._player_order[0]
         def fset(self, player):
             players = list(self._player_order)
             idx = players.index(player)
             self._player_order = tuple(players[idx:]+players[:idx])
         return locals()
-    current_player = property(**current_player())
+    active_player = property(**active_player())
+    current_player = property(fget=lambda self: self._player_order[0])
 
     def init(self, players):
         self.current_phase = "Pregame"
@@ -117,7 +118,7 @@ class GameKeeper(MtGObject):
         # Send notice that state changed
         self.current_phase = state
         self.send(GameStepEvent(), state=state)
-        self.send(state_map[state](), player=self.current_player)
+        self.send(state_map[state](), player=self.active_player)
     def manaBurn(self):
         for player in self.players:
             while not player.manaBurn():
@@ -225,21 +226,21 @@ class GameKeeper(MtGObject):
 
     def newTurn(self):
         # Next player is current player
-        self.current_player = self.player_cycler.next()
-        self.send(NewTurnEvent(), player=self.current_player)
-        self.current_player.newTurn()
+        self.active_player = self.player_cycler.next()
+        self.send(NewTurnEvent(), player=self.active_player)
+        self.active_player.newTurn()
     def untapStep(self):
         # untap all cards
         self.setState("Untap")
         # XXX Do phasing - nothing that phases in will trigger any "when ~this~ comes 
         # into play..." effect, though they will trigger "When ~this~ leaves play" effects
-        self.current_player.untapStep()
+        self.active_player.untapStep()
     def upkeepStep(self):
         self.setState("Upkeep")
         self.playInstants()
     def drawStep(self):
         self.setState("Draw")
-        self.current_player.draw()
+        self.active_player.draw()
         self.playInstants()
     def mainPhase1(self):
         self.setState("Main1")
@@ -275,7 +276,7 @@ class GameKeeper(MtGObject):
                     if len(blockers) > 1 or trampling:
                         # Ask the player how to distribute damage
                         # XXX I should check whether the attacker can assign damage to blocker
-                        damage = self.current_player.getDamageAssignment([(attacker, blockers)], trample=trampling)
+                        damage = self.active_player.getDamageAssignment([(attacker, blockers)], trample=trampling)
                     elif len(blockers) == 1:
                         # XXX I should check whether the attacker can assign damage to blocker
                         damage = {blockers[0]: attacker.combatDamage()}
@@ -321,12 +322,12 @@ class GameKeeper(MtGObject):
         self.setState("BeginCombat")
         self.playInstants()
         combat_assignment = {}
-        if self.current_player.attackingIntention():
+        if self.active_player.attackingIntention():
             # Attacking
             self.setState("Attack")
             # Get all the players/planeswalkers
-            opponents = sum([player.play.get(Match.isPlaneswalker) for player in self.current_player.opponents], list(self.current_player.opponents))
-            attackers = self.current_player.declareAttackers(opponents)
+            opponents = sum([player.play.get(Match.isPlaneswalker) for player in self.active_player.opponents], list(self.active_player.opponents))
+            attackers = self.active_player.declareAttackers(opponents)
             if attackers: self.send(DeclareAttackersEvent(), attackers=attackers)
             self.playInstants()
             # After playing instants, the list of attackers could be modified (if a creature was put into play "attacking", so we regenerate the list
@@ -364,7 +365,7 @@ class GameKeeper(MtGObject):
         # - clear non-lethal damage
         self.setState("Cleanup")
         while True:
-            self.current_player.discard_down()
+            self.active_player.discard_down()
             # Clear all nonlethal damage
             self.send(CleanupEvent())
             self.send(TimestepEvent())
@@ -375,7 +376,7 @@ class GameKeeper(MtGObject):
             if self.stack.process_triggered(): triggered_once = True
             if triggered_once: self.playInstants()
             else: break
-        self.send(TurnFinishedEvent(), player=self.current_player)
+        self.send(TurnFinishedEvent(), player=self.active_player)
 
     def givePriority(self, player):
         # Check SBEs - rule 704.3
@@ -389,7 +390,7 @@ class GameKeeper(MtGObject):
     def playNonInstants(self):
         # Loop for playing spells when non-instants can be played
         while True:
-            self.givePriority(self.current_player)
+            self.givePriority(self.active_player)
             # If the stack is not empty (because of a trigger), play instants
             # XXX One bug is that the player will get priority again even
             # though nothing has happened
@@ -408,7 +409,7 @@ class GameKeeper(MtGObject):
     def playStackSpells(self):
         # The stack is empty at this point
         assert(self.stack.empty())
-        if self.current_player.getMainAction():
+        if self.active_player.getMainAction():
             # Let active player continue to play instant speed stuff
             self.playStackInstant()
         else:
