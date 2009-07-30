@@ -208,7 +208,6 @@ class Player(MtGObject):
         def condition(keeper):
             if keeper.player_cycler.peek() == self:
                 keeper.nextActivePlayer()
-                active_player = keeper.player_cycler.next()
                 return True
             else: return False
         def skipTurn(keeper):
