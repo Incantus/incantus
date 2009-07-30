@@ -128,10 +128,10 @@ class Player(MtGObject):
     def reveal_cards(self, cards, msg=''):
         # XXX I can't do a true asynchronous reveal until i move to the new networking
         # You can only reveal from hand or library
-        self.revealCard(cards, all=True)
+        self.doRevealCard(cards, all=True)
     def look_at(self, cards):
         # You can only look at cards from hand or library
-        self.revealCard(cards, all=False, prompt="look at %s"%', '.join(map(str, cards)))
+        self.doRevealCard(cards, all=False, prompt="look at %s"%', '.join(map(str, cards)))
     def reveal_hand(self):
         pass
     def choose_from(self, cards, number, cardtype=isCard, required=True, prompt=''):
@@ -623,7 +623,7 @@ class Player(MtGObject):
             return action.assignment
         context = {'get_damage_assign': True, 'blocking_list': blocking_list, 'trample': trample, 'process': filter}
         return self.input(context, "%s: %s"%(self.name,prompt))
-    def revealCard(self, cards, all=True, prompt=''):
+    def doRevealCard(self, cards, all=True, prompt=''):
         import operator
         if not operator.isSequenceType(cards): cards = [cards]
         if not prompt: prompt = "reveals card(s) "+', '.join(map(str,cards))
