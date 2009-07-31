@@ -1,13 +1,18 @@
-from GameObjects import MtGObject
-from Zone import CardStack
+import weakref
+from GameObjects import GameObject
+from Zone import Zone
 from GameEvent import AbilityPlacedOnStack, AbilityRemovedFromStack
 
-class Stack(MtGObject):
+class Stack(Zone):
+    name = "stack"
     def __init__(self, game):
-        self.abilities = []
-        self.game = game
-        self.card_stack = CardStack()
+        self._abilities = []
+        self.game = weakref.proxy(game)
         self.pending_triggered =[]
+        super(Stack, self).__init__()
+    def setup_new_role(self, card):
+        cardtmpl = GameObject._cardmap[card.key]
+        return cardtmpl.new_role(cardtmpl.stack_role)
     def add_triggered(self, ability, source):
         self.pending_triggered.append(ability)
         # XXX This is a bit ugly
@@ -30,19 +35,17 @@ class Stack(MtGObject):
             self.pending_triggered[:] = []
             return True
         else: return False
-    def put_card(self, card):
-        return card.move_to(self.card_stack)
     def push(self, ability):
-        self.abilities.append(ability)
+        self._abilities.append(ability)
         self.send(AbilityPlacedOnStack(), ability=ability)
     def resolve(self):
-        ability = self.abilities.pop()
+        ability = self._abilities.pop()
         ability.resolve()
         self.send(AbilityRemovedFromStack(), ability=ability)
     def counter(self, ability):
-        self.abilities.remove(ability)
+        self._abilities.remove(ability)
         self.send(AbilityRemovedFromStack(), ability=ability)
-    def empty(self): return len(self.abilities) == 0
-    def __contains__(self, ability): return ability in self.abilities
-    def index(self, ability): return self.abilities.index(ability)
-    def __getitem__(self, i): return self.abilities[i]
+    def empty(self): return len(self._abilities) == 0
+    def __contains__(self, ability): return ability in self._abilities
+    def index(self, ability): return self._abilities.index(ability)
+    def __getitem__(self, i): return self._abilities[i]

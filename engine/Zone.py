@@ -177,9 +177,3 @@ class Play(OrderedZone):
     def setup_new_role(self, card):
         cardtmpl = GameObject._cardmap[card.key]
         return cardtmpl.new_role(cardtmpl.in_play_role)
-
-class CardStack(Zone):
-    name = "stack"
-    def setup_new_role(self, card):
-        cardtmpl = GameObject._cardmap[card.key]
-        return cardtmpl.new_role(cardtmpl.stack_role)
