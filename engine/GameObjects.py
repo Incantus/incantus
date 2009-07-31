@@ -106,11 +106,15 @@ class Card(GameObject):
         if (self.base_types == "Instant" or self.base_types == "Sorcery"):
             self.in_play_role = NoRole
         else:
+            from Ability.PermanentAbility import play_permanent
             self.in_play_role = Permanent
+            self.play_spell = play_permanent()
 
         if (self.base_subtypes == "Aura"):
             from Ability.CiPAbility import attach_on_enter
+            from Ability.PermanentAbility import play_aura
             self.base_abilities.add(attach_on_enter())
+            self.play_spell = play_aura()
 
         self._key_name = self.base_name
         self._add_to_map()

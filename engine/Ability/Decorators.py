@@ -1,27 +1,12 @@
 from ActivatedAbility import ActivatedAbility, ManaAbility
 from TriggeredAbility import TriggeredAbility, attached_match
 from StaticAbility import *
-from CastingAbility import CastPermanentSpell, CastInstantSpell, CastSorcerySpell
+from CastingAbility import CastInstantSpell, CastSorcerySpell
 from Target import NoTarget, Target
 from Cost import ManaCost
 from CiPAbility import CiP, CiPAbility
 from EffectsUtilities import robustApply
 from Utils import flatten, unflatten
-
-def play_permanent():
-    def effects(controller, source):
-        yield source.cost
-        yield NoTarget()
-        yield
-    return CastPermanentSpell(effects, txt="Play spell")
-
-def play_aura():
-    def effects(controller, source):
-        yield source.cost
-        target = yield Target(source.target_type, zone=source.target_zone, player=source.target_player)
-        source.attach_on_enter = target
-        yield
-    return CastPermanentSpell(effects, txt="Play spell")
 
 # Decorators for effects of cards
 def play_sorcery():
