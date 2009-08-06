@@ -29,13 +29,14 @@ class CastPermanentSpell(CastSpell):
     limit_type = sorcery
     def resolved(self):
         source = self.source
-        if source.move_to(self.controller.play) == source: # didn't actually move
+        new_card = source.move_to(self.controller.play)
+        if new_card == source: # didn't actually move to play
             source.move_to("graveyard")
         super(CastPermanentSpell, self).resolved()
 
 class CastNonPermanentSpell(CastSpell):
     def resolved(self):
-        # The discard comes after the card does its thing
+        # Goes to graveyard after being resolved
         self.source.move_to("graveyard")
         super(CastNonPermanentSpell, self).resolved()
 
