@@ -1,8 +1,4 @@
 from pydispatch import dispatcher
-#from GameEvent import NameModifiedEvent, CostModifiedEvent, TextModifiedEvent, ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent, PowerToughnessModifiedEvent, LoyaltyModifiedEvent
-#from abilities import abilities, stacked_abilities
-#from characteristics import stacked_variable, stacked_characteristic, stacked_type
-#import CardDatabase
 
 class MtGObject(object):
     #Universal dispatcher
