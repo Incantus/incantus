@@ -3,12 +3,13 @@ from characteristics import stacked_controller, PTModifiers, stacked_characteris
 from MtGObject import MtGObject
 from GameEvent import DealsDamageToEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, LandPlayedEvent
 from Planeswalker import Planeswalker
-from Ability.Counters import *
-from Ability.PermanentAbility import basic_mana_ability
+from Ability.Counters import Counter, PowerToughnessCounter, PowerToughnessModifier, PowerToughnessSetter, PowerToughnessSwitcher, PowerSetter, ToughnessSetter
+from Ability.PermanentAbility import play_permanent, play_aura, basic_mana_ability
 from Ability.EffectsUtilities import combine
 from Ability.Subtypes import all_basic_lands
 from Ability.Cost import MultipleCosts
 from Ability.Limit import sorcery
+from Ability.CiPAbility import CiP, enter_play_tapped, attach_on_enter
 
 class CardRole(MtGObject):
     def info():
@@ -52,8 +53,8 @@ class CardRole(MtGObject):
         # Add the necessary superclasses, depending on our type/subtypes
         cls = self.__class__
         self.__class__ = new.classobj("_%s"%cls.__name__, (cls,), {})
-        self.add_basecls()
-    def add_basecls(self):
+        self.activate()
+    def activate(self):
         cls = self.__class__
         orig_bases = cls.__bases__
         if self.types == "Land" and not Land in orig_bases:
@@ -120,12 +121,20 @@ class CardRole(MtGObject):
 
 # Idea for spells - just have the OutPlayRole mirror a cast spell in terms of when it
 # can be played and its cost
-from Ability.PermanentAbility import play_permanent, play_aura
-from Ability.CiPAbility import attach_on_enter
+# Cards on the stack
+class SpellRole(CardRole):
+    def activate(self):
+        if self.subtypes == "Aura": self.abilities.add(attach_on_enter())
+        super(SpellRole, self).activate()
 
 class OutPlayRole(CardRole):
-    def __init__(self, card):
-        super(OutPlayRole, self).__init__(card)
+    def activate(self):
+        if self.types == "Instant" or self.types == "Sorcery": pass
+        elif self.subtypes == "Aura":
+            self.play_spell = play_aura()
+            self.abilities.add(attach_on_enter())
+        else: self.play_spell = play_permanent()
+        super(OutPlayRole, self).activate()
     def playable(self):
         return self.play_spell.playable(self)
     def play(self, player):
@@ -134,6 +143,10 @@ class OutPlayRole(CardRole):
         play_ability.source = self
         play_ability.controller = player
         return play_ability.announce()
+    def move_to_play_tapped(self, txt):
+        expire = CiP(self, enter_play_tapped, txt=txt)
+        self.move_to("play")
+        expire()
 
 class LandOutPlayRole(CardRole):
     def playable(self):
@@ -145,6 +158,10 @@ class LandOutPlayRole(CardRole):
         # do we send the original or new land?
         player.send(LandPlayedEvent(), card=card)
         return True
+    def move_to_play_tapped(self, txt):
+        expire = CiP(self, enter_play_tapped, txt=txt)
+        self.move_to("play")
+        expire()
 
 class TokenOutPlayRole(CardRole):
     is_LKI = True
@@ -154,9 +171,6 @@ class TokenOutPlayRole(CardRole):
 class NoRole(CardRole):
     def enteringZone(self, zone):
         raise Exception()
-
-# Cards on the stack
-class SpellRole(CardRole): pass
 
 class Permanent(CardRole):
     controller = property(fget=lambda self: self._controller.current)
@@ -216,7 +230,7 @@ class Permanent(CardRole):
         self._continuously_in_play = False
         self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
 
-    def add_basecls(self):
+    def activate(self):
         cls = self.__class__
         orig_bases = cls.__bases__
         if self.types == "Creature" and not Creature in orig_bases:
@@ -228,7 +242,7 @@ class Permanent(CardRole):
         if (self.subtypes.intersects(set(["Aura", "Equipment", "Fortification"]))) and not Attachment in orig_bases:
             cls.__bases__ = (Attachment,)+orig_bases
             self.activateAttachment()
-        super(Permanent, self).add_basecls()
+        super(Permanent, self).activate()
 
 class TokenPermanent(Permanent):
     _token = True

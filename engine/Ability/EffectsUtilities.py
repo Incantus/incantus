@@ -2,7 +2,6 @@ from engine.pydispatch import dispatcher
 from engine.pydispatch.robustapply import function
 from engine.GameEvent import CleanupEvent
 from engine.stacked_function import global_override, override, replace, logical_and, logical_or, do_all
-from engine.Match import isPlayer
 
 no_condition = None
 
@@ -46,10 +45,6 @@ def keyword_action(func):
 def permanent_method(func):
     from engine.CardRoles import Permanent
     setattr(Permanent, func.__name__, func)
-
-def role_method(func):
-    from engine.CardRoles import CardRole
-    setattr(CardRole, func.__name__, func)
 
 do_override = override
 do_replace = replace

@@ -3,6 +3,7 @@ from MtGObject import MtGObject
 from GameEvent import NameModifiedEvent, CostModifiedEvent, TextModifiedEvent, ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent, PowerToughnessModifiedEvent, LoyaltyModifiedEvent
 from abilities import abilities, stacked_abilities
 from characteristics import stacked_variable, stacked_characteristic, stacked_type
+from CardRoles import Permanent, SpellRole, NoRole, LandOutPlayRole, OutPlayRole, TokenOutPlayRole, TokenPermanent
 import CardDatabase
 
 class GameObject(MtGObject):
@@ -61,8 +62,8 @@ class GameObject(MtGObject):
     _counter = 0
     _current_roles = {}
     _cardmap = {}
-    def _add_to_map(self):
-        self.key = (GameObject._counter, self._key_name)
+    def _add_to_map(self, key_name):
+        self.key = (GameObject._counter, key_name)
         self._cardmap[self.key] = self
         GameObject._counter += 1
 
@@ -70,7 +71,6 @@ class Card(GameObject):
     def __init__(self, cardname, owner):
         super(Card, self).__init__(owner)
 
-        from CardRoles import Permanent, SpellRole, NoRole, LandOutPlayRole, OutPlayRole
         CardDatabase.loadCardFromDB(self, cardname)
         if self.base_types == "Land":
             self.stack_role = NoRole
@@ -82,18 +82,9 @@ class Card(GameObject):
         if (self.base_types == "Instant" or self.base_types == "Sorcery"):
             self.in_play_role = NoRole
         else:
-            from Ability.PermanentAbility import play_permanent
             self.in_play_role = Permanent
-            self.play_spell = play_permanent()
 
-        if (self.base_subtypes == "Aura"):
-            from Ability.CiPAbility import attach_on_enter
-            from Ability.PermanentAbility import play_aura
-            self.base_abilities.add(attach_on_enter())
-            self.play_spell = play_aura()
-
-        self._key_name = self.base_name
-        self._add_to_map()
+        self._add_to_map(self.base_name)
 
     @classmethod
     def create(cls, cardname, owner):
@@ -104,13 +95,11 @@ class Card(GameObject):
 class Token(GameObject):
     def __init__(self, info, owner):
         super(Token, self).__init__(owner)
-        from CardRoles import TokenOutPlayRole, TokenPermanent
         if type(info) == dict: info = CardDatabase.convertToTxt(info)
         CardDatabase.execCode(self, info)
         self.out_play_role = self.stack_role = TokenOutPlayRole
         self.in_play_role = TokenPermanent
-        self._key_name = self.base_name + " Token"
-        self._add_to_map()
+        self._add_to_map(self.base_name+" Token")
 
     @classmethod
     def create(cls, info, owner):

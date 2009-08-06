@@ -1,6 +1,6 @@
 from engine.pydispatch import dispatcher
 from engine.GameEvent import TimestepEvent
-from EffectsUtilities import do_override, do_replace, do_all, role_method
+from EffectsUtilities import do_override, do_replace, do_all
 from StaticAbility import SimpleStaticAbility
 
 class CiPAbility(SimpleStaticAbility):
@@ -29,21 +29,15 @@ def attach_on_enter():
         yield CiP(source, during, before=before, txt="Attach to card")
     return CiPAbility(effects, txt="")
 
-def comes_into_play_tapped(txt):
-    def effects(source):
-        yield CiP(source, enter_play_tapped, no_before, txt=txt)
-    return CiPAbility(effects, txt=txt)
-
 # Comes into play functionality
 def enter_play_tapped(self):
     '''Card comes into play tapped'''
     self.tapped = True
 
-@role_method
-def move_to_play_tapped(card, txt):
-    expire = CiP(card, enter_play_tapped, txt=txt)
-    card.move_to("play")
-    expire()
+def comes_into_play_tapped(txt):
+    def effects(source):
+        yield CiP(source, enter_play_tapped, no_before, txt=txt)
+    return CiPAbility(effects, txt=txt)
 
 no_before = lambda source: True
 def CiP(obj, during, before=no_before, condition=None, txt=''):
