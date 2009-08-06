@@ -7,9 +7,7 @@ class Ability(object):
         if not txt and effects.__doc__: txt = effects.__doc__
         self.txt = txt
         self.controller = None
-    def announce(self, source, player):
-        self.source = source
-        self.controller = player
+    def announce(self):
         self.preannounce()
         if self.do_announce():
             self.played()

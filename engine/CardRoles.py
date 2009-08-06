@@ -1,13 +1,14 @@
 import new, weakref
 from characteristics import stacked_controller, PTModifiers, stacked_characteristic, additional_characteristics
 from GameObjects import MtGObject
-from GameEvent import DealsDamageToEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent
+from GameEvent import DealsDamageToEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, LandPlayedEvent
 from Planeswalker import Planeswalker
 from Ability.Counters import *
 from Ability.PermanentAbility import basic_mana_ability
 from Ability.EffectsUtilities import combine
 from Ability.Subtypes import all_basic_lands
 from Ability.Cost import MultipleCosts
+from Ability.Limit import sorcery
 
 class CardRole(MtGObject):
     def info():
@@ -114,13 +115,45 @@ class CardRole(MtGObject):
         return combine(*reverse)
     def __str__(self): return str(self.name)
     def __repr__(self): return "%s %s at %d"%(self.name, self.__class__.__name__, id(self))
-    def __del__(self):
-        pass
+    def __del__(self): pass
         #print "Deleting %s role for %s"%(self.__class__.__name__, self.name)
 
-# For token objects out of play
-class NoRole(CardRole):
+# Idea for spells - just have the OutPlayRole mirror a cast spell in terms of when it
+# can be played and its cost
+from Ability.PermanentAbility import play_permanent, play_aura
+from Ability.CiPAbility import attach_on_enter
+
+class OutPlayRole(CardRole):
+    def __init__(self, card):
+        super(OutPlayRole, self).__init__(card)
+    def playable(self):
+        return self.play_spell.playable(self)
+    def play(self, player):
+        # XXX This is an ugly ugly hack
+        play_ability = self.play_spell.copy()
+        play_ability.source = self
+        play_ability.controller = player
+        return play_ability.announce()
+
+class LandOutPlayRole(CardRole):
+    def playable(self):
+        return sorcery(self) and str(self.zone) == "hand" and self.owner.land_actions > 0
+    def play(self, player):
+        player.land_actions -= 1
+        card = self.move_to(player.play)
+        player.send(TimestepEvent())
+        # do we send the original or new land?
+        player.send(LandPlayedEvent(), card=card)
+        return True
+
+class TokenOutPlayRole(CardRole):
     is_LKI = True
+
+# This handles cards that can't exist in certain zones (like lands on the stack,
+# non-permanents in play
+class NoRole(CardRole):
+    def enteringZone(self, zone):
+        raise Exception()
 
 # Cards on the stack
 class SpellRole(CardRole): pass

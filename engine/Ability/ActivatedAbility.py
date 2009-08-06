@@ -51,6 +51,11 @@ class ActivatedAbility(CostAbility):
     def toggle(self, val):
         if val: self._status_count += 1
         else: self._status_count -= 1
+    def play(self, player):
+        # Make copy and announce it
+        copy = self.copy()
+        copy.controller = player
+        return copy.announce()
     def playable(self, source): return self.enabled and super(ActivatedAbility, self).playable(source)
     def __repr__(self): return "%s<%s %o: %s>"%('*' if self.enabled else '', self.__class__.__name__, id(self), self.txt)
 

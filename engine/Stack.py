@@ -13,24 +13,24 @@ class Stack(Zone):
     def setup_new_role(self, card):
         cardtmpl = GameObject._cardmap[card.key]
         return cardtmpl.new_role(cardtmpl.stack_role)
-    def add_triggered(self, ability, source):
-        self.pending_triggered.append((ability, source))
+    def add_triggered(self, ability):
+        self.pending_triggered.append(ability)
     def process_triggered(self):
         # Check if there are any triggered abilities waiting
         if len(self.pending_triggered) > 0:
             players = self.game.players
             # group all triggered abilities by player
             triggered_sets = dict([(player, []) for player in players])
-            for ability, source in self.pending_triggered:
-                player = source.controller
+            for ability in self.pending_triggered:
+                player = ability.controller
                 triggered_sets[player].append(ability)
             # Now ask the player to order them if there are more than one
             for player in players:
                 triggered = triggered_sets[player]
                 if len(triggered) > 1:
+                    # Now reorder
                     triggered = player.make_selection(triggered, -1, prompt="Drag to reorder triggered abilities(Top ability resolves first)")
-                # Now reorder
-                for ability in triggered: ability.announce(source, player)
+                for ability in triggered: ability.announce()
             self.pending_triggered[:] = []
             return True
         else: return False

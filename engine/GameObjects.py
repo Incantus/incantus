@@ -99,10 +99,15 @@ class Card(GameObject):
     def __init__(self, cardname, owner):
         super(Card, self).__init__(owner)
 
-        from CardRoles import Permanent, SpellRole, CardRole, NoRole
+        from CardRoles import Permanent, SpellRole, NoRole, LandOutPlayRole, OutPlayRole
         CardDatabase.loadCardFromDB(self, cardname)
-        self.stack_role = SpellRole
-        self.out_play_role = CardRole
+        if self.base_types == "Land":
+            self.stack_role = NoRole
+            self.out_play_role = LandOutPlayRole
+        else:
+            self.stack_role = SpellRole
+            self.out_play_role = OutPlayRole
+
         if (self.base_types == "Instant" or self.base_types == "Sorcery"):
             self.in_play_role = NoRole
         else:
@@ -128,10 +133,10 @@ class Card(GameObject):
 class Token(GameObject):
     def __init__(self, info, owner):
         super(Token, self).__init__(owner)
-        from CardRoles import NoRole, TokenPermanent
+        from CardRoles import TokenOutPlayRole, TokenPermanent
         if type(info) == dict: info = CardDatabase.convertToTxt(info)
         CardDatabase.execCode(self, info)
-        self.out_play_role = self.stack_role = NoRole
+        self.out_play_role = self.stack_role = TokenOutPlayRole
         self.in_play_role = TokenPermanent
         self._key_name = self.base_name + " Token"
         self._add_to_map()
@@ -140,7 +145,7 @@ class Token(GameObject):
     def create(cls, info, owner):
         token = cls(info, owner)
         newrole = token.new_role(token.out_play_role)
-        newrole.is_LKI = False
+        newrole.is_LKI = False # so we can move it into play the first time
         return newrole
 
     def __str__(self):

@@ -422,8 +422,7 @@ class Player(MtGObject):
         else:
             ability = self.make_selection(abilities, 1, required=False, prompt="%s: Select ability"%card)
             if ability == False: return False
-        return ability.copy().announce(card, self)
-
+        return ability.play(self)
 
     def __str__(self): return self.name
     def __repr__(self): return "%s at %s"%(self.name, id(self))
@@ -473,10 +472,18 @@ class Player(MtGObject):
                 passed = True
                 break
             card = action.selection
-            abilities = card.abilities.activated()
-            # Include the casting ability
-            if card.play_spell and card.play_spell.playable(card): abilities.append(card.play_spell)
-            if self.chooseAndDoAbility(card, abilities): break
+            abilities = [(str(ability), ability) for ability in card.abilities.activated()]
+            # Include the playing ability if not in play
+            if not str(card.zone) == "play" and card.playable():
+                abilities.append(("Play %s"%card, card))
+            num = len(abilities)
+            if num == 0: continue
+            elif num == 1:
+                ability = abilities[0][1]
+            else:
+                ability = self.make_selection(abilities, 1, required=False, prompt="%s: Select"%card)
+                if ability == False: continue
+            if ability.play(self): break
         return not passed
 
     def getIntention(self, prompt='', msg="", notify=False):

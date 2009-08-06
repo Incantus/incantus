@@ -8,9 +8,11 @@ attached_match = lambda source, card: source.attached_to == card
 
 class TriggeredStackAbility(Ability):
     triggered = True
-    def __init__(self, effects, trigger_keys, txt=''):
+    def __init__(self, effects, trigger_keys, source, controller, txt=''):
         super(TriggeredStackAbility, self).__init__(effects, txt)
         self.trigger_keys = trigger_keys
+        self.source = source
+        self.controller = controller
     def do_announce(self):
         self.effects = robustApply(self.effect_generator, **self.trigger_keys)
         return self.get_targets()
@@ -47,7 +49,8 @@ class TriggeredAbility(object):
     def playAbility(self, **trigger_keys):
         player = self.source.controller
         trigger_keys["controller"] = player
-        player.stack.add_triggered(TriggeredStackAbility(self.effect_generator, trigger_keys, txt=self.txt), self.source)
+        ability = TriggeredStackAbility(self.effect_generator, trigger_keys, self.source, player, txt=self.txt)
+        player.stack.add_triggered(ability)
     def copy(self):
         return TriggeredAbility([t.copy() for t in self.triggers], self.condition, self.effect_generator, self.expiry, self.zone, self.txt)
     def __str__(self):

@@ -57,24 +57,3 @@ class ManaSelected(Action):
 class XSelected(Action):
     def __init__(self, amount):
         self.amount = amount
-
-# Actions for playing cards
-class CardAction(Action):
-    def __init__(self, card):
-        self.card = card
-    def __str__(self): return "Playing %s"%str(self.card)
-
-class PlayLand(CardAction):
-    def check_zone(self):
-        # Can only play a land from your hand
-        return str(self.card.zone) == "hand"
-    def perform(self, player):
-        if not self.check_zone(): return False
-        if player.land_actions == 0: return False
-        elif player.land_actions > 0: player.land_actions -= 1
-        card = self.card
-        card.move_to(player.play)
-        player.send(TimestepEvent())
-        player.send(LandPlayedEvent(), card=card)
-        player.send(LogEvent(), msg="%s plays %s"%(player.name,card))
-        return True
