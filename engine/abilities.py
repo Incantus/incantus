@@ -135,6 +135,7 @@ class stacked_abilities(object):
         return total
     def attached(self): return self.process_stacked("attached", [])
     def activated(self): return self.process_stacked("activated", [], self.source())
+    def mana_abilities(self): return [ability for ability in self.activated() if hasattr(ability, "mana_ability")]
     def __len__(self): return self.process_stacked("__len__", 0)
     def __contains__(self, keyword): return self.process_stacked("__contains__", False, keyword) > 0
     def __iter__(self):
