@@ -1,7 +1,7 @@
 ''' Everything to do with Mana
 '''
 
-from GameObjects import MtGObject
+from MtGObject import MtGObject
 from GameEvent import ManaAdded, ManaSpent, ManaCleared
 
 class Colors:

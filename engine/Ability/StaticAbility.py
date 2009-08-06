@@ -2,7 +2,7 @@ import copy
 from functools import partial
 from engine.pydispatch.dispatcher import CONTINUOUS_PRIORITY
 from engine.GameEvent import ControllerChanged, TimestepEvent
-from engine.GameObjects import MtGObject
+from engine.MtGObject import MtGObject
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger
 from EffectsUtilities import combine
 

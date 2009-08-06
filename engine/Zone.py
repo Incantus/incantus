@@ -1,5 +1,6 @@
 import random
-from GameObjects import MtGObject, GameObject
+from MtGObject import MtGObject
+from GameObjects import GameObject
 from GameEvent import CardEnteringZoneFrom, CardLeftZone, CardEnteredZone, CardCeasesToExist, TimestepEvent, ShuffleEvent
 
 all_match = lambda card: True

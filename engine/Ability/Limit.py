@@ -1,4 +1,4 @@
-from engine.GameObjects import MtGObject
+from engine.MtGObject import MtGObject
 from engine.GameEvent import TurnFinishedEvent, UpkeepStepEvent, MainPhase1Event, MainPhase2Event, EndMainPhaseEvent, NewTurnEvent
 
 class Limit(MtGObject):

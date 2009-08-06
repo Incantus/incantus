@@ -1,5 +1,5 @@
 import itertools, random
-from GameObjects import MtGObject
+from MtGObject import MtGObject
 import Match
 from GameEvent import *
 from Zone import Play

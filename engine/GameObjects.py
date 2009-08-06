@@ -1,38 +1,9 @@
 import weakref
-from pydispatch import dispatcher
+from MtGObject import MtGObject
 from GameEvent import NameModifiedEvent, CostModifiedEvent, TextModifiedEvent, ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent, PowerToughnessModifiedEvent, LoyaltyModifiedEvent
 from abilities import abilities, stacked_abilities
 from characteristics import stacked_variable, stacked_characteristic, stacked_type
 import CardDatabase
-
-class MtGObject(object):
-    #Universal dispatcher
-    # this class is for all objects that can send and receive signals
-    #_lock = False
-    #_holding = False
-    def send(self, event, *args, **named):
-        #send event to dispatcher
-        dispatcher.send(event, self, *args, **named)
-        #if not MtGObject._lock: dispatcher.send(event, self, *args, **named)
-        #else: MtGObject._holding.append(lambda: dispatcher.send(event, self, *args, **named))
-    def register(self, callback, event, sender=dispatcher.Any, weak=True, expiry=-1, priority=dispatcher.LOWEST_PRIORITY):
-        # register to receive events
-        # if expiry == -1, then it is continuous, otherwise number is the number of times
-        # that the callback is processed
-        # XXX Major python problem - each callback must be a separate function (or wrapped in a lambda)
-        # which makes it hard to disconnect it
-        dispatcher.connect(callback, signal=event, sender=sender,weak=weak,expiry=expiry,priority=priority)
-    def unregister(self, callback, event, sender=dispatcher.Any, weak=True):
-        dispatcher.disconnect(callback, signal=event, sender=sender, weak=weak)
-    #@staticmethod
-    #def lock():
-    #    MtGObject._lock = True
-    #    MtGObject._holding = []
-    #@staticmethod
-    #def release():
-    #    MtGObject._lock = False
-    #    # Call the sends that were held
-    #    for func in MtGObject._holding: func()
 
 class GameObject(MtGObject):
     #__slots__ = ["key", "base_name", "base_cost", "base_text", "base_color", "base_types", "base_subtypes", "base_supertypes", "_owner", "out_play_role", "in_play_role", "stack_role"]

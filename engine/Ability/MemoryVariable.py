@@ -1,4 +1,4 @@
-from engine.GameObjects import MtGObject
+from engine.MtGObject import MtGObject
 from engine.Match import isPlayer
 from engine.GameEvent import *
 
