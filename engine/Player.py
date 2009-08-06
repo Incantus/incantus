@@ -95,14 +95,6 @@ class Player(MtGObject):
             cost.pay(source, self)
             return True
         else: return False
-    def play_card(self, card):
-        ability = card.play_spell
-        # XXX I need to return the new object on the stack somehow
-        if ability.announce(card, self):
-            self.send(AbilityPlayedEvent(), ability=ability)
-            return True
-        else:
-            return False
     def create_tokens(self, info, number=1, tag=''):
         return [self.removed.add_new_card(Token.create(info, owner=self)) for _ in range(number)]
     def play_tokens(self, info, number=1, tag=''):
@@ -462,8 +454,7 @@ class Player(MtGObject):
                 cancel = True
                 break
             card = action.selection
-            abilities = [ability for ability in card.abilities.activated() if hasattr(ability, "mana_ability")]
-            if self.chooseAndDoAbility(card, abilities): break
+            if self.chooseAndDoAbility(card, card.abilities.mana_abilities()): break
         return not cancel
     def getAction(self, prompt=''):
         def convert_gui_action(action):
