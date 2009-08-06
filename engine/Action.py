@@ -1,6 +1,3 @@
-
-from GameEvent import TimestepEvent, LandPlayedEvent, AbilityPlayedEvent, LogEvent
-
 class Action(object):
     def __eq__(self, other):
         return self.__class__ == other.__class__
