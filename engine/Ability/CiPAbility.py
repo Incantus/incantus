@@ -1,6 +1,5 @@
 from engine.pydispatch import dispatcher
 from engine.GameEvent import TimestepEvent
-from engine.CardRoles import Permanent
 from EffectsUtilities import do_override, do_replace, do_all, role_method
 from StaticAbility import SimpleStaticAbility
 
@@ -56,7 +55,7 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
         if before(self):
             perm = self.move_to(zone, position)
             # At this point the card hasn't actually moved (it will on the next timestep event), so we can modify it's enteringZone function. This basically relies on the fact that entering play is batched and done on the timestep.
-            if isinstance(perm, Permanent):
+            if not perm == self: # We weren't prevented from moving
                 remove_entering = do_override(perm, "modifyEntering", lambda self: during(self), combiner=do_all)
                 # XXX There might be timing issue, since we want to remove the override after the card is put into play, but because of ordering the card isn't put into play until the TimestepEvent
                 #dispatcher.connect(remove_entering, signal=TimestepEvent(), weak=False, expiry=1)
