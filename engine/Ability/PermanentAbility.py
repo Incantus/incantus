@@ -1,6 +1,6 @@
 from engine.Match import isCard, isCreature, isLand
 from ActivatedAbility import ActivatedAbility, ManaAbility
-from CastingAbility import CastPermanentSpell
+from CastingAbility import CastPermanentSpell, CastAuraSpell
 from StaticAbility import CardStaticAbility
 from Target import NoTarget, Target
 from Cost import TapCost
@@ -16,20 +16,11 @@ def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plain
         yield
     return ManaAbility(effects, txt="T: Add %s to your mana pool"%color)
 
-def play_permanent():
-    def effects(controller, source):
-        yield source.cost
-        yield NoTarget()
-        yield
-    return CastPermanentSpell(effects, txt="Play spell")
+def cast_permanent():
+    return CastPermanentSpell()
 
-def play_aura():
-    def effects(controller, source):
-        yield source.cost
-        target = yield Target(source.target_type, zone=source.target_zone, player=source.target_player)
-        source.attach_on_enter = target
-        yield
-    return CastPermanentSpell(effects, txt="Play spell")
+def cast_aura():
+    return CastAuraSpell()
 
 def attach_artifact(cost, keyword, limit=no_limit):
     def effects(controller, source):

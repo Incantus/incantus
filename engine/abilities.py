@@ -22,8 +22,11 @@ class abilities(object):
         for ability in self._abilities:
             if (ability.zone == "all" or ability.zone == zone): ability.toggle(val)
     abilities = property(fget=lambda self: [ability for ability in self._abilities if ability.enabled])
-    def attached(self): return [ability for ability in self._abilities if ability.zone == "attached"]
-    def activated(self, source): return [ability for ability in self.abilities if hasattr(ability, "activated") and ability.playable(source)]
+    def attached(self):
+        # Need to return both enabled/disabled abilities, so they can be toggled
+        return [ability for ability in self._abilities if ability.zone == "attached"]
+    def cast(self): return [ability for ability in self._abilities if hasattr(ability, "cast")]
+    def activated(self): return [ability for ability in self.abilities if hasattr(ability, "activated") and ability.playable()]
     def __repr__(self): return '\n'.join(map(repr, self._abilities))
     def __str__(self): return '\n'.join([str(ability) for ability in self.abilities if str(ability)])
     def __len__(self): return len(self.abilities)
@@ -133,8 +136,11 @@ class stacked_abilities(object):
         for group in self._current:
             total += getattr(group, func).__call__(*args)
         return total
+    def cast(self):
+        # XXX Only return the most recent?
+        return self.process_stacked("cast", [])[-1]
     def attached(self): return self.process_stacked("attached", [])
-    def activated(self): return self.process_stacked("activated", [], self.source())
+    def activated(self): return self.process_stacked("activated", [])
     def mana_abilities(self): return [ability for ability in self.activated() if hasattr(ability, "mana_ability")]
     def __len__(self): return self.process_stacked("__len__", 0)
     def __contains__(self, keyword): return self.process_stacked("__contains__", False, keyword) > 0

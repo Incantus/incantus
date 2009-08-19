@@ -12,8 +12,9 @@ class CostAbility(Ability):
         if zone: self.zone = zone
         if keyword and not txt: self.txt = keyword.capitalize()
         self.keyword = keyword
-    def playable(self, source):
-        return (self.zone == "all" or str(source.zone) == self.zone) and self.limit(source)
+        self._status_count = 0
+    def playable(self):
+        return self.enabled and self.limit(self.source)
     def do_announce(self):
         # Do all the stuff in rule 409.1 like pick targets, pay costs, etc
         source, player = self.source, self.controller
@@ -38,12 +39,7 @@ class CostAbility(Ability):
     def __str__(self):
         return self.txt
 
-class ActivatedAbility(CostAbility):
-    activated = True
     enabled = property(fget=lambda self: self._status_count > 0)
-    def __init__(self, effects, limit=None, zone=None, txt='', keyword=''):
-        super(ActivatedAbility,self).__init__(effects, limit, zone, txt, keyword)
-        self._status_count = 0
     def enable(self, source):
         self.source = source
         self.toggle(True)
@@ -51,12 +47,14 @@ class ActivatedAbility(CostAbility):
     def toggle(self, val):
         if val: self._status_count += 1
         else: self._status_count -= 1
+
+class ActivatedAbility(CostAbility):
+    activated = True
     def play(self, player):
         # Make copy and announce it
         copy = self.copy()
         copy.controller = player
         return copy.announce()
-    def playable(self, source): return self.enabled and super(ActivatedAbility, self).playable(source)
     def __repr__(self): return "%s<%s %o: %s>"%('*' if self.enabled else '', self.__class__.__name__, id(self), self.txt)
 
 class ManaAbility(ActivatedAbility):

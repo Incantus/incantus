@@ -9,14 +9,16 @@ from EffectsUtilities import robustApply
 from Utils import flatten, unflatten
 
 # Decorators for effects of cards
-def play_sorcery():
-    def make_spell(effects):
-        return CastSorcerySpell(effects, txt="Play spell")
+def sorcery(txt="Play sorcery"):
+    def make_spell(ability):
+        effects = ability()
+        return CastSorcerySpell(effects, txt=txt)
     return make_spell
 
-def play_instant():
-    def make_spell(effects):
-        return CastInstantSpell(effects, txt="Play spell")
+def instant(txt="Play instant"):
+    def make_spell(ability):
+        effects = ability()
+        return CastInstantSpell(effects, txt=txt)
     return make_spell
 
 def modal(*modes, **kw):

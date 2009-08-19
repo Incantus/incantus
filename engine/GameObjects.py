@@ -24,7 +24,6 @@ class GameObject(MtGObject):
         self.base_subtypes = None
         self.base_supertypes = None
         self.base_abilities = abilities()
-        self.play_spell = None
 
         self.base_power = 0
         self.base_toughness = 0
@@ -45,8 +44,6 @@ class GameObject(MtGObject):
         role.subtypes = stacked_characteristic(proxy_role, self.base_subtypes, SubtypesModifiedEvent())
         role.supertypes = stacked_characteristic(proxy_role, self.base_supertypes, SupertypesModifiedEvent)
         role.abilities = stacked_abilities(weakref.ref(role), self.base_abilities)
-
-        role.play_spell = self.play_spell
 
         role.base_power = stacked_variable(proxy_role, self.base_power, PowerToughnessModifiedEvent())
         role.base_toughness = stacked_variable(proxy_role, self.base_toughness, PowerToughnessModifiedEvent())

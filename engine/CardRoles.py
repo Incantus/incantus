@@ -4,7 +4,7 @@ from MtGObject import MtGObject
 from GameEvent import DealsDamageToEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, LandPlayedEvent
 from Planeswalker import Planeswalker
 from Ability.Counters import Counter, PowerToughnessCounter, PowerToughnessModifier, PowerToughnessSetter, PowerToughnessSwitcher, PowerSetter, ToughnessSetter
-from Ability.PermanentAbility import play_permanent, play_aura, basic_mana_ability
+from Ability.PermanentAbility import basic_mana_ability, cast_permanent, cast_aura
 from Ability.EffectsUtilities import combine
 from Ability.Subtypes import all_basic_lands
 from Ability.Cost import MultipleCosts
@@ -131,16 +131,15 @@ class OutPlayRole(CardRole):
     def activate(self):
         if self.types == "Instant" or self.types == "Sorcery": pass
         elif self.subtypes == "Aura":
-            self.play_spell = play_aura()
-            self.abilities.add(attach_on_enter())
-        else: self.play_spell = play_permanent()
+            self.abilities.add(cast_aura(), attach_on_enter())
+        else: self.abilities.add(cast_permanent())
+        self._play_spell = self.abilities.cast()
         super(OutPlayRole, self).activate()
     def playable(self):
-        return self.play_spell.playable(self)
+        return self._play_spell.playable()
     def play(self, player):
         # XXX This is an ugly ugly hack
-        play_ability = self.play_spell.copy()
-        play_ability.source = self
+        play_ability = self._play_spell.copy()
         play_ability.controller = player
         return play_ability.announce()
     def move_to_play_tapped(self, txt):

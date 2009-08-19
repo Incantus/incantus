@@ -1,8 +1,10 @@
 from engine.GameEvent import SpellPlayedEvent
 from ActivatedAbility import CostAbility
 from Limit import sorcery
+from Target import Target, NoTarget
 
 class CastSpell(CostAbility):
+    cast = True
     zone = "hand"
     def do_announce(self):
         # Move the card to the stack zone - this is never called from play
@@ -27,12 +29,24 @@ class CastSpell(CostAbility):
 
 class CastPermanentSpell(CastSpell):
     limit_type = sorcery
+    def __init__(self):
+        super(CastPermanentSpell, self).__init__(self.effects, txt="Play spell")
+    def effects(self, controller, source):
+        yield source.cost
+        yield NoTarget()
+        yield
     def resolved(self):
         source = self.source
         new_card = source.move_to(self.controller.play)
         if new_card == source: # didn't actually move to play
             source.move_to("graveyard")
         super(CastPermanentSpell, self).resolved()
+
+class CastAuraSpell(CastPermanentSpell):
+    def effects(self, controller, source):
+        yield source.cost
+        source.attach_on_enter = yield Target(source.target_type, zone=source.target_zone, player=source.target_player)
+        yield
 
 class CastNonPermanentSpell(CastSpell):
     def resolved(self):
