@@ -1,75 +1,52 @@
-from pickletools import genops
-import cPickle as pickle
-from cStringIO import StringIO
+import struct
+import simplejson as json
 from engine import Player, GameKeeper
 from engine.Ability.Ability import Ability
 from engine.GameObjects import GameObject
 from engine.CardRoles import CardRole
+from engine import Action
 
 # This whole thing is ugly - i should probably replace it with a global object store with weakrefs (for the abilities)
 # or find a better way to pass this data back and forth
 players = {}
 stack = None
-def persistent_id(obj):
-    persid = None
+
+def to_json(obj):
     if isinstance(obj,CardRole):
-        persid = pickle.dumps(("Role", obj.key), 2)
+        return {'__class__': 'CardRole',
+                '__value__': obj.key}
     elif isinstance(obj,Player):
-        persid = pickle.dumps(("Player", obj.name), 2)
+        return {'__class__': 'Player',
+                '__value__': obj.name}
     elif isinstance(obj,Ability):
-        persid = pickle.dumps(("Ability", stack.index(obj)), 2)
-    return persid
+        return {'__class__': 'Ability',
+                '__value__': stack.index(obj)}
+    elif isinstance(obj,Action.Action):
+        return {'__class__': 'Action',
+                '__value__': [obj.__class__.__name__, obj.__dict__]}
+    else: raise TypeError(repr(obj) + 'is not JSON serializable')
 
-def persistent_load(persid):
-    id, val = pickle.loads(persid)
-    if id == "Role":
-        return GameObject._current_roles[val]
-    elif id == "Player":
-        return players[val]
-    elif id == "Ability":
-        return stack[val]
-    else:
-        raise pickle.UnpicklingError("Invalid persistent id")
-
+def from_json(json):
+    if '__class__' in json:
+        cls, val = json['__class__'], json['__value__']
+        if cls == "CardRole":
+            return GameObject._current_roles[tuple(val)]
+        elif cls == "Player":
+            return players[val]
+        elif cls == "Ability":
+            return stack[val]
+        elif cls == "Action":
+            klass = getattr(Action, val[0])
+            obj = klass.__new__(klass)
+            obj.__dict__ = val[1]
+            return obj
+    return json
 
 def dumps(data):
-    src = StringIO()
-    p = pickle.Pickler(src, protocol=-1)
-    p.persistent_id = persistent_id
-    p.dump(data)
-    return src.getvalue()
+    return json.dumps(data, default=to_json)
 
 def loads(str):
-    file = StringIO(str)
-    p = pickle.Unpickler(file)
-    p.persistent_load = persistent_load
-    return p.load()
-
-def optimize(p):
-    'Optimize a pickle string by removing unused PUT opcodes'
-    gets = set()            # set of args used by a GET opcode
-    puts = []               # (arg, startpos, stoppos) for the PUT opcodes
-    prevpos = None          # set to pos if previous opcode was a PUT
-    for opcode, arg, pos in genops(p):
-        if prevpos is not None:
-            puts.append((prevarg, prevpos, pos))
-            prevpos = None
-        if 'PUT' in opcode.name:
-            prevarg, prevpos = arg, pos
-        elif 'GET' in opcode.name:
-            gets.add(arg)
-
-    # Copy the pickle string except for PUTS without a corresponding GET
-    s = []
-    i = 0
-    for arg, start, stop in puts:
-        #j = stop if (arg in gets) else start
-        if (arg in gets): j = stop
-        else: j = start
-        s.append(p[i:j])
-        i = stop
-    s.append(p[i:])            
-    return ''.join(s)
+    return json.loads(str, object_hook=from_json)
 
 class ReplayDump(object):
     def __init__(self, app, filename="game.replay", save=True, prompt_continue=True):
@@ -82,23 +59,20 @@ class ReplayDump(object):
         #flags = 'r+'
         self.dumpfile = open(self.filename, flags, 0)
         self.lastpos = self.dumpfile.tell()
-        self.load_picklers()
-    def load_picklers(self):
-        self.pickler = pickle.Pickler(self.dumpfile, protocol=-1)
-        self.pickler.persistent_id = persistent_id
-        self.unpickler = pickle.Unpickler(self.dumpfile)
-        self.unpickler.persistent_load = persistent_load
     def close(self):
         self.dumpfile.close()
     def __call__(self, obj):
         if self.save:
-            self.pickler.dump(obj)
+            data = dumps(obj)
+            data = struct.pack('>I', len(data)) + data
+            self.dumpfile.write(data)
             self.dumpfile.flush()
     def read(self):
         try:
             self.lastpos = self.dumpfile.tell()
-            obj = self.unpickler.load()
-            return obj
+            size = struct.unpack('>I', self.dumpfile.read(4))
+            data = self.dumpfile.read(size)
+            return loads(data)
         except Exception: #(EOFError, TypeError, KeyError):
             self.app.replay = False
             if self.prompt_continue: start_dumping = GameKeeper.Keeper.current_player.getIntention(self.app.game_status.prompt.value, "...continue recording?")
@@ -108,33 +82,8 @@ class ReplayDump(object):
                 self.dumpfile.close()
                 self.dumpfile = open(self.filename, 'a+b')
                 self.dumpfile.seek(self.lastpos, 0)
-                self.load_picklers()
             else: self.dumpfile.close()
             return False
     def __del__(self):
         self.close()
 
-def test(dumpfile):
-    def persistent_load(persid):
-        id, val = pickle.loads(persid)
-        return id, val
-    unpickler = pickle.Unpickler(dumpfile)
-    unpickler.persistent_load = persistent_load
-    return unpickler
-
-import sys
-if __name__ == "__main__":
-    if len(sys.argv) == 1: filename = "game.replay"
-    else: filename = sys.argv[1]
-    if len(sys.argv) == 3: stoppoint = int(sys.argv[2])
-    else: stoppoint = None
-    flags = 'r+b'
-    dumpfile = open(filename, flags)
-    if stoppoint: dumpfile.truncate(stoppoint)
-    p = test(dumpfile)
-    try:
-        while True:
-            a = p.load()
-            print a, dumpfile.tell()
-    except EOFError:
-        pass
