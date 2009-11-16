@@ -270,8 +270,8 @@ class IncantusLayer(Layer):
         # onto the event queue
         if engine.Keeper.stack.empty():
             if (not self.p1_stop_next and
-               ((player == engine.Keeper.other_player and self.phase_status.check_opponent_stop()) or
-                (player == engine.Keeper.current_player and self.phase_status.check_my_stop()))):
+               ((player != engine.Keeper.active_player and self.phase_status.check_opponent_stop()) or
+                (player == engine.Keeper.active_player and self.phase_status.check_my_stop()))):
                 self.pending_actions.append(engine.Action.PassPriority())
             elif self.finish_turn:
                 self.pending_actions.append(engine.Action.PassPriority())
