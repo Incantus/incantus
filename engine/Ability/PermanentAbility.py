@@ -5,7 +5,7 @@ from StaticAbility import CardStaticAbility
 from Target import NoTarget, Target
 from Cost import TapCost
 from EffectsUtilities import do_override, override_effect
-from Limit import no_limit, sorcery
+from Limit import no_limit, sorcery_limit
 
 def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plains='W',Mountain='R',Swamp='B')):
     color = subtype_to_mana[subtype]
@@ -28,7 +28,7 @@ def attach_artifact(cost, keyword, limit=no_limit):
         target = yield Target(source.target_type, player='you')
         source.attach(target)
         yield
-    return ActivatedAbility(effects, limit=limit+sorcery, txt='%s %s'%(keyword, cost))
+    return ActivatedAbility(effects, limit=limit+sorcery_limit, txt='%s %s'%(keyword, cost))
 
 equip = lambda cost, limit=no_limit: attach_artifact(cost, "Equip", limit)
 fortify = lambda cost, limit=no_limit: attach_artifact(cost, "Fortify", limit)

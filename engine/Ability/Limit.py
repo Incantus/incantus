@@ -86,5 +86,5 @@ class ThresholdLimit(Limit):
         return len(card.controller.graveyard) >= 7
 
 no_limit = Unlimited()
-sorcery = SorceryLimit()
+sorcery_limit = SorceryLimit()
 as_though_sorcery = SorceryLimit()

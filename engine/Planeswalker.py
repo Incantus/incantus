@@ -5,12 +5,12 @@ from Ability.Counters import Counter
 from Ability.Limit import SorceryLimit, CountLimit
 from GameEvent import DealsDamageToEvent
 
-sorcery = SorceryLimit()
+planeswalker_sorcery = SorceryLimit()
 
 class planeswalker_abilities(stacked_abilities):
     def __init__(self, source, abilities):
         super(planeswalker_abilities, self).__init__(source, abilities._stacking[0])
-        self.walker_limit = sorcery+CountLimit(1)
+        self.walker_limit = planeswalker_sorcery+CountLimit(1)
         self.change_limit(abilities._stacking[0]._abilities)
     def add(self, abilities):
         self.change_limit(abilities)

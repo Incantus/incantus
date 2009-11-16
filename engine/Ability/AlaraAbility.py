@@ -9,7 +9,7 @@ from EffectsUtilities import until_end_of_turn, delay, do_replace, no_condition
 from Target import NoTarget
 from Trigger import Trigger, PhaseTrigger
 from Counters import PowerToughnessCounter
-from Limit import sorcery
+from Limit import sorcery_limit
 
 def exalted():
     def condition(source, sender, attackers):
@@ -62,4 +62,4 @@ def unearth(cost):
             return self.move_to("removed")
         until_end_of_turn(delay(source, d_trigger), do_replace(source, "move_to", move_to, msg="%s - remove from game"%source.name, condition=leave_play_condition))
         yield
-    return ActivatedAbility(effects, limit=sorcery, zone="graveyard", txt="Unearth %s"%str(cost), keyword="unearth")
+    return ActivatedAbility(effects, limit=sorcery_limit, zone="graveyard", txt="Unearth %s"%str(cost), keyword="unearth")

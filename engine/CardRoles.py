@@ -8,7 +8,7 @@ from Ability.PermanentAbility import basic_mana_ability, cast_permanent, cast_au
 from Ability.EffectsUtilities import combine
 from Ability.Subtypes import all_basic_lands
 from Ability.Cost import MultipleCosts
-from Ability.Limit import sorcery
+from Ability.Limit import sorcery_limit
 from Ability.CiPAbility import CiP, enter_play_tapped, attach_on_enter
 
 class CardRole(MtGObject):
@@ -149,7 +149,7 @@ class OutPlayRole(CardRole):
 
 class LandOutPlayRole(CardRole):
     def playable(self):
-        return sorcery(self) and str(self.zone) == "hand" and self.owner.land_actions > 0
+        return sorcery_limit(self) and str(self.zone) == "hand" and self.owner.land_actions > 0
     def play(self, player):
         player.land_actions -= 1
         card = self.move_to(player.play)

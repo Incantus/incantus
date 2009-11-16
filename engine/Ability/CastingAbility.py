@@ -1,6 +1,6 @@
 from engine.GameEvent import SpellPlayedEvent
 from ActivatedAbility import CostAbility
-from Limit import sorcery
+from Limit import sorcery_limit
 from Target import Target, NoTarget
 
 class CastSpell(CostAbility):
@@ -28,7 +28,7 @@ class CastSpell(CostAbility):
         super(CastSpell,self).countered()
 
 class CastPermanentSpell(CastSpell):
-    limit_type = sorcery
+    limit_type = sorcery_limit
     def __init__(self):
         super(CastPermanentSpell, self).__init__(self.effects, txt="Play spell")
     def effects(self, controller, source):
@@ -55,4 +55,4 @@ class CastNonPermanentSpell(CastSpell):
         super(CastNonPermanentSpell, self).resolved()
 
 class CastInstantSpell(CastNonPermanentSpell): pass
-class CastSorcerySpell(CastNonPermanentSpell): limit_type = sorcery
+class CastSorcerySpell(CastNonPermanentSpell): limit_type = sorcery_limit
