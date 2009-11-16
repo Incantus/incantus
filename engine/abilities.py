@@ -12,15 +12,20 @@ class abilities(object):
             ability.tag = tag
             self._abilities.append(ability)
             if ability.keyword: self._keywords[ability.keyword] = ability
+    def _check_zone(self, ability, zone):
+        ability_zone = ability.zone
+        return (ability_zone == "all" or 
+                (zone == "nonplay" and not ability_zone == "play") or
+                ability_zone == zone)
     def enable(self, zone, source):
         for ability in self._abilities:
-            if (ability.zone == "all" or ability.zone == zone): ability.enable(source)
+            if self._check_zone(ability, zone): ability.enable(source)
     def disable(self, zone):
         for ability in self._abilities:
-            if (ability.zone == "all" or ability.zone == zone): ability.disable()
+            if self._check_zone(ability, zone): ability.disable()
     def toggle(self, zone, val):
         for ability in self._abilities:
-            if (ability.zone == "all" or ability.zone == zone): ability.toggle(val)
+            if self._check_zone(ability, zone): ability.toggle(val)
     abilities = property(fget=lambda self: [ability for ability in self._abilities if ability.enabled])
     def attached(self):
         # Need to return both enabled/disabled abilities, so they can be toggled

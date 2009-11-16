@@ -104,5 +104,5 @@ def doesntUntapAbility(txt):
 def flash():  # Essentially a noop
     def effects(source):
         yield lambda: None
-    return CardStaticAbility(effects, keyword="flash", zone="all")
+    return CardStaticAbility(effects, keyword="flash", zone="nonplay")
 
