@@ -11,7 +11,7 @@ state_map = {"Untap": UntapStepEvent, "Upkeep": UpkeepStepEvent, "Draw": DrawSte
              "Main1": MainPhase1Event, "Main2": MainPhase2Event, "EndMain": EndMainPhaseEvent,
              "BeginCombat": BeginCombatEvent, "Attack": AttackStepEvent,
              "Block": BlockStepEvent, "Damage": AssignDamageEvent, "EndCombat": EndCombatEvent,
-             "EndTurn": EndTurnStepEvent, "Cleanup": CleanupPhase}
+             "EndStep": EndTurnStepEvent, "Cleanup": CleanupPhase}
 
 class player_cycler(object):
     def __init__(self, players):
@@ -359,7 +359,7 @@ class GameKeeper(MtGObject):
         self.setState("EndMain")
     def endPhase(self):
         # End of turn
-        self.setState("EndTurn")
+        self.setState("EndStep")
         #  - trigger "at end of turn" abilities - if new "at end of turn" event occurs doesn't happen until next turn
         #  - can play instants or abilities
         self.playInstants()

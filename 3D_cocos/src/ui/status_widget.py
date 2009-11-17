@@ -641,7 +641,7 @@ class PhaseStatus(Widget):
             ('Damage','Combat damage'),
             ('EndCombat','End of combat'),
             ('Main2','Main'),
-            ('EndTurn','End of turn'),
+            ('End','End Step'),
             ('Cleanup','Cleanup')]
         self.state_list = [s.lower() for s, t in states]
         self.grouping = [0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0]
