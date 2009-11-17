@@ -109,19 +109,23 @@ class GameKeeper(MtGObject):
         _phases = ("newTurn", ("untapStep", "upkeepStep", "drawStep"), "mainPhase1", "combatPhase", "mainPhase2", "endPhase")
         for phase in itertools.cycle(_phases):
             if type(phase) == tuple:
-                for step in phase: getattr(self, step)()
-            else: getattr(self, phase)()
-            self.manaBurn()
+                for step in phase:
+                    getattr(self, step)()
+                    self.emptyManaPools()
+            else: 
+                getattr(self, phase)()
+                self.emptyManaPools()
 
     def setState(self, state):
         # Send notice that state changed
         self.current_phase = state
         self.send(GameStepEvent(), state=state)
         self.send(state_map[state](), player=self.active_player)
-    def manaBurn(self):
+    def emptyManaPools(self):
         for player in self.players:
-            while not player.manaBurn():
-                self.playInstants()
+            player.manapool.clear()
+            #while not player.manaBurn():
+            #    self.playInstants()
     def checkSBE(self):
         #State-Based Effects - rule 420.5
         # check every time someone gets priority (rule 408.1b)
