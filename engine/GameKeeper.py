@@ -73,10 +73,19 @@ class GameKeeper(MtGObject):
         for player in self.players:
             player.draw(7)
         self.send(TimestepEvent())
-        for player in self.players:
-            for did_mulligan in player.mulligan():
-                self.send(TimestepEvent())
-                if did_mulligan == False: break
+
+        another_mulligan = True
+        players = list(self.players)
+        mulligan_count = 7
+        while another_mulligan:
+            players = [player for player in players 
+                       if not player.getIntention("", "Would you like to mulligan?")]
+            if len(players) > 0:
+                mulligan_count -= 1
+                for player in players:
+                    player.mulligan(mulligan_count)
+            else: another_mulligan = False
+        
         try:
             self.run()
         except GameOverException, g:

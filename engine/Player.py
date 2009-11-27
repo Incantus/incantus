@@ -213,19 +213,11 @@ class Player(MtGObject):
         raise NotImplementedError()
 
     # Rule engine functions
-    def mulligan(self):
-        number = 7
-        while number > 0:
-            number -= 1
-            if self.getIntention("", "Would you like to mulligan?"): #, "Would you like to mulligan?"):
-                self.send(LogEvent(), msg="%s mulligans"%self)
-                for card in self.hand: card.move_to(self.library)
-                self.shuffle()
-                yield
-                self.draw(number)
-                yield True
-            else: break
-        yield False
+    def mulligan(self, number):
+        self.send(LogEvent(), msg="%s mulligans"%self)
+        for card in self.hand: card.move_to(self.library)
+        self.shuffle()
+        self.draw(number)
     def checkUntapStep(self, cards): return True
     def untapStep(self):
         permanents = untapCards = set([card for card in self.play if card.canUntapDuringUntapStep()])
