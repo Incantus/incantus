@@ -79,13 +79,13 @@ class GameKeeper(MtGObject):
         mulligan_count = 7
         while another_mulligan:
             players = [player for player in players 
-                       if not player.getIntention("", "Would you like to mulligan?")]
+                       if player.getIntention("", "Would you like to mulligan?")]
             if len(players) > 0:
                 mulligan_count -= 1
                 for player in players:
                     player.mulligan(mulligan_count)
             else: another_mulligan = False
-        
+
         try:
             self.run()
         except GameOverException, g:
