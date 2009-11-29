@@ -1,6 +1,6 @@
 import struct
 import simplejson as json
-from engine import Player, GameKeeper
+from engine import Player
 from engine.Ability.Ability import Ability
 from engine.GameObjects import GameObject
 from engine.CardRoles import CardRole
@@ -48,42 +48,43 @@ def dumps(data):
 def loads(str):
     return json.loads(str, object_hook=from_json)
 
+class ReplayFinishedException(Exception): pass
+
 class ReplayDump(object):
-    def __init__(self, app, filename="game.replay", save=True, prompt_continue=True):
+    def __init__(self, filename="game.replay", save=True):
         self.filename = filename
-        self.app = app
-        self.save = save
-        if save: flags = 'wb'
-        else: flags = 'rb'
-        self.prompt_continue = prompt_continue
-        #flags = 'r+'
+        if save:
+            flags = 'wb'
+            self.write = self.do_write
+            self.read = lambda self: False
+        else: 
+            flags = 'rb'
+            self.write = lambda: None
+            self.read = self.do_read
+
         self.dumpfile = open(self.filename, flags, 0)
         self.lastpos = self.dumpfile.tell()
     def close(self):
         self.dumpfile.close()
-    def __call__(self, obj):
-        if self.save:
-            data = dumps(obj)
-            data = struct.pack('>I', len(data)) + data
-            self.dumpfile.write(data)
-            self.dumpfile.flush()
-    def read(self):
+    def do_write(self, obj):
+        data = dumps(obj)
+        data = struct.pack('>I', len(data)) + data
+        self.dumpfile.write(data)
+        self.dumpfile.flush()
+    def do_read(self):
         try:
             self.lastpos = self.dumpfile.tell()
             size = struct.unpack('>I', self.dumpfile.read(4))
             data = self.dumpfile.read(size)
             return loads(data)
         except Exception: #(EOFError, TypeError, KeyError):
-            self.app.replay = False
-            if self.prompt_continue: start_dumping = GameKeeper.Keeper.current_player.getIntention(self.app.game_status.prompt.value, "...continue recording?")
-            else: start_dumping = True
-            if start_dumping:
-                self.save = True
-                self.dumpfile.close()
-                self.dumpfile = open(self.filename, 'a+b')
-                self.dumpfile.seek(self.lastpos, 0)
-            else: self.dumpfile.close()
-            return False
+            self.reset_append()
+            raise ReplayFinishedException()
+    def reset_append(self):
+        self.close()
+        self.dumpfile = open(self.filename, 'a+b')
+        self.dumpfile.seek(self.lastpos, 0)
+        self.read = lambda self: False
+        self.write = self.do_write
     def __del__(self):
         self.close()
-
