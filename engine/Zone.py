@@ -53,40 +53,39 @@ class Zone(MtGObject):
         raise NotImplementedError()
 
 class OrderedZone(Zone):
+    pending = property(fget=lambda self: self._pending)
     def __init__(self):
         super(OrderedZone, self).__init__()
-        self.pending = False
-        self.pending_top = []
-        self.pending_bottom = []
+        self._pending = False
+        self._pending_top = []
+        self._pending_bottom = []
         self.register(self.commit, TimestepEvent())
     def _insert_card(self, oldcard, card, position):
-        self.pending = True
-        if position == "top": self.pending_top.append((oldcard, card))
-        else: self.pending_bottom.append((oldcard, card))
+        self._pending = True
+        if position == "top": self._pending_top.append((oldcard, card))
+        else: self._pending_bottom.append((oldcard, card))
     def get_card_order(self, cardlist, pos):
         if len(cardlist) > 1:
             player = cardlist[0].owner
             reorder = player.getCardSelection(cardlist, number=len(cardlist), zone=str(self), player=player, required=False, prompt="Order cards entering %s of %s"%(pos, self))
             if reorder: cardlist = reorder[::-1]
         return cardlist
-    def post_commit(self): pass
     def commit(self):
-        if self.pending_top or self.pending_bottom:
-            cards = self.pending_top+self.pending_bottom
+        if self._pending_top or self._pending_bottom:
+            cards = self._pending_top+self._pending_bottom
             for oldcard, _ in cards:
                 oldcard.zone._remove_card(oldcard)
             for oldcard, card in cards:
                 oldcard.leavingZone()
                 card.enteringZone(self)
-            toplist = self.get_card_order([c for o,c in self.pending_top], "top")
-            bottomlist = self.get_card_order([c for o,c in self.pending_bottom], "bottom")
+            toplist = self.get_card_order([c for o,c in self._pending_top], "top")
+            bottomlist = self.get_card_order([c for o,c in self._pending_bottom], "bottom")
             self._cards = bottomlist + self._cards + toplist
             for _, card in cards:
                 self.send(CardEnteredZone(), card=card)
-            self.pending_top[:] = []
-            self.pending_bottom[:] = []
-            self.post_commit()
-            self.pending = False
+            self._pending_top[:] = []
+            self._pending_bottom[:] = []
+            self._pending = False
 
 class OutPlayMixin(object):
     def setup_new_role(self, card):
@@ -117,21 +116,21 @@ class Library(OutPlayMixin, AddCardsMixin, OrderedZone):
     name = "library"
     def __init__(self):
         super(Library, self).__init__()
-        self.needs_shuffle = False
+        self.skip_ordering = False
     def get_card_order(self, cardlist, pos):
         # we're gonna shuffle anyway, no need to order the cards
-        if self.needs_shuffle: return cardlist
+        if self.skip_ordering: return cardlist
         else: return super(Library, self).get_card_order(cardlist, pos)
     def shuffle(self):
-        if not self.pending:
-            random.shuffle(self._cards)
-            self.send(ShuffleEvent())
-        else: self.needs_shuffle = True
-    def post_commit(self):
-        if self.needs_shuffle:
-            self.needs_shuffle = False
-            random.shuffle(self._cards)
-            self.send(ShuffleEvent())
+        # If we have any pending insertions, move them to the library
+        # before shuffling
+        if self.pending:
+            # don't need to order them
+            self.skip_ordering = True
+            self.commit()
+            self.skip_ordering = False
+        random.shuffle(self._cards)
+        self.send(ShuffleEvent())
 
 class PlayView(object):
     def __init__(self, player, play):
