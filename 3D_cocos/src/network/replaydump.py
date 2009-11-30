@@ -51,7 +51,7 @@ def loads(str):
 class ReplayFinishedException(Exception): pass
 
 class ReplayDump(object):
-    def __init__(self, filename="game.replay", save=True):
+    def __init__(self, filename="game.replay", save=False):
         self.filename = filename
         if save:
             flags = 'wb'
