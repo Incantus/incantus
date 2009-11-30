@@ -207,6 +207,7 @@ class PlayView(Widget):
         self._card_map[card.key] = guicard
         guicard.entering_play()
         guicard._pos.set(euclid.Vector3(0,0,0))
+        cardsize = 0.010
         if Match.isCreature(card):
             self.creatures.insert(0, guicard)
             guicard._row = self.creatures
@@ -216,6 +217,7 @@ class PlayView(Widget):
                     if card.subtypes == key:
                         self.lands[key].append(guicard)
                         guicard._row = self.lands[key]
+                        cardsize = 0.0085
                         break
             else:
                 self.lands['Other'].append(guicard)
@@ -234,7 +236,7 @@ class PlayView(Widget):
         self.layout()
 
         if startt != 0: guicard.visible = anim.animate(0,1,dt=startt, method="step")
-        guicard.size = anim.animate(0.005, 0.010, dt=0.2, method="sine")
+        guicard.size = anim.animate(0.005, cardsize, dt=0.2, method="sine")
         guicard.alpha = anim.animate(0.5, 1,startt=startt, dt=1.0, method="ease_out_circ")
         guicard._orientation.set_transition(dt=0.2, method="sine")
         guicard._pos.set_transition(dt=0.2, method="ease_out_circ") #"ease_out_back")
