@@ -74,7 +74,7 @@ class ReplayDump(object):
     def do_read(self):
         try:
             self.lastpos = self.dumpfile.tell()
-            size = struct.unpack('>I', self.dumpfile.read(4))
+            size = struct.unpack('>I', self.dumpfile.read(4))[0]
             data = self.dumpfile.read(size)
             return loads(data)
         except Exception: #(EOFError, TypeError, KeyError):
