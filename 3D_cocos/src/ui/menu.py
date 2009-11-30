@@ -76,6 +76,7 @@ class MainMenu(IncantusMenu):
         super(MainMenu, self).__init__()
         items = []
         items.append(SubMenuItem('Start Solitaire Game', SolitaireGameMenu()))
+        items.append(SubMenuItem('Reload Solitaire Game', ReloadSolitaireGameMenu()))
         items.append(SubMenuItem('Start Network Game', StartGameMenu()))
         items.append(SubMenuItem('Join Network Game', JoinGameMenu()))
         items.append(SubMenuItem('Observe Network Game', ObserveGameMenu()))
@@ -244,6 +245,20 @@ class SolitaireGameMenu(IncantusMenu):
     def on_start(self):
         players = [(self.p1_name, Incantus.load_deckfile(self.p1_deckfile)), (self.p2_name, Incantus.load_deckfile(self.p2_deckfile))]
         Incantus.start_solitaire(self.p1_name, players)
+
+class ReloadSolitaireGameMenu(IncantusMenu):
+    def __init__(self):
+        super(ReloadSolitaireGameMenu, self).__init__('Reload Solitaire Game')
+        self.replay_file = config.get("general", "replay")
+        items = []
+        items.append(EntryMenuItem('Replay File:', self.on_replayfile, self.replay_file))
+        items.append(MenuItem('Reload', self.on_reload))
+        items.append(MenuItem('Back', self.on_quit))
+        self.create_menu(items)
+    def on_replayfile(self, replay):
+        self.replay_file = replay
+    def on_reload(self):
+        Incantus.reload_solitaire(self.replay_file)
 
 def build_menus():
     options = OptionsMenu()

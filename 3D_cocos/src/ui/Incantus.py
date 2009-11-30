@@ -213,6 +213,7 @@ class IncantusLayer(Layer):
         player1, self_color = player1_info
         player2, other_color = player2_info
         self.player1 = player1
+        self.player2 = player2
         self.mainplayer_status.setup_player(player1, self_color)
         self.otherplayer_status.setup_player(player2, other_color)
         self.phase_status.setup_player_colors(player1, self_color, other_color)
@@ -301,6 +302,18 @@ class IncantusLayer(Layer):
         self.network = False
         return result
 
+    def replay_input(self, context, prompt=''):
+        self.game_status.log(prompt)
+        process = context['process']
+        try:
+            result = self.dump_to_replay.read()
+        except replaydump.ReplayFinishedException:
+            # Switch the input to the greenlet_input
+            self.player1.dirty_input = self.greenlet_input
+            self.player2.dirty_input = self.greenlet_input
+            result = self.greenlet_input(context, prompt)
+        return result
+
     def greenlet_input(self, context, prompt=''):
         self.game_status.log(prompt)
         process = context['process']
@@ -312,6 +325,7 @@ class IncantusLayer(Layer):
             self.do_action(context)
             g_self = greenlet.getcurrent()
             result = process(g_self.parent.switch())
+        self.dump_to_replay.write(result)
         if self.client: self.client.send_action(result)
         return result
 
@@ -364,8 +378,48 @@ class IncantusLayer(Layer):
             trample = context['trample']
             self.damage_assignment.activate(blocking_list, trample)
 
+    def game_reload(self, replay_file):
+        self.game_status.log("Reloading game")
+
+        self.dump_to_replay = replaydump.ReplayDump(filename=replay_file, save=False)
+        isserver = self.dump_to_replay.read()
+        seed = self.dump_to_replay.read()
+        player1_name = self.dump_to_replay.read()
+        my_deck = self.dump_to_replay.read()
+        player2_name = self.dump_to_replay.read()
+        other_deck = self.dump_to_replay.read()
+        player_data = [(player1_name,my_deck), (player2_name,other_deck)]
+
+        random.seed(seed)
+        players = []
+        for name, deck in player_data: players.append(engine.Player(name, deck))
+
+        player1, player2 = players[:2]
+
+        for player in players:
+            player.dirty_input = self.replay_input
+            self.player_hand.set_hidden(False)
+
+        engine.Keeper.init(players)
+        self.make_connections((player1, (0,0,255)), (player2, (255,255,0)))
+
+        # XXX This is hacky - need to change it
+        replaydump.players = dict([(player.name,player) for player in players])
+        replaydump.stack = engine.Keeper.stack
+
+        self.gamelet = greenlet(engine.Keeper.start)
+        self.client = None
+        pyglet.clock.schedule_once(lambda dt: self.gamelet.switch(), 0.01)
+
     def game_start(self, player_name, seed, player_data, client=None):
         self.game_status.log("Starting game")
+
+        self.dump_to_replay = replaydump.ReplayDump(save=True)
+        self.dump_to_replay.write(True)
+        self.dump_to_replay.write(seed)
+        for name, deck in player_data:
+            self.dump_to_replay.write(name)
+            self.dump_to_replay.write(deck)
 
         random.seed(seed)
         players = []
@@ -415,6 +469,15 @@ def start_solitaire(player_name, players):
     director.push(gamescene)
     #director.push(ZoomTransition(gamescene, 1.5))
     gamelayer.game_start(player_name, pyglet.clock.time.time(), players)
+
+def reload_solitaire(replay_file):
+    global gamescene
+    gamescene = Scene()
+    gamelayer = IncantusLayer()
+    gamescene.add(gamelayer, z=0, name="table")
+    director.push(gamescene)
+    #director.push(ZoomTransition(gamescene, 1.5))
+    gamelayer.game_reload(replay_file)
 
 def join_game(player_name, decklist, host, port):
     #chatbox = ChatBox(0, 40, 400, 40, 'bottom')
