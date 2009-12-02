@@ -37,7 +37,7 @@ class abilities(object):
     def __len__(self): return len(self.abilities)
     def __iter__(self): return iter(self.abilities)
     def __contains__(self, keyword): # This is to match keyword abilities
-        return keyword in self._keywords and self._keywords[keyword].enabled
+        return keyword in self._keywords
     def copy(self):
         newabilities = abilities()
         for ability in self._abilities: newabilities.add(ability.copy())
