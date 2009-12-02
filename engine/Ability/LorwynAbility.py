@@ -97,19 +97,6 @@ def hideaway(cost="0"):
             effects = hideaway_effect)
     return cip, hideaway
 
-def deathtouch():
-    def condition(source, to):
-        return isCreature(to)
-    def effects(controller, source, to):
-        yield NoTarget()
-        to.destroy()
-        yield
-
-    return TriggeredAbility(DealDamageToTrigger(sender="source"),
-        condition = condition,
-        effects = effects,
-        keyword = "deathtouch")
-
 def changeling():
     def effects(card):
         yield card.subtypes.add_all(all_creatures, "Every creature type")
@@ -127,3 +114,17 @@ def evoke(cost):  # Essentially a noop
     def effects(source):
         yield lambda: None
     return CardStaticAbility(effects, keyword="evoke", zone="all")
+
+def deathtouch_old():
+    def condition(source, to):
+        return isCreature(to)
+    def effects(controller, source, to):
+        yield NoTarget()
+        to.destroy()
+        yield
+
+    return TriggeredAbility(DealDamageToTrigger(sender="source"),
+        condition = condition,
+        effects = effects,
+        keyword = "deathtouch")
+

@@ -80,6 +80,12 @@ def first_strike():
 def trample():
     keyword = "trample"
     return CardStaticAbility(effects=keyword_effect, keyword=keyword)
+def lifelink():
+    keyword = "lifelink"
+    return CardStaticAbility(effects=keyword_effect, keyword=keyword)
+def deathtouch():
+    keyword = "deathtouch"
+    return CardStaticAbility(effects=keyword_effect, keyword=keyword)
 
 def vigilance():
     keyword = "vigilance"
@@ -139,18 +145,6 @@ def aura_protection(aura, condition, attribute):
         yield combine(*[do_override(target, func_name, mk_override(cond)) for func_name, cond in [("canBeAttachedBy", lambda o: not o==aura and condition(o)), ("canBeBlockedBy", condition), ("canBeTargetedBy", condition)]]+[prevent_damage(target, -1, txt="Protection effect", condition=prevent_condition)])
 
     return CardStaticAbility(effects=effects, keyword=keyword)
-
-# 502.68b If a permanent has multiple instances of lifelink, each triggers separately.
-def lifelink():
-    def lifelink_effect(controller, source, amount):
-        yield NoTarget()
-        source.controller.life += amount
-        yield
-
-    return TriggeredAbility(DealDamageTrigger(sender="source"),
-        condition = None,
-        effects = lifelink_effect,
-        keyword = "lifelink")
 
 # These are additional ones that aren't actually keyword abilities, but the structure is the same
 def must_attack():
@@ -286,3 +280,17 @@ def trample_old(target):
     def remove_trample():
         del target.trample
     return remove_trample
+
+# XXX This is kept around for cards that have abilities similar to the old
+# triggered version of lifelink
+def lifelink_old():
+    def lifelink_effect(controller, source, amount):
+        yield NoTarget()
+        source.controller.life += amount
+        yield
+
+    return TriggeredAbility(DealDamageTrigger(sender="source"),
+        condition = None,
+        effects = lifelink_effect,
+        keyword = "lifelink")
+

@@ -79,6 +79,7 @@ class CardRole(MtGObject):
     def deal_damage(self, to, amount, combat=False):
         if amount > 0: final_dmg = to.assignDamage(amount, source=self, combat=combat)
         else: final_dmg = 0
+        if "lifelink" in self.abilities: self.controller.life += final_dmg
         return final_dmg
     def add_counters(self, counter_type, number=1):
         if type(counter_type) == str: counter_type = Counter(counter_type)
@@ -364,6 +365,7 @@ class Creature(object):
         if not self.is_LKI:
             if "wither" in source.abilities: self.add_counters(PowerToughnessCounter(-1, -1), amt)
             else: self.__damage += amt
+            if "deathtouch" in source.abilities: self.deathtouched = True
         source.send(DealsDamageToEvent(), to=self, amount=amt, combat=combat)
         return amt
     def trample(self, damage_assn):
