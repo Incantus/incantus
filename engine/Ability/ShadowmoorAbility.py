@@ -3,7 +3,7 @@ from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from Trigger import EnterFromTrigger
 from Counters import PowerToughnessCounter
-from CreatureAbility import keyword_effect
+from CreatureAbility import KeywordOnlyAbility
 from CiPAbility import CiP
 
 def persist():
@@ -25,7 +25,7 @@ def persist():
             effects = persist_effect,
             keyword="persist")
 
-def wither(): return CardStaticAbility(effects=keyword_effect, zone="all", keyword="wither")
+def wither(): return KeywordOnlyAbility("wither")
 
 # XXX
 #from engine.GameEvent import CounterAddedEvent

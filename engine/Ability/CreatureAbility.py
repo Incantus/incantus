@@ -10,6 +10,17 @@ from EffectsUtilities import until_end_of_turn, do_override, do_replace, logical
 def keyword_effect(target):
     yield lambda: None
 
+class KeywordOnlyAbility(CardStaticAbility):
+    def __init__(self, keyword):
+        super(KeywordOnlyAbility, self).__init__(effects=keyword_effect, zone="all", keyword=keyword)
+
+def reach(): return KeywordOnlyAbility("reach")
+def double_strike(): return KeywordOnlyAbility("double strike")
+def first_strike(): return KeywordOnlyAbility("first strike")
+def trample(): return KeywordOnlyAbility("trample")
+def lifelink(): return KeywordOnlyAbility("lifelink")
+def deathtouch(): return KeywordOnlyAbility("deathtouch")
+
 def landwalk(condition, keyword):
     def canBeBlocked(self):
         if isPlayer(self.opponent): other_play = self.opponent.play
@@ -67,25 +78,6 @@ def shroud():
     keyword = "shroud"
     def canBeTargetedBy(self, targetter): return False
     return CardStaticAbility(effects=override_effect("canBeTargetedBy", canBeTargetedBy), keyword=keyword)
-
-def reach():
-    keyword = "reach"
-    return CardStaticAbility(effects=keyword_effect, keyword=keyword)
-def double_strike():
-    keyword = "double strike"
-    return CardStaticAbility(effects=keyword_effect, keyword=keyword)
-def first_strike():
-    keyword = "first strike"
-    return CardStaticAbility(effects=keyword_effect, keyword=keyword)
-def trample():
-    keyword = "trample"
-    return CardStaticAbility(effects=keyword_effect, keyword=keyword)
-def lifelink():
-    keyword = "lifelink"
-    return CardStaticAbility(effects=keyword_effect, keyword=keyword)
-def deathtouch():
-    keyword = "deathtouch"
-    return CardStaticAbility(effects=keyword_effect, keyword=keyword)
 
 def vigilance():
     keyword = "vigilance"
