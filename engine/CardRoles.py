@@ -302,7 +302,7 @@ class Land(object):
 class Creature(object):
     def power():
         def fget(self):
-            if self.cached_PT_dirty: self._calculate_power_toughness()
+            if self._cached_PT_dirty: self._calculate_power_toughness()
             return self.curr_power
         def fset(self, power):
             self.base_power.cda(power)
@@ -310,7 +310,7 @@ class Creature(object):
     power = property(**power())
     def toughness():
         def fget(self):
-            if self.cached_PT_dirty: self._calculate_power_toughness()
+            if self._cached_PT_dirty: self._calculate_power_toughness()
             return self.curr_toughness
         def fset(self, toughness):
             self.base_toughness.cda(toughness)
@@ -324,13 +324,13 @@ class Creature(object):
         toughness += sum([c.toughness for c in self.counters if hasattr(c,"toughness")]) # layer 6c
         power, toughness = self.PT_static_modifiers.calculate(power, toughness) # layer 6d
         power, toughness = self.PT_switch_modifiers.calculate(power, toughness) # layer 6e
-        #self.cached_PT_dirty = False
+        #self._cached_PT_dirty = False
         self.curr_power, self.curr_toughness = power, toughness
     def _new_timestep(self, sender):
-        self.cached_PT_dirty=True
+        self._cached_PT_dirty=True
     def activateCreature(self):
         self.curr_power = self.curr_toughness = 0
-        self.cached_PT_dirty = False
+        self._cached_PT_dirty = False
 
         # Only accessed internally
         self.__damage = 0
@@ -345,7 +345,7 @@ class Creature(object):
         self.blocking = False
         self.blocked = False
         self.blockers = set()
-        self.cached_PT_dirty = True
+        self._cached_PT_dirty = True
 
         self.register(self._new_timestep, TimestepEvent())
     def leavingZone(self):
