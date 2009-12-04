@@ -335,6 +335,7 @@ class Creature(object):
 
         # Only accessed internally
         self.__damage = 0
+        self.deathtouched = False
 
         proxy = weakref.proxy(self)
         self.PT_other_modifiers = PTModifiers(proxy) # layer 6b - other modifiers

@@ -158,7 +158,8 @@ class GameKeeper(MtGObject):
         for creature in self.play.get(Match.isCreature):
             if creature.toughness <= 0:
                 actions.append(MoveToGraveyard(creature))
-            elif creature.shouldDestroy():
+            elif creature.shouldDestroy() or creature.deathtouched:
+                creature.deathtouched = False
                 actions.append(creature.destroy)
         for walker in self.play.get(Match.isPlaneswalker):
             if walker.shouldDestroy():
