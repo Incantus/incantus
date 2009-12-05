@@ -13,18 +13,45 @@ state_map = {"Untap": UntapStepEvent, "Upkeep": UpkeepStepEvent, "Draw": DrawSte
              "Block": BlockStepEvent, "Damage": AssignDamageEvent, "EndCombat": EndCombatEvent,
              "EndStep": EndTurnStepEvent, "Cleanup": CleanupPhase}
 
-class player_cycler(object):
+class player_order(object):
+    active = property(lambda self: self._current[0])
     def __init__(self, players):
-        self._cyclers = itertools.cycle(players)
+        self._current = tuple(players)
+
         self._insertions = []
         self._peek = None
+    def determine_starting(self):
+        players = list(self)
+        random.shuffle(players)
+        self._current = tuple(players)
+        for idx, player in enumerate(players[:-1]):
+            if player.getIntention("", "Would you like to go first?"):
+                break
+        else: idx = len(players) - 1
+        self._current = tuple(players[idx:]+players[:idx])
+        self._cycler = itertools.cycle(self._current)
+    def __str__(self):
+        return "Player order: %s"%', '.join(map(str, self._current))
+    def __len__(self):
+        return len(self._current)
+    def __iter__(self):
+        return iter(self._current)
+    def __getitem__(self, idx):
+        return self._current[idx]
+    def cycle(self):
+        return itertools.cycle(self)
     def next(self):
         if self._peek:
-            player, self._peek = self._peek, None
-            return player
+            next_player, self._peek = self._peek, None
         else:
-            if not self._insertions: return self._cyclers.next()
-            else: return self._insertions.pop()
+            if not self._insertions: next_player = self._cycler.next()
+            else: next_player = self._insertions.pop()
+        # Now rearrange the list of players
+        players = list(self._current)
+        idx = players.index(next_player)
+        self._current = tuple(players[idx:]+players[:idx])
+        return next_player
+
     def insert(self, player):
         self._insertions.append(player)
     def peek(self):
@@ -33,16 +60,8 @@ class player_cycler(object):
 
 class GameKeeper(MtGObject):
     keeper = True
-    players = property(fget=lambda self: self._player_order)
 
-    def nextActivePlayer(self):
-        next_player = self.player_cycler.next()
-        # Now rearrange the list of players
-        players = list(self._player_order)
-        idx = players.index(next_player)
-        self._player_order = tuple(players[idx:]+players[:idx])
-
-    active_player = property(fget=lambda self: self._player_order[0])
+    active_player = property(fget=lambda self: self.players.active)
     current_player = active_player
 
     def init(self, players):
@@ -57,17 +76,10 @@ class GameKeeper(MtGObject):
         all_players = set(players)
         for player in players:
             player.init(self.play, self.stack, all_players-set((player,)))
-        self._player_order = players
+        self.players = player_order(players)
 
-    # Determine starting player
     def start(self):
-        players = list(self.players)
-        random.shuffle(players)
-        for idx, start_player in enumerate(players):
-            if idx == (len(players)-1) or start_player.getIntention("", "Would you like to go first?"):
-                break
-        self._player_order = tuple(players[idx:]+players[:idx])
-        self.player_cycler = player_cycler(self.players)
+        self.players.determine_starting()
 
         self.send(TimestepEvent())
         for player in self.players:
@@ -239,9 +251,9 @@ class GameKeeper(MtGObject):
 
     def newTurn(self):
         # Next player is current player
-        self.nextActivePlayer()
-        self.send(NewTurnEvent(), player=self.active_player)
-        self.active_player.newTurn()
+        active = self.players.next()
+        self.send(NewTurnEvent(), player=active)
+        active.newTurn()
     def untapStep(self):
         # untap all cards
         self.setState("Untap")
@@ -426,13 +438,13 @@ class GameKeeper(MtGObject):
     def playStackInteraction(self, do_active=True):
         # One back and forth stack interaction until all players pass
         # do_active is for when the stack is empty and the active player passes
-        players = itertools.cycle(self.players)
+        player_cycler = self.players.cycle()
 
         # Keep track of active player first
-        last_to_play = players.next()
+        last_to_play = player_cycler.next()
         if do_active: self.continuePlay(last_to_play)
 
-        for player in players:
+        for player in player_cycler:
             # If we've cycled back to the last player to play
             # (everybody passed without playing) then exit
             if player == last_to_play: break
