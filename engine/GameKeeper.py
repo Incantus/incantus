@@ -423,7 +423,7 @@ class GameKeeper(MtGObject):
             if not self.stack.empty(): self.stack.resolve()
             else: break
 
-    def playStackInteraction(self, do_active=False):
+    def playStackInteraction(self, do_active=True):
         # One back and forth stack interaction until all players pass
         # do_active is for when the stack is empty and the active player passes
         players = itertools.cycle(self.players)
