@@ -20,11 +20,21 @@ class Colors:
     ColorMap = dict([(c[0], c[1]) for c in __colors])
     ReverseMap = dict([(c[1], c[0]) for c in __colors])
 
+def subset_in_pool(pool_manastr, comp_manastr):
+    pool = convert_mana_string(pool_manastr)
+    comp = convert_mana_string(comp_manastr)
+    enoughMana = sum(comp) <= sum(pool)
+    # Now check the required colors
+    for c, p in zip(comp, pool):
+        if c > p:
+            enoughMana = False
+            break
+    return enoughMana
+
 def compare_mana(req_manastr, comp_manastr):
     req = convert_mana_string(req_manastr)
     comp = convert_mana_string(comp_manastr)
-    enoughMana = True
-    if not sum(req) == sum(comp): enoughMana = False
+    enoughMana = (sum(req) == sum(comp))
     # Now check the required colors
     for i, val in enumerate(req[:-1]):
         if comp[i] < val: enoughMana = False
