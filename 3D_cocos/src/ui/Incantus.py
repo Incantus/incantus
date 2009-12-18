@@ -398,7 +398,8 @@ class IncantusLayer(Layer):
 
         for player in players:
             player.dirty_input = self.replay_input
-            self.player_hand.set_hidden(False)
+        self.player_hand.set_hidden(False)
+        self.otherplayer_hand.set_hidden(False)
 
         engine.Keeper.init(players)
         self.make_connections((player1, (0,0,255)), (player2, (255,255,0)))
