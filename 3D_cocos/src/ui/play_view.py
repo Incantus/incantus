@@ -72,6 +72,10 @@ class CombatZone(object):
     def declare_attackers(self):
         self.blocking_list = dict([(attacker, []) for attacker in self.attackers])
         self.layout_attackers()
+    def reorder_blockers_for_attacker(self, attacker, blockers):
+        attacker_gui = self.attacker_map[attacker]
+        self.blocking_list[attacker_gui] = [self.block_zone.get_card(blocker) for blocker in blockers]
+        self.layout_all()
     def set_blocker_for_attacker(self, attacker, blocker):
         guicard = self.block_zone.get_card(blocker)
         guicard.can_layout = False
@@ -80,7 +84,7 @@ class CombatZone(object):
         attacker_gui = self.attacker_map[attacker]
         self.blocking_list[attacker_gui].append(guicard)
         self.layout_all()
-    def layout_card(self, zone, card, size, startx, y, row):
+    def layout_combat_card_with_attachments(self, zone, card, size, startx, y, row):
         positions = []
         cards = []
         big_halfx = size*card.spacing*0.5
@@ -123,18 +127,18 @@ class CombatZone(object):
                     width = -blocker_set[0].spacing*size*0.5
                     x += half_a
                 else: width = 0
-                for blocker in blocker_set:
+                for i, blocker in enumerate(blocker_set):
                     width += size*blocker.spacing*0.5
                     #positions.append(euclid.Vector3(x+width, blocker.pos.y, shift_vec.z))
                     #cards.append(blocker)
                     #width += size*blocker.spacing*0.5
-                    half_b, blocker_cards, blocker_positions = self.layout_card(self.block_zone, blocker, size, x+width, blocker.pos.y, shift_vec.z)
+                    half_b, blocker_cards, blocker_positions = self.layout_combat_card_with_attachments(self.block_zone, blocker, size, x+width, blocker.pos.y, shift_vec.z)
                     cards.extend(blocker_cards)
                     positions.extend(blocker_positions)
                     width += half_b
                 avgx = sum([pos.x for pos in positions])/len(positions)
                 total_positions.extend(positions)
-            half_a, attacker_cards, positions = self.layout_card(self.attack_zone, attacker, size, avgx, attacker.pos.y, -shift_vec.z)
+            half_a, attacker_cards, positions = self.layout_combat_card_with_attachments(self.attack_zone, attacker, size, avgx, attacker.pos.y, -shift_vec.z)
             total_positions.extend(positions)
             cards.extend(attacker_cards)
             if len(blocker_set) < 2: x += half_a

@@ -1,7 +1,7 @@
 from MtGObject import MtGObject
 from GameObjects import Card, Token
 from GameKeeper import Keeper
-from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent, GameOverException, DealsDamageToEvent
+from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, BlockersReorderedEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent, GameOverException, DealsDamageToEvent
 from Mana import ManaPool, generate_hybrid_choices
 from Zone import Library, Hand, Graveyard, Removed
 from Action import CancelAction, PassPriority, OKAction
@@ -336,6 +336,31 @@ class Player(MtGObject):
                     for creature in invalid_attackers: self.send(InvalidTargetEvent(), target=creature)
             else: prompt = "Declare attackers (Enter to accept, Escape to reset)"
         return list(attackers)
+    def reorderBlockers(self, combat_assignment):
+        blocker_sets = {}
+        do_reorder = False
+        for attacker, blockers in combat_assignment.items():
+            if len(blockers) > 1:
+                for blocker in blockers: blocker_sets[blocker] = (attacker, blockers)
+                do_reorder = True
+        if do_reorder:
+            prompt = "Order blockers (enter to accept)"
+            # Select blocker
+            while True:
+                blocker = self.getCombatCreature(mine=False, prompt=prompt)
+                if blocker == True: # Done reordering
+                    break
+                elif blocker == False: pass
+                elif blocker in blocker_sets:
+                    attacker, blockers = blocker_sets[blocker]
+                    i = blockers.index(blocker)
+                    blockers[:] = [blocker] + blockers[:i] + blockers[i+1:]
+                    self.send(BlockersReorderedEvent(), attacker=attacker, blockers=blockers)
+                else:
+                    self.send(InvalidTargetEvent(), target=blocker)
+                    prompt = "Invalid creature. Select blocker"
+        return combat_assignment
+
     def declareBlockers(self, attackers):
         combat_assignment = dict([(attacker, []) for attacker in attackers])
         # Make sure you have creatures to block
@@ -606,12 +631,26 @@ class Player(MtGObject):
             return action.assignment
         context = {'get_distribution': True, 'targets': targets, 'amount': amount, 'process': filter}
         return self.input(context, "%s: %s"%(self.name,prompt))
-    def getDamageAssignment(self, blocking_list, prompt="Assign damage to blocking creatures", trample=False):
+    def getDamageAssignment(self, blocking_list, prompt="Assign damage to blocking creatures", trample=False, deathtouch=False):
         def filter(action):
             if isinstance(action, CancelAction): return False
-            return action.assignment
-        context = {'get_damage_assign': True, 'blocking_list': blocking_list, 'trample': trample, 'process': filter}
-        return self.input(context, "%s: %s"%(self.name,prompt))
+            else:
+                assn = action.assignment
+                # Check damage assignment
+                for attacker, blockers in blocking_list:
+                    total = attacker.combatDamage()
+                    valid_lethal = True
+                    for blocker, dmg in assn:
+                        total -= dmg
+                        if (dmg < blocker.lethalDamage() and total > 0):
+                            valid_lethal = False
+                if not ((deathtouch or valid_lethal) and
+                        ((trample and valid_lethal and total > 0) or (total == 0))):
+                    return False
+                else:
+                    return action.assignment
+        context = {'get_damage_assign': True, 'blocking_list': blocking_list, 'trample': trample, 'deathtouch': deathtouch, 'process': filter}
+        return dict(self.input(context, "%s: %s"%(self.name,prompt)))
     def doRevealCard(self, cards, all=True, prompt=''):
         import operator
         if not operator.isSequenceType(cards): cards = [cards]

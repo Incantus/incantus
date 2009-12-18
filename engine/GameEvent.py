@@ -67,6 +67,7 @@ class AttackerSelectedEvent(Event): pass
 class AttackersResetEvent(Event): pass
 class BlockerSelectedEvent(Event): pass
 class BlockersResetEvent(Event): pass
+class BlockersReorderedEvent(Event): pass
 class AttackerDeclaredEvent(Event): pass
 class BlockerDeclaredEvent(Event): pass
 class AttackerBlockedEvent(Event): pass

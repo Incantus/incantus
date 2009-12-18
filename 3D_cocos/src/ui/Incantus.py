@@ -376,7 +376,8 @@ class IncantusLayer(Layer):
         elif context.get("get_damage_assign", False):
             blocking_list = context['blocking_list']
             trample = context['trample']
-            self.damage_assignment.activate(blocking_list, trample)
+            deathtouch = context['deathtouch']
+            self.damage_assignment.activate(blocking_list, trample, deathtouch)
 
     def game_reload(self, replay_file):
         self.game_status.log("Reloading game")

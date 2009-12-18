@@ -5,7 +5,6 @@ from GameEvent import *
 from Zone import Play
 from Stack import Stack
 import stacked_function as stacked
-from Ability.AssignDamage import AssignDamage
 
 state_map = {"Untap": UntapStepEvent, "Upkeep": UpkeepStepEvent, "Draw": DrawStepEvent,
              "Main1": MainPhase1Event, "Main2": MainPhase2Event, "EndMain": EndMainPhaseEvent,
@@ -271,22 +270,17 @@ class GameKeeper(MtGObject):
         self.setState("Main1")
         self.playNonInstants()
         self.setState("EndMain")
-    def calculateDamage(self, combat_assignment, is_first_strike=False):
+    def calculateCombatDamage(self, combat_assignment, is_first_strike=False):
         new_combat_list = []
         # Remove all attackers and blockers that are no longer valid
         for attacker, blockers in combat_assignment.items():
             # Do the attacker first - make sure it is still valid
-            if Match.isCreature(attacker) and str(attacker.zone) == "play" and attacker.in_combat:
-                newblockers = []
-                # Remove any blockers that are no longer in combat
-                for blocker in blockers:
-                    if Match.isCreature(blocker) and str(blocker.zone) == "play" and blocker.in_combat:
-                        newblockers.append(blocker)
+            if Match.isCreature(attacker) and attacker.in_combat:
+                newblockers = [blocker for blocker in blockers if Match.isCreature(blocker) and blocker.in_combat]
                 new_combat_list.append((attacker, newblockers))
+
         # These guys are still valid
         damage_assignment = {}
-
-        tramplers = []
         for attacker, blockers in new_combat_list:
             if attacker.canStrike(is_first_strike):
                 attacker.didStrike()
@@ -294,18 +288,17 @@ class GameKeeper(MtGObject):
                     # XXX I should check that the attacker can damage the player
                     damage = {attacker.opponent: attacker.combatDamage()}
                 else:
-                    if "trample" in attacker.abilities:
-                        trampling = True
-                        tramplers.append(attacker)
-                    else: trampling = False
+                    trampling = "trample" in attacker.abilities
                     if len(blockers) > 1 or trampling:
                         # Ask the player how to distribute damage
                         # XXX I should check whether the attacker can assign damage to blocker
-                        damage = self.active_player.getDamageAssignment([(attacker, blockers)], trample=trampling)
+                        damage = self.active_player.getDamageAssignment([(attacker, blockers)], trample=trampling, deathtouch="deathtouch" in attacker.abilities)
                     elif len(blockers) == 1:
                         # XXX I should check whether the attacker can assign damage to blocker
                         damage = {blockers[0]: attacker.combatDamage()}
                     else: damage = {} # attacker was blocked, but there are no more blockers
+                    if trampling:
+                        damage[attacker.opponent] = attacker.trample(damage)
                 damage_assignment[attacker] = damage
             # attacker receives all damage from blockers
             for blocker in blockers:
@@ -316,45 +309,37 @@ class GameKeeper(MtGObject):
                     # Handles the case where one blocker can block multiple creatures
                     if damage_assignment.has_key(blocker): damage_assignment[blocker].update(damage)
                     else: damage_assignment[blocker] = damage
+        return damage_assignment
+    def assignCombatDamage(self, damages):
+        for damager, damage_assn in damages.iteritems():
+            for damagee, amt in damage_assn.iteritems():
+                damager.deal_damage(damagee, amt, combat=True)
 
-        return tramplers, damage_assignment
-    def handle_trample(self, tramplers, damage_assn):
-        for attacker in tramplers:
-            if not damage_assn.get(attacker,None) == None:
-                damage_assn[attacker][attacker.opponent] = attacker.trample(damage_assn[attacker])
     def combatDamageStep(self, combat_assignment):
         self.setState("Damage")
 
-        tramplers, first_strike_damage = self.calculateDamage(combat_assignment, is_first_strike=True)
+        first_strike_damage = self.calculateCombatDamage(combat_assignment, is_first_strike=True)
         if first_strike_damage:
-            # Handle trample
-            if tramplers: self.handle_trample(tramplers, first_strike_damage)
-            damages = AssignDamage(first_strike_damage.items(),"First Strike Damage")
-            self.stack.push(damages)
-            # Send message about damage going on stack
+            self.assignCombatDamage(first_strike_damage)
             self.playInstants()
 
-        tramplers, regular_combat_damage = self.calculateDamage(combat_assignment)
-        # Handle trample
+        regular_combat_damage = self.calculateCombatDamage(combat_assignment)
         if regular_combat_damage:
-            if tramplers: self.handle_trample(tramplers, regular_combat_damage)
-            damages = AssignDamage(regular_combat_damage.items(), "Regular Combat Damage")
-            self.stack.push(damages)
-            # Send message about damage going on stack
+            self.assignCombatDamage(regular_combat_damage)
             self.playInstants()
     def combatPhase(self):
         # Beginning of combat
         self.setState("BeginCombat")
         self.playInstants()
         combat_assignment = {}
-        active_player = self.active_player
-        if active_player.attackingIntention():
+        attacking_player = self.active_player
+        if attacking_player.attackingIntention():
             # Attacking
             self.setState("Attack")
-            defending_player = active_player.declareDefendingPlayer()
+            defending_player = attacking_player.declareDefendingPlayer()
             # Get all the players/planeswalkers
             opponents = [defending_player] + defending_player.play.get(Match.isPlaneswalker)
-            attackers = self.active_player.declareAttackers(opponents)
+            attackers = attacking_player.declareAttackers(opponents)
             if attackers: self.send(DeclareAttackersEvent(), attackers=attackers)
             self.playInstants()
             # After playing instants, the list of attackers could be modified (if a creature was put into play "attacking", so we regenerate the list
@@ -363,6 +348,8 @@ class GameKeeper(MtGObject):
                 # Blocking
                 self.setState("Block")
                 combat_assignment = defending_player.declareBlockers(attackers)
+                # Ask attacking player to reorder 
+                combat_assignment = attacking_player.reorderBlockers(combat_assignment)
                 self.send(DeclareBlockersEvent(), combat_assignment=combat_assignment)
                 self.playInstants()
                 # Damage

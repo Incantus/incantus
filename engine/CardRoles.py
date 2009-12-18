@@ -370,20 +370,14 @@ class Creature(object):
         source.send(DealsDamageToEvent(), to=self, amount=amt, combat=combat)
         return amt
     def trample(self, damage_assn):
-        from Match import isCreature
-        total_damage = self.combatDamage()
-        total_applied = 0
-        not_enough = False
-        for b in damage_assn.keys():
-            # Skip players and blockers who no longer exist
-            if not isCreature(b): continue
-            # if total assigned damage is lethal
-            if damage_assn[b] < b.lethalDamage():
-                not_enough = True
-                break
-            total_applied += damage_assn[b]
-        if not_enough: return 0
-        else: return total_damage - total_applied
+        total = self.combatDamage()
+        for blocker, damage in damage_assn.items():
+            total -= damage
+            # if total assigned damage is not lethal,
+            # can't trample any to defending player
+            if damage < blocker.lethalDamage():
+                return 0
+        else: return total
     def canTap(self):
         return self.continuouslyInPlay() and super(Creature, self).canTap()
     def canUntap(self):

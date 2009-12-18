@@ -279,8 +279,9 @@ class DamageSelector(object):
         self.play1 = playzone1
         self.play2 = playzone2
         self.window = window
-    def activate(self, sellist, trample=False):
+    def activate(self, sellist, trample, deathtouch):
         self.trample = trample
+        self.deathtouch = deathtouch
         self.layout(sellist)
         director.window.push_handlers(self)
     def deactivate(self):
@@ -311,11 +312,11 @@ class DamageSelector(object):
             card.damage_text.scale = 2.0
             card.damage_text.color = (1., 1., 1., 1.)
             card.damage_text.pos = euclid.Vector3(0, -card.height/4, 0.01)
-            card.damage_text.set_text("%d"%attacker.combatDamage())
             self.attacker = card
             z = -z
             width = card.width*size*(len(blockers)+0.1*(len(blockers)-1))
             x = (-width+card.width*size)*0.5*1.1
+            total = attacker.combatDamage()
             for blocker in blockers:
                 card = otherplay.get_card(blocker)
                 card.zoom_to_camera(camera, otherplay.pos.z, size=size, show_info=False, offset=euclid.Vector3(x,0,z))
@@ -324,20 +325,32 @@ class DamageSelector(object):
                 card.damage_text.visible = 1.0
                 card.damage_text.scale = 2.0
                 card.damage_text.pos = euclid.Vector3(0, card.height/2.5, 0.01)
-                card.damage_text.set_text(0)
-                card.text.set_text("%d/%d"%(blocker.power, blocker.lethalDamage()))
+                lethal = blocker.lethalDamage()
+                total -= lethal
+                if total >= 0: card.damage_text.set_text(lethal)
+                else: 
+                    card.damage_text.set_text(lethal+total)
+                    total = 0
+                card.text.set_text("%d/*%d"%(blocker.power, lethal))
                 self.blockers.append(card)
                 x += card.width*size*1.1
+            self.attacker.damage_text.set_text("%d"%total)
     def on_key_press(self, symbol, modifiers):
         if symbol == key.ENTER:
             # Check damage assignment
-            dmg = {}
-            total_dmg = 0
+            #dmg = {}
+            dmg = []
+            total = self.attacker.gamecard.combatDamage()
+            valid = True
             for blocker in self.blockers:
                 damage = int(blocker.damage_text.value)
-                dmg[blocker.gamecard] = damage
-                total_dmg += damage
-            if int(self.attacker.damage_text.value) == 0 or (self.trample and all([int(blocker.damage_text.value)>=(blocker.gamecard.lethalDamage()) for b in self.blockers])):
+                #dmg[blocker.gamecard] = damage
+                dmg.append((blocker.gamecard, damage))
+                total -= damage
+                if (damage < blocker.gamecard.lethalDamage() and total > 0):
+                    valid = False
+            if ((self.deathtouch or valid) and
+                ((self.trample and valid and total > 0) or total == 0)):
                 self.window.process_action(Action.DistributionAssignment(dmg))
                 self.deactivate()
             return True

@@ -141,6 +141,7 @@ class ZoneAnimator(object):
         dispatcher.connect(self.declare_attackers, signal=GameEvent.DeclareAttackersEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.select_blocker, signal=GameEvent.BlockerSelectedEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.reset_blockers, signal=GameEvent.BlockersResetEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.reorder_blockers, signal=GameEvent.BlockersReorderedEvent(), priority=dispatcher.UI_PRIORITY)
 
         dispatcher.connect(self.end_combat, signal=GameEvent.EndCombatEvent())
         dispatcher.connect(self.card_damage, signal=GameEvent.DealsDamageToEvent(), priority=dispatcher.UI_PRIORITY)
@@ -218,6 +219,8 @@ class ZoneAnimator(object):
         if self.red_zone: self.red_zone.reset_attackers()
     def declare_attackers(self):
         if self.red_zone: self.red_zone.declare_attackers()
+    def reorder_blockers(self, sender, attacker, blockers):
+        self.red_zone.reorder_blockers_for_attacker(attacker, blockers)
     def select_blocker(self, sender, attacker, blocker):
         self.red_zone.set_blocker_for_attacker(attacker, blocker)
     def reset_blockers(self):
