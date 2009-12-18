@@ -143,39 +143,6 @@ class CombatZone(object):
         halfx = x/2
         for card, position in zip(cards, total_positions):
             card.pos = position - euclid.Vector3(halfx, 0, 0)
-    def layout_all2(self):
-        shift_vec = self.zone_shift_vec * 1.5
-        x = 0
-        size = 0.01*1.05*self.orient
-        combat_sets = []
-        for attacker in self.attackers:
-            blocker_set = self.blocking_list[attacker]
-            half_a = size*attacker.spacing / 2.
-            positions = []
-            if not blocker_set:
-                x += half_a # size*attacker.spacing
-                avgx = x
-            else:
-                if len(blocker_set) == 1:
-                    width = -blocker_set[0].spacing*size*0.5
-                    x += half_a
-                else: width = 0
-                for blocker in blocker_set:
-                    width += size*blocker.spacing*0.5
-                    positions.append((blocker, shift_vec+euclid.Vector3(x+width, blocker.pos.y, 0)))
-                    width += size*blocker.spacing*0.5
-                avgx = sum([p.x for c,p in positions])/len(positions)
-            attacker_pos = euclid.Vector3(avgx, attacker.pos.y, attacker.pos.z)
-            if len(blocker_set) < 2: x += half_a
-            else: x += width+attacker.width*size*0.1
-            combat_sets.append((attacker, attacker_pos, blocker_set, positions))
-
-        halfx = x/2
-        for attacker, attacker_pos, blockers, positions in combat_sets:
-            attacker.pos = attacker_pos - euclid.Vector3(halfx, 0, 0)
-            for blocker, pos in positions:
-                blocker.pos = pos - euclid.Vector3(halfx, 0, 0)
-
 
 landtypes = ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest', 'Other']
 
