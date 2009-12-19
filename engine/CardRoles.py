@@ -1,4 +1,4 @@
-import new, weakref
+import new
 from characteristics import stacked_controller, stacked_PT, stacked_land_subtype
 from MtGObject import MtGObject
 from GameEvent import DealsDamageToEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, LandPlayedEvent
@@ -311,10 +311,9 @@ class CreatureType(object):
         self.__damage = 0
         self.deathtouched = False
 
-        proxy = weakref.proxy(self)
-        self.PT_set_modifiers = stacked_PT(proxy) # layer 7b - setting PT modifiers
-        self.PT_augment_modifiers = stacked_PT(proxy) # layer 7c - augment PT modifiers
-        self.PT_switch_modifiers = stacked_PT(proxy) # layer 7e - P/T switching modifiers
+        self.PT_set_modifiers = stacked_PT(self) # layer 7b - setting PT modifiers
+        self.PT_augment_modifiers = stacked_PT(self) # layer 7c - augment PT modifiers
+        self.PT_switch_modifiers = stacked_PT(self) # layer 7e - P/T switching modifiers
         self.in_combat = False
         self.did_strike = False
         self.attacking = False

@@ -1,4 +1,7 @@
+import weakref
 from GameEvent import AbilitiesModifiedEvent
+
+__all__ = ["abilities", "stacked_abilities"]
 
 class abilities(object):
     # Internally stored as a list
@@ -56,7 +59,7 @@ class stacked_abilities(object):
     def __init__(self, source, abilities):
         abilities._copyable = True
         self._stacking = [abilities]
-        self.source = source
+        self.source = weakref.ref(source)
         self.zone = None
     def _current():
         def fget(self):

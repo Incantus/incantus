@@ -1,4 +1,4 @@
-import copy
+import weakref, copy
 from GameEvent import ControllerChanged, PowerToughnessModifiedEvent
 from Ability.Subtypes import all_basic_lands
 
@@ -8,24 +8,24 @@ class stacked_variable(object):
     current = property(fget=lambda self: self._characteristics[-1][0])
     def __init__(self, card, initial, change_event):
         self._characteristics = [(initial,)]
-        self.card = card
+        self._card = weakref.proxy(card)
         self.change_event = change_event
         self._copyable_index = 0
     def cda(self, var):
         new = (var,)
         self._characteristics.append(new)
-        self.card.send(self.change_event)
-        return lambda: not self.card.is_LKI and self._characteristics.remove(new)
+        self._card.send(self.change_event)
+        return lambda: not self._card.is_LKI and self._characteristics.remove(new)
     copyable = property(fget=lambda self: self._characteristics[self._copyable_index][0])
     def set_copy(self, var, extra=None):
         new = (var,)
         self._copyable_index += 1
         self._characteristics.insert(self._copyable_index, new)
-        self.card.send(self.change_event)
+        self._card.send(self.change_event)
         def reverse():
-            if not self.card.is_LKI:
+            if not self._card.is_LKI:
                 self._characteristics.remove(new)
-                self.card.send(self.change_event)
+                self._card.send(self.change_event)
                 self._copyable_index -= 1
         return reverse
     def __getattr__(self, attr): return getattr(self.current, attr)
@@ -60,19 +60,22 @@ class stacked_controller(object):
 class stacked_PT(object):
     def __init__(self, card):
         self._modifiers = []
-        self.card = card
+        self._card = weakref.proxy(card)
     def add(self, PT):
         self._modifiers.append(PT)
-        self.card.send(PowerToughnessModifiedEvent())
+        self._card.send(PowerToughnessModifiedEvent())
         def remove():
-            if not self.card.is_LKI:
+            if not self._card.is_LKI:
                 self._modifiers.remove(PT)
-                self.card.send(PowerToughnessModifiedEvent())
+                self._card.send(PowerToughnessModifiedEvent())
         return remove
     def calculate(self, power, toughness):
         return reduce(lambda PT, modifier: modifier.calculate(PT[0], PT[1]), self._modifiers, (power, toughness))
     def __str__(self):
         return ', '.join([str(modifier) for modifier in self._modifiers])
+
+
+
 
 class _base_characteristic(object): pass
 
@@ -131,16 +134,16 @@ class stacked_characteristic(object):
     def __init__(self, card, orig, change_event):
         self._stacking = [orig]
         orig._copyable = True
-        self.card = card
+        self._card = weakref.proxy(card)
         self.change_event = change_event
     def _insert_into_stacking(self, char, pos=-1):
         if pos == -1: self._stacking.append(char)
         else: self._stacking.insert(pos, char)
-        self.card.send(self.change_event)
+        self._card.send(self.change_event)
         def remove():
-            if not self.card.is_LKI and char in self._stacking:
+            if not self._card.is_LKI and char in self._stacking:
                 self._stacking.remove(char)
-                self.card.send(self.change_event)
+                self._card.send(self.change_event)
         return remove
     def _after_last_copyable_index():
         def fget(self):
@@ -198,25 +201,25 @@ class stacked_type(stacked_characteristic):
     def _insert_into_stacking(self, char, pos=-1):
         if pos == -1: self._stacking.append(char)
         else: self._stacking.insert(pos, char)
-        if str(self.card.zone) == "play": self.card.add_basecls()
-        self.card.send(self.change_event)
+        if str(self._card.zone) == "play": self._card.add_basecls()
+        self._card.send(self.change_event)
         def remove():
-            if not self.card.is_LKI and char in self._stacking:
+            if not self._card.is_LKI and char in self._stacking:
                 self._stacking.remove(char)
-                self.card.send(self.change_event)
+                self._card.send(self.change_event)
         return remove
 
 class stacked_land_subtype(stacked_characteristic):
     def __init__(self, orig_stacked):
         self._orig = orig_stacked
         self._stacking = orig_stacked._stacking
-        self.card = orig_stacked.card
+        self._card = orig_stacked._card
         self.change_event = orig_stacked.change_event
     def revert(self):
-        self.card.subtypes = self._orig
+        self._card.subtypes = self._orig
     def set(self, *subtypes):
         if len(all_basic_lands.intersection(subtypes)) > 0:
-            card = self.card
+            card = self._card
             expire1 = super(stacked_land_subtype, self).set(*subtypes)
             card._remove_all_basic_abilities()
             expire2 = card.abilities.remove_all()
@@ -227,7 +230,7 @@ class stacked_land_subtype(stacked_characteristic):
     def add(self, *subtypes):
         if len(all_basic_lands.intersection(subtypes)) > 0:
             expire = super(stacked_land_subtype, self).add(*subtypes)
-            self.card._add_basic_abilities()
-            return combine(expire, self.card._remove_basic_abilities)
+            self._card._add_basic_abilities()
+            return combine(expire, self._card._remove_basic_abilities)
         else:
             return self._insert_into_stacking(additional_characteristics(*subtypes))

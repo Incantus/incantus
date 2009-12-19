@@ -1,4 +1,3 @@
-import weakref
 from MtGObject import MtGObject
 from GameEvent import NameModifiedEvent, CostModifiedEvent, TextModifiedEvent, ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent, PowerToughnessModifiedEvent, LoyaltyModifiedEvent
 from abilities import abilities, stacked_abilities
@@ -32,22 +31,21 @@ class GameObject(MtGObject):
     owner = property(fget=lambda self: self._owner)
     def new_role(self, rolecls):
         role = rolecls(self.key)
-        proxy_role = weakref.proxy(role)
         self._current_roles[self.key] = role
         # Set up base characteristics
         role.owner = self.owner
-        role.name = stacked_variable(proxy_role, self.base_name, NameModifiedEvent())
-        role.cost = stacked_variable(proxy_role, self.base_cost, CostModifiedEvent())
-        role.text = stacked_variable(proxy_role, self.base_text, TextModifiedEvent())
-        role.color = stacked_characteristic(proxy_role, self.base_color, ColorModifiedEvent())
-        role.types = stacked_type(proxy_role, self.base_types, TypesModifiedEvent())
-        role.subtypes = stacked_characteristic(proxy_role, self.base_subtypes, SubtypesModifiedEvent())
-        role.supertypes = stacked_characteristic(proxy_role, self.base_supertypes, SupertypesModifiedEvent)
-        role.abilities = stacked_abilities(weakref.ref(role), self.base_abilities)
+        role.name = stacked_variable(role, self.base_name, NameModifiedEvent())
+        role.cost = stacked_variable(role, self.base_cost, CostModifiedEvent())
+        role.text = stacked_variable(role, self.base_text, TextModifiedEvent())
+        role.color = stacked_characteristic(role, self.base_color, ColorModifiedEvent())
+        role.types = stacked_type(role, self.base_types, TypesModifiedEvent())
+        role.subtypes = stacked_characteristic(role, self.base_subtypes, SubtypesModifiedEvent())
+        role.supertypes = stacked_characteristic(role, self.base_supertypes, SupertypesModifiedEvent)
+        role.abilities = stacked_abilities(role, self.base_abilities)
 
-        role.base_power = stacked_variable(proxy_role, self.base_power, PowerToughnessModifiedEvent())
-        role.base_toughness = stacked_variable(proxy_role, self.base_toughness, PowerToughnessModifiedEvent())
-        role.base_loyalty = stacked_variable(proxy_role, self.base_loyalty, LoyaltyModifiedEvent())
+        role.base_power = stacked_variable(role, self.base_power, PowerToughnessModifiedEvent())
+        role.base_toughness = stacked_variable(role, self.base_toughness, PowerToughnessModifiedEvent())
+        role.base_loyalty = stacked_variable(role, self.base_loyalty, LoyaltyModifiedEvent())
         return role
 
     def __repr__(self):
