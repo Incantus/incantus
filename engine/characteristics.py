@@ -99,10 +99,9 @@ class no_characteristic(characteristic):
 
 # These are only used internally
 class all_characteristic(characteristic):
-    def __init__(self, *init_val):
+    def __init__(self, init_val, text=None):
         super(all_characteristic, self).__init__(*init_val)
-        self.text = 'all'
-    def set_text(self, text):
+        if not text: text = 'all'
         self.text = text
     def __str__(self): return self.text
     def __repr__(self): return "characteristic(%s)"%self.text
@@ -166,8 +165,7 @@ class stacked_characteristic(object):
     def add(self, *new_char):
         return self._insert_into_stacking(additional_characteristics(*new_char))
     def add_all(self, all_char, text):
-        char = all_characteristic(*all_char)
-        char.set_text(text)
+        char = all_characteristic(all_char, text)
         return self._insert_into_stacking(char)
     def remove(self, *old_char):
         return self._insert_into_stacking(remove_characteristics(*old_char))
