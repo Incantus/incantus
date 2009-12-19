@@ -293,12 +293,12 @@ class CreatureType(object):
     toughness = property(**toughness())
     def _calculate_power_toughness(self):
         # Calculate layering rules
-        power, toughness = int(self.base_power), int(self.base_toughness) # layer 6a
-        power, toughness = self.PT_other_modifiers.calculate(power, toughness) # layer 6b
-        power += sum([c.power for c in self.counters if hasattr(c,"power")]) # layer 6c
-        toughness += sum([c.toughness for c in self.counters if hasattr(c,"toughness")]) # layer 6c
-        power, toughness = self.PT_static_modifiers.calculate(power, toughness) # layer 6d
-        power, toughness = self.PT_switch_modifiers.calculate(power, toughness) # layer 6e
+        power, toughness = int(self.base_power), int(self.base_toughness) # layer 7a
+        power, toughness = self.PT_set_modifiers.calculate(power, toughness) # layer 7b
+        power, toughness = self.PT_augment_modifiers.calculate(power, toughness) # layer 7c
+        power += sum([c.power for c in self.counters if hasattr(c,"power")]) # layer 7d
+        toughness += sum([c.toughness for c in self.counters if hasattr(c,"toughness")]) # layer 7d
+        power, toughness = self.PT_switch_modifiers.calculate(power, toughness) # layer 7e
         #self._cached_PT_dirty = False
         self.curr_power, self.curr_toughness = power, toughness
     def _new_timestep(self, sender):
@@ -312,9 +312,9 @@ class CreatureType(object):
         self.deathtouched = False
 
         proxy = weakref.proxy(self)
-        self.PT_other_modifiers = stacked_PT(proxy) # layer 6b - other modifiers
-        self.PT_static_modifiers = stacked_PT(proxy) # layer 6d - static modifiers
-        self.PT_switch_modifiers = stacked_PT(proxy) # layer 6e - P/T switching modifiers
+        self.PT_set_modifiers = stacked_PT(proxy) # layer 7b - setting PT modifiers
+        self.PT_augment_modifiers = stacked_PT(proxy) # layer 7c - augment PT modifiers
+        self.PT_switch_modifiers = stacked_PT(proxy) # layer 7e - P/T switching modifiers
         self.in_combat = False
         self.did_strike = False
         self.attacking = False
@@ -424,28 +424,25 @@ class CreatureType(object):
 
     def set_power_toughness(self, power, toughness):
         PT = PowerToughnessSetter(power, toughness)
-        return self.PT_other_modifiers.add(PT)
+        return self.PT_set_modifiers.add(PT)
     def set_power(self, power):
         PT = PowerSetter(power, None)
-        return self.PT_other_modifiers.add(PT)
+        return self.PT_set_modifiers.add(PT)
     def set_toughness(self, toughness):
         PT = ToughnessSetter(None, toughness)
-        return self.PT_other_modifiers.add(PT)
+        return self.PT_set_modifiers.add(PT)
     def augment_power_toughness(self, power, toughness):
         PT = PowerToughnessModifier(power, toughness)
-        return self.PT_other_modifiers.add(PT)
-    def augment_power_toughness_static(self, power, toughness):
-        PT = PowerToughnessModifier(power, toughness)
-        return self.PT_static_modifiers.add(PT)
+        return self.PT_augment_modifiers.add(PT)
     def switch_power_toughness(self):
         PT = PowerToughnessSwitcher()
         return self.PT_switch_modifiers.add(PT)
 
     def type_info(self):
         txt = ["%d/%d"%(self.base_power, self.base_toughness)]
-        txt.append(str(self.PT_other_modifiers))
+        txt.append(str(self.PT_set_modifiers))
         txt.append(', '.join([str(c) for c in self.counters if hasattr(c,"power")]))
-        txt.append(str(self.PT_static_modifiers))
+        txt.append(str(self.PT_augment_modifiers))
         txt.append(str(self.PT_switch_modifiers))
         return 'P/T:\n'+'\n'.join(["6%s: %s"%(layer, mod) for layer, mod in zip("ABCDE", txt) if mod])
 
