@@ -30,14 +30,14 @@ def redirect_to(planeswalker):
         return dmg
     return replace(Player, "assignDamage", redirectDamage, condition=condition, msg="Redirect damage to %s"%planeswalker)
 
-class Planeswalker(object):
+class PlaneswalkerType(object):
     def activatePlaneswalker(self):
         # These are immutable and come from the card
         self.add_counters("loyalty", self.loyalty)
         self.redirect_expire = redirect_to(self)
         self.abilities = planeswalker_abilities(weakref.ref(self), self.abilities)
     def leavingZone(self):
-        super(Planeswalker, self).leavingZone()
+        super(PlaneswalkerType, self).leavingZone()
         self.redirect_expire()
     def assignDamage(self, amt, source, combat=False):
         # amt is greater than 0

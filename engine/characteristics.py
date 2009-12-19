@@ -1,5 +1,8 @@
 import copy
 from GameEvent import ControllerChanged, PowerToughnessModifiedEvent
+from Ability.Subtypes import all_basic_lands
+
+__all__ = ["stacked_variable", "stacked_controller", "stacked_PT", "characteristic", "stacked_characteristic", "stacked_land_subtype"]
 
 class stacked_variable(object):
     current = property(fget=lambda self: self._characteristics[-1][0])
@@ -54,7 +57,7 @@ class stacked_controller(object):
         self.perm.send(ControllerChanged(), original=old_controller)
 
 # PowerToughnessModified isn't needed, because the power/toughness is invalidated every timestep (and the gui calculates it)
-class PTModifiers(object):
+class stacked_PT(object):
     def __init__(self, card):
         self._modifiers = []
         self.card = card
@@ -202,3 +205,29 @@ class stacked_type(stacked_characteristic):
                 self._stacking.remove(char)
                 self.card.send(self.change_event)
         return remove
+
+class stacked_land_subtype(stacked_characteristic):
+    def __init__(self, orig_stacked):
+        self._orig = orig_stacked
+        self._stacking = orig_stacked._stacking
+        self.card = orig_stacked.card
+        self.change_event = orig_stacked.change_event
+    def revert(self):
+        self.card.subtypes = self._orig
+    def set(self, *subtypes):
+        if len(all_basic_lands.intersection(subtypes)) > 0:
+            card = self.card
+            expire1 = super(stacked_land_subtype, self).set(*subtypes)
+            card._remove_all_basic_abilities()
+            expire2 = card.abilities.remove_all()
+            card._add_basic_abilities()
+            return combine(expire1, expire2, card._remove_basic_abilities, card._add_basic_abilities)
+        else:
+            return self._insert_into_stacking(characteristic(*subtypes))
+    def add(self, *subtypes):
+        if len(all_basic_lands.intersection(subtypes)) > 0:
+            expire = super(stacked_land_subtype, self).add(*subtypes)
+            self.card._add_basic_abilities()
+            return combine(expire, self.card._remove_basic_abilities)
+        else:
+            return self._insert_into_stacking(additional_characteristics(*subtypes))

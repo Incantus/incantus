@@ -1,8 +1,8 @@
 import new, weakref
-from characteristics import stacked_controller, PTModifiers, stacked_characteristic, additional_characteristics
+from characteristics import stacked_controller, stacked_PT, stacked_land_subtype
 from MtGObject import MtGObject
 from GameEvent import DealsDamageToEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, LandPlayedEvent
-from Planeswalker import Planeswalker
+from Planeswalker import PlaneswalkerType
 from Ability.Counters import Counter, PowerToughnessCounter, PowerToughnessModifier, PowerToughnessSetter, PowerToughnessSwitcher, PowerSetter, ToughnessSetter
 from Ability.PermanentAbility import basic_mana_ability, cast_permanent, cast_aura
 from Ability.EffectsUtilities import combine
@@ -57,8 +57,8 @@ class CardRole(MtGObject):
     def activate(self):
         cls = self.__class__
         orig_bases = cls.__bases__
-        if self.types == "Land" and not Land in orig_bases:
-            cls.__bases__ = (Land,)+orig_bases
+        if self.types == "Land" and not LandType in orig_bases:
+            cls.__bases__ = (LandType,)+orig_bases
             self.activateLand()
     def enteringZone(self, zone):
         self.zone = zone
@@ -233,14 +233,14 @@ class Permanent(CardRole):
     def activate(self):
         cls = self.__class__
         orig_bases = cls.__bases__
-        if self.types == "Creature" and not Creature in orig_bases:
-            cls.__bases__ = (Creature,)+orig_bases
+        if self.types == "Creature" and not CreatureType in orig_bases:
+            cls.__bases__ = (CreatureType,)+orig_bases
             self.activateCreature()
         if self.types == "Planeswalker" and not Planeswalker in orig_bases:
             cls.__bases__ = (Planeswalker,)+orig_bases
             self.activatePlaneswalker()
-        if (self.subtypes.intersects(set(["Aura", "Equipment", "Fortification"]))) and not Attachment in orig_bases:
-            cls.__bases__ = (Attachment,)+orig_bases
+        if (self.subtypes.intersects(set(["Aura", "Equipment", "Fortification"]))) and not AttachmentType in orig_bases:
+            cls.__bases__ = (AttachmentType,)+orig_bases
             self.activateAttachment()
         super(Permanent, self).activate()
 
@@ -251,40 +251,14 @@ class TokenPermanent(Permanent):
         if not str(zone) == "play": newrole.send(TokenLeavingPlay())
         return newrole
 
-class stacked_land_subtype(stacked_characteristic):
-    def __init__(self, orig_stacked):
-        self._orig = orig_stacked
-        self._stacking = orig_stacked._stacking
-        self.card = orig_stacked.card
-        self.change_event = orig_stacked.change_event
-    def revert(self):
-        self.card.subtypes = self._orig
-    def set(self, *subtypes):
-        if len(all_basic_lands.intersection(subtypes)) > 0:
-            card = self.card
-            expire1 = super(stacked_land_subtype, self).set(*subtypes)
-            card._remove_all_basic_abilities()
-            expire2 = card.abilities.remove_all()
-            card._add_basic_abilities()
-            return combine(expire1, expire2, card._remove_basic_abilities, card._add_basic_abilities)
-        else:
-            return self._insert_into_stacking(characteristic(*subtypes))
-    def add(self, *subtypes):
-        if len(all_basic_lands.intersection(subtypes)) > 0:
-            expire = super(stacked_land_subtype, self).add(*subtypes)
-            self.card._add_basic_abilities()
-            return combine(expire, self.card._remove_basic_abilities)
-        else:
-            return self._insert_into_stacking(additional_characteristics(*subtypes))
-
-class Land(object):
+class LandType(object):
     _track_basic = dict([(subtype, {}) for subtype in all_basic_lands])
     def activateLand(self):
         self.subtypes = stacked_land_subtype(self.subtypes)
         self._add_basic_abilities()
     def leavingZone(self):
         self.subtypes.revert()
-        super(Land,self).leavingZone()
+        super(LandType,self).leavingZone()
     def _add_basic_abilities(self):
         for subtype in all_basic_lands:
             if self.subtypes == subtype and not self in self._track_basic[subtype]:
@@ -300,7 +274,7 @@ class Land(object):
             expire = self._track_basic[subtype].pop(self, None)
             if expire: expire()
 
-class Creature(object):
+class CreatureType(object):
     def power():
         def fget(self):
             if self._cached_PT_dirty: self._calculate_power_toughness()
@@ -338,9 +312,9 @@ class Creature(object):
         self.deathtouched = False
 
         proxy = weakref.proxy(self)
-        self.PT_other_modifiers = PTModifiers(proxy) # layer 6b - other modifiers
-        self.PT_static_modifiers = PTModifiers(proxy) # layer 6d - static modifiers
-        self.PT_switch_modifiers = PTModifiers(proxy) # layer 6e - P/T switching modifiers
+        self.PT_other_modifiers = stacked_PT(proxy) # layer 6b - other modifiers
+        self.PT_static_modifiers = stacked_PT(proxy) # layer 6d - static modifiers
+        self.PT_switch_modifiers = stacked_PT(proxy) # layer 6e - P/T switching modifiers
         self.in_combat = False
         self.did_strike = False
         self.attacking = False
@@ -352,7 +326,7 @@ class Creature(object):
         self.register(self._new_timestep, TimestepEvent())
     def leavingZone(self):
         self.unregister(self._new_timestep, TimestepEvent())
-        super(Creature,self).leavingZone()
+        super(CreatureType,self).leavingZone()
     def combatDamage(self):
         return self.power
     def clearDamage(self):
@@ -379,9 +353,9 @@ class Creature(object):
                 return 0
         else: return total
     def canTap(self):
-        return self.continuouslyInPlay() and super(Creature, self).canTap()
+        return self.continuouslyInPlay() and super(CreatureType, self).canTap()
     def canUntap(self):
-        return self.continuouslyInPlay() and super(Creature, self).canUntap()
+        return self.continuouslyInPlay() and super(CreatureType, self).canUntap()
     def checkAttack(self, attackers, not_attacking):
         return True
     def canAttack(self):
@@ -446,7 +420,7 @@ class Creature(object):
     def payAttackCost(self):
         self.attack_cost.pay(self, self.controller)
     def shouldDestroy(self):
-        return self.__damage >= self.toughness and super(Creature, self).shouldDestroy()
+        return self.__damage >= self.toughness and super(CreatureType, self).shouldDestroy()
 
     def set_power_toughness(self, power, toughness):
         PT = PowerToughnessSetter(power, toughness)
@@ -475,7 +449,7 @@ class Creature(object):
         txt.append(str(self.PT_switch_modifiers))
         return 'P/T:\n'+'\n'.join(["6%s: %s"%(layer, mod) for layer, mod in zip("ABCDE", txt) if mod])
 
-class Attachment(object):
+class AttachmentType(object):
     attached_abilities = property(fget=lambda self: self.abilities.attached())
     attached_to = property(fget=lambda self: self._attached_to)
     def activateAttachment(self):
@@ -489,7 +463,7 @@ class Attachment(object):
             self.target_type = isLand
     def leavingZone(self):
         self.unattach(True)
-        super(Attachment,self).leavingZone()
+        super(AttachmentType,self).leavingZone()
     def attach(self, target):
         if self._attached_to != None: self.unattach()
         self._attached_to = target
