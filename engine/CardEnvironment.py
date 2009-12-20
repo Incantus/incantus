@@ -32,6 +32,7 @@ from Ability.PortalThreeKingdomsAbility import *
 from Ability.FifthDawnAbility import *
 from Ability.UrzasSagaAbility import *
 from Ability.LorwynAbility import *
+from Ability.RavnicaAbility import *
 from Ability.MorningtideAbility import *
 from Ability.ShadowmoorAbility import *
 from Ability.EventideAbility import *
