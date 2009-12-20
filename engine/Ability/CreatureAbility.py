@@ -1,4 +1,5 @@
 from functools import partial
+from engine.symbols import *
 from engine.Match import isPlayer, isCreature, isLand, isArtifact
 from engine.GameEvent import BlockerDeclaredEvent, AttackerDeclaredEvent
 from StaticAbility import CardStaticAbility
@@ -32,20 +33,20 @@ def basic_landwalk(landtype):
     condition = lambda land: land.subtypes == landtype
     return landwalk(condition, keyword=landtype.lower()+"walk")
 
-plainswalk = partial(basic_landwalk, "Plains")
-swampwalk = partial(basic_landwalk, "Swamp")
-forestwalk = partial(basic_landwalk, "Forest")
-islandwalk = partial(basic_landwalk, "Island")
-mountainwalk = partial(basic_landwalk, "Mountain")
+plainswalk = partial(basic_landwalk, Plains)
+swampwalk = partial(basic_landwalk, Swamp)
+forestwalk = partial(basic_landwalk, Forest)
+islandwalk = partial(basic_landwalk, Island)
+mountainwalk = partial(basic_landwalk, Mountain)
 
 def legendary_landwalk():
     keyword = "legendary landwalk"
-    condition = lambda land: land.supertypes == "Legendary"
+    condition = lambda land: land.supertypes == Legendary
     return landwalk(condition, keyword)
 
 def nonbasic_landwalk():
     keyword = "Nonbasic landwalk"
-    condition = lambda land: not land.supertypes == "Basic"
+    condition = lambda land: not land.supertypes == Basic
     return landwalk(condition, keyword)
 
 def flying():
@@ -91,7 +92,7 @@ def vigilance():
 def fear():
     keyword = "fear"
     def canBeBlockedBy(self, blocker):
-        return (blocker.color == "B" or (blocker.types == "Artifact" and blocker.types =="Creature"))
+        return (blocker.color == Black or (blocker.types == Artifact and blocker.types == Creature))
     return CardStaticAbility(effects=override_effect("canBeBlockedBy", canBeBlockedBy), keyword=keyword)
 
 def protection(condition, attribute):
@@ -113,11 +114,11 @@ def protection(condition, attribute):
 
     return CardStaticAbility(effects=protection_effect, keyword=keyword)
 
-protection_from_black = partial(protection, condition = lambda other: other.color == "B", attribute="black")
-protection_from_blue = partial(protection, condition = lambda other: other.color == "U", attribute="blue")
-protection_from_white = partial(protection, condition = lambda other: other.color == "W", attribute="white")
-protection_from_red = partial(protection, condition = lambda other: other.color == "R", attribute="red")
-protection_from_green = partial(protection, condition = lambda other: other.color == "G", attribute="green")
+protection_from_black = partial(protection, condition = lambda other: other.color == Black, attribute="black")
+protection_from_blue = partial(protection, condition = lambda other: other.color == Blue, attribute="blue")
+protection_from_white = partial(protection, condition = lambda other: other.color == White, attribute="white")
+protection_from_red = partial(protection, condition = lambda other: other.color == Red, attribute="red")
+protection_from_green = partial(protection, condition = lambda other: other.color == Green, attribute="green")
 protection_from_ge_cmc = lambda n: protection(condition = lambda other: other.cost >= n, attribute="converted mana cost %d or greater"%n)
 protection_from_le_cmc = lambda n: protection(condition = lambda other: other.cost <= n, attribute="converted mana cost %d or less"%n)
 protection_from_artifacts = partial(protection, condition = lambda other: isArtifact(other), attribute="artifacts")

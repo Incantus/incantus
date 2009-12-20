@@ -1,3 +1,4 @@
+from engine.symbols import Creature
 from Counters import PowerToughnessCounter
 from CiPAbility import CiP, CiPAbility
 from EffectsUtilities import keyword_action
@@ -22,7 +23,7 @@ def sunburst():
         if "B" in self.cost.payment: sunburst = sunburst + 1
         if "R" in self.cost.payment: sunburst = sunburst + 1
         if "G" in self.cost.payment: sunburst = sunburst + 1
-        self.add_counters(PowerToughnessCounter(1, 1) if self.types == "Creature" else "charge", number=sunburst)
+        self.add_counters(PowerToughnessCounter(1, 1) if self.types == Creature else "charge", number=sunburst)
     def sunburst(source):
         yield CiP(source, enterPlayWith, condition=lambda self, zone, position="top": self.zone == "stack", txt="Sunburst")
     return CiPAbility(sunburst, keyword='sunburst')

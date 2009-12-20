@@ -1,6 +1,6 @@
 import weakref, copy
 from GameEvent import ControllerChanged, PowerToughnessModifiedEvent
-from Ability.Subtypes import all_basic_lands
+from symbols.subtypes import all_basic_lands
 
 __all__ = ["stacked_variable", "stacked_controller", "stacked_PT", "characteristic", "stacked_characteristic", "stacked_land_subtype"]
 
@@ -72,7 +72,7 @@ class stacked_PT(object):
     def calculate(self, power, toughness):
         return reduce(lambda PT, modifier: modifier.calculate(PT[0], PT[1]), self._modifiers, (power, toughness))
     def __str__(self):
-        return ', '.join([str(modifier) for modifier in self._modifiers])
+        return ', '.join(map(str, self._modifiers))
 
 
 
@@ -88,7 +88,7 @@ class characteristic(_base_characteristic):
     def intersects(self, other): return len(self.characteristics.intersection(other)) > 0
     def __eq__(self, other): return other in self.characteristics
     def __contains__(self, val): return self == val
-    def __str__(self): return str(' '.join(sorted(self.characteristics)))
+    def __str__(self): return str(' '.join(sorted(map(str,self.characteristics))))
     def __repr__(self): return "characteristic(%s)"%', '.join(map(repr, self.characteristics))
     def __len__(self): return len(self.characteristics)
     def __iter__(self): return iter(self.characteristics)
@@ -96,12 +96,7 @@ class characteristic(_base_characteristic):
         fields.clear()
         fields.update(self.characteristics)
 
-class no_characteristic(characteristic):
-    # This characteristic matches nothing
-    # XXX I should really remove this, it's not needed anymore now that removal is based on sets
-    # and no_characteristic() is just characteristic with no arguments (so an empty set)
-    def __init__(self):
-        super(no_characteristic, self).__init__()
+class no_characteristic(characteristic): pass
 
 # These are only used internally
 class all_characteristic(characteristic):
@@ -184,8 +179,8 @@ class stacked_characteristic(object):
         else: return len(self.current.intersection(other)) > 0
     def __str__(self):
         curr = sorted(self.current)
-        if len(curr) > 10: return '%s...'%' '.join(curr[:10])
-        else: return ' '.join(curr)
+        if len(curr) > 5: return '%s...'%' '.join(map(str,curr[:10]))
+        else: return ' '.join(map(str,curr))
     def __len__(self): return len(self.current)
     def __iter__(self): return iter(self.current)
     def __repr__(self):

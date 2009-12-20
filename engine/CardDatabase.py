@@ -104,10 +104,10 @@ cost = NoCost()
     fields = {}
     for attr in ["types", "supertypes", "subtypes", "color"]:
         char = card_dict.get(attr, None)
-        if not char: fields[attr] = "no_characteristic()"
+        if not char: fields[attr] = "characteristic()"
         else:
             if not (type(char) == list or type(char) == tuple): char = (char,)
-            fields[attr] = "characteristic(%s)"%', '.join(map(repr,char))
+            fields[attr] = "characteristic(%s)"%', '.join(map(str,char))
 
     if "P/T" in card_dict:
         power, toughness = card_dict["P/T"]
@@ -121,7 +121,7 @@ cost = NoCost()
     if not name:
         subtypes = card_dict.get("subtypes", ())
         if not (type(subtypes) == list or type(subtypes) == tuple): subtypes = (subtypes,)
-        name = " ".join(subtypes)
+        name = " ".join(map(str, subtypes))
     fields["name"] = repr(name)
 
     # Now process abilities (should only be simple keyword abilities)
@@ -134,9 +134,9 @@ cost = NoCost()
 
 default_tmpl = '''
 name = %s
-types = characteristic("Artifact")
-supertypes = no_characteristic()
-subtypes = no_characteristic()
-color = no_characteristic()
+types = characteristic(Artifact)
+supertypes = characteristic()
+subtypes = characteristic()
+color = characteristic()
 cost = ManaCost("0")
 '''

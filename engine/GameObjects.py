@@ -1,4 +1,5 @@
 from MtGObject import MtGObject
+from symbols import Land, Instant, Sorcery
 from GameEvent import NameModifiedEvent, CostModifiedEvent, TextModifiedEvent, ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent, PowerToughnessModifiedEvent, LoyaltyModifiedEvent
 from abilities import abilities, stacked_abilities
 from characteristics import stacked_variable, stacked_characteristic, stacked_type
@@ -67,14 +68,14 @@ class Card(GameObject):
         super(Card, self).__init__(owner)
 
         CardDatabase.loadCardFromDB(self, cardname)
-        if self.base_types == "Land":
+        if self.base_types == Land:
             self.stack_role = NoRole
             self.out_play_role = LandOutPlayRole
         else:
             self.stack_role = SpellRole
             self.out_play_role = OutPlayRole
 
-        if (self.base_types == "Instant" or self.base_types == "Sorcery"):
+        if (self.base_types == Instant or self.base_types == Sorcery):
             self.in_play_role = NoRole
         else:
             self.in_play_role = Permanent

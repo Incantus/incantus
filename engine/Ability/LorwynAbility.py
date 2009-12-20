@@ -1,11 +1,11 @@
 from engine.Match import isCreature, isPermanent
 from engine.GameEvent import ClashEvent
+from engine.symbols.subtypes import all_creatures
 from TriggeredAbility import TriggeredAbility
 from CiPAbility import comes_into_play_tapped
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from Trigger import EnterTrigger, LeaveTrigger, DealDamageToTrigger
-from Subtypes import all_creatures
 from EffectsUtilities import keyword_action
 
 # This should be called from within an effects function

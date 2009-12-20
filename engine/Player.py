@@ -105,8 +105,9 @@ class Player(MtGObject):
         return self.getSelection(sellist, numselections=number, required=required, idx=idx, prompt=prompt)
     # A hack to make cards like Door of Destinies work. -MageKing17
     def choose_creature_type(self):
+        import symbols
         subtypes = set()
-        creature_types = lambda c: c.types.intersects(set(("Creature", "Tribal")))
+        creature_types = lambda c: c.types.intersects(set((symbols.Creature, symbols.Tribal)))
         for cards in (getattr(player, zone).get(creature_types) for zone in ["play", "graveyard", "removed", "library", "hand"] for player in Keeper.players):
             for card in cards: subtypes.update(card.subtypes.current)
         return self.make_selection(sorted(subtypes), prompt='Choose a creature type')

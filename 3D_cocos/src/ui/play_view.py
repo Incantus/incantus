@@ -148,7 +148,8 @@ class CombatZone(object):
         for card, position in zip(cards, total_positions):
             card.pos = position - euclid.Vector3(halfx, 0, 0)
 
-landtypes = ['Plains', 'Island', 'Swamp', 'Mountain', 'Forest', 'Other']
+from engine.symbols import Plains, Island, Swamp, Mountain, Forest, Basic
+landtypes = [Plains, Island, Swamp, Mountain, Forest, 'Other']
 
 class PlayView(Widget):
     def cards():
@@ -183,7 +184,7 @@ class PlayView(Widget):
             self.creatures.insert(0, guicard)
             guicard._row = self.creatures
         elif Match.isLand(card):
-            if card.supertypes == "Basic":
+            if card.supertypes == Basic:
                 for key in self.lands.keys():
                     if card.subtypes == key:
                         self.lands[key].append(guicard)

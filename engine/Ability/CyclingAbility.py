@@ -2,6 +2,7 @@ from Cost import ManaCost, Cost
 from ActivatedAbility import ActivatedAbility
 from engine.Match import isCard, isBasicLandCard
 from engine.GameEvent import DiscardCardEvent, CardCycledEvent, TimestepEvent
+from engine.symbols import *
 from Target import NoTarget
 
 # A bit of a hack, but neccessary to make sure the event gets sent at the right time.
@@ -39,8 +40,8 @@ basic_landcycling = lambda cost: search_cycling(isBasicLandCard, cost, "Basic la
 def typecycling(subtype, cost):
     return search_cycling(match=isCard.with_condition(lambda c: c.subtypes == subtype), cost=cost, typestr=subtype)
 
-plains_cycling = lambda cost: typecycling("Plains", cost)
-island_cycling = lambda cost: typecycling("Island", cost)
-swamp_cycling = lambda cost: typecycling("Swamp", cost)
-mountain_cycling = lambda cost: typecycling("Mountain", cost)
-forest_cycling = lambda cost: typecycling("Forest", cost)
+plains_cycling = lambda cost: typecycling(Plains, cost)
+island_cycling = lambda cost: typecycling(Island, cost)
+swamp_cycling = lambda cost: typecycling(Swamp, cost)
+mountain_cycling = lambda cost: typecycling(Mountain, cost)
+forest_cycling = lambda cost: typecycling(Forest, cost)

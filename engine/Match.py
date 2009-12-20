@@ -1,4 +1,5 @@
 import copy
+from symbols import *
 
 class Match(object):
     def __init__(self, condition=None):
@@ -65,8 +66,8 @@ class ZoneMatch(Match):
 
 #isSpell = ZoneMatch("stack", "spell")
 isPermanent = ZoneMatch("play", "permanent")
-isLegendaryPermanent = isPermanent.with_condition(lambda c: c.supertypes == "Legendary")
-isPermanentCard = isCard.with_condition(lambda c: c.types == "Artifact" or c.types == "Enchantment" or c.types == "Creature" or c.types == "Land" or c.types == "Planeswalker")
+isLegendaryPermanent = isPermanent.with_condition(lambda c: c.supertypes == Legendary)
+isPermanentCard = isCard.with_condition(lambda c: c.types.intersects(set([Artifact, Enchantment, Creature, Land, Planeswalker])))
 
 isToken = isPermanent.with_condition(lambda c: hasattr(c, "_token"))
 isNonToken = isPermanent.with_condition(lambda c: not hasattr(c, "_token"))
@@ -89,32 +90,32 @@ class TypeMatch(Match):
         if not self.in_play: name += " card"
         return name
 
-isCreature = TypeMatch("Creature", in_play=True)
-isLand = TypeMatch("Land", in_play=True)
-isBasicLand = isLand.with_condition(lambda l: l.supertypes == "Basic")
-isNonBasicLand = isLand.with_condition(lambda l: not l.supertypes == "Basic")
-isNonLand = isPermanent.with_condition(lambda p: not p.types == "Land")
-isArtifact = TypeMatch("Artifact", in_play=True)
-isArtifactCreature = isArtifact.with_condition(lambda a: a.types == "Creature")
-isNonCreatureArtifact = isArtifact.with_condition(lambda a: not a.types == "Creature")
-isEnchantment = TypeMatch("Enchantment", in_play=True)
-isEquipment = isArtifact.with_condition(lambda a: a.subtypes == "Equipment")
-isFortification = isArtifact.with_condition(lambda a: a.subtypes == "Fortification")
-isAura = isEnchantment.with_condition(lambda e: e.subtypes == "Aura")
-isAttachment = isPermanent.with_condition(lambda p: p.subtypes.intersects(set(["Aura", "Equipment", "Fortification"])))
-isPlaneswalker = TypeMatch("Planeswalker", in_play=True)
+isCreature = TypeMatch(Creature, in_play=True)
+isLand = TypeMatch(Land, in_play=True)
+isBasicLand = isLand.with_condition(lambda l: l.supertypes == Basic)
+isNonBasicLand = isLand.with_condition(lambda l: not l.supertypes == Basic)
+isNonLand = isPermanent.with_condition(lambda p: not p.types == Land)
+isArtifact = TypeMatch(Artifact, in_play=True)
+isArtifactCreature = isArtifact.with_condition(lambda a: a.types == Creature)
+isNonCreatureArtifact = isArtifact.with_condition(lambda a: not a.types == Creature)
+isEnchantment = TypeMatch(Enchantment, in_play=True)
+isEquipment = isArtifact.with_condition(lambda a: a.subtypes == Equipment)
+isFortification = isArtifact.with_condition(lambda a: a.subtypes == Fortification)
+isAura = isEnchantment.with_condition(lambda e: e.subtypes == Aura)
+isAttachment = isPermanent.with_condition(lambda p: p.subtypes.intersects(set([Aura, Equipment, Fortification])))
+isPlaneswalker = TypeMatch(Planeswalker, in_play=True)
 
-isSorceryCard = TypeMatch("Sorcery")
-isInstantCard = TypeMatch("Instant")
-isCreatureCard = TypeMatch("Creature")
-isLandCard = TypeMatch("Land")
-isBasicLandCard = isLandCard.with_condition(lambda l: l.supertypes == "Basic")
-isNonBasicLandCard = isLandCard.with_condition(lambda l: not l.supertypes == "Basic")
-isNonLandCard = isCard.with_condition(lambda p: not p.types == "Land")
-isArtifactCard = TypeMatch("Artifact")
-isEnchantmentCard = TypeMatch("Enchantment")
-isEquipmentCard = isArtifactCard.with_condition(lambda a: a.subtypes == "Equipment")
-isAuraCard = isEnchantmentCard.with_condition(lambda e: e.subtypes == "Aura")
+isSorceryCard = TypeMatch(Sorcery)
+isInstantCard = TypeMatch(Instant)
+isCreatureCard = TypeMatch(Creature)
+isLandCard = TypeMatch(Land)
+isBasicLandCard = isLandCard.with_condition(lambda l: l.supertypes == Basic)
+isNonBasicLandCard = isLandCard.with_condition(lambda l: not l.supertypes == Basic)
+isNonLandCard = isCard.with_condition(lambda p: not p.types == Land)
+isArtifactCard = TypeMatch(Artifact)
+isEnchantmentCard = TypeMatch(Enchantment)
+isEquipmentCard = isArtifactCard.with_condition(lambda a: a.subtypes == Equipment)
+isAuraCard = isEnchantmentCard.with_condition(lambda e: e.subtypes == Aura)
 
 class PlayerOrCreatureMatch(Match):
     def match(self, obj):

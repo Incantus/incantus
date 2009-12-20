@@ -1,4 +1,5 @@
 from engine.Match import isCard, isCreature, isLand
+from engine.symbols import Forest, Island, Plains, Mountain, Swamp
 from ActivatedAbility import ActivatedAbility, ManaAbility
 from CastingAbility import CastPermanentSpell, CastAuraSpell
 from StaticAbility import CardStaticAbility
@@ -7,7 +8,7 @@ from Cost import TapCost
 from EffectsUtilities import do_override, override_effect
 from Limit import no_limit, sorcery_limit
 
-def basic_mana_ability(subtype, subtype_to_mana=dict(Forest='G',Island='U',Plains='W',Mountain='R',Swamp='B')):
+def basic_mana_ability(subtype, subtype_to_mana=dict(zip([Plains,Island,Swamp,Mountain,Forest], "WUBRG"))):
     color = subtype_to_mana[subtype]
     def effects(controller, source):
         payment = yield TapCost()

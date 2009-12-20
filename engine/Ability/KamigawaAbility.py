@@ -1,3 +1,4 @@
+from engine.symbols import Spirit
 from engine.Match import isCard
 from engine.GameEvent import BlockerDeclaredEvent, AttackerBlockedEvent
 from TriggeredAbility import TriggeredAbility, sender_match
@@ -7,7 +8,7 @@ from EffectsUtilities import until_end_of_turn
 
 def soulshift(n):
     def effects(source):
-        target = yield Target(isCard.with_condition(lambda c: c.subtypes == "Spirit" and c.converted_mana_cost <= n), zone = "graveyard", player = "you")
+        target = yield Target(isCard.with_condition(lambda c: c.subtypes == Spirit and c.converted_mana_cost <= n), zone = "graveyard", player = "you")
         # Code for effect
         if controller.you_may("return target to your hand"):
             target.move_to("hand")

@@ -1,12 +1,13 @@
 import new
 from characteristics import stacked_controller, stacked_PT, stacked_land_subtype
+from symbols import Land, Creature, Planeswalker, Instant, Sorcery, Aura, Equipment, Fortification
 from MtGObject import MtGObject
 from GameEvent import DealsDamageToEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, LandPlayedEvent
 from Planeswalker import PlaneswalkerType
 from Ability.Counters import Counter, PowerToughnessCounter, PowerToughnessModifier, PowerToughnessSetter, PowerToughnessSwitcher, PowerSetter, ToughnessSetter
 from Ability.PermanentAbility import basic_mana_ability, cast_permanent, cast_aura
 from Ability.EffectsUtilities import combine
-from Ability.Subtypes import all_basic_lands
+from symbols.subtypes import all_basic_lands
 from Ability.Cost import MultipleCosts
 from Ability.Limit import sorcery_limit
 from Ability.CiPAbility import CiP, enter_play_tapped, attach_on_enter
@@ -57,7 +58,7 @@ class CardRole(MtGObject):
     def activate(self):
         cls = self.__class__
         orig_bases = cls.__bases__
-        if self.types == "Land" and not LandType in orig_bases:
+        if self.types == Land and not LandType in orig_bases:
             cls.__bases__ = (LandType,)+orig_bases
             self.activateLand()
     def enteringZone(self, zone):
@@ -125,13 +126,13 @@ class CardRole(MtGObject):
 # Cards on the stack
 class SpellRole(CardRole):
     def activate(self):
-        if self.subtypes == "Aura": self.abilities.add(attach_on_enter())
+        if self.subtypes == Aura: self.abilities.add(attach_on_enter())
         super(SpellRole, self).activate()
 
 class OutPlayRole(CardRole):
     def activate(self):
-        if self.types == "Instant" or self.types == "Sorcery": pass
-        elif self.subtypes == "Aura":
+        if self.types == Instant or self.types == Sorcery: pass
+        elif self.subtypes == Aura:
             self.abilities.add(cast_aura(), attach_on_enter())
         else: self.abilities.add(cast_permanent())
         self._play_spell = self.abilities.cast()
@@ -233,13 +234,13 @@ class Permanent(CardRole):
     def activate(self):
         cls = self.__class__
         orig_bases = cls.__bases__
-        if self.types == "Creature" and not CreatureType in orig_bases:
+        if self.types == Creature and not CreatureType in orig_bases:
             cls.__bases__ = (CreatureType,)+orig_bases
             self.activateCreature()
-        if self.types == "Planeswalker" and not Planeswalker in orig_bases:
+        if self.types == Planeswalker and not Planeswalker in orig_bases:
             cls.__bases__ = (Planeswalker,)+orig_bases
             self.activatePlaneswalker()
-        if (self.subtypes.intersects(set(["Aura", "Equipment", "Fortification"]))) and not AttachmentType in orig_bases:
+        if (self.subtypes.intersects(set([Aura, Equipment, Fortification]))) and not AttachmentType in orig_bases:
             cls.__bases__ = (AttachmentType,)+orig_bases
             self.activateAttachment()
         super(Permanent, self).activate()
@@ -453,9 +454,9 @@ class AttachmentType(object):
         self._attached_to = None
         self.target_zone = "play"
         self.target_player = None
-        if self.subtypes == "Equipment":
+        if self.subtypes == Equipment:
             self.target_type = isCreature
-        elif self.subtypes == "Fortification":
+        elif self.subtypes == Fortification:
             self.target_type = isLand
     def leavingZone(self):
         self.unattach(True)
