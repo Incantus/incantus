@@ -3,7 +3,7 @@ from engine.Match import isCard
 from engine.GameEvent import BlockerDeclaredEvent, AttackerBlockedEvent
 from TriggeredAbility import TriggeredAbility, sender_match, source_match
 from Trigger import Trigger, EnterFromTrigger
-from Target import NoTarget
+from Target import Target, NoTarget
 from EffectsUtilities import until_end_of_turn
 
 def soulshift(n):
