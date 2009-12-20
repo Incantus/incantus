@@ -4,7 +4,7 @@ from engine.GameEvent import BlockerDeclaredEvent, AttackerBlockedEvent
 from TriggeredAbility import TriggeredAbility, sender_match
 from Trigger import Trigger, EnterFromTrigger
 from Target import NoTarget
-from EffectsUtilities import until_end_of_turn
+from EffectsUtilities import until_end_of_turn, no_condition
 
 def soulshift(n):
     def effects(source):
@@ -14,7 +14,7 @@ def soulshift(n):
             target.move_to("hand")
         yield
     return TriggeredAbility(EnterFromTrigger("graveyard", "play", player="you"),
-            condition=condition,
+            condition=no_condition,
             effects=effects,
             txt="Soulshift %s"%n)
 
