@@ -114,7 +114,6 @@ class GameKeeper(MtGObject):
                 code = code.split("\n")
                 print "\n%s\n"%'\n'.join(["%03d\t%s"%(i+1, line) for i, line in zip(range(len(code)), code)])
                 traceback.print_exc(4)
-            file.close()
 
     def cleanup(self):
         for player in self.players: player.reset()
