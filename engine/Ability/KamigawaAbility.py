@@ -1,10 +1,10 @@
 from engine.symbols import Spirit
 from engine.Match import isCard
 from engine.GameEvent import BlockerDeclaredEvent, AttackerBlockedEvent
-from TriggeredAbility import TriggeredAbility, sender_match
+from TriggeredAbility import TriggeredAbility, sender_match, source_match
 from Trigger import Trigger, EnterFromTrigger
 from Target import NoTarget
-from EffectsUtilities import until_end_of_turn, no_condition
+from EffectsUtilities import until_end_of_turn
 
 def soulshift(n):
     def effects(source):
@@ -14,7 +14,7 @@ def soulshift(n):
             target.move_to("hand")
         yield
     return TriggeredAbility(EnterFromTrigger("graveyard", "play", player="you"),
-            condition=no_condition,
+            condition=source_match,
             effects=effects,
             txt="Soulshift %s"%n)
 
