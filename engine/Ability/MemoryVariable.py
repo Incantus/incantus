@@ -99,15 +99,14 @@ class SpellRecordVariable(MemoryVariable):
             return temp
         else: return []
 
-# XXX This isn't really necessary, since the cards contain who they are blocked by
-# It might be useful for cards who need to track who they blocked, but I haven't seen any
-# cards like that
+# Now serves two purposes: Purpose one, looking back over the entire turn (for cards like Norritt) to see who attacked/blocked (and whether or not they blocked a certain card).
+# Purpose two is looking back at the previous combat step, which I discovered is needed for a couple cards whose combat states are cleared before they can refer to them (Greater Werewolf). I'm sure it will have other uses as well, but I don't really have the time to go fishing for every card that needs to refer to combat information, so I'll just leave it be and as we find uses for it, we'll use it. -MageKing17
 class CombatTrackingVariable(MemoryVariable):
     def __init__(self):
         self.reset()
         self.register(self.attacker, event=AttackerDeclaredEvent())
         self.register(self.blocker, event=BlockerDeclaredEvent())
-        self.register(self.clear_local, event=EndCombatEvent())
+        self.register(self.clear_local, event=TurnFinishedEvent())
         super(CombatTrackingVariable, self).__init__()
     def reset(self):
         self.attackers = {}
