@@ -219,8 +219,10 @@ class Permanent(CardRole):
         return True
     def destroy(self, regenerate=True):
         if not regenerate or self.canDestroy():
-            self.move_to("graveyard")
+            destroyed = self.move_to("graveyard")
             self.send(PermanentDestroyedEvent())
+            return destroyed
+        else: return self
     def continuouslyInPlay(self):
         return self.continuously_in_play
     def summoningSickness(self):
