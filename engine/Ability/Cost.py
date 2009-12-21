@@ -309,25 +309,35 @@ class ChangeZoneCost(Cost):
         else: txt = ''
         return (self.action_txt%txt).title()
 
+class RemoveFromLibraryCost(ChangeZoneCost):
+    def __init__(self, number=1, position='top'):
+        super(RemoveFromLibraryCost, self).__init__(from_zone="library", to_zone="exhile", cardtype=isCard, number=number)
+        self.position = position
+    def compute(self, source, player):
+        if self.position == "top":
+            self.targets = self.library.top(self.number)
+        elif self.position == "bottom":
+            self.targets = self.library.bottom(self.number)
+        return True
 
 class ReturnToHandCost(ChangeZoneCost):
     def __init__(self, cardtype=None, number=1):
-        super(ReturnToHandCost,self).__init__(from_zone="play", to_zone="hand", number=number, cardtype=cardtype)
+        super(ReturnToHandCost,self).__init__(from_zone="play", to_zone="hand", cardtype=cardtype, number=number)
         self.action_txt = "return%s to hand"
 
 class RemoveFromPlayCost(ChangeZoneCost):
     def __init__(self, cardtype=None, number=1):
-        super(RemoveFromPlayCost,self).__init__(from_zone="play", to_zone="removed", number=number, cardtype=cardtype)
+        super(RemoveFromPlayCost,self).__init__(from_zone="play", to_zone="removed", cardtype=cardtype, number=number)
         self.action_txt = "remove%s from play"
 
 class RemoveFromHandCost(ChangeZoneCost):
     def __init__(self, cardtype=None, number=1):
-        super(RemoveFromHandCost,self).__init__(from_zone="hand", to_zone="removed", number=number, cardtype=cardtype)
+        super(RemoveFromHandCost,self).__init__(from_zone="hand", to_zone="removed", cardtype=cardtype, number=number)
         self.action_txt = "remove%s from hand"
 
 class RemoveFromGraveyardCost(ChangeZoneCost):
     def __init__(self, cardtype=None, number=1):
-        super(RemoveFromGraveyardCost,self).__init__(from_zone="graveyard", to_zone="removed", number=number, cardtype=cardtype)
+        super(RemoveFromGraveyardCost,self).__init__(from_zone="graveyard", to_zone="removed", cardtype=cardtype, number=number)
         self.action_txt = "remove%s from graveyard"
 
 class RemoveCounterCost(Cost):
