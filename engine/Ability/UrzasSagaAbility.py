@@ -28,4 +28,4 @@ def echo(cost):
             condition=condition,
             effects=effects,
             special_funcs=(buildup, teardown),
-            keyword="echo %s"%cost)
+            txt="echo %s"%cost, keyword="echo")
