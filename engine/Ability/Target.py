@@ -45,7 +45,10 @@ class MultipleTargets(object):
         # Remove any targets no longer in the correct zone, or no longer matching the original condition
         final_targets = []
         for target in self.target:
-            if not isinstance(target, InvalidTarget) and (not isPlayer(target) or (not target.is_LKI and self.match_type(target))) and target.canBeTargetedBy(source): final_targets.append(target)
+            if not isinstance(target, InvalidTarget) and
+               (isPlayer(target) or not target.is_LKI) and
+               self.match_type(target) and
+               target.canBeTargetedBy(source): final_targets.append(target)
             else: final_targets.append(InvalidTarget(target))
         self.target = final_targets
         return len(self.target) == 0 or any([True for target in self.target if not isinstance(target, InvalidTarget)])
