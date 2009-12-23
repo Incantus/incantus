@@ -82,7 +82,8 @@ def modal_triggered_effects(*modes, **kw):
         targets = tuple((mode.next() for mode in chosen))
         demux = [len(target) if type(target) == tuple else 1 for target in targets]
         targets = yield tuple(flatten(targets))
-        if not hasattr(targets, "__len__"): targets = (targets, )
-        yield tuple((mode.send(t) for t, mode in zip(tuple(unflatten(targets, demux)), chosen)))
+        for t, mode in zip(tuple(unflatten(targets, demux)), chosen):
+            yield mode.send(t)
+            for res in mode: yield res
 
     return modal_effects
