@@ -46,7 +46,7 @@ def enchant(target_type, zone="play", player=None):
 # Untapping abilities
 def optionally_untap(target):
     return do_override(target, "canUntapDuringUntapStep", 
-            lambda self: self.canUntap() and self.controller.getIntention("Untap %s"%self)
+            lambda self: self.canUntap() and self.controller.getIntention("Untap %s"%self))
 def doesnt_untap_controllers_next_untap_step(target):
     def cantUntap(self):
         cantUntap.expire()
