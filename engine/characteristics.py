@@ -82,19 +82,19 @@ class _base_characteristic(object): pass
 class characteristic(_base_characteristic):
     # Internally stored as a set
     def __init__(self, *init_val):
-        self.characteristics = set(init_val)
+        self._characteristics = set(init_val)
     def add(self, *additional):
-        self.characteristics.update(set(additional))
-    def intersects(self, other): return len(self.characteristics.intersection(other)) > 0
-    def __eq__(self, other): return other in self.characteristics
+        self._characteristics.update(set(additional))
+    def intersects(self, other): return len(self._characteristics.intersection(other)) > 0
+    def __eq__(self, other): return other in self._characteristics
     def __contains__(self, val): return self == val
-    def __str__(self): return str(' '.join(sorted(map(str,self.characteristics))))
-    def __repr__(self): return "characteristic(%s)"%', '.join(map(repr, self.characteristics))
-    def __len__(self): return len(self.characteristics)
-    def __iter__(self): return iter(self.characteristics)
+    def __str__(self): return str(' '.join(sorted(map(str,self._characteristics))))
+    def __repr__(self): return "characteristic(%s)"%', '.join(map(repr, self._characteristics))
+    def __len__(self): return len(self._characteristics)
+    def __iter__(self): return iter(self._characteristics)
     def evaluate(self, fields):
         fields.clear()
-        fields.update(self.characteristics)
+        fields.update(self._characteristics)
 
 class no_characteristic(characteristic): pass
 
@@ -114,16 +114,16 @@ class additional_characteristics(characteristic):
     def intersects(self, other):
         raise NotImplementedError()
     def __repr__(self): return  "Add '%s'"%str(self)
-    def evaluate(self, fields): fields.update(self.characteristics)
+    def evaluate(self, fields): fields.update(self._characteristics)
 
 class remove_characteristics(characteristic):
     def __eq__(self, other):
-        if other in self: return False
+        if other in self._characteristics: return False
         else: return None
     def intersects(self, other):
         raise NotImplementedError()
     def __repr__(self): return "Remove '%s'"%str(self)
-    def evaluate(self, fields): fields.difference_update(self.characteristics)
+    def evaluate(self, fields): fields.difference_update(self._characteristics)
 
 class stacked_characteristic(object):
     def __init__(self, card, orig, change_event):
