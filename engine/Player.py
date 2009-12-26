@@ -135,7 +135,7 @@ class Player(MtGObject):
     def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action='', required=True, all=False):
         cards_in_zone = getattr(self, zone).get(cardtype)
         if zone == "library" and not cardtype == isCard: required = False
-        if len(cards_in_zone) = 0: cards = []
+        if len(cards_in_zone) == 0 and not zone == "library": cards = []
         elif number >= len(cards_in_zone) and required: cards = cards_in_zone
         else:
             cards = []
