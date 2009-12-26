@@ -22,7 +22,8 @@ class planeswalker_abilities(stacked_abilities):
 def redirect_to(planeswalker):
     from Player import Player
     def condition(self, amt, source, combat):
-        return not (combat or source.controller == planeswalker.controller)
+        controller = planeswalker.controller
+        return self == controller and not (combat or source.controller == controller)
     def redirectDamage(self, amt, source, combat=False):
         redirect = source.controller.getIntention("", "Redirect %d damage to %s?"%(amt, planeswalker))
         if redirect: dmg = planeswalker.assignDamage(amt, source, combat)
