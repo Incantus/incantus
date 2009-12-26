@@ -73,11 +73,16 @@ class stacked_abilities(object):
         abilities = additional_abilities(*abilities)
         self._stacking.insert(0, abilities)
         abilities.enable(self.zone, self.source())
+        attached = False
+        if (hasattr(self.source(), "attached_to") and self.source().attached_to):
+            abilities.enable("attached", self.source())
+            attached = True
         self.source().send(AbilitiesModifiedEvent())
         def restore():
             if not self.source().is_LKI:
                 self._stacking.remove(abilities)
                 abilities.disable(self.zone)
+                if attached: abilities.disable("attached")
         return restore
     def remove(self, keyword):
         disabled = []
