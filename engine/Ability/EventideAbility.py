@@ -2,6 +2,7 @@ from engine.Match import isLandCard
 from StaticAbility import CardStaticAbility
 from Cost import DiscardCost
 
+# XXX These are currently incorrect - fix this with new spell playing
 def retrace():
     def retrace_effect(card):
         orig_spell = card.play_spell
@@ -17,7 +18,6 @@ def retrace():
 
     return CardStaticAbility(effects=retrace_effect, zone="graveyard", keyword="retrace")
 
-
-def chroma(selection, color):
+def chroma(selection, mana_color):
     if not (type(selection) == list or type(selection) == tuple): selection = [selection]
-    return sum([sum([1 for symbol in obj.cost if symbol == color]) for obj in selection if obj.cost.is_mana_cost()])
+    return sum([sum([1 for symbol in obj.cost if symbol == mana_color]) for obj in selection if obj.cost.is_mana_cost()])

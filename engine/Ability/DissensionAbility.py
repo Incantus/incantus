@@ -3,6 +3,7 @@ from CiPAbility import CiP, CiPAbility
 from TriggeredAbility import TriggeredAbility
 from Target import NoTarget
 from Trigger import EnterTrigger
+from engine.Match import isCreature
 
 def graft(value):
     txt = "Graft %d"%value
@@ -24,5 +25,5 @@ def graft(value):
     graft_Triggered = TriggeredAbility(EnterTrigger("play", player="any"), 
             condition=condition,
             effects=graft_2,
-            txt="")
+            txt=txt)
     return graft_CiP, graft_Triggered
