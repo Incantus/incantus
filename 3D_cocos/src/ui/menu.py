@@ -6,7 +6,7 @@ from cocos.menu import *
 from cocos.layer import Layer, MultiplexLayer
 from cocos.text import Label
 from cocos.actions import FadeIn, FadeOut, Repeat
-#import soundfx
+import soundfx
 import Incantus
 from resources import fontname, config
 
@@ -107,11 +107,12 @@ class OptionsMenu(IncantusMenu):
         super(OptionsMenu, self).__init__('Options')
         items = []
         items.append( MultipleMenuItem(
-                        'Music volume: ',#
+                        'Music volume: ',
                         self.on_music_volume,
                         ['Mute','10','20','30','40','50','60','70','80','90','100'],
-                        0)#int(soundfx.sound_volume * 10) )
+                        int(soundfx.volume * 10) )
                     )
+        items.append( ToggleMenuItem('Sound Effects:', self.on_soundfx, soundfx.toggle_fx) )
         items.append( ToggleMenuItem('Show FPS:', self.on_show_fps, director.show_FPS) )
         items.append( MenuItem('Fullscreen', self.on_fullscreen) )
         items.append( MenuItem('Back', self.on_quit) )
@@ -122,7 +123,9 @@ class OptionsMenu(IncantusMenu):
         director.show_FPS = value
     def on_music_volume( self, idx ):
         vol = idx / 10.0
-        #soundfx.sound_volume = vol
+        soundfx.volume = vol
+    def on_soundfx( self, value ):
+        soundfx.toggle_fx = value
 
 class NetworkGameMenu(IncantusMenu):
     def __init__(self, title):

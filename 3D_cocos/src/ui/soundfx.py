@@ -1,11 +1,14 @@
 
-from pyglet import resource
+from pyglet import media, resource
 import GUIEvent
 from engine import GameEvent
 from engine.pydispatch import dispatcher
 
 resource.path.append("./data/soundfx")
 resource.reindex()
+
+volume = 0
+toggle_fx = False
 
 class SoundEffects(object):
     def __init__(self):
@@ -26,9 +29,9 @@ class SoundEffects(object):
         #self.untap = resource.media("untap.wav", streaming=False)
         #self.lifeloss = resource.media("lifeloss.wav", streaming=False)
 
-        #self.player = media.Player()
-        #self.player.queue(resource.media("background.ogg", streaming=True))
-        #self.player.eos_action = self.player.EOS_LOOP
+        self.player = media.Player()
+        self.player.queue(resource.media("background.ogg", streaming=True))
+        self.player.eos_action = self.player.EOS_LOOP
         self.connections = [(self.gamestart, GameEvent.GameStartEvent()),
                             (self.gameover, GameEvent.GameOverEvent()),
                             (self.your_focus, GUIEvent.MyPriority()),
@@ -47,13 +50,9 @@ class SoundEffects(object):
                             ]
     def disconnect(self):
         for sound, event in self.connections:
-            dispatcher.connect(sound.play, signal=event)
+            dispatcher.disconnect(sound.play, signal=event)
     def connect(self):
-        #self.player.play()
-        for sound, event in self.connections:
-            dispatcher.connect(sound.play, signal=event, priority=dispatcher.UI_PRIORITY)
-
-class NoEffects(object):
-    def __init__(self): pass
-    def disconnect(self): pass
-    def connect(self): pass
+        if toggle_fx:
+            self.player.play()
+            for sound, event in self.connections:
+                dispatcher.connect(sound.play, signal=event, priority=dispatcher.UI_PRIORITY)

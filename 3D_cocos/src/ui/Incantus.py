@@ -16,6 +16,7 @@ from cocos.scenes.transitions import *
 
 import random
 import euclid
+import soundfx
 
 from Camera import Camera
 from card_view import HandView, StackView, ZoneView
@@ -43,6 +44,7 @@ class IncantusLayer(Layer):
         self.pending_actions = []
         self.init()
         self.clear_game()
+        self.soundfx = soundfx.SoundEffects()
 
     def init(self):
         self.camera = Camera(euclid.Point3(0,15, 0))
@@ -263,6 +265,7 @@ class IncantusLayer(Layer):
         dispatcher.connect(self.priority_stop, signal=engine.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.play_ability, signal=engine.GameEvent.AbilityPlayedEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.new_turn, signal=engine.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
+        self.soundfx.connect()
 
     def new_turn(self, player): self.finish_turn = False
     def keep_priority(self): self._keep_priority = True
