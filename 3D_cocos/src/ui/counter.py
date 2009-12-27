@@ -6,7 +6,7 @@
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
-from math import sin, cos, pi, atan2, sqrt, floor
+from math import sin, cos, tan, pi, atan2, sqrt, floor
 from pyglet.gl import *
 
 import anim
@@ -21,6 +21,7 @@ RING_HEIGHT = .5
 RING_TEXTURE_RADIUS = INNER_DISC_RADIUS + \
                               3 * (RING_RADIUS + RING_RADIUS_SEPARATION) + \
                                                     RING_HEIGHT + .1
+CONTROLLER_MARKER_RADIUS = 10
 PIECE_SLICES = 40
 PIECE_RADIUS = 20 #0.3
 PIECE_HEIGHT = 0.1 #10 #0.1
@@ -51,6 +52,8 @@ class Counter(anim.Animable):
     alpha = anim.Animatable()
 
     piece_list = None
+    radius = PIECE_RADIUS
+    height = PIECE_HEIGHT
 
     def __init__(self, ctype, color=None):
         self.ctype = ctype
@@ -63,8 +66,6 @@ class Counter(anim.Animable):
             color[2] = temp % 2**8
             self.color = (color[0] / 255.0, color[1] / 255.0, color[2] / 255.0)
         else: self.color = color
-        self.radius = PIECE_RADIUS
-        self.height = PIECE_HEIGHT
         self.size = anim.constant(1)
         self._pos = AnimatedVector3(0,0,0)
         self._orientation = AnimatedQuaternion()
@@ -75,23 +76,29 @@ class Counter(anim.Animable):
         if not cls.piece_list: self.build_piece_list(cls)
 
     def build_piece_list(self, cls):
-        def point_fn(i):
-            return [(0, PIECE_HEIGHT),
-                    (PIECE_RADIUS/2, PIECE_HEIGHT),
-                    (PIECE_RADIUS - PIECE_BEVEL, PIECE_HEIGHT),
-                    (PIECE_RADIUS, PIECE_HEIGHT - PIECE_BEVEL),
-                    (PIECE_RADIUS, PIECE_BEVEL),
-                    (PIECE_RADIUS - PIECE_BEVEL, 0),
-                   ]
+        #def point_fn(i):
+        #    return [(0, self.height),
+        #            (cls.radius/2, cls.height),
+        #            (cls.radius - PIECE_BEVEL, cls.height),
+        #            (cls.radius, cls.height - PIECE_BEVEL),
+        #            (cls.radius, PIECE_BEVEL),
+        #            (cls.radius - PIECE_BEVEL, 0),
+        #            ]
         cls.piece_list = glGenLists(1)
         glNewList(cls.piece_list, GL_COMPILE)
+        # First version
         #glEnable(GL_BLEND)
         #glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
-        glCullFace(GL_FRONT)
-        draw_lathe(point_fn, PIECE_SLICES)
-        glCullFace(GL_BACK)
-        draw_lathe(point_fn, PIECE_SLICES)
         #glDisable(GL_BLEND)
+
+        # Second version
+        #glCullFace(GL_FRONT)
+        #draw_lathe(point_fn, PIECE_SLICES)
+        #glCullFace(GL_BACK)
+        #draw_lathe(point_fn, PIECE_SLICES)
+
+        # Third version
+        draw_circle(0, 0, cls.radius)       # 2D circle function
         glEndList()
 
     def draw(self):
@@ -104,6 +111,49 @@ class Counter(anim.Animable):
             glColor4f(self.color[0], self.color[1], self.color[2], self.alpha)
             glCallList(self.piece_list)
             glPopMatrix()
+
+class ControllerMarker(Counter):
+    """
+    Subclass of counter to use for markers to indicate controller of permanents.
+    """
+    # This class needs its own piece_list and radius separate from Counter
+    piece_list = None
+    radius = CONTROLLER_MARKER_RADIUS
+
+    alpha = anim.Animatable()
+
+    def __init__(self, color):
+        super(ControllerMarker, self).__init__('controller_marker', color=color)
+        self.alpha = 0.4    # more transparent than regular counters
+
+# Draw a rough circle approximation using 2D primatives
+def draw_circle(cx, cy, r):
+    num_segments = int(5 * sqrt(r))     # approximate the number of segments needed for a decent circle
+    theta = 2 * pi / num_segments
+    c = cos(theta)      # precalculate the sine and cosine
+    s = sin(theta)
+    x = r       # We start at angle = 0
+    y = 0
+    vertices = []
+
+    for i in range(num_segments):
+        vertices.extend((x + cx, y + cy))
+        # Apply rotation to get the next vertex
+        t = x;
+        x = c * x - s * y;
+        y = s * t + c * y;
+
+    # Draw vertices using glDrawArrays since it's much faster
+    num_coords = len(vertices)
+    vertices = (GLfloat * num_coords)(*vertices)
+    glPushAttrib(GL_ENABLE_BIT)
+    glEnable(GL_NORMALIZE)
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
+    glEnableClientState(GL_VERTEX_ARRAY)
+    glVertexPointer(2, GL_FLOAT, 0, vertices)
+    glDrawArrays(GL_POLYGON, 0, num_coords/2)
+    glPopClientAttrib()
+    glPopAttrib()
 
 # lathe around z to produce torus.  slice contains (rad, z) points
 def draw_lathe(point_fn, slices, texr=RING_TEXTURE_RADIUS):
