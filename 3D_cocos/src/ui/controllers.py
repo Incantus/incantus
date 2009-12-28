@@ -427,7 +427,7 @@ class DistributionSelector(object):
                 self.deactivate()
             return True
     def on_mouse_press(self, x, y, button, modifiers):
-        select_ray = self.window.selection_ray(x, y)
+        select_ray = self.window.camera.selection_ray(x, y)
         selected, play = self.play1.get_card_from_hit(select_ray), self.play1
         if not selected: selected, play = self.play2.get_card_from_hit(select_ray), self.play2
         if selected in self.targets:
@@ -742,7 +742,7 @@ class PlayController(object):
         director.window.remove_handlers(self)
     def on_mouse_press(self, x, y, button, modifiers):
         # Iterate over all polys in all items, collect all intersections
-        select_ray = self.window.camera.selection_ray(x, y)
+        select_ray = self.camera.selection_ray(x, y)
         self.selected, play = self.play.get_card_from_hit(select_ray), self.play
         if not self.selected: self.selected, play = self.other_play.get_card_from_hit(select_ray), self.other_play
         # Zoom the card

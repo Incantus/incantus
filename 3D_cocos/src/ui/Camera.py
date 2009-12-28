@@ -32,9 +32,9 @@ class Camera(object):
         self._pos = AnimatedVector3(pos)
         self._orientation = AnimatedQuaternion()
         self._orientation.set_transition(dt=0.5, method="sine")
-        self.viewangle = -7*math.pi/16
+        #self.viewangle = -7*math.pi/16
         #self.viewangle = -15*math.pi/32
-        #self.viewangle = -127*math.pi/256
+        self.viewangle = -127*math.pi/256
         self._orientation.rotate_axis(self.viewangle, euclid.Vector3(1,0,0))
         self.view_switched = False
         self.vis_distance = 6.5
