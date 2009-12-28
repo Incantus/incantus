@@ -9,6 +9,7 @@ resource.reindex()
 
 volume = 0
 toggle_fx = False
+toggle_music = False
 
 class SoundEffects(object):
     def __init__(self):
@@ -52,7 +53,8 @@ class SoundEffects(object):
         for sound, event in self.connections:
             dispatcher.disconnect(sound.play, signal=event)
     def connect(self):
-        if toggle_fx:
+        if toggle_music:
             self.player.play()
+        if toggle_fx:
             for sound, event in self.connections:
                 dispatcher.connect(sound.play, signal=event, priority=dispatcher.UI_PRIORITY)

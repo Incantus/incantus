@@ -106,24 +106,27 @@ class OptionsMenu(IncantusMenu):
     def __init__(self):
         super(OptionsMenu, self).__init__('Options')
         items = []
+        items.append( ToggleMenuItem('Music: ', self.on_music, soundfx.toggle_music) )
+        items.append( ToggleMenuItem('Sound Effects: ', self.on_soundfx, soundfx.toggle_fx) )
         items.append( MultipleMenuItem(
-                        'Music volume: ',
+                        'Sound volume: ',
                         self.on_music_volume,
                         ['Mute','10','20','30','40','50','60','70','80','90','100'],
                         int(soundfx.volume * 10) )
                     )
-        items.append( ToggleMenuItem('Sound Effects:', self.on_soundfx, soundfx.toggle_fx) )
-        items.append( ToggleMenuItem('Show FPS:', self.on_show_fps, director.show_FPS) )
-        items.append( MenuItem('Fullscreen', self.on_fullscreen) )
+        items.append( ToggleMenuItem('Show FPS: ', self.on_show_fps, director.show_FPS) )
+        items.append( ToggleMenuItem('Fullscreen: ', self.on_fullscreen, director.window.fullscreen) )
         items.append( MenuItem('Back', self.on_quit) )
         self.create_menu(items)
-    def on_fullscreen( self ):
-        director.window.set_fullscreen( not director.window.fullscreen )
+    def on_fullscreen( self, value ):
+        director.window.set_fullscreen( value )
     def on_show_fps( self, value ):
         director.show_FPS = value
     def on_music_volume( self, idx ):
         vol = idx / 10.0
         soundfx.volume = vol
+    def on_music( self, value ):
+        soundfx.toggle_music = value
     def on_soundfx( self, value ):
         soundfx.toggle_fx = value
 
