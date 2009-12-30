@@ -1,8 +1,10 @@
 #!/usr/bin/python
-import sys, random, pdb
+import sys, random, pudb, pdb
 from network import replaydump
 import engine
 from engine.pydispatch import dispatcher
+
+debug = pdb
 
 replayfile = "game.replay"
 
@@ -16,11 +18,11 @@ def userinput(context, prompt):
         print "(%d) %s -- %s"%(dump.lastpos, prompt, result)
         if slow:
             input = raw_input("Press a key")
-            if input == "d": pdb.set_trace()
+            if input == "d": debug.set_trace()
             elif input == "f": slow = False
         if not result is False: return result
     except:
-        pdb.set_trace()
+        debug.set_trace()
 
 dump = replaydump.ReplayDump(replayfile, False)
 
