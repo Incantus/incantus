@@ -49,17 +49,17 @@ def unearth(cost):
         yield
         source.abilities.add(haste())
 
-        @delayed_trigger(PhaseTrigger(EndTurnStepEvent()), txt="Remove this from the game at end of turn.")
+        @delayed_trigger(PhaseTrigger(EndTurnStepEvent()), txt="Exile this from the game at end of turn.")
         def d_trigger():
             def effects(controller, source):
                 yield NoTarget()
-                source.move_to("removed")
+                source.move_to("exile")
                 yield
             return no_condition, effects
 
         leave_play_condition = lambda self, zone, position="top": str(self.zone) == "play"
         def move_to(self, zone, position="top"):
-            return self.move_to("removed")
-        until_end_of_turn(delay(source, d_trigger), do_replace(source, "move_to", move_to, msg="%s - remove from game"%source.name, condition=leave_play_condition))
+            return self.move_to("exile")
+        until_end_of_turn(delay(source, d_trigger), do_replace(source, "move_to", move_to, msg="%s - exile from game"%source.name, condition=leave_play_condition))
         yield
     return ActivatedAbility(effects, limit=sorcery_limit, zone="graveyard", txt="Unearth %s"%str(cost), keyword="unearth")

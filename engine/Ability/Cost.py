@@ -309,9 +309,9 @@ class ChangeZoneCost(Cost):
         else: txt = ''
         return (self.action_txt%txt).title()
 
-class RemoveFromLibraryCost(ChangeZoneCost):
+class ExileFromLibraryCost(ChangeZoneCost):
     def __init__(self, number=1, position='top'):
-        super(RemoveFromLibraryCost, self).__init__(from_zone="library", to_zone="exhile", cardtype=isCard, number=number)
+        super(ExileFromLibraryCost, self).__init__(from_zone="library", to_zone="exhile", cardtype=isCard, number=number)
         self.position = position
     def compute(self, source, player):
         if self.position == "top":
@@ -325,20 +325,20 @@ class ReturnToHandCost(ChangeZoneCost):
         super(ReturnToHandCost,self).__init__(from_zone="play", to_zone="hand", cardtype=cardtype, number=number)
         self.action_txt = "return%s to hand"
 
-class RemoveFromPlayCost(ChangeZoneCost):
+class ExileFromPlayCost(ChangeZoneCost):
     def __init__(self, cardtype=None, number=1):
-        super(RemoveFromPlayCost,self).__init__(from_zone="play", to_zone="removed", cardtype=cardtype, number=number)
-        self.action_txt = "remove%s from play"
+        super(ExileFromPlayCost,self).__init__(from_zone="play", to_zone="exile", cardtype=cardtype, number=number)
+        self.action_txt = "exile%s from play"
 
-class RemoveFromHandCost(ChangeZoneCost):
+class ExileFromHandCost(ChangeZoneCost):
     def __init__(self, cardtype=None, number=1):
-        super(RemoveFromHandCost,self).__init__(from_zone="hand", to_zone="removed", cardtype=cardtype, number=number)
-        self.action_txt = "remove%s from hand"
+        super(ExileFromHandCost,self).__init__(from_zone="hand", to_zone="exile", cardtype=cardtype, number=number)
+        self.action_txt = "exile%s from hand"
 
-class RemoveFromGraveyardCost(ChangeZoneCost):
+class ExileFromGraveyardCost(ChangeZoneCost):
     def __init__(self, cardtype=None, number=1):
-        super(RemoveFromGraveyardCost,self).__init__(from_zone="graveyard", to_zone="removed", cardtype=cardtype, number=number)
-        self.action_txt = "remove%s from graveyard"
+        super(ExileFromGraveyardCost,self).__init__(from_zone="graveyard", to_zone="exile", cardtype=cardtype, number=number)
+        self.action_txt = "exile%s from graveyard"
 
 class RemoveCounterCost(Cost):
     def __init__(self, counter_type=None, cardtype=None, number=1):

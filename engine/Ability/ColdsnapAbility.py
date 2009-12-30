@@ -12,7 +12,7 @@ def recover(cost):
         if controller.you_may_pay(source, cost):
             source.move_to("hand")
         else:
-            source.move_to("removed")
+            source.move_to("exile")
         yield
 
     return TriggeredAbility(EnterFromTrigger("graveyard", "play", player="you"),

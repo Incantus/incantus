@@ -122,7 +122,7 @@ class ZoneAnimator(object):
         self.red_zone = None
     def setup(self, main_status, other_status, stack, main_play, other_play, board):
         for playerstatus, playzone in zip([main_status, other_status], [main_play, other_play]):
-            for status in ["library", "graveyard", "removed"]:
+            for status in ["library", "graveyard", "exile"]:
                 self.status_zones[getattr(playerstatus.player, status)] = (playerstatus, playerstatus.symbols[status])
             self.play_zones[playerstatus.player] = playzone
             self.player_status[playerstatus.player] = (playerstatus, playerstatus.symbols["life"])

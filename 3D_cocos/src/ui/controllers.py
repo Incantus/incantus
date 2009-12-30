@@ -179,7 +179,7 @@ class CardSelector(object):
         self.actionable = actionable
         director.window.push_handlers(self)
         # Figure out where to pop up
-        # zone options are play, library, graveyard, and removed
+        # zone options are play, library, graveyard, and exile
         # XXX The hand part should really reveal cards in the players hand
         if from_zone == "play" or from_zone == "hand": self.zone_view.pos = euclid.Vector3(self.window.width/2, self.window.height/2, 0)
         else:
@@ -457,7 +457,7 @@ class StatusController(object):
         self.window = window
         self.value = None
         self.clicked = False
-        self.observable_zones = set(["graveyard", "removed", "library"])
+        self.observable_zones = set(["graveyard", "exile", "library"])
         self.tmp_dx = 0
         self.solitaire = False
     def set_solitaire(self):

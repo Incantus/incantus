@@ -109,8 +109,8 @@ class Graveyard(OutPlayMixin, OrderedZone):
 class Hand(OutPlayMixin, Zone):
     name = "hand"
 
-class Removed(OutPlayMixin, AddCardsMixin, Zone):
-    name = "removed"
+class Exile(OutPlayMixin, AddCardsMixin, Zone):
+    name = "exile"
 
 class Library(OutPlayMixin, AddCardsMixin, OrderedZone):
     name = "library"

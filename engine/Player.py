@@ -3,7 +3,7 @@ from GameObjects import Card, Token
 from GameKeeper import Keeper
 from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, BlockersReorderedEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent, GameOverException, DealsDamageToEvent
 from Mana import ManaPool, generate_hybrid_choices
-from Zone import Library, Hand, Graveyard, Removed
+from Zone import Library, Hand, Graveyard, Exile
 from Action import CancelAction, PassPriority, OKAction
 from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isPlaneswalker, OpponentMatch
 from stacked_function import replace
@@ -50,7 +50,7 @@ class Player(MtGObject):
         self.library = Library()
         self.hand = Hand()
         self.graveyard = Graveyard()
-        self.removed = Removed()
+        self.exile = Exile()
         self.play = play.get_view(self)
         self.stack = stack
         self.manapool = ManaPool()
@@ -61,7 +61,7 @@ class Player(MtGObject):
         self.land_actions = 1
     def reset(self):
         # return all cards to library
-        for from_location in [self.play, self.hand, self.graveyard, self.removed]:
+        for from_location in [self.play, self.hand, self.graveyard, self.exile]:
             for card in from_location: card.move_to("library")
     def loadDeck(self):
         for num, name in self.decklist:
@@ -96,7 +96,7 @@ class Player(MtGObject):
             return True
         else: return False
     def create_tokens(self, info, number=1, tag=''):
-        return [self.removed.add_new_card(Token.create(info, owner=self)) for _ in range(number)]
+        return [self.exile.add_new_card(Token.create(info, owner=self)) for _ in range(number)]
     def play_tokens(self, info, number=1, tag=''):
         return [token.move_to("play") for token in self.create_tokens(info, number)]
     def make_selection(self, sellist, number=1, required=True, prompt=''):
@@ -108,7 +108,7 @@ class Player(MtGObject):
         import symbols
         subtypes = set()
         creature_types = lambda c: c.types.intersects(set((symbols.Creature, symbols.Tribal)))
-        for cards in (getattr(player, zone).get(creature_types) for zone in ["play", "graveyard", "removed", "library", "hand"] for player in Keeper.players):
+        for cards in (getattr(player, zone).get(creature_types) for zone in ["play", "graveyard", "exile", "library", "hand"] for player in Keeper.players):
             for card in cards: subtypes.update(card.subtypes.current)
         return self.make_selection(sorted(subtypes), prompt='Choose a creature type')
     def choose_opponent(self):

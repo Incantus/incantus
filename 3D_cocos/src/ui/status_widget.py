@@ -434,7 +434,7 @@ class StatusView(Widget):
         super(StatusView,self).__init__(pos)
         self.is_opponent = is_opponent
         self._pos.set_transition(dt=0.5, method="ease_out_circ")
-        symbols = ["life", "library", "graveyard", "removed"]
+        symbols = ["life", "library", "graveyard", "exile"]
         img_classes = [Image, LibraryImage, Image, Image]
         sizes = [30, 20, 20, 20]
         self.symbols = dict([(symbol, cls(symbol)) for symbol, cls in zip(symbols, img_classes)])
@@ -463,7 +463,7 @@ class StatusView(Widget):
     def clear(self):
         self.symbols['life'].rotatey = anim.constant(0)
         status = self.values
-        counters = ["life", "library", "graveyard", "removed"]
+        counters = ["life", "library", "graveyard", "exile"]
         #for c in counters: status[c].set_text(0)
     def show(self):
         self.pos = self.orig_pos
@@ -493,7 +493,7 @@ class StatusView(Widget):
         self.player_name.set_text(player.name)
         self.update_life()
         self.symbols["library"].setup_player(player)
-        for zone in ["library", "graveyard", "removed"]:
+        for zone in ["library", "graveyard", "exile"]:
             self.update_zone(getattr(player, zone))
         #self.update_cards()
         self.active.scale = anim.animate(0.1, 0.75, dt=0.2, method="ease_out_back")
@@ -529,7 +529,7 @@ class StatusView(Widget):
     def update_cards(self):
         status = self.values
         player = self.player
-        counters = ["library", "graveyard", "removed"]
+        counters = ["library", "graveyard", "exile"]
         for c in counters:
             val = len(getattr(player, c))
             if val > 0:
@@ -557,7 +557,7 @@ class StatusView(Widget):
         else: dir = -1
         startx = x = life.width*1.5*dir
         starty = y = life.height*dir
-        for status in ["graveyard", "removed"][::dir]:
+        for status in ["graveyard", "exile"][::dir]:
             symbol, value = self.symbols[status], self.values[status]
             symbol.scale = 0.35
             if self.is_opponent: y -= symbol.height/4*dir
@@ -616,7 +616,7 @@ class StatusView(Widget):
         glVertex2f(l, t)
         glEnd()
         self.active.render()
-        for status in ["life", "library", "graveyard", "removed"]:
+        for status in ["life", "library", "graveyard", "exile"]:
             symbol, value = self.symbols[status], self.values[status]
             symbol.render()
             value.render()

@@ -29,7 +29,7 @@ class ImageCache(object):
     def load_images():
         colors = ["red", "white", "black", "colorless", "green", "blue"]
         ImageCache._load_multi("mana.png", colors, 2, 3)
-        status = ["removed", "graveyard", "library", "hand"]
+        status = ["exile", "graveyard", "library", "hand"]
         ImageCache._load_multi("status.png", status, 2, 2)
         ImageCache._load("life.png", "life")
         status = ['Untap','Upkeep','Draw','Main1','BeginCombat','Attack','Block','Damage','EndCombat','Main2','EndStep','Cleanup']

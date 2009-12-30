@@ -57,7 +57,7 @@ def champion(types=None, subtypes=None):
         cards = controller.choose_from_zone(cardtype=cardtype.with_condition(lambda p: not p == source), required=False, action="champion")
         if cards:
             card = cards[0]
-            source.championed = card.move_to("removed")
+            source.championed = card.move_to("exile")
         else:
             controller.sacrifice(source)
         yield
@@ -69,8 +69,8 @@ def champion(types=None, subtypes=None):
     def champion2(controller, source):
         target = yield NoTarget()
         # Code for effect
-        removed = source.championed if hasattr(source, "championed") else None
-        if removed: removed.move_to("play")
+        exiled = source.championed if hasattr(source, "championed") else None
+        if exiled: exiled.move_to("play")
         yield
     champion_return = TriggeredAbility(LeaveTrigger("play"),
             condition = lambda source, card: source == card,
@@ -87,7 +87,7 @@ def hideaway(cost="0"):
         if topcards:
             card = controller.choose_from(topcards, number=1, prompt="Choose 1 card to hideaway")
             source.hidden = card
-            card.move_to("removed")
+            card.move_to("exile")
             card.faceDown()
             topcards.remove(card)
             for card in topcards: card.move_to("library", position="bottom")
