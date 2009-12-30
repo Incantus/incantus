@@ -3,13 +3,13 @@ from GameObjects import GameObject
 from Zone import Zone
 from GameEvent import AbilityPlacedOnStack, AbilityRemovedFromStack
 
-class Stack(Zone):
+class StackZone(Zone):
     name = "stack"
     def __init__(self, game):
         self._abilities = []
         self.game = weakref.proxy(game)
         self.pending_triggered =[]
-        super(Stack, self).__init__()
+        super(StackZone, self).__init__()
     def setup_new_role(self, card):
         cardtmpl = GameObject._cardmap[card.key]
         return cardtmpl.new_role(cardtmpl.stack_role)

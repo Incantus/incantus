@@ -3,7 +3,7 @@ from GameObjects import Card, Token
 from GameKeeper import Keeper
 from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, BlockersReorderedEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent, GameOverException, DealsDamageToEvent
 from Mana import ManaPool, generate_hybrid_choices
-from Zone import Library, Hand, Graveyard, Exile
+from Zone import LibraryZone, HandZone, GraveyardZone, ExileZone
 from Action import CancelAction, PassPriority, OKAction
 from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isPlaneswalker, OpponentMatch
 from stacked_function import replace
@@ -47,10 +47,10 @@ class Player(MtGObject):
         self.decklist = deck
     def init(self, play, stack, opponents):
         self.opponents = opponents
-        self.library = Library()
-        self.hand = Hand()
-        self.graveyard = Graveyard()
-        self.exile = Exile()
+        self.library = LibraryZone()
+        self.hand = HandZone()
+        self.graveyard = GraveyardZone()
+        self.exile = ExileZone()
         self.play = play.get_view(self)
         self.stack = stack
         self.manapool = ManaPool()

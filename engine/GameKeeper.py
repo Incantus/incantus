@@ -2,8 +2,8 @@ import itertools, random
 from MtGObject import MtGObject
 import Match
 from GameEvent import *
-from Zone import Play
-from Stack import Stack
+from Zone import PlayZone
+from Stack import StackZone
 import stacked_function as stacked
 
 state_map = {"Untap": UntapStepEvent, "Upkeep": UpkeepStepEvent, "Draw": DrawStepEvent,
@@ -65,8 +65,8 @@ class GameKeeper(MtGObject):
 
     def init(self, players):
         self.current_phase = "Pregame"
-        self.stack = Stack(self)
-        self.play = Play(self)
+        self.stack = StackZone(self)
+        self.play = PlayZone(self)
 
         self.loadMods()
         self._tokens_out_play = []

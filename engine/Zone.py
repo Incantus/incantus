@@ -103,24 +103,24 @@ class AddCardsMixin(object):
         self.send(CardEnteredZone(), card=card)
         return card
 
-class Graveyard(OutPlayMixin, OrderedZone):
+class GraveyardZone(OutPlayMixin, OrderedZone):
     name = "graveyard"
 
-class Hand(OutPlayMixin, Zone):
+class HandZone(OutPlayMixin, Zone):
     name = "hand"
 
-class Exile(OutPlayMixin, AddCardsMixin, Zone):
+class ExileZone(OutPlayMixin, AddCardsMixin, Zone):
     name = "exile"
 
-class Library(OutPlayMixin, AddCardsMixin, OrderedZone):
+class LibraryZone(OutPlayMixin, AddCardsMixin, OrderedZone):
     name = "library"
     def __init__(self):
-        super(Library, self).__init__()
+        super(LibraryZone, self).__init__()
         self.skip_ordering = False
     def get_card_order(self, cardlist, pos):
         # we're gonna shuffle anyway, no need to order the cards
         if self.skip_ordering: return cardlist
-        else: return super(Library, self).get_card_order(cardlist, pos)
+        else: return super(LibraryZone, self).get_card_order(cardlist, pos)
     def shuffle(self):
         # If we have any pending insertions, move them to the library
         # before shuffling
@@ -131,6 +131,31 @@ class Library(OutPlayMixin, AddCardsMixin, OrderedZone):
             self.skip_ordering = False
         random.shuffle(self._cards)
         self.send(ShuffleEvent())
+
+class PlayZone(OrderedZone):
+    name = "play"
+    def __init__(self, game):
+        self.game = game
+        super(PlayZone, self).__init__()
+    def get_view(self, player):
+        return PlayView(player, self)
+    def get_card_order(self, cardlist, pos):
+        if len(cardlist) > 1:
+            # Sort the cards
+            player_cards = dict([(player, []) for player in self.game.players])
+            for card in cardlist:
+                player_cards[card.controller].append(card)
+            cardlist = []
+            for player in self.game.players:
+                cards = player_cards[player]
+                if len(cards) > 1:
+                    cards = player.getCardSelection(cards, number=len(cards), zone=str(self), player=player, prompt="Order cards entering %s"%(self))
+                    cards.reverse()
+                cardlist.extend(cards)
+        return cardlist
+    def setup_new_role(self, card):
+        cardtmpl = GameObject._cardmap[card.key]
+        return cardtmpl.new_role(cardtmpl.in_play_role)
 
 class PlayView(object):
     def __init__(self, player, play):
@@ -152,28 +177,3 @@ class PlayView(object):
         card.initialize_controller(self.player)
         return card
     def __str__(self): return "play"
-
-class Play(OrderedZone):
-    name = "play"
-    def __init__(self, game):
-        self.game = game
-        super(Play, self).__init__()
-    def get_view(self, player):
-        return PlayView(player, self)
-    def get_card_order(self, cardlist, pos):
-        if len(cardlist) > 1:
-            # Sort the cards
-            player_cards = dict([(player, []) for player in self.game.players])
-            for card in cardlist:
-                player_cards[card.controller].append(card)
-            cardlist = []
-            for player in self.game.players:
-                cards = player_cards[player]
-                if len(cards) > 1:
-                    cards = player.getCardSelection(cards, number=len(cards), zone=str(self), player=player, prompt="Order cards entering %s"%(self))
-                    cards.reverse()
-                cardlist.extend(cards)
-        return cardlist
-    def setup_new_role(self, card):
-        cardtmpl = GameObject._cardmap[card.key]
-        return cardtmpl.new_role(cardtmpl.in_play_role)
