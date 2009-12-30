@@ -173,6 +173,6 @@ timestep_damage_tracker = TimestepDamageTrackingVariable()
 
 # Predefined memory variables
 damage_tracker = DamageTrackingVariable()
-graveyard_tracker = ZoneMoveVariable(from_zone="play", to_zone="graveyard")
+graveyard_tracker = ZoneMoveVariable(from_zone="battlefield", to_zone="graveyard")
 spell_record = SpellRecordVariable()
 combat_tracker = CombatTrackingVariable()

@@ -240,7 +240,7 @@ class ZoneAnimator(object):
         if zone in self.status_zones and not card.controller == self.player:
             pstatus, symbol = self.status_zones[zone]
             start_pos = pstatus.pos + symbol.pos
-        elif str(zone) == "play":
+        elif str(zone) == "battlefield":
             zone = self.play_zones[card.controller]
             guicard = zone.get_card(card)
             start_pos = self.project_to_window(*tuple(zone.pos+guicard.pos))
@@ -284,7 +284,7 @@ class ZoneAnimator(object):
                     clock.schedule_once(lambda t: pstatus.update_zone(sender), dt)
                 del self.tracker[card.key]
             else: pstatus.update_zone(sender)
-        elif str(sender) == "play":
+        elif str(sender) == "battlefield":
             dt = 0.5
             zone = self.play_zones[card.controller]
             if card.key in self.tracker:
@@ -306,7 +306,7 @@ class ZoneAnimator(object):
             if pstatus.visible == 1 and not card.key in self.tracker: # already here because it was in the stack
                 self.tracker[card.key] = (pstatus.pos + symbol.pos, pstatus)
             pstatus.update_zone(sender)
-        elif str(sender) == "play":
+        elif str(sender) == "battlefield":
             zone = self.play_zones[card.controller]
             guicard = zone.get_card(card)
             self.tracker[card.key] = (self.project_to_window(*tuple(zone.pos+guicard.pos)), zone)

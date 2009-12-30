@@ -7,10 +7,10 @@ from engine.Match import isCreature
 
 def graft(value):
     txt = "Graft %d"%value
-    def enterPlayWith(self):
+    def enterBattlefieldWith(self):
         self.add_counters(PowerToughnessCounter(1,1), number=value)
     def graft_1(source):
-        yield CiP(source, enterPlayWith, txt=txt)
+        yield CiP(source, enterBattlefieldWith, txt=txt)
     graft_CiP = CiPAbility(graft_1, txt=txt, keyword='graft')
 
     def condition(source, card):
@@ -22,7 +22,7 @@ def graft(value):
                 source.remove_counters(PowerToughnessCounter(1,1))
                 card.add_counters(PowerToughnessCounter(1,1))
         yield
-    graft_Triggered = TriggeredAbility(EnterTrigger("play", player="any"), 
+    graft_Triggered = TriggeredAbility(EnterTrigger("battlefield", player="any"), 
             condition=condition,
             effects=graft_2,
             txt=txt)

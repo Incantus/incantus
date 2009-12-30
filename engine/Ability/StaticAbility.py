@@ -11,7 +11,7 @@ __all__ = ["SimpleStaticAbility", "CardStaticAbility", "ConditionalStaticAbility
 # Static abilities always function while the permanent is in the relevant zone
 class StaticAbility(object):
     enabled = property(fget=lambda self: self._status_count > 0)
-    def __init__(self, effects, zone="play", txt='', keyword=''):
+    def __init__(self, effects, zone="battlefield", txt='', keyword=''):
         self.effect_generator = effects
         self.zone = zone
         if keyword and not txt: self.txt = keyword.capitalize()
@@ -38,7 +38,7 @@ class StaticAbility(object):
     def __repr__(self): return "%s<%s %o: %s>"%('*' if self.enabled else '', self.__class__.__name__, id(self), self.txt)
 
 class CardTrackingAbility(StaticAbility):
-    def __init__(self, effects, condition, events = [], tracking="play", zone="play", txt=''):
+    def __init__(self, effects, condition, events = [], tracking="battlefield", zone="battlefield", txt=''):
         super(CardTrackingAbility, self).__init__(effects, zone, txt)
         self.enter_trigger = EnterTrigger(tracking, player="any")
         self.leave_trigger = LeaveTrigger(tracking, player="any")
@@ -53,8 +53,8 @@ class CardTrackingAbility(StaticAbility):
     def get_current(self):
         controller = self.source.controller
         zone_condition = partial(self.condition, self.source)
-        if self.tracking == "play":
-            cards = controller.play.get(zone_condition, all=True)
+        if self.tracking == "battlefield":
+            cards = controller.battlefield.get(zone_condition, all=True)
         else:
             zone = getattr(controller, self.tracking)
             cards = zone.get(zone_condition)
@@ -93,7 +93,7 @@ class CardTrackingAbility(StaticAbility):
         if not card in self.effect_tracking: self.add_effects(card)
     def leaving(self, card):
         # This is called everytime a card that matches condition leaves the tracking zone
-        # The card might already be removed if the tracked card is removed and this card leaves play
+        # The card might already be removed if the tracked card is removed and this card leaves the battlefield
         # XXX Don't remove the effect since it's part of LKI
         #if card in self.effect_tracking: self.remove_effects(card)
         if card in self.effect_tracking: del self.effect_tracking[card]
@@ -123,10 +123,10 @@ class SimpleStaticAbility(StaticAbility):
         self.effect_tracking = []
 
 class CardStaticAbility(StaticAbility):
-    def __init__(self, effects, zone="play", txt='', keyword=''):
+    def __init__(self, effects, zone="battlefield", txt='', keyword=''):
         super(CardStaticAbility, self).__init__(effects, zone=zone, txt=txt, keyword=keyword)
         # XXX The zone is not quite right, for attached static abilities that can 
-        # attach to something out of play
+        # attach to something out of the battlefield
         self.control_changed = Trigger(ControllerChanged(), sender="source")  # card with ability changed controller
         self.LKI_condition = lambda source, card: source == card
     def _enable(self):
@@ -168,13 +168,13 @@ class Conditional(MtGObject):
             self.__enabled = False
 
 class ConditionalStaticAbility(Conditional, CardStaticAbility):
-    def __init__(self, effects, conditional, zone="play", txt=''):
+    def __init__(self, effects, conditional, zone="battlefield", txt=''):
         super(ConditionalStaticAbility, self).__init__(effects, zone, txt)
         self.init_conditional(conditional)
     def copy(self): return self.__class__(self.effect_generator, self.conditional, self.zone, self.txt)
 
 class ConditionalTrackingAbility(Conditional, CardTrackingAbility):
-    def __init__(self, effects, condition, conditional, events = [], tracking="play", zone="play", txt=''):
+    def __init__(self, effects, condition, conditional, events = [], tracking="battlefield", zone="battlefield", txt=''):
         super(ConditionalTrackingAbility, self).__init__(effects, condition, events, tracking, zone, txt)
         self.init_conditional(conditional)
     def copy(self):

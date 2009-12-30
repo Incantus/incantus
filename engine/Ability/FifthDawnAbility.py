@@ -15,7 +15,7 @@ def scry(player, number):
 
 # Untested
 def sunburst():
-    def enterPlayWith(self):
+    def enterBattlefieldWith(self):
         '''Sunburst'''
         sunburst = 0
         if "W" in self.cost.payment: sunburst += 1
@@ -25,5 +25,5 @@ def sunburst():
         if "G" in self.cost.payment: sunburst += 1
         self.add_counters(PowerToughnessCounter(1, 1) if self.types == Creature else "charge", number=sunburst)
     def sunburst(source):
-        yield CiP(source, enterPlayWith, condition=lambda self, zone, position="top": self.zone == "stack", txt="Sunburst")
+        yield CiP(source, enterBattlefieldWith, condition=lambda self, zone, position="top": self.zone == "stack", txt="Sunburst")
     return CiPAbility(sunburst, keyword='sunburst')

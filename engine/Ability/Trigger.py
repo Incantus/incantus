@@ -62,7 +62,7 @@ class MoveTrigger(Trigger):
         self.zone = zone
         self.player = player
     def check_player(self, sender, card):
-        player_cmp = card.controller  # Out of play defaults to owner
+        player_cmp = card.controller  # Out of battlefield defaults to owner
 
         if self.player == "you" and player_cmp == self.source.controller: return True
         elif self.player == "opponent" and player_cmp in self.source.controller.opponents: return True
@@ -103,7 +103,7 @@ class EnterFromTrigger(Trigger):
             self.unregister(self.filter, event=CardEnteringZoneFrom())
             self.activated = False
     def check_player(self, sender, card):
-        player_cmp = card.controller  # Out of play defaults to owner
+        player_cmp = card.controller  # Out of battlefield defaults to owner
 
         if self.player == "you" and player_cmp == self.source.controller: return True
         elif self.player == "opponent" and player_cmp in self.source.controller.opponents: return True

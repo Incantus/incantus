@@ -27,7 +27,7 @@ class CardEnteredZone(Event): pass
 class CardLeftZone(Event): pass
 class CardCeasesToExist(Event): pass
 class ControllerChanged(Event): pass
-class TokenLeavingPlay(Event): pass
+class TokenLeavingBattlefield(Event): pass
 class CounterAddedEvent(Event): pass
 class CounterRemovedEvent(Event): pass
 class MorphEvent(Event): pass

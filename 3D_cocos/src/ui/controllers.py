@@ -179,9 +179,9 @@ class CardSelector(object):
         self.actionable = actionable
         director.window.push_handlers(self)
         # Figure out where to pop up
-        # zone options are play, library, graveyard, and exile
+        # zone options are battlefield, library, graveyard, and exile
         # XXX The hand part should really reveal cards in the players hand
-        if from_zone == "play" or from_zone == "hand": self.zone_view.pos = euclid.Vector3(self.window.width/2, self.window.height/2, 0)
+        if from_zone == "battlefield" or from_zone == "hand": self.zone_view.pos = euclid.Vector3(self.window.width/2, self.window.height/2, 0)
         else:
             if not is_opponent: status = self.mainstatus
             else: status = self.otherstatus

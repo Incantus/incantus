@@ -2,7 +2,7 @@ import itertools, random
 from MtGObject import MtGObject
 import Match
 from GameEvent import *
-from Zone import PlayZone
+from Zone import BattlefieldZone
 from Stack import StackZone
 import stacked_function as stacked
 
@@ -66,15 +66,15 @@ class GameKeeper(MtGObject):
     def init(self, players):
         self.current_phase = "Pregame"
         self.stack = StackZone(self)
-        self.play = PlayZone(self)
+        self.battlefield = BattlefieldZone(self)
 
         self.loadMods()
-        self._tokens_out_play = []
-        self.register(lambda sender: setattr(sender, "is_LKI", True) or self._tokens_out_play.append(sender), TokenLeavingPlay(), weak=False)
+        self._tokens_out_battlefield = []
+        self.register(lambda sender: setattr(sender, "is_LKI", True) or self._tokens_out_battlefield.append(sender), TokenLeavingBattlefield(), weak=False)
 
         all_players = set(players)
         for player in players:
-            player.init(self.play, self.stack, all_players-set((player,)))
+            player.init(self.battlefield, self.stack, all_players-set((player,)))
         self.players = player_order(players)
 
     def start(self):
@@ -165,22 +165,22 @@ class GameKeeper(MtGObject):
         def MoveToGraveyard(permanent):
             def SBE(): permanent.move_to("graveyard")
             return SBE
-        for creature in self.play.get(Match.isCreature):
+        for creature in self.battlefield.get(Match.isCreature):
             if creature.toughness <= 0:
                 actions.append(MoveToGraveyard(creature))
             elif creature.shouldDestroy() or creature.deathtouched:
                 creature.deathtouched = False
                 actions.append(creature.destroy)
-        for walker in self.play.get(Match.isPlaneswalker):
+        for walker in self.battlefield.get(Match.isPlaneswalker):
             if walker.shouldDestroy():
                 actions.append(walker.destroy)
 
         # 420.5d An Aura attached to an illegal object or player, or not attached to an object or player, is put into its owner's graveyard.
-        for aura in self.play.get(Match.isAura):
+        for aura in self.battlefield.get(Match.isAura):
             if not aura.isValidAttachment():
                 actions.append(MoveToGraveyard(aura))
-        # 420.5e If two or more legendary permanents with the same name are in play, all are put into their owners' graveyards. This is called the "legend rule." If only one of those permanents is legendary, this rule doesn't apply.
-        legendaries = self.play.get(Match.isLegendaryPermanent)
+        # 420.5e If two or more legendary permanents with the same name are on the battlefield, all are put into their owners' graveyards. This is called the "legend rule." If only one of those permanents is legendary, this rule doesn't apply.
+        legendaries = self.battlefield.get(Match.isLegendaryPermanent)
         # XXX There's got to be a better way to find multiples
         remove_dup = []
         for i, l1 in enumerate(legendaries):
@@ -189,7 +189,7 @@ class GameKeeper(MtGObject):
                     remove_dup.extend([l1,l2])
                     break
         # 2 or more Planeswalkers with the same name
-        planeswalkers = self.play.get(Match.isPlaneswalker)
+        planeswalkers = self.battlefield.get(Match.isPlaneswalker)
         for i, l1 in enumerate(planeswalkers):
             for l2 in planeswalkers[i+1:]:
                 if l1.subtypes.intersects(l2.subtypes):
@@ -203,12 +203,12 @@ class GameKeeper(MtGObject):
                     card.move_to("graveyard")
             actions.append(SBE)
 
-        # 420.5f A token in a zone other than the in-play zone ceases to exist.
-        if len(self._tokens_out_play) > 0:
+        # 420.5f A token in a zone other than the battlefield zone ceases to exist.
+        if len(self._tokens_out_battlefield) > 0:
             def SBE():
-                for token in self._tokens_out_play: token.zone.cease_to_exist(token)
+                for token in self._tokens_out_battlefield: token.zone.cease_to_exist(token)
                 # XXX Now only GameObjects.cardmap has a reference to the token - we need to delete it somehow
-                self._tokens_out_play[:] = []
+                self._tokens_out_battlefield[:] = []
             actions.append(SBE)
         # 420.5g A player who attempted to draw a card from an empty library since the last time state-based effects were checked loses the game.
         for player in players:
@@ -219,14 +219,14 @@ class GameKeeper(MtGObject):
             if player.poison >= 10:
                 actions.append(LoseGame(player, "is poisoned"))
 
-        # 420.5i If two or more permanents have the supertype world, all except the one that has been a permanent with the world supertype in play for the shortest amount of time are put into their owners' graveyards. In the event of a tie for the shortest amount of time, all are put into their owners' graveyards. This is called the "world rule."
-        # 420.5j A copy of a spell in a zone other than the stack ceases to exist. A copy of a card in any zone other than the stack or the in-play zone ceases to exist.
-        # 420.5k An Equipment or Fortification attached to an illegal permanent becomes unattached from that permanent. It remains in play.
-        for equipment in self.play.get(Match.isEquipment):
+        # 420.5i If two or more permanents have the supertype world, all except the one that has been a permanent with the world supertype on the battlefield for the shortest amount of time are put into their owners' graveyards. In the event of a tie for the shortest amount of time, all are put into their owners' graveyards. This is called the "world rule."
+        # 420.5j A copy of a spell in a zone other than the stack ceases to exist. A copy of a card in any zone other than the stack or the battlefield zone ceases to exist.
+        # 420.5k An Equipment or Fortification attached to an illegal permanent becomes unattached from that permanent. It remains on the battlefield.
+        for equipment in self.battlefield.get(Match.isEquipment):
             if equipment.attached_to and not equipment.isValidAttachment():
                 actions.append(equipment.unattach)
-        # 420.5m A permanent that's neither an Aura, an Equipment, nor a Fortification, but is attached to another permanent, becomes unattached from that permanent. It remains in play.
-        for permanent in self.play.get(Match.isPermanent):
+        # 420.5m A permanent that's neither an Aura, an Equipment, nor a Fortification, but is attached to another permanent, becomes unattached from that permanent. It remains on the battlefield .
+        for permanent in self.battlefield.get(Match.isPermanent):
             if hasattr(permanent, "attached_to") and permanent.attached_to and not Match.isAttachment(permanent):
                 actions.append(permanent.unattach)
         # 420.5n If a permanent has both a +1/+1 counter and a -1/-1 counter on it, N +1/+1 and N -1/-1 counters are removed from it, where N is the smaller of the number of +1/+1 and -1/-1 counters on it.
@@ -235,7 +235,7 @@ class GameKeeper(MtGObject):
                 perm.remove_counters("+1+1", num)
                 perm.remove_counters("-1-1", num)
             return SBE
-        for perm in self.play.get(Match.isPermanent):
+        for perm in self.battlefield.get(Match.isPermanent):
             if perm.num_counters() > 0:
                 plus = perm.num_counters("+1+1")
                 minus = perm.num_counters("-1-1")
@@ -256,7 +256,7 @@ class GameKeeper(MtGObject):
         # untap all cards
         self.setState("Untap")
         # XXX Do phasing - nothing that phases in will trigger any "when ~this~ comes 
-        # into play..." effect, though they will trigger "When ~this~ leaves play" effects
+        # on the battlefield..." effect, though they will trigger "When ~this~ leaves battlefield" effects
         self.active_player.untapStep()
     def upkeepStep(self):
         self.setState("Upkeep")
@@ -337,12 +337,12 @@ class GameKeeper(MtGObject):
             self.setState("Attack")
             defending_player = attacking_player.declareDefendingPlayer()
             # Get all the players/planeswalkers
-            opponents = [defending_player] + defending_player.play.get(Match.isPlaneswalker)
+            opponents = [defending_player] + defending_player.battlefield.get(Match.isPlaneswalker)
             attackers = attacking_player.declareAttackers(opponents)
             if attackers: self.send(DeclareAttackersEvent(), attackers=attackers)
             self.playInstants()
-            # After playing instants, the list of attackers could be modified (if a creature was put into play "attacking", so we regenerate the list
-            attackers = self.play.get(Match.isCreature.with_condition(lambda c: c.attacking))
+            # After playing instants, the list of attackers could be modified (if a creature was put onto the battlefield "attacking", so we regenerate the list
+            attackers = self.battlefield.get(Match.isCreature.with_condition(lambda c: c.attacking))
             if attackers:
                 # Blocking
                 self.setState("Block")
@@ -382,7 +382,7 @@ class GameKeeper(MtGObject):
             # Clear all nonlethal damage
             self.send(CleanupEvent())
             self.send(TimestepEvent())
-            for creature in self.play.get(Match.isCreature):
+            for creature in self.battlefield.get(Match.isCreature):
                 creature.clearDamage()
             triggered_once = False
             while self.checkSBE(): triggered_once = True

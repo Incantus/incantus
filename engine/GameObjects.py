@@ -3,17 +3,17 @@ from symbols import Land, Instant, Sorcery
 from GameEvent import NameModifiedEvent, CostModifiedEvent, TextModifiedEvent, ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent, PowerToughnessModifiedEvent, LoyaltyModifiedEvent
 from abilities import abilities, stacked_abilities
 from characteristics import stacked_variable, stacked_characteristic, stacked_type
-from CardRoles import Permanent, SpellRole, NoRole, LandOutPlayRole, OutPlayRole, TokenOutPlayRole, TokenPermanent
+from CardRoles import Permanent, SpellRole, NoRole, LandNonBattlefieldRole, NonBattlefieldRole, TokenNonBattlefieldRole, TokenPermanent
 import CardDatabase
 
 class GameObject(MtGObject):
-    #__slots__ = ["key", "base_name", "base_cost", "base_text", "base_color", "base_types", "base_subtypes", "base_supertypes", "_owner", "out_play_role", "in_play_role", "stack_role"]
+    #__slots__ = ["key", "base_name", "base_cost", "base_text", "base_color", "base_types", "base_subtypes", "base_supertypes", "_owner", "out_battlefield_role", "in_battlefield_role", "stack_role"]
     def __init__(self, owner):
         self._owner = owner
 
-        self.in_play_role = None
+        self.in_battlefield_role = None
         self.stack_role = None
-        self.out_play_role = None
+        self.out_battlefield_role = None
 
         # characteristics
         self.base_name = None
@@ -70,22 +70,22 @@ class Card(GameObject):
         CardDatabase.loadCardFromDB(self, cardname)
         if self.base_types == Land:
             self.stack_role = NoRole
-            self.out_play_role = LandOutPlayRole
+            self.out_battlefield_role = LandNonBattlefieldRole
         else:
             self.stack_role = SpellRole
-            self.out_play_role = OutPlayRole
+            self.out_battlefield_role = NonBattlefieldRole
 
         if (self.base_types == Instant or self.base_types == Sorcery):
-            self.in_play_role = NoRole
+            self.in_battlefield_role = NoRole
         else:
-            self.in_play_role = Permanent
+            self.in_battlefield_role = Permanent
 
         self._add_to_map(self.base_name)
 
     @classmethod
     def create(cls, cardname, owner):
         card = cls(cardname, owner)
-        newrole = card.new_role(card.out_play_role)
+        newrole = card.new_role(card.out_battlefield_role)
         return newrole
 
 class Token(GameObject):
@@ -93,15 +93,15 @@ class Token(GameObject):
         super(Token, self).__init__(owner)
         if type(info) == dict: info = CardDatabase.convertToTxt(info)
         CardDatabase.execCode(self, info)
-        self.out_play_role = self.stack_role = TokenOutPlayRole
-        self.in_play_role = TokenPermanent
+        self.out_battlefield_role = self.stack_role = TokenNonBattlefieldRole
+        self.in_battlefield_role = TokenPermanent
         self._add_to_map(self.base_name+" Token")
 
     @classmethod
     def create(cls, info, owner):
         token = cls(info, owner)
-        newrole = token.new_role(token.out_play_role)
-        newrole.is_LKI = False # so we can move it into play the first time
+        newrole = token.new_role(token.out_battlefield_role)
+        newrole.is_LKI = False # so we can move it onto the battlefield the first time
         return newrole
 
     def __str__(self):

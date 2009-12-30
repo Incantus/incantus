@@ -153,7 +153,7 @@ class TapCost(Cost):
         self.number = number
     def precompute(self, source, player):
         if self.cardtype == None: return source.canTap()
-        else: return len(player.play.get(self.cardtype)) >= self.number
+        else: return len(player.battlefield.get(self.cardtype)) >= self.number
     def compute(self, source, player):
         self.targets = []
         # Tap myself
@@ -164,7 +164,7 @@ class TapCost(Cost):
         else:
             prompt = "Select %d %s(s) for tapping"%(self.number-len(self.targets), self.cardtype)
             while True:
-                target = player.getTarget(self.cardtype, zone="play", from_player="you", required=False, prompt=prompt)
+                target = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
                 if target == False: return False
                 if target in self.targets:
                     prompt = "Card already selected - select again"
@@ -195,7 +195,7 @@ class UntapCost(Cost):
         self.number = number
     def precompute(self, source, player):
         if self.cardtype == None: return source.canUntap()
-        else: return len(player.play.get(self.cardtype)) >= self.number
+        else: return len(player.battlefield.get(self.cardtype)) >= self.number
     def compute(self, source, player):
         self.targets = []
         # Untap myself
@@ -206,7 +206,7 @@ class UntapCost(Cost):
         else:
             prompt = "Select %d %s(s) for untapping"%(self.number-len(self.targets), self.cardtype)
             while True:
-                target = player.getTarget(self.cardtype, zone="play", from_player="you", required=False, prompt=prompt)
+                target = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
                 if target == False: return False
                 if target in self.targets:
                     prompt = "Card already selected - select again"
@@ -238,18 +238,18 @@ class SacrificeCost(Cost):
         self.msg = msg
     def precompute(self, source, player):
         if self.cardtype == None: return True
-        else: return len(player.play.get(self.cardtype)) >= self.number
+        else: return len(player.battlefield.get(self.cardtype)) >= self.number
     def compute(self, source, player):
         self.targets = []
         if self.cardtype == None:
             # Sacrifice myself
-            if str(source.zone) == "play": self.targets.append(source)
+            if str(source.zone) == "battlefield": self.targets.append(source)
             else: return False
         else:
             prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
             if self.msg: prompt = self.msg
             while True:
-                target = player.getTarget(self.cardtype, zone="play", from_player="you", required=False, prompt=prompt)
+                target = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
                 if target == False: return False
                 if target in self.targets:
                     prompt = "Card already selected - select again"
@@ -322,13 +322,13 @@ class ExileFromLibraryCost(ChangeZoneCost):
 
 class ReturnToHandCost(ChangeZoneCost):
     def __init__(self, cardtype=None, number=1):
-        super(ReturnToHandCost,self).__init__(from_zone="play", to_zone="hand", cardtype=cardtype, number=number)
+        super(ReturnToHandCost,self).__init__(from_zone="battlefield", to_zone="hand", cardtype=cardtype, number=number)
         self.action_txt = "return%s to hand"
 
-class ExileFromPlayCost(ChangeZoneCost):
+class ExileFromBattlefieldCost(ChangeZoneCost):
     def __init__(self, cardtype=None, number=1):
-        super(ExileFromPlayCost,self).__init__(from_zone="play", to_zone="exile", cardtype=cardtype, number=number)
-        self.action_txt = "exile%s from play"
+        super(ExileFromBattlefieldCost,self).__init__(from_zone="battlefield", to_zone="exile", cardtype=cardtype, number=number)
+        self.action_txt = "exile%s from the battlefield"
 
 class ExileFromHandCost(ChangeZoneCost):
     def __init__(self, cardtype=None, number=1):
@@ -349,7 +349,7 @@ class RemoveCounterCost(Cost):
         return perm.num_counters(self.counter_type) >= self.number if self.counter_type else perm.num_counters() >= self.number
     def precompute(self, source, player):
         if self.cardtype == None: return True
-        else: return any((True for perm in player.play.get(self.cardtype) if self.enough_counters(perm)))
+        else: return any((True for perm in player.battlefield.get(self.cardtype) if self.enough_counters(perm)))
     def compute(self, source, player):
         if self.cardtype == None:
             # Target myself
@@ -359,7 +359,7 @@ class RemoveCounterCost(Cost):
             prompt = "Select %s from which to remove %d %s counter(s)"%(self.cardtype, self.number, self.counter_type)
             if not self.counter_type: prompt = "Select %s from which to remove %d counter(s)"%(self.cardtype, self.number)
             while True:
-                target = player.getTarget(self.cardtype, zone="play", from_player="you", required=False, prompt=prompt)
+                target = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
                 if target == False: return False
                 if not self.enough_counters(target):
                     prompt = "Card doesn't have enough %s counters - select again"%self.counter_type
@@ -384,16 +384,16 @@ class AddCounterCost(Cost):
         self.cardtype = cardtype
     def precompute(self, source, player):
         if self.cardtype == None: return True
-        else: return len(player.play.get(self.cardtype)) >= self.number
+        else: return len(player.battlefield.get(self.cardtype)) >= self.number
     def compute(self, source, player):
         if self.cardtype == None:
             # Target myself
-            if str(source.zone) == "play": self.target = source
+            if str(source.zone) == "battlefield": self.target = source
             else: return False
         else:
             prompt = "Select %s on which to place %d %s counter(s)"%(self.cardtype, self.number, self.counter_type)
             while True:
-                target = player.getTarget(self.cardtype, zone="play", from_player="you", required=False, prompt=prompt)
+                target = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
                 if target == False: return False
                 else:
                     self.target = target

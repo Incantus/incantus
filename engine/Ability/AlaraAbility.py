@@ -18,17 +18,17 @@ def exalted():
         yield NoTarget()
         until_end_of_turn(attackers[0].augment_power_toughness(1, 1))
         yield
-    return TriggeredAbility(Trigger(DeclareAttackersEvent()), condition, effects, zone="play", keyword='exalted')
+    return TriggeredAbility(Trigger(DeclareAttackersEvent()), condition, effects, zone="battlefield", keyword='exalted')
 
 def devour(value):
     txt = "Devour %d"%value
-    def enterPlayWith(source):
+    def enterBattlefieldWith(source):
         cards = set()
         if source.controller.you_may("Sacrifice creatures to %s"%source.name):
             i = 0
-            num_creatures = len(source.controller.play.get(isCreature))
+            num_creatures = len(source.controller.battlefield.get(isCreature))
             while i < num_creatures:
-                creature = source.controller.getTarget(isCreature, zone="play", from_player="you", required=False, prompt="Select any number of creatures to sacrifice: (%d selected so far)"%i)
+                creature = source.controller.getTarget(isCreature, zone="battlefield", from_player="you", required=False, prompt="Select any number of creatures to sacrifice: (%d selected so far)"%i)
                 if creature == False: break
                 elif not creature in cards:
                     cards.add(creature)
@@ -38,14 +38,14 @@ def devour(value):
             source.devoured = cards
             if cards: source.add_counters(PowerToughnessCounter(1, 1), len(cards)*value)
     def effects(source):
-        yield CiP(source, enterPlayWith, txt=txt)
+        yield CiP(source, enterBattlefieldWith, txt=txt)
     return CiPAbility(effects, txt=txt, keyword="devour")
 
 def unearth(cost):
     def effects(controller, source):
         yield cost
         yield NoTarget()
-        source = source.move_to(controller.play)
+        source = source.move_to(controller.battlefield)
         yield
         source.abilities.add(haste())
 
@@ -57,9 +57,9 @@ def unearth(cost):
                 yield
             return no_condition, effects
 
-        leave_play_condition = lambda self, zone, position="top": str(self.zone) == "play"
+        leave_battlefield_condition = lambda self, zone, position="top": str(self.zone) == "battlefield"
         def move_to(self, zone, position="top"):
             return self.move_to("exile")
-        until_end_of_turn(delay(source, d_trigger), do_replace(source, "move_to", move_to, msg="%s - exile from game"%source.name, condition=leave_play_condition))
+        until_end_of_turn(delay(source, d_trigger), do_replace(source, "move_to", move_to, msg="%s - exile from game"%source.name, condition=leave_battlefield_condition))
         yield
     return ActivatedAbility(effects, limit=sorcery_limit, zone="graveyard", txt="Unearth %s"%str(cost), keyword="unearth")

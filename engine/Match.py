@@ -65,7 +65,7 @@ class ZoneMatch(Match):
     def __str__(self): return self.txt
 
 #isSpell = ZoneMatch("stack", "spell")
-isPermanent = ZoneMatch("play", "permanent")
+isPermanent = ZoneMatch("battlefield", "permanent")
 isLegendaryPermanent = isPermanent.with_condition(lambda c: c.supertypes == Legendary)
 isPermanentCard = isCard.with_condition(lambda c: c.types.intersects(set([Artifact, Enchantment, Creature, Land, Planeswalker])))
 
@@ -76,34 +76,34 @@ isNonToken = isPermanent.with_condition(lambda c: not hasattr(c, "_token"))
 class TypeMatch(Match):
     # Can match against power, toughness, anything
     # condition should be a boolean function
-    def __init__(self, cardtype, in_play=False):
+    def __init__(self, cardtype, on_battlefield=False):
         super(TypeMatch,self).__init__()
         self.cardtype = cardtype
-        self.in_play = in_play
+        self.on_battlefield = on_battlefield
     def match(self, obj):
-        if self.in_play:
+        if self.on_battlefield:
             return isPermanent(obj) and obj.types == self.cardtype and super(TypeMatch,self).match(obj)
         else:
             return isCard(obj) and obj.types == self.cardtype and super(TypeMatch,self).match(obj)
     def __str__(self):
         name = str(self.cardtype)
-        if not self.in_play: name += " card"
+        if not self.on_battlefield: name += " card"
         return name
 
-isCreature = TypeMatch(Creature, in_play=True)
-isLand = TypeMatch(Land, in_play=True)
+isCreature = TypeMatch(Creature, on_battlefield=True)
+isLand = TypeMatch(Land, on_battlefield=True)
 isBasicLand = isLand.with_condition(lambda l: l.supertypes == Basic)
 isNonBasicLand = isLand.with_condition(lambda l: not l.supertypes == Basic)
 isNonLand = isPermanent.with_condition(lambda p: not p.types == Land)
-isArtifact = TypeMatch(Artifact, in_play=True)
+isArtifact = TypeMatch(Artifact, on_battlefield=True)
 isArtifactCreature = isArtifact.with_condition(lambda a: a.types == Creature)
 isNonCreatureArtifact = isArtifact.with_condition(lambda a: not a.types == Creature)
-isEnchantment = TypeMatch(Enchantment, in_play=True)
+isEnchantment = TypeMatch(Enchantment, on_battlefield=True)
 isEquipment = isArtifact.with_condition(lambda a: a.subtypes == Equipment)
 isFortification = isArtifact.with_condition(lambda a: a.subtypes == Fortification)
 isAura = isEnchantment.with_condition(lambda e: e.subtypes == Aura)
 isAttachment = isPermanent.with_condition(lambda p: p.subtypes.intersects(set([Aura, Equipment, Fortification])))
-isPlaneswalker = TypeMatch(Planeswalker, in_play=True)
+isPlaneswalker = TypeMatch(Planeswalker, on_battlefield=True)
 
 isSorceryCard = TypeMatch(Sorcery)
 isInstantCard = TypeMatch(Instant)

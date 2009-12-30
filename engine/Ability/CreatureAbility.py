@@ -24,9 +24,9 @@ def deathtouch(): return KeywordOnlyAbility("deathtouch")
 
 def landwalk(condition, keyword):
     def canBeBlocked(self):
-        if isPlayer(self.opponent): other_play = self.opponent.play
-        else: other_play = self.opponent.controller.play # planeswalker
-        return len(other_play.get(isLand.with_condition(condition))) == 0
+        if isPlayer(self.opponent): other_battlefield = self.opponent.battlefield
+        else: other_battlefield = self.opponent.controller.battlefield # planeswalker
+        return len(other_battlefield.get(isLand.with_condition(condition))) == 0
     return CardStaticAbility(effects=override_effect("canBeBlocked", canBeBlocked), keyword=keyword)
 
 def basic_landwalk(landtype):
@@ -67,8 +67,8 @@ def shadow():
 
 def haste():
     keyword = "haste"
-    def continuouslyInPlay(self): return True
-    return CardStaticAbility(effects=override_effect("continuouslyInPlay", continuouslyInPlay, combiner=logical_or), keyword=keyword)
+    def continuouslyOnBattlefield(self): return True
+    return CardStaticAbility(effects=override_effect("continuouslyOnBattlefield", continuouslyOnBattlefield, combiner=logical_or), keyword=keyword)
 
 def defender():
     keyword = "defender"
@@ -181,7 +181,7 @@ def flanking():
         yield NoTarget()
         until_end_of_turn(sender.augment_power_toughness(-1, -1))
         yield
-    return TriggeredAbility(Trigger(BlockerDeclaredEvent()), condition, effects, zone="play", keyword='flanking')
+    return TriggeredAbility(Trigger(BlockerDeclaredEvent()), condition, effects, zone="battlefield", keyword='flanking')
 
 def prevent_damage(target, amount, next=True, txt='', condition=None):
     if not txt:
@@ -238,7 +238,7 @@ def redirect_damage(from_target, to_target, amount, next=True, txt='', condition
                 if amt > 0: dmg = self.assignDamage(amt, source, combat)
         else:
             redirected = amt
-        # XXX Make sure the target is in play, otherwise the damage isn't redirected
+        # XXX Make sure the target is on the battlefield, otherwise the damage isn't redirected
         dmg += to_target.assignDamage(redirected, source, combat)
         #self.send(DamageRedirectedEvent(),amt=redirected)
         return dmg

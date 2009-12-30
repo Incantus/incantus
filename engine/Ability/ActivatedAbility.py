@@ -3,7 +3,7 @@ from Limit import no_limit
 from Cost import ManaCost
 
 class CostAbility(Ability):
-    zone = "play"
+    zone = "battlefield"
     limit_type = no_limit   # This is because if instantiate when the class is created, all the signalling is cleared
     def __init__(self, effects, limit=None, zone=None, txt='', keyword=''):
         super(CostAbility,self).__init__(effects, txt=txt)

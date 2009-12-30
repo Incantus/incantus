@@ -66,7 +66,7 @@ def hand_card_str(card):
         text += "(%d/%d)"%(card.power, card.toughness)
     return "%3d) %s"%(card.key[0], text)
 
-def play_card_str(card):
+def battlefield_card_str(card):
     card_map[card.key[0]] = card
     text = []
     if card.tapped: text.append("*T* ")
@@ -75,7 +75,7 @@ def play_card_str(card):
         text += "(%d/%d)"%(card.power, card.toughness)
     return "%3d) %s"%(card.key[0], ''.join(text))
 
-def outplay_card_str(card):
+def nonbattlefield_card_str(card):
     card_map[card.key[0]] = card
     text = str(card.name)
     if card.types == "Creature":
@@ -112,9 +112,9 @@ def print_player(idx, player):
     printer.indent()
     if active: 
         print_zone(player.hand, hand_card_str)
-    print_zone(player.play, play_card_str)
-    print_zone(player.graveyard, outplay_card_str)
-    print_zone(player.removed, outplay_card_str)
+    print_zone(player.battlefield, battlefield_card_str)
+    print_zone(player.graveyard, nonbattlefield_card_str)
+    print_zone(player.exile, nonbattlefield_card_str)
     printer.unindent()
 
 def print_header():

@@ -7,10 +7,10 @@ from Counters import PowerToughnessCounter
 
 def modular(n):
     txt = "Modular %d"%n
-    def enterPlayWith(self):
+    def enterBattlefieldWith(self):
         self.add_counters(PowerToughnessCounter(1,1), number=n)
     def effects(source):
-        yield CiP(source, enterPlayWith, txt=txt)
+        yield CiP(source, enterBattlefieldWith, txt=txt)
     cip = CiPAbility(effects, txt=txt, keyword="modular")
 
     def effects(controller, source):
@@ -18,7 +18,7 @@ def modular(n):
         if controller.you_may("move all +1/+1 counters from %s to target"%source.name):
             target.add_counters(PowerToughnessCounter(1,1), number=source.num_counters("+1+1"))
         yield
-    triggered = TriggeredAbility(EnterFromTrigger("graveyard", "play", player="any"),
+    triggered = TriggeredAbility(EnterFromTrigger("graveyard", "battlefield", player="any"),
             condition=source_match,
             effects=effects,
             txt='')

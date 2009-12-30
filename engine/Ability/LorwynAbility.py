@@ -2,7 +2,7 @@ from engine.Match import isCreature, isPermanent
 from engine.GameEvent import ClashEvent
 from engine.symbols.subtypes import all_creatures
 from TriggeredAbility import TriggeredAbility
-from CiPAbility import comes_into_play_tapped
+from CiPAbility import comes_onto_battlefield_tapped
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from Trigger import EnterTrigger, LeaveTrigger, DealDamageToTrigger
@@ -61,7 +61,7 @@ def champion(types=None, subtypes=None):
         else:
             controller.sacrifice(source)
         yield
-    champion_send = TriggeredAbility(EnterTrigger("play"),
+    champion_send = TriggeredAbility(EnterTrigger("battlefield"),
             condition = lambda source, card: source == card,
             effects = champion1,
             txt = "Champion a %s"%cardtype)
@@ -70,15 +70,15 @@ def champion(types=None, subtypes=None):
         target = yield NoTarget()
         # Code for effect
         exiled = source.championed if hasattr(source, "championed") else None
-        if exiled: exiled.move_to("play")
+        if exiled: exiled.move_to("battlefield")
         yield
-    champion_return = TriggeredAbility(LeaveTrigger("play"),
+    champion_return = TriggeredAbility(LeaveTrigger("battlefield"),
             condition = lambda source, card: source == card,
             effects = champion2)
     return champion_send, champion_return
 
 def hideaway(cost="0"):
-    cip = comes_into_play_tapped(txt="~ comes into play tapped")
+    cip = comes_onto_battlefield_tapped(txt="~ comes onto the battlefield tapped")
 
     def hideaway_effect(controller, source):
         source.hidden = None
@@ -92,7 +92,7 @@ def hideaway(cost="0"):
             topcards.remove(card)
             for card in topcards: card.move_to("library", position="bottom")
         yield
-    hideaway = TriggeredAbility(EnterTrigger("play"),
+    hideaway = TriggeredAbility(EnterTrigger("battlefield"),
             condition = lambda source, card: source == card,
             effects = hideaway_effect)
     return cip, hideaway
@@ -105,7 +105,7 @@ def changeling():
 #def evoke(card, cost):
 #    evoke_cost = EvokeCost(orig_cost=card.cost, evoke_cost=cost)
 #    card.play_spell.cost = evoke_cost
-#    evoke = TriggeredAbility(card, trigger = EnterTrigger("play"),
+#    evoke = TriggeredAbility(card, trigger = EnterTrigger("battlefield"),
 #            match_condition=SelfMatch(card, lambda x: evoke_cost.evoked),
 #            ability=Ability(card, target=Target(targeting="self"),
 #                effects=[SacrificeSelf(), NullEffect(lambda c, t: evoke_cost.reset())]))

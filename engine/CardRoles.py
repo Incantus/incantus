@@ -2,7 +2,7 @@ import new
 from characteristics import stacked_controller, stacked_PT, stacked_land_subtype
 from symbols import Land, Creature, Planeswalker, Instant, Sorcery, Aura, Equipment, Fortification
 from MtGObject import MtGObject
-from GameEvent import DealsDamageToEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingPlay, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, LandPlayedEvent
+from GameEvent import DealsDamageToEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingBattlefield, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, LandPlayedEvent
 from Planeswalker import PlaneswalkerType
 from Ability.Counters import Counter, PowerToughnessCounter, PowerToughnessModifier, PowerToughnessSetter, PowerToughnessSwitcher, PowerSetter, ToughnessSetter
 from Ability.PermanentAbility import basic_mana_ability, cast_permanent, cast_aura
@@ -10,7 +10,7 @@ from Ability.EffectsUtilities import combine
 from symbols.subtypes import all_basic_lands
 from Ability.Cost import MultipleCosts
 from Ability.Limit import sorcery_limit
-from Ability.CiPAbility import CiP, enter_play_tapped, attach_on_enter
+from Ability.CiPAbility import CiP, enter_battlefield_tapped, attach_on_enter
 
 class CardRole(MtGObject):
     def info():
@@ -121,7 +121,7 @@ class CardRole(MtGObject):
     def __del__(self): pass
         #print "Deleting %s role for %s"%(self.__class__.__name__, self.name)
 
-# Idea for spells - just have the OutPlayRole mirror a cast spell in terms of when it
+# Idea for spells - just have the OutBattlefieldRole mirror a cast spell in terms of when it
 # can be played and its cost
 # Cards on the stack
 class SpellRole(CardRole):
@@ -129,14 +129,14 @@ class SpellRole(CardRole):
         if self.subtypes == Aura: self.abilities.add(attach_on_enter())
         super(SpellRole, self).activate()
 
-class OutPlayRole(CardRole):
+class NonBattlefieldRole(CardRole):
     def activate(self):
         if self.types == Instant or self.types == Sorcery: pass
         elif self.subtypes == Aura:
             self.abilities.add(cast_aura(), attach_on_enter())
         else: self.abilities.add(cast_permanent())
         self._play_spell = self.abilities.cast()
-        super(OutPlayRole, self).activate()
+        super(NonBattlefieldRole, self).activate()
     def playable(self):
         return self._play_spell.playable()
     def play(self, player):
@@ -144,38 +144,38 @@ class OutPlayRole(CardRole):
         play_ability = self._play_spell.copy()
         play_ability.controller = player
         return play_ability.announce()
-    def move_to_play_tapped(self, txt):
-        expire = CiP(self, enter_play_tapped, txt=txt)
-        self.move_to("play")
+    def move_to_battlefield_tapped(self, txt):
+        expire = CiP(self, enter_battlefield_tapped, txt=txt)
+        self.move_to("battlefield")
         expire()
 
-class LandOutPlayRole(CardRole):
+class LandNonBattlefieldRole(CardRole):
     def playable(self):
         return sorcery_limit(self) and str(self.zone) == "hand" and self.owner.land_actions > 0
     def play(self, player):
         player.land_actions -= 1
-        card = self.move_to(player.play)
+        card = self.move_to(player.battlefield)
         player.send(TimestepEvent())
         # do we send the original or new land?
         player.send(LandPlayedEvent(), card=card)
         return True
-    def move_to_play_tapped(self, txt):
-        expire = CiP(self, enter_play_tapped, txt=txt)
-        self.move_to("play")
+    def move_to_battlefield_tapped(self, txt):
+        expire = CiP(self, enter_battlefield_tapped, txt=txt)
+        self.move_to("battlefield")
         expire()
 
-class TokenOutPlayRole(CardRole):
+class TokenNonBattlefieldRole(CardRole):
     is_LKI = True
 
 # This handles cards that can't exist in certain zones (like lands on the stack,
-# non-permanents in play
+# non-permanents on the battlefield
 class NoRole(CardRole):
     def enteringZone(self, zone):
         raise Exception()
 
 class Permanent(CardRole):
     controller = property(fget=lambda self: self._controller.current)
-    continuously_in_play = property(fget=lambda self: self._continuously_in_play)
+    continuously_on_battlefield = property(fget=lambda self: self._continuously_on_battlefield)
     def initialize_controller(self, controller):
         self._controller = stacked_controller(self, controller)
     def set_controller(self, new_controller):
@@ -186,7 +186,7 @@ class Permanent(CardRole):
         self.tapped = False
         self.flipped = False
         self.facedown = False
-        self._continuously_in_play = False
+        self._continuously_on_battlefield = False
     def facedown(self):
         self.facedown = True
     def faceup(self):
@@ -223,14 +223,14 @@ class Permanent(CardRole):
             self.send(PermanentDestroyedEvent())
             return destroyed
         else: return self
-    def continuouslyInPlay(self):
-        return self.continuously_in_play
+    def continuouslyOnBattlefield(self):
+        return self.continuously_on_battlefield
     def summoningSickness(self):
         def remove_summoning_sickness(player):
             if self.controller == player:
                 self.unregister(remove_summoning_sickness, NewTurnEvent(), weak=False)
-                self._continuously_in_play = True
-        self._continuously_in_play = False
+                self._continuously_on_battlefield = True
+        self._continuously_on_battlefield = False
         self.register(remove_summoning_sickness, NewTurnEvent(), weak=False)
 
     def activate(self):
@@ -251,7 +251,7 @@ class TokenPermanent(Permanent):
     _token = True
     def move_to(self, zone, position="top"):
         newrole = super(TokenPermanent, self).move_to(zone, position)
-        if not str(zone) == "play": newrole.send(TokenLeavingPlay())
+        if not str(zone) == "battlefield": newrole.send(TokenLeavingBattlefield())
         return newrole
 
 class LandType(object):
@@ -355,13 +355,13 @@ class CreatureType(object):
                 return 0
         else: return total
     def canTap(self):
-        return self.continuouslyInPlay() and super(CreatureType, self).canTap()
+        return self.continuouslyOnBattlefield() and super(CreatureType, self).canTap()
     def canUntap(self):
-        return self.continuouslyInPlay() and super(CreatureType, self).canUntap()
+        return self.continuouslyOnBattlefield() and super(CreatureType, self).canUntap()
     def checkAttack(self, attackers, not_attacking):
         return True
     def canAttack(self):
-        return (not self.tapped) and (not self.in_combat) and self.continuouslyInPlay()
+        return (not self.tapped) and (not self.in_combat) and self.continuouslyOnBattlefield()
     def checkBlock(self, combat_assignment, not_blocking):
         return True
     def canBeBlocked(self):
@@ -454,7 +454,7 @@ class AttachmentType(object):
     def activateAttachment(self):
         from Match import isLand, isCreature
         self._attached_to = None
-        self.target_zone = "play"
+        self.target_zone = "battlefield"
         self.target_player = None
         if self.subtypes == Equipment:
             self.target_type = isCreature

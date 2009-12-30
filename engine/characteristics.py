@@ -196,7 +196,7 @@ class stacked_type(stacked_characteristic):
     def _insert_into_stacking(self, char, pos=-1):
         if pos == -1: self._stacking.append(char)
         else: self._stacking.insert(pos, char)
-        if str(self._card.zone) == "play": self._card.add_basecls()
+        if str(self._card.zone) == "battlefield": self._card.add_basecls()
         self._card.send(self.change_event)
         def remove():
             if not self._card.is_LKI and char in self._stacking:

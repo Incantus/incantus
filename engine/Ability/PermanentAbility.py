@@ -34,7 +34,7 @@ def attach_artifact(cost, keyword, limit=no_limit):
 equip = lambda cost, limit=no_limit: attach_artifact(cost, "Equip", limit)
 fortify = lambda cost, limit=no_limit: attach_artifact(cost, "Fortify", limit)
 
-def enchant(target_type, zone="play", player=None):
+def enchant(target_type, zone="battlefield", player=None):
     def effects(source):
         source.target_type = target_type
         source.target_zone = zone
@@ -56,7 +56,7 @@ def doesntUntapAbility(txt):
     return CardStaticAbility(effects=override_effect("canUntapDuringUntapStep", lambda self: False), txt=txt)
 
 #class ThresholdAbility(ActivatedAbility):
-#    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="play"):
+#    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="battlefield"):
 #        if limit: limit += ThresholdLimit(card)
 #        else: limit = ThresholdLimit(card)
 #        super(ThresholdAbility,self).__init__(card, cost=cost, target=target, effects=effects, copy_targets=copy_targets, limit=limit, zone=zone)
@@ -105,5 +105,5 @@ def doesntUntapAbility(txt):
 def flash():  # Essentially a noop
     def effects(source):
         yield lambda: None
-    return CardStaticAbility(effects, keyword="flash", zone="nonplay")
+    return CardStaticAbility(effects, keyword="flash", zone="non-battlefield")
 

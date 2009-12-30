@@ -45,13 +45,13 @@ class Player(MtGObject):
         self.hand_limit = 7
         self.draw_empty = False
         self.decklist = deck
-    def init(self, play, stack, opponents):
+    def init(self, battlefield, stack, opponents):
         self.opponents = opponents
         self.library = LibraryZone()
         self.hand = HandZone()
         self.graveyard = GraveyardZone()
         self.exile = ExileZone()
-        self.play = play.get_view(self)
+        self.battlefield = battlefield.get_view(self)
         self.stack = stack
         self.manapool = ManaPool()
 
@@ -61,7 +61,7 @@ class Player(MtGObject):
         self.land_actions = 1
     def reset(self):
         # return all cards to library
-        for from_location in [self.play, self.hand, self.graveyard, self.exile]:
+        for from_location in [self.battlefield, self.hand, self.graveyard, self.exile]:
             for card in from_location: card.move_to("library")
     def loadDeck(self):
         for num, name in self.decklist:
@@ -98,7 +98,7 @@ class Player(MtGObject):
     def create_tokens(self, info, number=1, tag=''):
         return [self.exile.add_new_card(Token.create(info, owner=self)) for _ in range(number)]
     def play_tokens(self, info, number=1, tag=''):
-        return [token.move_to("play") for token in self.create_tokens(info, number)]
+        return [token.move_to("battlefield") for token in self.create_tokens(info, number)]
     def make_selection(self, sellist, number=1, required=True, prompt=''):
         if type(sellist[0]) == tuple: idx=False
         else: idx=True
@@ -108,7 +108,7 @@ class Player(MtGObject):
         import symbols
         subtypes = set()
         creature_types = lambda c: c.types.intersects(set((symbols.Creature, symbols.Tribal)))
-        for cards in (getattr(player, zone).get(creature_types) for zone in ["play", "graveyard", "exile", "library", "hand"] for player in Keeper.players):
+        for cards in (getattr(player, zone).get(creature_types) for zone in ["battlefield", "graveyard", "exile", "library", "hand"] for player in Keeper.players):
             for card in cards: subtypes.update(card.subtypes.current)
         return self.make_selection(sorted(subtypes), prompt='Choose a creature type')
     def choose_opponent(self):
@@ -132,14 +132,14 @@ class Player(MtGObject):
         selected = self.getCardSelection(cards, number, cardtype=cardtype, required=required, prompt=prompt)
         if number == 1: return selected[0] if selected else None
         else: return selected
-    def choose_from_zone(self, number=1, cardtype=isCard, zone="play", action='', required=True, all=False):
+    def choose_from_zone(self, number=1, cardtype=isCard, zone="battlefield", action='', required=True, all=False):
         cards_in_zone = getattr(self, zone).get(cardtype)
         if zone == "library" and not cardtype == isCard: required = False
         if len(cards_in_zone) == 0 and not zone == "library": cards = []
         elif number >= len(cards_in_zone) and required: cards = cards_in_zone
         else:
             cards = []
-            if zone == "play" or zone == "hand":
+            if zone == "battlefield" or zone == "hand":
                 a = 's' if number > 1 else ''
                 total = number
                 prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
@@ -188,13 +188,13 @@ class Player(MtGObject):
         if number > 0: return self.force_discard(number)
         else: return []
     def sacrifice(self, perm):
-        if perm.controller == self and str(perm.zone) == "play":
+        if perm.controller == self and str(perm.zone) == "battlefield":
             card = perm.move_to("graveyard")
             self.send(PermanentSacrificedEvent(), card=perm)
             return card
         else: return None
     def force_sacrifice(self, number=1, cardtype=isPermanent):
-        perms = self.choose_from_zone(number, cardtype, "play", "sacrifice")
+        perms = self.choose_from_zone(number, cardtype, "battlefield", "sacrifice")
         for perm in perms: self.sacrifice(perm)
         return len(perms)
     def skip_next_turn(self, msg):
@@ -222,13 +222,13 @@ class Player(MtGObject):
         self.draw(number)
     def checkUntapStep(self, cards): return True
     def untapStep(self):
-        permanents = untapCards = set([card for card in self.play if card.canUntapDuringUntapStep()])
+        permanents = untapCards = set([card for card in self.battlefield if card.canUntapDuringUntapStep()])
         prompt = "Select cards to untap"
         valid_untap = self.checkUntapStep(permanents)
         while not valid_untap:
             permanents = set()
             done_selecting = False
-            perm = self.getPermanentInPlay(prompt=prompt)
+            perm = self.getPermanentOnBattlefield(prompt=prompt)
             while not done_selecting:
                 if perm == True:
                     done_selecting = True
@@ -251,7 +251,7 @@ class Player(MtGObject):
                     else:
                         self.send(InvalidTargetEvent(), target=perm)
                         prompt = "%s can't be untapped - select another"%perm
-                perm = self.getPermanentInPlay(prompt=prompt)
+                perm = self.getPermanentOnBattlefield(prompt=prompt)
             if done_selecting:
                 valid_untap = self.checkUntapStep(permanents)
                 if not valid_untap:
@@ -278,17 +278,17 @@ class Player(MtGObject):
     def declareDefendingPlayer(self):
         return self.choose_opponent()
     def attackingIntention(self):
-        # First check to make sure you have cards in play
+        # First check to make sure you have cards on the battlefield
         # XXX although if you have creatures with Flash this might not work since you can play it anytime
         has_creature = False
-        for creature in self.play.get(isCreature):
+        for creature in self.battlefield.get(isCreature):
             if creature.canAttack():
                 has_creature = True
         if not has_creature: return False
         else: return True #self.getIntention("Declare intention to attack", msg="...attack this turn?")
     def declareAttackers(self, opponents):
         multiple_opponents = len(opponents) > 1
-        all_on_attacking_side = self.play.get(isCreature)
+        all_on_attacking_side = self.battlefield.get(isCreature)
         invalid_attack = True
         prompt = "Declare attackers (Enter to accept, Escape to reset)"
         while invalid_attack:
@@ -310,7 +310,7 @@ class Player(MtGObject):
                         # Now select who to attack
                         if multiple_opponents:
                             while True:
-                                target = self.getTarget(target_types=(OpponentMatch(self), isPlaneswalker), zone="play", prompt="Select opponent to attack")
+                                target = self.getTarget(target_types=(OpponentMatch(self), isPlaneswalker), zone="battlefield", prompt="Select opponent to attack")
                                 if target in opponents:
                                     creature.setOpponent(target)
                                     break
@@ -366,7 +366,7 @@ class Player(MtGObject):
     def declareBlockers(self, attackers):
         combat_assignment = dict([(attacker, []) for attacker in attackers])
         # Make sure you have creatures to block
-        all_on_blocking_side = self.play.get(isCreature)
+        all_on_blocking_side = self.battlefield.get(isCreature)
         if len(all_on_blocking_side) == 0: return combat_assignment
 
         invalid_block = True
@@ -492,8 +492,8 @@ class Player(MtGObject):
                 break
             card = action.selection
             abilities = [(str(ability), ability) for ability in card.abilities.activated()]
-            # Include the playing ability if not in play
-            if not str(card.zone) == "play" and card.playable():
+            # Include the playing ability if not on the battlefield
+            if not str(card.zone) == "battlefield" and card.playable():
                 abilities.append(("Play %s"%card, card))
             num = len(abilities)
             if num == 0: continue
@@ -552,7 +552,7 @@ class Player(MtGObject):
         sel = self.input(context, "%s: %s"%(self.name,prompt))
         if isinstance(sel, CancelAction): return []
         else: return sel
-    def getPermanentInPlay(self, prompt='Select permanent'):
+    def getPermanentOnBattlefield(self, prompt='Select permanent'):
         def filter(action):
             if isinstance(action, CancelAction) or isinstance(action, PassPriority):
                 return action

@@ -15,7 +15,7 @@ def recover(cost):
             source.move_to("exile")
         yield
 
-    return TriggeredAbility(EnterFromTrigger("graveyard", "play", player="you"),
+    return TriggeredAbility(EnterFromTrigger("graveyard", "battlefield", player="you"),
             condition=condition,
             effects=effects,
             zone="graveyard",

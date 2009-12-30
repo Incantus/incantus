@@ -7,7 +7,7 @@ class CastSpell(CostAbility):
     cast = True
     zone = "hand"
     def do_announce(self):
-        # Move the card to the stack zone - this is never called from play
+        # Move the card to the stack zone - this is never called from the battlefield
         player = self.controller
         old_zone = self.source.zone
         self.source = self.source.move_to(player.stack)
@@ -37,8 +37,8 @@ class CastPermanentSpell(CastSpell):
         yield
     def resolved(self):
         source = self.source
-        new_card = source.move_to(self.controller.play)
-        if new_card == source: # didn't actually move to play
+        new_card = source.move_to(self.controller.battlefield)
+        if new_card == source: # didn't actually move to the battlefield
             source.move_to("graveyard")
         super(CastPermanentSpell, self).resolved()
 

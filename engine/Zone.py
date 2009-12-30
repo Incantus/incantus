@@ -87,10 +87,10 @@ class OrderedZone(Zone):
             self._pending_bottom[:] = []
             self._pending = False
 
-class OutPlayMixin(object):
+class NonBattlefieldMixin(object):
     def setup_new_role(self, card):
         cardtmpl = GameObject._cardmap[card.key]
-        return cardtmpl.new_role(cardtmpl.out_play_role)
+        return cardtmpl.new_role(cardtmpl.out_battlefield_role)
     def cease_to_exist(self, card):
         self._remove_card(card, CardCeasesToExist())
         card.leavingZone()
@@ -103,16 +103,16 @@ class AddCardsMixin(object):
         self.send(CardEnteredZone(), card=card)
         return card
 
-class GraveyardZone(OutPlayMixin, OrderedZone):
+class GraveyardZone(NonBattlefieldMixin, OrderedZone):
     name = "graveyard"
 
-class HandZone(OutPlayMixin, Zone):
+class HandZone(NonBattlefieldMixin, Zone):
     name = "hand"
 
-class ExileZone(OutPlayMixin, AddCardsMixin, Zone):
+class ExileZone(NonBattlefieldMixin, AddCardsMixin, Zone):
     name = "exile"
 
-class LibraryZone(OutPlayMixin, AddCardsMixin, OrderedZone):
+class LibraryZone(NonBattlefieldMixin, AddCardsMixin, OrderedZone):
     name = "library"
     def __init__(self):
         super(LibraryZone, self).__init__()
@@ -132,13 +132,13 @@ class LibraryZone(OutPlayMixin, AddCardsMixin, OrderedZone):
         random.shuffle(self._cards)
         self.send(ShuffleEvent())
 
-class PlayZone(OrderedZone):
-    name = "play"
+class BattlefieldZone(OrderedZone):
+    name = "battlefield"
     def __init__(self, game):
         self.game = game
-        super(PlayZone, self).__init__()
+        super(BattlefieldZone, self).__init__()
     def get_view(self, player):
-        return PlayView(player, self)
+        return BattlefieldView(player, self)
     def get_card_order(self, cardlist, pos):
         if len(cardlist) > 1:
             # Sort the cards
@@ -155,25 +155,25 @@ class PlayZone(OrderedZone):
         return cardlist
     def setup_new_role(self, card):
         cardtmpl = GameObject._cardmap[card.key]
-        return cardtmpl.new_role(cardtmpl.in_play_role)
+        return cardtmpl.new_role(cardtmpl.in_battlefield_role)
 
-class PlayView(object):
-    def __init__(self, player, play):
+class BattlefieldView(object):
+    def __init__(self, player, battlefield):
         self.player = player
-        self.play = play
+        self.battlefield = battlefield
     def __iter__(self):
         # Top of the cards is the end of the list
         return iter(self.get())
     def __len__(self):
         return len(self.get())
     def get(self, match=all_match, all=False):
-        cards = self.play.get(match)
+        cards = self.battlefield.get(match)
         if not all: cards = [card for card in cards if card.controller == self.player]
         return cards
     #def __getattr__(self, attr):
-    #    return getattr(self.play, attr)
+    #    return getattr(self.battlefield, attr)
     def move_card(self, card, position="top"):
-        card = self.play.move_card(card, position)
+        card = self.battlefield.move_card(card, position)
         card.initialize_controller(self.player)
         return card
-    def __str__(self): return "play"
+    def __str__(self): return "battlefield"

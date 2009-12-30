@@ -14,13 +14,13 @@ def persist():
     def persist_effect(controller, source, card, newcard):
         yield NoTarget()
         if condition(source, card):
-            expire = CiP(newcard, enterWithCounters, txt='%s - enter play with a -1/-1 counter'%newcard)
-            # Now move to play
-            newcard.move_to("play")
+            expire = CiP(newcard, enterWithCounters, txt='%s - enter the battlefield with a -1/-1 counter'%newcard)
+            # Now move to the battlefield
+            newcard.move_to("battlefield")
             expire()
         yield
 
-    return TriggeredAbility(EnterFromTrigger(from_zone="play", to_zone="graveyard"),
+    return TriggeredAbility(EnterFromTrigger(from_zone="battlefield", to_zone="graveyard"),
             condition = condition,
             effects = persist_effect,
             keyword="persist")

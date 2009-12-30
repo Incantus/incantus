@@ -16,7 +16,7 @@ class InvalidTarget(object):
     def __getattr__(self, attr): return self.no_op
 
 class MultipleTargets(object):
-    def __init__(self, target_types, number=1, up_to=False, distribute=0, distribute_type='', msg='', selector="controller", player=None, zone="play"):
+    def __init__(self, target_types, number=1, up_to=False, distribute=0, distribute_type='', msg='', selector="controller", player=None, zone="battlefield"):
         self.number = number
         self.distribute = distribute
         self.distribute_type = distribute_type
@@ -58,7 +58,7 @@ class MultipleTargets(object):
         else: another = ""
         if self.up_to: another = "up to "+another
 
-        if self.zone == "play":
+        if self.zone == "battlefield":
             if isPlayer(self.player): zl = " %s controls"%self.player
             elif self.player == None: zl = ""
             elif self.player == "you": zl = " you control"
@@ -109,7 +109,7 @@ class MultipleTargets(object):
 # When I add a new argument to constructor, make sure to add it to the copy function
 # or use the copy module
 class Target(object):
-    def __init__(self, target_types, msg='', selector="controller", zone="play", player=None):
+    def __init__(self, target_types, msg='', selector="controller", zone="battlefield", player=None):
         self.is_valid = False
         self.target = None
         self.zone = zone
@@ -141,7 +141,7 @@ class Target(object):
     def get(self, source):
         if self.msg: prompt=self.msg
         else:
-            if self.zone != "play":
+            if self.zone != "battlefield":
                 if self.player == None: zl = " in any %s"%self.zone
                 elif self.player == "you": zl = " in your %s"%self.zone
                 else: zl = " in opponent %s"%self.zone
@@ -158,7 +158,7 @@ class Target(object):
         # If required, make sure there is actually a target available
         if self.required and not self.targeting_player:
             perm = []
-            if self.zone != "play":
+            if self.zone != "battlefield":
                 zones = [getattr(selector, self.zone)] + [getattr(opponent, self.zone) for opponent in selector.opponents]
                 if self.player == "you": zones = zones[:1]
                 elif self.player == "opponent": zones = zones[1:]
@@ -168,12 +168,12 @@ class Target(object):
             else:
                 for ttype in self.target_types:
                     if self.player == None:
-                        perm.extend([p for p in selector.play.get(ttype, all=True) if p.canBeTargetedBy(source)])
+                        perm.extend([p for p in selector.battlefield.get(ttype, all=True) if p.canBeTargetedBy(source)])
                     elif self.player == "you":
-                        perm.extend([p for p in selector.play.get(ttype) if p.canBeTargetedBy(source)])
+                        perm.extend([p for p in selector.battlefield.get(ttype) if p.canBeTargetedBy(source)])
                     else:
                         for opponent in selector.opponents:
-                            perm.extend([p for p in opponent.play.get(ttype) if p.canBeTargetedBy(source)])
+                            perm.extend([p for p in opponent.battlefield.get(ttype) if p.canBeTargetedBy(source)])
 
             numtargets = len(perm)
             if numtargets == 0: return False

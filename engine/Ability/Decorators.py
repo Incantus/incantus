@@ -19,19 +19,19 @@ def instant(txt="Play instant"):
         return CastInstantSpell(effects, txt=txt)
     return make_spell
 
-def mana(limit=None, zone='play', txt=''):
+def mana(limit=None, zone='battlefield', txt=''):
     def make_ability(ability):
         effects = ability()
         return ManaAbility(effects, limit, zone, txt)
     return make_ability
 
-def activated(limit=None, zone='play', txt=''):
+def activated(limit=None, zone='battlefield', txt=''):
     def make_ability(ability):
         effects = ability()
         return ActivatedAbility(effects, limit, zone, txt)
     return make_ability
 
-def triggered(triggers, expiry=-1, zone="play", txt=''):
+def triggered(triggers, expiry=-1, zone='battlefield', txt=''):
     def make_triggered(ability):
         condition, effects = ability()
         return TriggeredAbility(triggers, condition, effects, expiry, zone, txt)
@@ -39,19 +39,19 @@ def triggered(triggers, expiry=-1, zone="play", txt=''):
 
 delayed_trigger = triggered
 
-def static_tracking(events=[], tracking="play", zone="play", txt=''):
+def static_tracking(events=[], tracking="battlefield", zone="battlefield", txt=''):
     def make_ability(ability):
         condition, effects = ability()
         return CardTrackingAbility(effects, condition, events, tracking, zone, txt)
     return make_ability
 
-def static_tracking_conditional(events=[], tracking="play", zone="play", txt=''):
+def static_tracking_conditional(events=[], tracking="battlefield", zone="battlefield", txt=''):
     def make_ability(ability):
         condition, conditional, effects = ability()
         return ConditionalTrackingAbility(effects, condition, conditional, events, tracking, zone, txt)
     return make_ability
 
-def static(zone="play", txt=''):
+def static(zone="battlefield", txt=''):
     def make_ability(ability):
         condition, effects = ability()
         if condition: return ConditionalStaticAbility(effects, condition, zone, txt)
@@ -69,7 +69,7 @@ def attached(zone="attached", txt=''):
         return ability
     return make_ability
 
-def comes_into_play(txt=''):
+def comes_onto_battlefield(txt=''):
     def make_ability(ability):
         before, during = ability()
         def effects(source):

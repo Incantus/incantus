@@ -6,10 +6,10 @@ from engine.GameEvent import UpkeepStepEvent
 
 def fading(value):
     txt = "Fading %d"%value
-    def enterPlayWith(self):
+    def enterBattlefieldWith(self):
         self.add_counters('fade', value)
     def fading_1(source):
-        yield CiP(source, enterPlayWith, txt=txt)
+        yield CiP(source, enterBattlefieldWith, txt=txt)
     fading_CiP = CiPAbility(fading_1, txt=txt, keyword='fading')
 
     def condition(source, player):
