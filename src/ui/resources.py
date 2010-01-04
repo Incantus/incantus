@@ -7,7 +7,7 @@ fontname = "Dumbledor 1"
 
 import ConfigParser
 config = ConfigParser.ConfigParser()
-config.read("incantus.ini")
+config.read("data/incantus.ini")
 
 class ImageCache(object):
     cache = {}
