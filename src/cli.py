@@ -258,10 +258,10 @@ def read_deckfile(filename):
 if __name__ == "__main__":
     random.seed()
     conf = ConfigParser.ConfigParser()
-    conf.read("incantus.ini")
+    conf.read("data/incantus.ini")
     player1 = conf.get("main", "playername")
-    player2 = conf.get("solitaire", "playername")+"1"
-    player3 = conf.get("solitaire", "playername")+"2"
+    player2 = conf.get("solitaire", "playername")
+    player3 = "Player3"
     my_deck, sideboard = read_deckfile(conf.get("main", "deckfile"))
     other_deck, other_sideboard = read_deckfile(conf.get("solitaire", "deckfile"))
 
