@@ -30,13 +30,13 @@ def attach_on_enter():
     return CiPAbility(effects, txt="")
 
 # Comes onto battlefield functionality
-def enter_battlefield_tapped(self):
-    '''Card comes onto the battlefield tapped'''
+def enter_tapped(self):
+    '''Enters the battlefield tapped'''
     self.tapped = True
 
-def comes_onto_battlefield_tapped(txt):
+def enters_battlefield_tapped(txt):
     def effects(source):
-        yield CiP(source, enter_battlefield_tapped, no_before, txt=txt)
+        yield CiP(source, enter_tapped, no_before, txt=txt)
     return CiPAbility(effects, txt=txt)
 
 no_before = lambda source: True

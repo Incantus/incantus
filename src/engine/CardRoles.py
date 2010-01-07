@@ -10,7 +10,7 @@ from Ability.EffectsUtilities import combine
 from symbols.subtypes import all_basic_lands
 from Ability.Cost import MultipleCosts
 from Ability.Limit import sorcery_limit
-from Ability.CiPAbility import CiP, enter_battlefield_tapped, attach_on_enter
+from Ability.CiPAbility import CiP, enter_tapped, attach_on_enter
 
 class CardRole(MtGObject):
     def info():
@@ -145,9 +145,8 @@ class NonBattlefieldRole(CardRole):
         play_ability.controller = player
         return play_ability.announce()
     def move_to_battlefield_tapped(self, txt):
-        expire = CiP(self, enter_battlefield_tapped, txt=txt)
+        CiP(self, enter_tapped, txt=txt)
         self.move_to("battlefield")
-        expire()
 
 class LandNonBattlefieldRole(CardRole):
     def playable(self):
@@ -160,12 +159,14 @@ class LandNonBattlefieldRole(CardRole):
         player.send(LandPlayedEvent(), card=card)
         return True
     def move_to_battlefield_tapped(self, txt):
-        expire = CiP(self, enter_battlefield_tapped, txt=txt)
+        CiP(self, enter_tapped, txt=txt)
         self.move_to("battlefield")
-        expire()
 
 class TokenNonBattlefieldRole(CardRole):
     is_LKI = True
+    def move_to_battlefield_tapped(self, txt):
+        CiP(self, enter_tapped, txt=txt)
+        self.move_to("battlefield")
 
 # This handles cards that can't exist in certain zones (like lands on the stack,
 # non-permanents on the battlefield
