@@ -69,7 +69,7 @@ def attached(zone="attached", txt=''):
         return ability
     return make_ability
 
-def comes_onto_battlefield(txt=''):
+def enters_battlefield(txt=''):
     def make_ability(ability):
         before, during = ability()
         def effects(source):

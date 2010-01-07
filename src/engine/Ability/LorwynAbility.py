@@ -2,7 +2,7 @@ from engine.Match import isCreature, isPermanent
 from engine.GameEvent import ClashEvent
 from engine.symbols.subtypes import all_creatures
 from TriggeredAbility import TriggeredAbility
-from CiPAbility import comes_onto_battlefield_tapped
+from CiPAbility import enters_battlefield_tapped
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from Trigger import EnterTrigger, LeaveTrigger, DealDamageToTrigger
@@ -78,7 +78,7 @@ def champion(types=None, subtypes=None):
     return champion_send, champion_return
 
 def hideaway(cost="0"):
-    cip = comes_onto_battlefield_tapped(txt="~ comes onto the battlefield tapped")
+    cip = enters_battlefield_tapped(txt="~ enters the battlefield tapped")
 
     def hideaway_effect(controller, source):
         source.hidden = None
