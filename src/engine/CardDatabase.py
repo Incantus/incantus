@@ -60,16 +60,23 @@ def execCode(card, code):
         raise CardNotImplemented()
 
     # For converted manacost comparisons
-    if type(card.cost) == str: card.base_cost = CardEnvironment.ManaCost(card.cost)
-    else: card.base_cost = card.cost
+    if hasattr(card, "cost"):
+        if type(card.cost) == str: card.base_cost = CardEnvironment.ManaCost(card.cost)
+        else: card.base_cost = card.cost
+    else: card.base_cost = CardEnvironment.NoCost()
 
     # Build default characteristics
+    chr = CardEnvironment.characteristic
+
     card.base_name = card.name
     card.base_text = code
-    card.base_color = card.color
-    card.base_types = card.types
-    card.base_subtypes = card.subtypes
-    card.base_supertypes = card.supertypes
+    # characteristics
+    for char_name in ["color", "types", "subtypes", "supertypes"]:
+        if hasattr(card, char_name):
+            char = getattr(card, char_name)
+            if not type(char) == tuple: char = (char,)
+            setattr(card, "base_"+char_name, chr(*char))
+
     if hasattr(card, "power"): card.base_power = card.power
     if hasattr(card, "toughness"): card.base_toughness = card.toughness
     if hasattr(card, "loyalty"): card.base_loyalty = card.loyalty
@@ -94,20 +101,16 @@ def loadCardFromDB(card, name):
 def convertToTxt(card_dict):
     tmpl = '''\
 name = %(name)s
-types = %(types)s
-supertypes = %(supertypes)s
-subtypes = %(subtypes)s
-color = %(color)s
-cost = NoCost()
+%(char)s
 %(extra)s
 %(abilities)s'''
     fields = {}
+    fields["char"] = ''
     for attr in ["types", "supertypes", "subtypes", "color"]:
         char = card_dict.get(attr, None)
-        if not char: fields[attr] = "characteristic()"
-        else:
+        if char:
             if not (type(char) == list or type(char) == tuple): char = (char,)
-            fields[attr] = "characteristic(%s)"%', '.join(map(str,char))
+            fields["char"] += "%s = %s\n"%(attr, ', '.join(map(str,char)))
 
     if "P/T" in card_dict:
         power, toughness = card_dict["P/T"]
@@ -134,9 +137,6 @@ cost = NoCost()
 
 default_tmpl = '''
 name = %s
-types = characteristic(Artifact)
-supertypes = characteristic()
-subtypes = characteristic()
-color = characteristic()
-cost = ManaCost("0")
+types = Artifact
+cost = "0"
 '''

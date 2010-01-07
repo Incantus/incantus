@@ -2,7 +2,7 @@ from MtGObject import MtGObject
 from symbols import Land, Instant, Sorcery
 from GameEvent import NameModifiedEvent, CostModifiedEvent, TextModifiedEvent, ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent, PowerToughnessModifiedEvent, LoyaltyModifiedEvent
 from abilities import abilities, stacked_abilities
-from characteristics import stacked_variable, stacked_characteristic, stacked_type
+from characteristics import characteristic, stacked_variable, stacked_characteristic, stacked_type
 from CardRoles import Permanent, SpellRole, NoRole, LandNonBattlefieldRole, NonBattlefieldRole, TokenNonBattlefieldRole, TokenPermanent
 import CardDatabase
 
@@ -19,10 +19,10 @@ class GameObject(MtGObject):
         self.base_name = None
         self.base_cost = None
         self.base_text = None
-        self.base_color = None
-        self.base_types = None
-        self.base_subtypes = None
-        self.base_supertypes = None
+        self.base_color = characteristic() #None
+        self.base_types = characteristic() #None
+        self.base_subtypes = characteristic() #None
+        self.base_supertypes = characteristic() #None
         self.base_abilities = abilities()
 
         self.base_power = 0
