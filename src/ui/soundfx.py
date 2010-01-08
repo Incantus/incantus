@@ -13,6 +13,7 @@ toggle_music = False
 
 class SoundEffects(object):
     def __init__(self):
+        return
         self.click = resource.media("click.wav", streaming=False)
         self.your_focus = resource.media("your_focus.wav", streaming=False)
         self.opponent_focus = resource.media("opponent_focus.wav", streaming=False)
@@ -50,9 +51,11 @@ class SoundEffects(object):
                             #(self.leave_sound, GameEvent.CardLeftZone()),
                             ]
     def disconnect(self):
+        return
         for sound, event in self.connections:
             dispatcher.disconnect(sound.play, signal=event)
     def connect(self):
+        return
         if toggle_music:
             self.player.play()
         if toggle_fx:
