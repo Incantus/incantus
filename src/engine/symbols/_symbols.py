@@ -1,3 +1,6 @@
+# Copyright Philip J. Eby
+# Licensed under PSF
+
 """Symbolic global constants, like 'None', 'NOT_FOUND', etc."""
 
 __all__ = [
