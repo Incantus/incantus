@@ -1,6 +1,7 @@
 
-from colors import *
+from zones import *
 
+from colors import *
 from supertypes import *
 from types import *
 from subtypes import *
