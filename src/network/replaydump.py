@@ -1,6 +1,6 @@
 import struct
 import simplejson as json
-from engine import Player
+from engine.Player import Player
 from engine.Ability.Ability import Ability
 from engine.GameObjects import GameObject
 from engine.CardRoles import CardRole

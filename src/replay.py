@@ -1,7 +1,8 @@
 #!/usr/bin/python
 import sys, random, pudb, pdb
 from network import replaydump
-import engine
+from engine.Player import Player
+from engine.GameKeeper import Keeper
 from engine.pydispatch import dispatcher
 
 debug = pdb
@@ -33,8 +34,8 @@ my_deck = dump.read()
 player2_name = dump.read()
 other_deck = dump.read()
 
-player1 = engine.Player(player1_name, my_deck)
-player2 = engine.Player(player2_name, other_deck)
+player1 = Player(player1_name, my_deck)
+player2 = Player(player2_name, other_deck)
 player1.dirty_input = userinput
 player2.dirty_input = userinput
 
@@ -42,11 +43,11 @@ player2.dirty_input = userinput
 random.seed(seed)
 
 dispatcher.reset()
-engine.Keeper.init([player1, player2])
+Keeper.init([player1, player2])
 
 # This is hacky
 replaydump.players = dict([(player.name,player) for player in [player1, player2]])
-replaydump.stack = engine.Keeper.stack
+replaydump.stack = Keeper.stack
 
-msg = engine.Keeper.start()
+msg = Keeper.start()
 print msg

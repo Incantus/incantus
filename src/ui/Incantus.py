@@ -28,8 +28,11 @@ import GUIEvent
 
 fourfv = GLfloat*4
 
-import engine
+from engine.Player import Player as GamePlayer
+from engine.GameKeeper import Keeper
 from engine.pydispatch import dispatcher
+import engine.Action
+import engine.GameEvent
 
 from network import replaydump
 #from chatbox import ChatBox
@@ -272,10 +275,10 @@ class IncantusLayer(Layer):
     def priority_stop(self, player):
         # XXX This and the play_ability function won't work until i can properly put events
         # onto the event queue
-        if engine.Keeper.stack.empty():
+        if Keeper.stack.empty():
             if (not self.p1_stop_next and
-               ((player != engine.Keeper.active_player and self.phase_status.check_opponent_stop()) or
-                (player == engine.Keeper.active_player and self.phase_status.check_my_stop()))):
+               ((player != Keeper.active_player and self.phase_status.check_opponent_stop()) or
+                (player == Keeper.active_player and self.phase_status.check_my_stop()))):
                 self.pending_actions.append(engine.Action.PassPriority())
             elif self.finish_turn:
                 self.pending_actions.append(engine.Action.PassPriority())
@@ -396,7 +399,7 @@ class IncantusLayer(Layer):
 
         random.seed(seed)
         players = []
-        for name, deck in player_data: players.append(engine.Player(name, deck))
+        for name, deck in player_data: players.append(GamePlayer(name, deck))
 
         player1, player2 = players[:2]
 
@@ -405,14 +408,14 @@ class IncantusLayer(Layer):
         self.player_hand.set_hidden(False)
         self.otherplayer_hand.set_hidden(False)
 
-        engine.Keeper.init(players)
+        Keeper.init(players)
         self.make_connections((player1, (0,0,255)), (player2, (255,255,0)))
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in players])
-        replaydump.stack = engine.Keeper.stack
+        replaydump.stack = Keeper.stack
 
-        self.gamelet = greenlet(engine.Keeper.start)
+        self.gamelet = greenlet(Keeper.start)
         self.client = None
         pyglet.clock.schedule_once(lambda dt: self.gamelet.switch(), 0.01)
 
@@ -428,7 +431,7 @@ class IncantusLayer(Layer):
 
         random.seed(seed)
         players = []
-        for name, deck in player_data: players.append(engine.Player(name, deck))
+        for name, deck in player_data: players.append(GamePlayer(name, deck))
 
         player1, player2 = players[:2]
         if player1.name != player_name: player1, player2 = player2, player1
@@ -440,14 +443,14 @@ class IncantusLayer(Layer):
                 if not client: self.otherplayer_hand.set_hidden(False)
             else: player.dirty_input = self.network_input
 
-        engine.Keeper.init(players)
+        Keeper.init(players)
         self.make_connections((player1, (0,0,255)), (player2, (255,255,0)))
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in players])
-        replaydump.stack = engine.Keeper.stack
+        replaydump.stack = Keeper.stack
 
-        self.gamelet = greenlet(engine.Keeper.start)
+        self.gamelet = greenlet(Keeper.start)
         self.client = client
         if client:
             client.call_action = lambda result: self.gamelet.switch(result)
