@@ -19,7 +19,7 @@ def soulshift(n):
             txt="Soulshift %s"%n)
 
 def bushido(value):
-    if type(value) == int: txt="Bushido %d"%value
+    if isinstance(value, int): txt="Bushido %d"%value
     else: txt = "Bushido X"
     def effects(controller, source):
         yield NoTarget()

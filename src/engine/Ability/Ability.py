@@ -25,7 +25,7 @@ class Ability(object):
     def _get_targets_from_effects(self): return self.effects.next()
     def get_targets(self):
         targets = self._get_targets_from_effects()
-        if not (type(targets) == tuple): targets = (targets,)
+        if not isinstance(targets, tuple): targets = (targets,)
         if all((target.get(self.source) for target in targets)):
             self.targets = targets
             return True

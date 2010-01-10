@@ -157,7 +157,7 @@ class stacked_characteristic(object):
         # find last copy effect
         chargroup = copy.copy(chargroup)
         if extra_chars:
-            if not (type(extra_chars) == list or type(extra_chars) == tuple): extra_chars = (extra_chars,)
+            if not isiterable(extra_chars): extra_chars = (extra_chars,)
             chargroup.add(*extra_chars)
         chargroup._copyable = True
         return self._insert_into_stacking(chargroup, pos=self._after_last_copyable_index)

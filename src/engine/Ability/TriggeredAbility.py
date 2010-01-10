@@ -1,3 +1,4 @@
+from engine.Util import isiterable
 from Ability import Ability
 from EffectsUtilities import robustApply
 from Utils import flatten, unflatten
@@ -20,7 +21,7 @@ class TriggeredStackAbility(Ability):
 class TriggeredAbility(object):
     enabled = property(fget=lambda self: self._status_count > 0)
     def __init__(self, triggers, condition, effects, expiry=-1, zone="battlefield", txt='', keyword=''):
-        if not (type(triggers) == list or type(triggers) == tuple): triggers=[triggers]
+        if not isiterable(triggers): triggers=(triggers,)
         self.triggers = triggers
         self.condition = condition
         self.effect_generator = effects
@@ -80,7 +81,7 @@ def modal_triggered_effects(*modes, **kw):
         else: chosen = (robustApply(selected, **keys), )
         # get the targets
         targets = tuple((mode.next() for mode in chosen))
-        demux = [len(target) if type(target) == tuple else 1 for target in targets]
+        demux = [len(target) if isinstance(target, tuple) else 1 for target in targets]
         targets = yield tuple(flatten(targets))
         for t, mode in zip(tuple(unflatten(targets, demux)), chosen):
             yield mode.send(t)

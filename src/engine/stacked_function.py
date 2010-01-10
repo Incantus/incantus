@@ -13,7 +13,7 @@ def most_recent(funcs, *args, **kw):
     return funcs[0](*args, **kw)
 
 def find_stacked(target, name):
-    if type(target) == types.TypeType:
+    if isinstance(target, types.TypeType):
         obj = None
         cls = target
     else:

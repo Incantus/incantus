@@ -293,7 +293,7 @@ def constant(value):
 def animate(start, end, startt=None, endt=None, dt=None, extend="constant", method="linear"):
     startt, endt = _handle_time_args(startt, endt, dt)
     extend = _time_extension[extend]
-    if type(method) == str: method = _funcs[method]
+    if isinstance(method, str): method = _funcs[method]
     try:
         iter(start), iter(end)
     except TypeError:

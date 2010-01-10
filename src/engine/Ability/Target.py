@@ -1,3 +1,4 @@
+from engine.Util import isiterable
 from engine.Match import isPermanent, isPlayer, PlayerMatch, OpponentMatch, PlayerOrCreatureMatch
 from engine.GameEvent import InvalidTargetEvent
 
@@ -25,13 +26,12 @@ class MultipleTargets(object):
             self.number = self.distribute
         self.target = []
         self.up_to = up_to
-        if msg and not (type(msg) == list or type(msg) == tuple): self.msg = (msg,)
+        if msg and not isiterable(msg): self.msg = (msg,)
         else: self.msg = msg
         self.selector = selector
         self.player = player
-        if not (type(target_types) == tuple or type(target_types) == list):
-            self.target_types = [target_types]
-        else: self.target_types = target_types
+        if not isiterable(target_types): self.target_types = (target_types,)
+        else: self.target_types = tuple(target_types)
         def match_type(card):
             for match in self.target_types:
                 if match(card): return True
@@ -76,7 +76,7 @@ class MultipleTargets(object):
         else: prompt = "Select %s%d target(s) %s for %s"%(another,number,zl,source)
         return prompt
     def get(self, source):
-        if type(self.selector) == str:
+        if isinstance(self.selector, str):
             if self.selector == "opponent": selector = source.controller.choose_opponent()
             elif self.selector == "active_player":
                 import engine.GameKeeper
@@ -114,8 +114,8 @@ class Target(object):
         self.target = None
         self.zone = zone
         self.player = player
-        if not (type(target_types) == tuple or type(target_types) == list): self.target_types = [target_types]
-        else: self.target_types = target_types
+        if not isiterable(target_types): self.target_types = (target_types,)
+        else: self.target_types = tuple(target_types)
         # It should still be able to match any target types in the spell
         # See oracle for Putrefy (http://ww2.wizards.com/Gatherer/CardDetails.aspx?name=Putrefy)
         def match_types(card):
@@ -197,9 +197,8 @@ class StackTarget(object):
     def __init__(self, target_types=None, msg=''):
         self.is_valid = False
         self.target = None
-        if not (type(target_types) == tuple or type(target_types) == list):
-            self.target_types = [target_types]
-        else: self.target_types = target_types
+        if not isiterable(target_types): self.target_types = (target_types,)
+        else: self.target_types = tuple(target_types)
         self.msg = msg
     def get_targeted(self):
         if self.is_valid: return self.target

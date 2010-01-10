@@ -71,7 +71,7 @@ def convert_mana_string(manastr):
     return mana
 
 def converted_mana_cost(mana):
-    if type(mana) == str:
+    if isinstance(mana, str):
         if "(" in mana: mana = generate_hybrid_choices(mana)[0]
         mana = convert_mana_string(mana)
     return sum(mana)
@@ -132,12 +132,12 @@ class ManaPool(MtGObject):
         self.send(ManaCleared())
     def manaBurn(self): return sum(self._mana)
     def add(self, mana):
-        if type(mana) == str: mana = convert_mana_string(mana)
+        if isinstance(mana, str): mana = convert_mana_string(mana)
         for i, amount in enumerate(mana): self._mana[i] += amount
         if sum(mana) > 0: self.send(ManaAdded(), amount=mana)
     def spend(self, mana):
         # This function assumes that you have enough mana
-        if type(mana) == str: mana = convert_mana_string(mana)
+        if isinstance(mana, str): mana = convert_mana_string(mana)
         for i, amount in enumerate(mana):
             if not amount <= self._mana[i]: raise Exception("Not enough %s mana"%Colors.ColorMap[i])
             self._mana[i] -= amount
@@ -153,7 +153,7 @@ class ManaPool(MtGObject):
         return coststr
     def distribute(self, mana):
         # At this point I know I have enough mana
-        if type(mana) == str: mana = convert_mana_string(mana)
+        if isinstance(mana, str): mana = convert_mana_string(mana)
         # First, if no colorless mana, don't need to distribute
         if mana[-1] == 0: return mana
 

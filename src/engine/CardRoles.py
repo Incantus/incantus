@@ -73,7 +73,7 @@ class CardRole(MtGObject):
     # DSL functions
     def move_to(self, zone, position="top"):
         if not self.is_LKI:
-            if type(zone) == str:
+            if isinstance(zone, str):
                 zone = getattr(self.owner, zone)
             return zone.move_card(self, position)
         else: return self
@@ -83,7 +83,7 @@ class CardRole(MtGObject):
         if "lifelink" in self.abilities: self.controller.life += final_dmg
         return final_dmg
     def add_counters(self, counter_type, number=1):
-        if type(counter_type) == str: counter_type = Counter(counter_type)
+        if isinstance(counter_type, str): counter_type = Counter(counter_type)
         for counter in [counter_type.copy() for i in range(number)]:
             self._counters.append(counter)
             self.send(CounterAddedEvent(), counter=counter)

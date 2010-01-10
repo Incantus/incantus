@@ -127,7 +127,7 @@ class GameKeeper(MtGObject):
 
         _phases = ("newTurn", ("untapStep", "upkeepStep", "drawStep"), "mainPhase1", "combatPhase", "mainPhase2", "endPhase")
         for phase in itertools.cycle(_phases):
-            if type(phase) == tuple:
+            if isinstance(phase, tuple):
                 for step in phase:
                     getattr(self, step)()
                     self.emptyManaPools()

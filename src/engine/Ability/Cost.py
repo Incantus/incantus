@@ -31,7 +31,7 @@ class MultipleCosts(Cost):
     def __init__(self, costs):
         super(MultipleCosts,self).__init__()
         for i, c in enumerate(costs):
-            if type(c) == str: costs[i] = ManaCost(c)
+            if isinstance(c, str): costs[i] = ManaCost(c)
         self.costs = costs
     def consolidate(self, costs):
         # This combines all mana costs
@@ -407,8 +407,8 @@ class AddCounterCost(Cost):
 
 class ConditionalCost(Cost):
     def __init__(self, orig_cost, new_cost, func):
-        if type(orig_cost) == str: orig_cost = ManaCost(orig_cost)
-        if type(new_cost) == str: new_cost = ManaCost(new_cost)
+        if isinstance(orig_cost, str): orig_cost = ManaCost(orig_cost)
+        if isinstance(new_cost, str): new_cost = ManaCost(new_cost)
         self.orig_cost = orig_cost
         self.new_cost = new_cost
         self.cost = self.orig_cost
@@ -552,8 +552,8 @@ class ChoiceCost(SpecialCost):
 
 class EvokeCost(SpecialCost):
     def __init__(self, orig_cost, evoke_cost):
-        if type(orig_cost) == str: orig_cost = ManaCost(orig_cost)
-        if type(evoke_cost) == str: evoke_cost = ManaCost(evoke_cost)
+        if isinstance(orig_cost, str): orig_cost = ManaCost(orig_cost)
+        if isinstance(evoke_cost, str): evoke_cost = ManaCost(evoke_cost)
         self.orig_cost = orig_cost
         self.evoke_cost = evoke_cost
         self.reset()

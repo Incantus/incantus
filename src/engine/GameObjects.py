@@ -91,7 +91,7 @@ class Card(GameObject):
 class Token(GameObject):
     def __init__(self, info, owner):
         super(Token, self).__init__(owner)
-        if type(info) == dict: info = CardDatabase.convertToTxt(info)
+        if isinstance(info, dict): info = CardDatabase.convertToTxt(info)
         CardDatabase.execCode(self, info)
         self.out_battlefield_role = self.stack_role = TokenNonBattlefieldRole
         self.in_battlefield_role = TokenPermanent

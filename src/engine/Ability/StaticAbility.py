@@ -43,8 +43,8 @@ class CardTrackingAbility(StaticAbility):
         self.enter_trigger = EnterTrigger(tracking, player="any")
         self.leave_trigger = LeaveTrigger(tracking, player="any")
         self.control_changed = Trigger(ControllerChanged(), sender="source")  # card with ability changed controller
-        if type(events) == tuple: events = list(events)
-        elif not type(events) == list: events = [events]
+        if isinstance(events, tuple): events = list(events)
+        elif not isinstance(events, list): events = [events]
         self.other_triggers = [Trigger(event) for event in [ControllerChanged()] + events] # triggers for tracked cards
         if not condition: condition = lambda *args: True
         self.condition = condition
@@ -99,7 +99,8 @@ class CardTrackingAbility(StaticAbility):
         if card in self.effect_tracking: del self.effect_tracking[card]
     def add_effects(self, card):
         self.effect_tracking[card] = True  # this is to prevent recursion when the effect is called
-        self.effect_tracking[card] = [combine(*removal_func) if type(removal_func) == tuple else removal_func for removal_func in self.effect_generator(self.source, card)]
+        self.effect_tracking[card] = [combine(*removal_func) if isinstance(removal_func, tuple) 
+                else removal_func for removal_func in self.effect_generator(self.source, card)]
     def remove_effects(self, card):
         for remove in self.effect_tracking[card]: remove()
         del self.effect_tracking[card]   # necessary to prevent recursion
@@ -116,7 +117,7 @@ class CardTrackingAbility(StaticAbility):
 class SimpleStaticAbility(StaticAbility):
     def _enable(self):
         super(SimpleStaticAbility, self)._enable()
-        self.effect_tracking = [combine(*removal_func) if type(removal_func) == tuple else removal_func for removal_func in self.effect_generator(self.source)]
+        self.effect_tracking = [combine(*removal_func) if isinstance(removal_func, tuple) else removal_func for removal_func in self.effect_generator(self.source)]
     def _disable(self):
         super(SimpleStaticAbility, self)._disable()
         for remove in self.effect_tracking: remove()
@@ -132,7 +133,7 @@ class CardStaticAbility(StaticAbility):
     def _enable(self):
         super(CardStaticAbility, self)._enable()
         self.control_changed.setup_trigger(self.source, self.new_controller, priority=CONTINUOUS_PRIORITY)
-        self.effect_tracking = [combine(*removal_func) if type(removal_func) == tuple else removal_func for removal_func in self.effect_generator(self.source)]
+        self.effect_tracking = [combine(*removal_func) if isinstance(removal_func, tuple) else removal_func for removal_func in self.effect_generator(self.source)]
     def _disable(self):
         super(CardStaticAbility, self)._disable()
         self.control_changed.clear_trigger()
@@ -143,7 +144,7 @@ class CardStaticAbility(StaticAbility):
         self.effect_tracking = []
     def new_controller(self, original):
         for remove in self.effect_tracking: remove()
-        self.effect_tracking = [combine(*removal_func) if type(removal_func) == tuple else removal_func for removal_func in self.effect_generator(self.source)]
+        self.effect_tracking = [combine(*removal_func) if isinstance(removal_func, tuple) else removal_func for removal_func in self.effect_generator(self.source)]
 
 # The condition is checked every timestep
 class Conditional(MtGObject):

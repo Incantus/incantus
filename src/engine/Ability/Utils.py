@@ -1,6 +1,8 @@
+from engine.Util import isiterable
+
 def flatten(_tup):
     for t in _tup:
-        if type(t) == tuple:
+        if isiterable(t):
             for t2 in t: # It's only one level of nesting
                 yield t2
         else: yield t

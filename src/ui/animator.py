@@ -41,7 +41,7 @@ class SparkFXManager(object):
         start_pos += random_offset
         end_pos += random_offset
         if color == None: color=(1.,1.,1.,1)
-        elif type(color) == str: color = self.COLORS.get(color)
+        elif isinstance(color, str): color = self.COLORS.get(color)
         else: color = color
         spark = Label(str(number), size=40, color=color, shadow=False, halign="center", valign="center", pos=start_pos)
         spark._pos.set_transition(dt=dt, method="ease_out_circ") #ease_out_back")
@@ -65,7 +65,7 @@ class SparkFXManager(object):
         spark._pos.set_transition(dt=dt, method="ease_out_circ") #ease_out_back")
         spark.pos = end_pos
         if color == None: spark.color=(1.,1.,1.)
-        elif type(color) == str:
+        elif isinstance(color, str):
             spark.color = self.COLORS.get(color)
         else: spark.color = color
         spark.visible = anim.animate(1., 0., dt=dt)
@@ -76,7 +76,7 @@ class SparkFXManager(object):
     def add_star_spark(self, start_pos, end_pos, dt=1.0, color=None, start_size=0.2, end_size=2.0, dim=2):
         spark = Image('targeting', pos=start_pos)
         if color == None: spark.color = (1.0, 1.0, 1.0)
-        elif type(color) == str:
+        elif isinstance(color, str):
             spark.color = self.COLORS.get(color)
         else: spark.color = color
         spark.visible = anim.animate(1., 0., dt=dt)
@@ -87,7 +87,7 @@ class SparkFXManager(object):
         else: self.active_sparks_3d.append(spark)
     def add_sparkle_star(self, start_pos, end_pos, dt=1.0, color=None, dim=2):
         if color == None: color = (1., 0.9, 0)
-        elif type(color) == str: color = self.COLORS.get(color)
+        elif isinstance(color, str): color = self.COLORS.get(color)
         else: color = color
         spark = Image('targeting', pos=start_pos)
         spark.visible = anim.animate(1., 0., dt=dt)

@@ -1,5 +1,6 @@
 import weakref
 from GameEvent import AbilitiesModifiedEvent
+from Util import isiterable
 
 __all__ = ["abilities", "stacked_abilities"]
 
@@ -9,7 +10,7 @@ class abilities(object):
         self._abilities = []
         self._keywords = {}
     def add(self, ability, tag=''):
-        if type(ability) == tuple:
+        if isiterable(ability):
             self._abilities.extend(ability)
         else:
             ability.tag = tag

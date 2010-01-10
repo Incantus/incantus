@@ -1,3 +1,4 @@
+from engine.Util import isiterable
 import bsddb, os, glob, traceback
 import cPickle as pickle
 
@@ -61,7 +62,7 @@ def execCode(card, code):
 
     # For converted manacost comparisons
     if hasattr(card, "cost"):
-        if type(card.cost) == str: card.base_cost = CardEnvironment.ManaCost(card.cost)
+        if isinstance(card.cost, str): card.base_cost = CardEnvironment.ManaCost(card.cost)
         else: card.base_cost = card.cost
     else: card.base_cost = CardEnvironment.NoCost()
 
@@ -74,7 +75,7 @@ def execCode(card, code):
     for char_name in ["color", "types", "subtypes", "supertypes"]:
         if hasattr(card, char_name):
             char = getattr(card, char_name)
-            if not type(char) == tuple: char = (char,)
+            if not isinstance(char, tuple): char = (char,)
             setattr(card, "base_"+char_name, chr(*char))
 
     if hasattr(card, "power"): card.base_power = card.power
@@ -109,7 +110,7 @@ name = %(name)s
     for attr in ["types", "supertypes", "subtypes", "color"]:
         char = card_dict.get(attr, None)
         if char:
-            if not (type(char) == list or type(char) == tuple): char = (char,)
+            if not isiterable(char): char = (char,)
             fields["char"] += "%s = %s\n"%(attr, ', '.join(map(str,char)))
 
     if "P/T" in card_dict:
@@ -123,14 +124,14 @@ name = %(name)s
     name = card_dict.get("name", None)
     if not name:
         subtypes = card_dict.get("subtypes", ())
-        if not (type(subtypes) == list or type(subtypes) == tuple): subtypes = (subtypes,)
+        if not isiterable(subtypes): subtypes = (subtypes,)
         name = " ".join(map(str, subtypes))
     fields["name"] = repr(name)
 
     # Now process abilities (should only be simple keyword abilities)
     abilities = card_dict.get("abilities", '')
     if abilities:
-        if not (type(abilities) == list or type(abilities) == tuple): abilities = (abilities,)
+        if not isiterable(abilities): abilities = (abilities,)
         abilities = "\n".join(["abilities.add(%s())"%a for a in abilities])
     fields["abilities"] = abilities
     return tmpl%fields

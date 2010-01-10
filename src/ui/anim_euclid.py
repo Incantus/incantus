@@ -22,10 +22,10 @@ class AnimatedVector3(Animable, Vector3):
         self.z = animate(self.z, self.z, dt=dt, extend=extend, method=method)
     def set_chained_transition(self, positions, dts, methods):
         assert len(positions) > 0
-        if type(dts) == list or type(dts) == tuple:
+        if isinstance(dts, list) or isinstance(dts, tuple):
             assert len(dts) == len(positions)
         else: dts = [dts]*len(positions)
-        if type(methods) == list or type(methods) == tuple:
+        if isinstance(methods, list) or isinstance(methods, tuple):
             assert len(methods) == len(positions)
         else: methods = [methods]*len(positions)
         x_chain = []; prev_x = self.x
@@ -58,10 +58,10 @@ class AnimatedQuaternion(Animable, Quaternion):
         self.z = animate(self.z, self.z, dt=dt, extend=extend, method=method)
     def set_chained_transition(self, quaternions, dts, methods):
         assert len(quaternions) > 0
-        if type(dts) == list or type(dts) == tuple:
+        if isinstance(dts, list) or isinstance(dts, tuple):
             assert len(dts) == len(quaternions)
         else: dts = [dts]*len(quaternions)
-        if type(methods) == list or type(methods) == tuple:
+        if isinstance(methods, list) or isinstance(methods, tuple):
             assert len(methods) == len(quaternions)
         else: methods = [methods]*len(quaternions)
         w_chain = []; prev_w = self.w

@@ -1327,7 +1327,7 @@ class Line2(Geometry):
         if len(args) == 3:
             assert isinstance(args[0], Point2) and \
                    isinstance(args[1], Vector2) and \
-                   type(args[2]) == float
+                   isinstance(args[2], float)
             self.p = args[0].copy()
             self.v = args[1] * args[2] / abs(args[1])
         elif len(args) == 2:
@@ -1423,7 +1423,7 @@ class Circle(Geometry):
     __slots__ = ['c', 'r']
 
     def __init__(self, center, radius):
-        assert isinstance(center, Vector2) and type(radius) == float
+        assert isinstance(center, Vector2) and isinstance(radius, float)
         self.c = center.copy()
         self.r = radius
 
@@ -1760,7 +1760,7 @@ class Line3:
         if len(args) == 3:
             assert isinstance(args[0], Point3) and \
                    isinstance(args[1], Vector3) and \
-                   type(args[2]) == float
+                   isinstance(args[2], float)
             self.p = args[0].copy()
             self.v = args[1] * args[2] / abs(args[1])
         elif len(args) == 2:
@@ -1866,7 +1866,7 @@ class Sphere:
     __slots__ = ['c', 'r']
 
     def __init__(self, center, radius):
-        assert isinstance(center, Vector3) and type(radius) == float
+        assert isinstance(center, Vector3) and isinstance(radius, float)
         self.c = center.copy()
         self.r = radius
 
@@ -1925,7 +1925,7 @@ class Plane:
             if isinstance(args[0], Point3) and isinstance(args[1], Vector3):
                 self.n = args[1].copy()
                 self.k = self.n.dot(args[0])
-            elif isinstance(args[0], Vector3) and type(args[1]) == float:
+            elif isinstance(args[0], Vector3) and isinstance(args[1], float):
                 self.n = args[0].copy()
                 self.k = args[1]
             else:

@@ -1,4 +1,5 @@
 from MtGObject import MtGObject
+from Util import isiterable
 from GameObjects import Card, Token
 from GameKeeper import Keeper
 from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, BlockersReorderedEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent, GameOverException, DealsDamageToEvent
@@ -89,7 +90,7 @@ class Player(MtGObject):
         self.library.shuffle()
     def you_may(self, msg): return self.getIntention(prompt="You may %s"%msg,msg="Would you like to %s?"%msg)
     def you_may_pay(self, source, cost):
-        if type(cost) == str: cost = ManaCost(cost)
+        if isinstance(cost, str): cost = ManaCost(cost)
         intent = self.getIntention(prompt="You may pay %s"%cost, msg="Would you like to pay %s"%cost)
         if intent and cost.precompute(source, self) and cost.compute(source, self):
             cost.pay(source, self)
@@ -100,7 +101,7 @@ class Player(MtGObject):
     def play_tokens(self, info, number=1, tag=''):
         return [token.move_to("battlefield") for token in self.create_tokens(info, number)]
     def make_selection(self, sellist, number=1, required=True, prompt=''):
-        if type(sellist[0]) == tuple: idx=False
+        if isiterable(sellist[0]): idx=False
         else: idx=True
         return self.getSelection(sellist, numselections=number, required=required, idx=idx, prompt=prompt)
     # A hack to make cards like Door of Destinies work. -MageKing17
@@ -538,7 +539,7 @@ class Player(MtGObject):
                 else: return False
             if not isinstance(action, PassPriority): return action.selection
             else: return False
-        if not (type(cardtype) == list or type(cardtype) == tuple): cardtype = [cardtype]
+        if not isiterable(cardtype): cardtype = (cardtype,)
         def check_card(card):
             valid = True
             for ctype in cardtype:
@@ -588,7 +589,7 @@ class Player(MtGObject):
         else: return target
     def getTarget(self, target_types, zone=None, from_player=None, required=True, prompt='Select target'):
         # If required is True (default) then you can't cancel the request for a target
-        if not (type(target_types) == list or type(target_types) == tuple): target_types = [target_types]
+        if not isiterable(target_types): target_types = (target_types,)
         def filter(action):
             # This function is really convoluted
             # If I return False here then the input function will keep cycling until valid input

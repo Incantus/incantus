@@ -63,7 +63,7 @@ class Image(Widget):
 
     def __init__(self,value,pos=euclid.Vector3(0,0,0)):
         super(Image,self).__init__(pos)
-        if type(value) == str: self.img = ImageCache.get(value)
+        if isinstance(value, str): self.img = ImageCache.get(value)
         else: self.img = value
         self.alpha = anim.animate(1.0,1.0,dt=1,method="sine")
         self.color = (1.0, 1.0, 1.0)

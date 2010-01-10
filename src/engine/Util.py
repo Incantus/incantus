@@ -16,3 +16,7 @@ def uuid( *args ):
   data = str(t)+' '+str(r)+' '+str(a)+' '+str(args)
   data = md5.md5(data).hexdigest()
   return data
+
+isiterable = lambda obj: getattr(obj, '__iter__', False)
+#isiterable = lambda obj: isinstance(obj, basestring) or getattr(obj, '__iter__', False)
+

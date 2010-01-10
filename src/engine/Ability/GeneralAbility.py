@@ -40,7 +40,7 @@ def modal_effects(*modes, **kw):
 
         # get the targets - demultiplex them
         targets = tuple((mode.send(payment) for mode in chosen))
-        demux = [len(target) if type(target) == tuple else 1 for target in targets]
+        demux = [len(target) if isinstance(target, tuple) else 1 for target in targets]
         targets = yield tuple(flatten(targets))
         for t, mode in zip(tuple(unflatten(targets, demux)), chosen):
             yield mode.send(t)
