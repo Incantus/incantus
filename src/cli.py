@@ -1,11 +1,12 @@
 #!/usr/bin/python
 import readline, pudb as pdb
-import random
+import time, random
 from itertools import chain, repeat, izip
 import ConfigParser
 from engine.GameKeeper import Keeper
 from engine.Player import Player
 from engine import Action, Mana
+from network import replaydump
 
 def grouper(n, iterable, padvalue=None):
     "grouper(3, 'abcdefg', 'x') --> ('a','b','c'), ('d','e','f'), ('g','x','x')"
@@ -245,6 +246,8 @@ def playerInput(context, prompt=''):
         blocking_list = context['blocking_list']
         trample = context['trample']
 
+    dump_to_replay.write(action)
+
     return action
 
 
@@ -256,7 +259,9 @@ def read_deckfile(filename):
     return decklist, sideboard
 
 if __name__ == "__main__":
-    random.seed()
+    global dump_to_replay
+    seed = time.time()
+    random.seed(seed)
     conf = ConfigParser.ConfigParser()
     conf.read("data/incantus.ini")
     player1 = conf.get("main", "playername")
@@ -264,11 +269,19 @@ if __name__ == "__main__":
     player3 = "Player3"
     my_deck, sideboard = read_deckfile(conf.get("main", "deckfile"))
     other_deck, other_sideboard = read_deckfile(conf.get("solitaire", "deckfile"))
+    replay_file = conf.get("general", "replay")
 
     players = [Player(player1, my_deck)
              , Player(player2, other_deck)
     #         , Player(player3, other_deck)
              ]
+
+    dump_to_replay = replaydump.ReplayDump(save=True)
+    dump_to_replay.write(True)
+    dump_to_replay.write(seed)
+    for name, deck in [(player1, my_deck), (player2, other_deck)]:
+        dump_to_replay.write(name)
+        dump_to_replay.write(deck)
 
     for player in players:
         player.dirty_input = playerInput
