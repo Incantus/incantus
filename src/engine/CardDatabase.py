@@ -15,11 +15,16 @@ class CardDatabase(object):
         self._dbs = []
         for filename in dbnames:
             self._dbs.append(bsddb.hashopen(filename))
+        self._txtcards = set(os.path.basename(c) for c in glob.glob("./data/cards/*"))
         self._invalid = set()
     def _convkey(self, key):
         return key.encode("rot13")
     def __getitem__(self, name):
         if not name in self._invalid:
+            # Check txt files
+            altname = name.replace(" ", "_").replace("'","").replace(",","")
+            if altname in self._txtcards:
+                return (file("./data/cards/%s"%altname).read(), True, False, False)
             key = self._convkey(name)
             for db in self._dbs:
                 if key in db:
