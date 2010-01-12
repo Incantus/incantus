@@ -2,7 +2,7 @@ from engine.CardRoles import CreatureType
 from engine.Planeswalker import PlaneswalkerType
 from engine.Player import Player
 from EffectsUtilities import combine, do_replace
-from Utils import flatten, unflatten
+from Utils import flatten
 
 preventAll = lambda self, amt, source, combat=False: 0
 
@@ -39,10 +39,10 @@ def modal_effects(*modes, **kw):
         payment = yield source.cost
 
         # get the targets - demultiplex them
-        targets = tuple((mode.send(payment) for mode in chosen))
-        demux = [len(target) if isinstance(target, tuple) else 1 for target in targets]
-        targets = yield tuple(flatten(targets))
-        for t, mode in zip(tuple(unflatten(targets, demux)), chosen):
+        targets, unflatten = flatten(mode.send(payment) for mode in chosen)
+        targets = yield targets
+        if not isinstance(targets, tuple): targets = (targets,)
+        for t, mode in zip(unflatten(targets), chosen):
             yield mode.send(t)
             for res in mode: yield res
 

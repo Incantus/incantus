@@ -1,7 +1,7 @@
 from engine.Util import isiterable
 from Ability import Ability
 from EffectsUtilities import robustApply
-from Utils import flatten, unflatten
+from Utils import flatten
 
 source_match = lambda source, card: source == card
 sender_match = lambda source, sender: source == sender
@@ -80,10 +80,10 @@ def modal_triggered_effects(*modes, **kw):
         if choose > 1: chosen = tuple((robustApply(mode, **keys) for mode in selected))
         else: chosen = (robustApply(selected, **keys), )
         # get the targets
-        targets = tuple((mode.next() for mode in chosen))
-        demux = [len(target) if isinstance(target, tuple) else 1 for target in targets]
-        targets = yield tuple(flatten(targets))
-        for t, mode in zip(tuple(unflatten(targets, demux)), chosen):
+        targets, unflatten = flatten(mode.next() for mode in chosen)
+        targets = yield targets
+        if not isinstance(targets, tuple): targets = (targets,)
+        for t, mode in zip(unflatten(targets), chosen):
             yield mode.send(t)
             for res in mode: yield res
 
