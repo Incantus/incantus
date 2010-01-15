@@ -137,7 +137,7 @@ class ManaCost(Cost):
     def __add__(self, other):
         if isinstance(other, str): return ManaCost(Mana.combine_mana_strings(self.cost, other))
         elif isinstance(other, ManaCost): return ManaCost(Mana.combine_mana_strings(self.cost, other.cost))
-        elif isinstance(other, MultipleCosts): return MultipleCosts([self, other.costs])
+        elif isinstance(other, MultipleCosts): return MultipleCosts([self]+other.costs)
         elif isinstance(other, Cost): return MultipleCosts([self, other])
     def __str__(self):
         coststr = self.cost
