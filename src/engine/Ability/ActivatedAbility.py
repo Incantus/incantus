@@ -37,7 +37,6 @@ class CostAbility(StackAbility):
         return self.effects.send(self.cost)
     def get_cost(self):
         cost = self.effects.next()
-        #if isinstance(cost, str): cost = ManaCost(cost)
         self.cost = cost
     def __str__(self):
         return self.txt
