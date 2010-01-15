@@ -1,7 +1,7 @@
 import copy
 from engine.GameEvent import AbilityAnnounced, AbilityCanceled, AbilityCountered, AbilityResolved, TimestepEvent
 
-class Ability(object):
+class StackAbility(object):
     def __init__(self, effects, txt=''):
         self.effect_generator = effects
         if not txt and effects.__doc__: txt = effects.__doc__
@@ -22,17 +22,16 @@ class Ability(object):
     def canceled(self): self.controller.send(AbilityCanceled(), ability=self)
     def do_announce(self): raise NotImplementedException()
     def played(self): self.controller.stack.push(self)
-    def _get_targets_from_effects(self): return self.effects.next()
+    def targets_from_effects(self): raise NotImplementedException()
     def get_targets(self):
-        targets = self._get_targets_from_effects()
+        targets = self.targets_from_effects()
         if not isinstance(targets, tuple): targets = (targets,)
         if all((target.get(self.source) for target in targets)):
             self.targets = targets
             return True
         else: return False
-    def check_targets(self): return any([target.check_target(self.source) for target in self.targets])
     def resolve(self):
-        if self.check_targets():
+        if any([target.check_target(self.source) for target in self.targets]):
             targets = tuple((target.get_targeted() for target in self.targets))
             if len(targets) == 1: targets = targets[0]
             self.effects.send(targets)

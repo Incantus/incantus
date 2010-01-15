@@ -1,8 +1,8 @@
-from Ability import Ability
+from StackAbility import StackAbility
 from Limit import no_limit
 from Cost import ManaCost
 
-class CostAbility(Ability):
+class CostAbility(StackAbility):
     zone = "battlefield"
     limit_type = no_limit   # This is because if instantiate when the class is created, all the signalling is cleared
     def __init__(self, effects, limit=None, zone=None, txt='', keyword=''):
@@ -19,8 +19,7 @@ class CostAbility(Ability):
         # Do all the stuff in rule 409.1 like pick targets, pay costs, etc
         source, player = self.source, self.controller
         self.effects = self.effect_generator(player, source)  # Start up generator
-        self.cost = self.effects.next()
-        if isinstance(self.cost, str): self.cost = ManaCost(self.cost)
+        self.get_cost()
         if (self.cost.precompute(source, player) and
            self.get_targets() and
            self.cost.compute(source, player)):
@@ -34,8 +33,12 @@ class CostAbility(Ability):
     def resolved(self):
         self.limit.resolved(self.source)
         super(CostAbility, self).resolved()
-    def _get_targets_from_effects(self):
+    def targets_from_effects(self):
         return self.effects.send(self.cost)
+    def get_cost(self):
+        cost = self.effects.next()
+        #if isinstance(cost, str): cost = ManaCost(cost)
+        self.cost = cost
     def __str__(self):
         return self.txt
 

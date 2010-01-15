@@ -1,5 +1,5 @@
 from engine.Util import isiterable
-from Ability import Ability
+from StackAbility import StackAbility
 from EffectsUtilities import robustApply
 from Utils import flatten
 
@@ -7,7 +7,7 @@ source_match = lambda source, card: source == card
 sender_match = lambda source, sender: source == sender
 attached_match = lambda source, card: source.attached_to == card
 
-class TriggeredStackAbility(Ability):
+class TriggeredStackAbility(StackAbility):
     triggered = True
     def __init__(self, effects, trigger_keys, source, controller, txt=''):
         super(TriggeredStackAbility, self).__init__(effects, txt)
@@ -17,6 +17,8 @@ class TriggeredStackAbility(Ability):
     def do_announce(self):
         self.effects = robustApply(self.effect_generator, **self.trigger_keys)
         return self.get_targets()
+    def targets_from_effects(self):
+        return self.effects.next()
 
 class TriggeredAbility(object):
     enabled = property(fget=lambda self: self._status_count > 0)
