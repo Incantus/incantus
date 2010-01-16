@@ -1,13 +1,21 @@
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
-import pyglet
+from pyglet import resource, font, image
 
 fontname = "Dumbledor 1"
 
 import ConfigParser
 config = ConfigParser.ConfigParser()
 config.read("data/incantus.ini")
+
+import os
+print "Path:", os.getcwd()
+
+resource.path.append("./data/images")
+resource.path.append("./data/images/fx")
+font.add_file("./data/fonts/dum1.ttf")
+resource.reindex()
 
 class ImageCache(object):
     cache = {}
@@ -16,12 +24,12 @@ class ImageCache(object):
     @staticmethod
     def _load(filename, key):
         cache = ImageCache.cache
-        value = pyglet.resource.image(filename)
+        value = resource.image(filename)
         cache[key] = value
     @staticmethod
     def _load_multi(filename, labels, rows, columns):
         cache = ImageCache.cache
-        multiimage = pyglet.image.ImageGrid(pyglet.resource.image(filename), rows, columns)
+        multiimage = image.ImageGrid(resource.image(filename), rows, columns)
         for label, texture in zip(labels, multiimage):
             key = label
             cache[key] = texture
