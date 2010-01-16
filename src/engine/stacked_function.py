@@ -1,16 +1,27 @@
 import new, types
 
-__all__ = ['global_override', 'override', 'replace', 'logical_or', 'logical_and', 'do_all', 'most_recent']
+__all__ = ['global_override', 'override', 'replace', 'logical_or', 'logical_and', 
+    'do_all', 'do_map', 'do_sum', 'most_recent', 'overridable']
+
+def overridable(combiner):
+    def func(f):
+        f.combiner = combiner
+        return f
+    return func
 
 # this is probably where the static layering rules come into play
 def logical_or(funcs, *args, **kw):
-    return reduce(lambda x, y: x or y(*args, **kw), funcs, False)
+    return reduce(lambda x, f: x or f(*args, **kw), funcs, False)
 def logical_and(funcs, *args, **kw):
-    return reduce(lambda x, y: x and y(*args, **kw), funcs, True)
+    return reduce(lambda x, f: x and f(*args, **kw), funcs, True)
 def do_all(funcs, *args, **kw):
     for f in funcs[::-1]: f(*args, **kw)
 def most_recent(funcs, *args, **kw):
     return funcs[0](*args, **kw)
+def do_map(funcs, *args, **kw):
+    return [f(*args, **kw) for f in funcs]
+def do_sum(funcs, *args, **kw):
+    return reduce(lambda x, y: x + y, do_map(funcs, *args, **kw))
 
 def find_stacked(target, name):
     if isinstance(target, types.TypeType):
@@ -27,9 +38,9 @@ def find_stacked(target, name):
         stacked = stacked_function(name, cls)
     return stacked, obj
 
-def override(target, name, func, combiner=logical_and):
+def override(target, name, func, combiner=None):
     stacked, obj = find_stacked(target, name)
-    stacked.set_combiner(combiner)
+    if combiner: stacked.set_combiner(combiner)
     return stacked.add_override(func, obj)
 def replace(target, name, func, msg='', condition=None):
     stacked, obj = find_stacked(target, name)
@@ -40,17 +51,24 @@ def global_override(target, name, func):
 
 class stacked_function(object):
     stacked = True
-    def __init__(self, f_name, f_class, combiner=logical_and):
+    def __init__(self, f_name, f_class):
         self.__name__ = "stacked_"+f_name
         self.f_name = f_name
         self.f_class = f_class
-        self.combiner = combiner
         self.global_overrides = []
         self.overrides = []
         self.replacements = []
         self.setup_overrides(f_name, f_class)
+        self.set_combiner(self.first_in_mro("combiner"))
     def set_combiner(self, combiner):
         self.combiner = combiner
+    def first_in_mro(self, attr):
+        for cls in self.f_class.mro():
+            if self.f_name in cls.__dict__:
+                func = getattr(cls, self.f_name)
+                if hasattr(func, attr):
+                    return getattr(func, attr)
+        else: return logical_and
     def setup_overrides(self, f_name, f_class):
         if not f_name in f_class.__dict__:
             # If the function is defined in a parent, bind a call to function in the superclass
