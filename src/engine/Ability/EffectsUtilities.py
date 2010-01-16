@@ -1,7 +1,7 @@
 from engine.pydispatch import dispatcher
 from engine.pydispatch.robustapply import function
 from engine.GameEvent import CleanupEvent
-from engine.stacked_function import global_override, override, replace, logical_and, logical_or, do_all
+from engine.stacked_function import global_override, override, replace
 
 no_condition = None
 
@@ -49,9 +49,9 @@ def permanent_method(func):
 do_override = override
 do_replace = replace
 
-def override_effect(func_name, func, combiner=logical_and):
-    def effects(target):
-        yield do_override(target, func_name, func, combiner=combiner)
+def override_effect(func_name, func):
+    def effects(source):
+        yield do_override(source, func_name, func)
     return effects
 
 def robustApply(receiver, **named):

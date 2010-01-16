@@ -1,5 +1,5 @@
 import new
-from stacked_function import overridable, do_map, do_sum
+from stacked_function import overridable, do_map, do_sum, do_all, logical_and, logical_or
 from characteristics import stacked_controller, stacked_PT, stacked_land_subtype
 from symbols import Land, Creature, Planeswalker, Instant, Sorcery, Aura, Equipment, Fortification
 from MtGObject import MtGObject
@@ -47,10 +47,14 @@ class CardRole(MtGObject):
         self.zone = None
         self._counters = []
         self.attachments = []
+    @overridable(logical_and)
     def canBeTargetedBy(self, targeter): return True
+    @overridable(logical_and)
     def canBeAttachedBy(self, targeter): return True
     def isTargetedBy(self, targeter):
         self.send(TargetedByEvent(), targeter=targeter)
+
+    @overridable(do_all)
     def modifyEntering(self):
         # Add the necessary superclasses, depending on our type/subtypes
         cls = self.__class__
@@ -220,6 +224,7 @@ class Permanent(CardRole):
             self.send(CardTapped())
             return True
         else: return False
+    @overridable(logical_and)
     def canUntap(self):
         return self.tapped
     canUntapDuringUntapStep = canUntap
@@ -235,12 +240,14 @@ class Permanent(CardRole):
     def canDestroy(self):
         # this can be replaced by regeneration for creatures - what about artifacts and enchantments?
         return True
+    @overridable(logical_and)
     def destroy(self, regenerate=True):
         if not regenerate or self.canDestroy():
             destroyed = self.move_to("graveyard")
             self.send(PermanentDestroyedEvent())
             return destroyed
         else: return self
+    @overridable(logical_or)
     def continuouslyOnBattlefield(self):
         return self.continuously_on_battlefield
     def summoningSickness(self):
@@ -376,18 +383,24 @@ class CreatureType(object):
         return self.continuouslyOnBattlefield() and super(CreatureType, self).canTap()
     def canUntap(self):
         return self.continuouslyOnBattlefield() and super(CreatureType, self).canUntap()
+    @overridable(logical_and)
     def checkAttack(self, attackers, not_attacking):
         return True
+    @overridable(logical_and)
     def canAttack(self):
         return (not self.tapped) and (not self.in_combat) and self.continuouslyOnBattlefield()
     def checkBlock(self, combat_assignment, not_blocking):
         return True
+    @overridable(logical_and)
     def canBeBlocked(self):
         return True
+    @overridable(logical_and)
     def canBeBlockedBy(self, blocker):
         return True
+    @overridable(logical_and)
     def canBlock(self):
         return not (self.tapped or self.in_combat)
+    @overridable(logical_and)
     def canBlockAttacker(self, attacker):
         return True
     def didStrike(self):
@@ -410,6 +423,7 @@ class CreatureType(object):
             self.send(BlockerClearedEvent())
     def setOpponent(self, opponent):
         self.opponent = opponent
+    @overridable(logical_and)
     def setAttacking(self):
         self.setCombat(True)
         self.tap()
@@ -439,6 +453,7 @@ class CreatureType(object):
         return cost.precompute(self, player) and cost.compute(self, player)
     def payAttackCost(self):
         self.attack_cost.pay(self, self.controller)
+    @overridable(logical_and)
     def shouldDestroy(self):
         return self.__damage >= self.toughness and super(CreatureType, self).shouldDestroy()
 

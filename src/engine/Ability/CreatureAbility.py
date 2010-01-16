@@ -6,7 +6,7 @@ from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from TriggeredAbility import TriggeredAbility
 from Trigger import Trigger, DealDamageTrigger
-from EffectsUtilities import until_end_of_turn, do_override, do_replace, logical_or, logical_and, combine, permanent_method, override_effect
+from EffectsUtilities import until_end_of_turn, do_override, do_replace, combine, permanent_method, override_effect
 
 def keyword_effect(target):
     yield lambda: None
@@ -68,7 +68,7 @@ def shadow():
 def haste():
     keyword = "haste"
     def continuouslyOnBattlefield(self): return True
-    return CardStaticAbility(effects=override_effect("continuouslyOnBattlefield", continuouslyOnBattlefield, combiner=logical_or), keyword=keyword)
+    return CardStaticAbility(effects=override_effect("continuouslyOnBattlefield", continuouslyOnBattlefield), keyword=keyword)
 
 def defender():
     keyword = "defender"

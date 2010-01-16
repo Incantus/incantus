@@ -38,9 +38,8 @@ def find_stacked(target, name):
         stacked = stacked_function(name, cls)
     return stacked, obj
 
-def override(target, name, func, combiner=None):
+def override(target, name, func):
     stacked, obj = find_stacked(target, name)
-    if combiner: stacked.set_combiner(combiner)
     return stacked.add_override(func, obj)
 def replace(target, name, func, msg='', condition=None):
     stacked, obj = find_stacked(target, name)

@@ -4,7 +4,7 @@ import Match
 from GameEvent import *
 from Zone import BattlefieldZone
 from Stack import StackZone
-import stacked_function as stacked
+from stacked_function import overridable, override, most_recent
 
 state_map = {"Untap": UntapStepEvent, "Upkeep": UpkeepStepEvent, "Draw": DrawStepEvent,
              "Main1": MainPhase1Event, "Main2": MainPhase2Event, "EndMain": EndMainPhaseEvent,
@@ -123,7 +123,7 @@ class GameKeeper(MtGObject):
 
         # skip the first draw step
         def skipDraw(self): skipDraw.expire()
-        stacked.override(self, "drawStep", skipDraw, stacked.most_recent)
+        override(self, "drawStep", skipDraw)
 
         _phases = ("newTurn", ("untapStep", "upkeepStep", "drawStep"), "mainPhase1", "combatPhase", "mainPhase2", "endPhase")
         for phase in itertools.cycle(_phases):
@@ -261,6 +261,7 @@ class GameKeeper(MtGObject):
     def upkeepStep(self):
         self.setState("Upkeep")
         self.playInstants()
+    @overridable(most_recent)
     def drawStep(self):
         self.setState("Draw")
         self.active_player.draw()

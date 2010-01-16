@@ -1,4 +1,4 @@
-from EffectsUtilities import do_override, do_replace, do_all
+from EffectsUtilities import do_override, do_replace
 from StaticAbility import SimpleStaticAbility
 
 class CiPAbility(SimpleStaticAbility):
@@ -48,7 +48,7 @@ def CiP(obj, during, before=no_before, condition=None, txt=''):
             perm = self.move_to(zone, position)
             # At this point the card hasn't actually moved (it will on the next timestep event), so we can modify it's enteringZone function. This basically relies on the fact that entering battlefield is batched and done on the timestep.
             if not perm == self: # We weren't prevented from moving
-                remove_entering = do_override(perm, "modifyEntering", lambda self: during(self), combiner=do_all)
+                remove_entering = do_override(perm, "modifyEntering", lambda self: during(self))
             return perm
         else:
             # Don't actually move the card
