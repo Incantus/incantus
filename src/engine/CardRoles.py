@@ -215,6 +215,7 @@ class Permanent(CardRole):
         self.facedown = False
     def canBeTapped(self): # Called by game action (such as an effect)
         return not self.tapped
+    @overridable(logical_and)
     def canTap(self): # Called as a result of user action
         return not self.tapped
     def tap(self):
@@ -389,6 +390,7 @@ class CreatureType(object):
     @overridable(logical_and)
     def canAttack(self):
         return (not self.tapped) and (not self.in_combat) and self.continuouslyOnBattlefield()
+    @overridable(logical_and)
     def checkBlock(self, combat_assignment, not_blocking):
         return True
     @overridable(logical_and)
