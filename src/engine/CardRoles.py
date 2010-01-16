@@ -1,4 +1,5 @@
 import new
+from stacked_function import overridable, do_map, do_sum
 from characteristics import stacked_controller, stacked_PT, stacked_land_subtype
 from symbols import Land, Creature, Planeswalker, Instant, Sorcery, Aura, Equipment, Fortification
 from MtGObject import MtGObject
@@ -8,7 +9,7 @@ from Ability.Counters import Counter, PowerToughnessCounter, PowerToughnessModif
 from Ability.PermanentAbility import basic_mana_ability, cast_permanent, cast_aura
 from Ability.EffectsUtilities import combine
 from symbols.subtypes import all_basic_lands
-from Ability.Cost import MultipleCosts
+from Ability.Cost import Cost, MultipleCosts
 from Ability.Limit import sorcery_limit
 from Ability.CiPAbility import CiP, enter_tapped, attach_on_enter
 
@@ -128,6 +129,22 @@ class SpellRole(CardRole):
     def activate(self):
         if self.subtypes == Aura: self.abilities.add(attach_on_enter())
         super(SpellRole, self).activate()
+    def get_casting_cost(self):
+        cost = self.cost.current
+        # Handle alternative costs
+        alternative = self.get_alternative_costs()
+        if alternative:
+            # get player to choose
+            pass
+        additional = self.get_additional_costs()
+        if additional: cost = cost+additional
+        return cost
+    @overridable(do_sum)
+    def get_additional_costs(self):
+        return Cost()
+    @overridable(do_map)
+    def get_alternative_costs(self):
+        return None
 
 class NonBattlefieldRole(CardRole):
     def activate(self):

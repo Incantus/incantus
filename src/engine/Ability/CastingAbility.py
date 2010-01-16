@@ -18,6 +18,10 @@ class CastSpell(CostAbility):
             # XXX Rewind
             self.source = self.source.move_to(old_zone)
             return False
+    def get_cost(self):
+        # ignore the cost returned by effects generator
+        self.effects.next()
+        self.cost = self.source.get_casting_cost()
     def played(self):
         # Don't change this order, otherwise abilities triggering on playing the spell
         # will be put on the stack before the played spell
