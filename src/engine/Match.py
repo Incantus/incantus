@@ -141,7 +141,7 @@ from Ability.StackAbility import StackAbility
 from Ability.CastingAbility import CastSpell, CastSorcerySpell, CastInstantSpell
 from Ability.ActivatedAbility import ActivatedAbility
 from Ability.TriggeredAbility import TriggeredStackAbility
-isStackAbility = AbilityMatch(Ability, "Ability")
+isStackAbility = AbilityMatch(StackAbility, "Ability")
 isSpell = AbilityMatch(CastSpell, "Spell")
 isInstantSpell = AbilityMatch(CastInstantSpell, "Instant")
 isSorcerySpell = AbilityMatch(CastSorcerySpell, "Sorcery")
