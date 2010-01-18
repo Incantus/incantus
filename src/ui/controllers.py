@@ -915,7 +915,7 @@ class StackController(object):
             elif symbol == key.RIGHT:
                 stack.text.visible = 1-stack.text.visible
             elif symbol == key.ENTER:
-                if stack.focused.announced: self.window.process_action(Action.CardSelected(stack.focused.ability))
+                #if stack.focused.announced: self.window.process_action(Action.CardSelected(stack.focused.ability))
                 return True
             elif symbol == key.ESCAPE:
                 self.deactivate()
@@ -927,8 +927,9 @@ class StackController(object):
                 self.focused = True
                 self.stack_gui.focus(idx)
                 self.highlight_targets()
-            else:
-                if card.announced: self.window.process_action(Action.CardSelected(card.ability))
+            elif card.announced:
+                pass
+                #self.window.process_action(Action.CardSelected(card.ability))
             return True
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         return self.focused
