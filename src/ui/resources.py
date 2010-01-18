@@ -9,9 +9,6 @@ import ConfigParser
 config = ConfigParser.ConfigParser()
 config.read("data/incantus.ini")
 
-import os
-print "Path:", os.getcwd()
-
 resource.path.append("./data/images")
 resource.path.append("./data/images/fx")
 font.add_file("./data/fonts/dum1.ttf")
