@@ -137,7 +137,7 @@ class AbilityMatch(Match):
         if self.txt: return self.txt
         else: return str(self.ability_type.__name__)
 
-from Ability.Ability import Ability
+from Ability.StackAbility import StackAbility
 from Ability.CastingAbility import CastSpell, CastSorcerySpell, CastInstantSpell
 from Ability.ActivatedAbility import ActivatedAbility
 from Ability.TriggeredAbility import TriggeredStackAbility

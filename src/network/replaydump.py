@@ -1,7 +1,7 @@
 import struct
 import simplejson as json
 from engine.Player import Player
-from engine.Ability.Ability import Ability
+from engine.Ability.StackAbility import StackAbility
 from engine.GameObjects import GameObject
 from engine.CardRoles import CardRole
 from engine import Action
@@ -18,8 +18,8 @@ def to_json(obj):
     elif isinstance(obj,Player):
         return {'__class__': 'Player',
                 '__value__': obj.name}
-    elif isinstance(obj,Ability):
-        return {'__class__': 'Ability',
+    elif isinstance(obj,StackAbility):
+        return {'__class__': 'StackAbility',
                 '__value__': stack.index(obj)}
     elif isinstance(obj,Action.Action):
         return {'__class__': 'Action',
@@ -33,7 +33,7 @@ def from_json(json):
             return GameObject._current_roles[tuple(val)]
         elif cls == "Player":
             return players[val]
-        elif cls == "Ability":
+        elif cls == "StackAbility":
             return stack[val]
         elif cls == "Action":
             klass = getattr(Action, val[0])
