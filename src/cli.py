@@ -1,12 +1,14 @@
 #!/usr/bin/python
-import readline, pudb as pdb
-import time, random
+import readline, pudb, pdb
+import time, random, sys
 from itertools import chain, repeat, izip
 import ConfigParser
 from engine.GameKeeper import Keeper
 from engine.Player import Player
 from engine import Action, Mana
 from network import replaydump
+
+debug = pdb
 
 def grouper(n, iterable, padvalue=None):
     "grouper(3, 'abcdefg', 'x') --> ('a','b','c'), ('d','e','f'), ('g','x','x')"
@@ -48,7 +50,7 @@ def text_input(msg):
     while True:
         text = raw_input(printer.prefix+msg)
         if (text and text[0] == '!'): # Helper functions
-            if text == "!d": pdb.set_trace()
+            if text == "!d": debug.set_trace()
             if text[:2] == "!p":
                 try:
                     card = card_map.get(int(text[2:]), None)
@@ -130,6 +132,15 @@ def print_header():
     #printer("** %-25s **"%Keeper.current_phase)
     #printer("*******************************")
 
+def replayInput(context, prompt=''):
+    process = context['process']
+    try:
+        result = dump_to_replay.read()
+    except replaydump.ReplayFinishedException:
+        # Switch the input to the greenlet_input
+        for player in players: player.dirty_input = playerInput
+        result = playerInput(context, prompt)
+    return result
 
 def playerInput(context, prompt=''):
     print_header()
@@ -178,10 +189,15 @@ def playerInput(context, prompt=''):
         from_zone = context['from_zone']
         from_player = context['from_player']
         check_card = context['check_card']
+        printer("Choose from %s"%', '.join(map(str, sellist)))
     elif context.get("reveal_card", False):
         sellist = context['cards']
         from_zone = context['from_zone']
         from_player = context['from_player']
+        printer.indent()
+        printer("%s reveals: %s"%(from_player, ', '.join(map(str,sellist))))
+        printer.unindent()
+        action = True
     elif context.get("get_selection", False):
         sellist = context['list']
         numselections = context['numselections']
@@ -259,32 +275,43 @@ def read_deckfile(filename):
     return decklist, sideboard
 
 if __name__ == "__main__":
-    global dump_to_replay
-    seed = time.time()
-    random.seed(seed)
+    global players, dump_to_replay
+
     conf = ConfigParser.ConfigParser()
     conf.read("data/incantus.ini")
-    player1 = conf.get("main", "playername")
-    player2 = conf.get("solitaire", "playername")
-    player3 = "Player3"
-    my_deck, sideboard = read_deckfile(conf.get("main", "deckfile"))
-    other_deck, other_sideboard = read_deckfile(conf.get("solitaire", "deckfile"))
     replay_file = conf.get("general", "replay")
+
+    if len(sys.argv) > 1:
+        # Do replay
+        dump_to_replay = replaydump.ReplayDump(save=False)
+        dump_to_replay.read()
+        seed = dump_to_replay.read()
+        player1 = dump_to_replay.read()
+        my_deck = dump_to_replay.read()
+        player2 = dump_to_replay.read()
+        other_deck = dump_to_replay.read()
+        input = replayInput
+    else:
+        dump_to_replay = replaydump.ReplayDump(save=True)
+        seed = time.time()
+        player1 = conf.get("main", "playername")
+        player2 = conf.get("solitaire", "playername")
+        my_deck, sideboard = read_deckfile(conf.get("main", "deckfile"))
+        other_deck, other_sideboard = read_deckfile(conf.get("solitaire", "deckfile"))
+        input = playerInput
+
+        dump_to_replay.write(True)
+        dump_to_replay.write(seed)
+        for name, deck in [(player1, my_deck), (player2, other_deck)]:
+            dump_to_replay.write(name)
+            dump_to_replay.write(deck)
 
     players = [Player(player1, my_deck)
              , Player(player2, other_deck)
-    #         , Player(player3, other_deck)
              ]
-
-    dump_to_replay = replaydump.ReplayDump(save=True)
-    dump_to_replay.write(True)
-    dump_to_replay.write(seed)
-    for name, deck in [(player1, my_deck), (player2, other_deck)]:
-        dump_to_replay.write(name)
-        dump_to_replay.write(deck)
-
+    random.seed(seed)
     for player in players:
-        player.dirty_input = playerInput
+        player.dirty_input = input
 
     Keeper.init(players)
     Keeper.start()
