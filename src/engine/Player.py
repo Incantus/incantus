@@ -101,7 +101,7 @@ class Player(MtGObject):
     def play_tokens(self, info, number=1, tag=''):
         return [token.move_to("battlefield") for token in self.create_tokens(info, number)]
     def make_selection(self, sellist, number=1, required=True, prompt=''):
-        if isiterable(sellist[0]): idx=False
+        if isinstance(sellist[0], tuple): idx=False
         else: idx=True
         return self.getSelection(sellist, numselections=number, required=required, idx=idx, prompt=prompt)
     # A hack to make cards like Door of Destinies work. -MageKing17
