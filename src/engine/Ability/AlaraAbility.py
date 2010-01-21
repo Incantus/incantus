@@ -1,4 +1,6 @@
-from engine.GameEvent import DeclareAttackersEvent, InvalidTargetEvent, EndTurnStepEvent
+from random import shuffle
+from engine.symbols import Land
+from engine.GameEvent import DeclareAttackersEvent, InvalidTargetEvent, EndTurnStepEvent, SpellPlayedEvent
 from engine.Match import isCreature
 from Decorators import delayed_trigger
 from ActivatedAbility import ActivatedAbility
@@ -10,6 +12,8 @@ from Target import NoTarget
 from Trigger import Trigger, PhaseTrigger
 from Counters import PowerToughnessCounter
 from Limit import sorcery_limit
+
+__all__ = ["exalted", "devour", "unearth", "cascade"]
 
 def exalted():
     def condition(source, sender, attackers):
@@ -63,3 +67,33 @@ def unearth(cost):
         until_end_of_turn(delay(source, d_trigger), do_replace(source, "move_to", move_to, msg="%s - exile from game"%source.name, condition=leave_battlefield_condition))
         yield
     return ActivatedAbility(effects, limit=sorcery_limit, zone="graveyard", txt="Unearth %s"%str(cost), keyword="unearth")
+
+def cascade():
+    def condition(source, spell):
+        return source == spell
+    def cascade_effects(source, controller, spell):
+        target = yield NoTarget()
+        cmc = source.converted_mana_cost
+        exiled = []
+        for card in controller.library:
+            exile = card.move_to("exile")
+            exiled.append(exile)
+            if not exile.types == Land and exile.converted_mana_cost < cmc:
+                break
+        yield
+        if exiled:
+            exile = exiled[-1]
+            if controller.you_may("cast %s without paying its mana cost?"%exile):
+                exiled.remove(exile)
+                exile.play_without_mana_cost(controller)
+            # move exiled cards back to bottom of library in random order
+            shuffle(exiled)
+            for card in exiled:
+                card.move_to("library", position='bottom')
+                yield
+        yield
+    return TriggeredAbility(Trigger(SpellPlayedEvent()),
+            condition = condition,
+            zone = "stack",
+            effects = cascade_effects,
+            keyword = "cascade")
