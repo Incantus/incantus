@@ -84,6 +84,7 @@ class ManaCost(Cost):
         self._mana_amt = cost
         self._num_X = sum([1 for symbol in cost if symbol == "X"])
         self._X = 0
+        self._final_cost = Mana.convert_mana_string("0")
     X = property(fget=lambda self: self._X)
     def is_mana_cost(self): return True
     def __iter__(self): return iter(self.cost)
@@ -93,15 +94,15 @@ class ManaCost(Cost):
         if self.hasX(): self._X = player.getX()
         if self.isHybrid(): cost = player.make_selection(Mana.generate_hybrid_choices(self.cost), 1, prompt="Choose hybrid cost")
         else: cost = self.cost
-        self.final_cost = Mana.convert_mana_string(cost)
-        self.final_cost[-1] += self._X*self._num_X
+        self._final_cost = Mana.convert_mana_string(cost)
+        self._final_cost[-1] += self._X*self._num_X
         self.payment = "0"
         return self._X >= 0
     def compute(self, source, player):
         # XXX This is where I should check if the player has enough mana and the player should be
         # able to generate more mana
         mp = player.manapool
-        cost = self.final_cost
+        cost = self._final_cost
         for i, val in enumerate(cost):
             if val < 0: cost[i] = 0
         while True:
@@ -111,10 +112,10 @@ class ManaCost(Cost):
     def pay(self, source, player):
         mp = player.manapool
         # Now I have enough mana - how do I distribute it?
-        payment = mp.distribute(self.final_cost)
+        payment = mp.distribute(self._final_cost)
         if not payment:
             # Ask the player to distribute
-            payment = Mana.convert_mana_string(player.getManaChoice(str(player.manapool), Mana.convert_to_mana_string(self.final_cost)))
+            payment = Mana.convert_mana_string(player.getManaChoice(str(player.manapool), Mana.convert_to_mana_string(self._final_cost)))
         mp.spend(payment)
         self.payment = Mana.convert_to_mana_string(payment)
     def hasX(self):
@@ -129,10 +130,10 @@ class ManaCost(Cost):
     #    if isinstance(other, str): return Mana.compare_mana(self.cost, other)
     #    elif isinstance(other, ManaCost): return Mana.compare_mana(self.cost, other.cost)
     def __iadd__(self, other):
-        if not hasattr(self, "final_cost"): raise Error()
+        if not hasattr(self, "_final_cost"): raise Error()
         # XXX This is only called by consolidate
-        for i, val in enumerate(other.final_cost):
-            self.final_cost[i] += val
+        for i, val in enumerate(other._final_cost):
+            self._final_cost[i] += val
         return self
     def __add__(self, other):
         if isinstance(other, str): return ManaCost(Mana.combine_mana_strings(self.cost, other))
