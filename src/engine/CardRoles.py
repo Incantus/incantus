@@ -1,5 +1,5 @@
 import new
-from stacked_function import overridable, do_map, do_sum, do_all, logical_and, logical_or
+from stacked_function import *
 from characteristics import stacked_controller, stacked_PT, stacked_land_subtype
 from symbols import Land, Creature, Planeswalker, Instant, Sorcery, Aura, Equipment, Fortification
 from MtGObject import MtGObject
@@ -12,6 +12,7 @@ from symbols.subtypes import all_basic_lands
 from Ability.Cost import Cost, MultipleCosts
 from Ability.Limit import sorcery_limit
 from Ability.CiPAbility import CiP, enter_tapped, attach_on_enter
+from Ability.Cost import ManaCost
 
 class CardRole(MtGObject):
     def info():
@@ -60,6 +61,8 @@ class CardRole(MtGObject):
         cls = self.__class__
         self.__class__ = new.classobj("_%s"%cls.__name__, (cls,), {})
         self.activate()
+    @overridable(do_all)
+    def modifyNewRole(self, new_role, zone): pass
     def activate(self):
         cls = self.__class__
         orig_bases = cls.__bases__
@@ -138,8 +141,11 @@ class SpellRole(CardRole):
         # Handle alternative costs
         alternative = self.get_alternative_costs()
         if alternative:
+            alternative = [c for c in alternative if c]
             # get player to choose
-            pass
+            if len(alternative) > 1:
+                cost = self.controller.make_selection(alternative, "choose alternative cost")
+            else: cost = alternative[0]
         additional = self.get_additional_costs()
         if additional: cost = cost+additional
         return cost
@@ -164,7 +170,15 @@ class NonBattlefieldRole(CardRole):
         # XXX This is an ugly ugly hack
         play_ability = self._play_spell.copy()
         play_ability.controller = player
+        play_ability.source = self
         return play_ability.announce()
+    # These are helper functions
+    def play_without_mana_cost(self, player):
+        def modifyNewRole(self, new, zone):
+            if str(zone) == "stack":
+                override(new, "get_alternative_costs", lambda self: ManaCost("0"))
+        override(self, "modifyNewRole", modifyNewRole)
+        self.play(player)
     def move_to_battlefield_tapped(self, txt):
         CiP(self, enter_tapped, txt=txt)
         self.move_to("battlefield")

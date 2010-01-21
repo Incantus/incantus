@@ -47,6 +47,8 @@ class Zone(MtGObject):
     def move_card(self, card, position):
         newcard = self.setup_new_role(card)
         self.send(CardEnteringZoneFrom(), from_zone=card.zone, oldcard=card, newcard=newcard)
+        # Give the old role a chance to modify the new role
+        card.modifyNewRole(newcard, self)
         self._insert_card(card, newcard, position)
         return newcard
     def setup_new_role(self, card):

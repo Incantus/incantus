@@ -44,5 +44,6 @@ from Ability.ColdsnapAbility import *
 from Ability.DissensionAbility import *
 from Ability.NemesisAbility import *
 from Ability.ConfluxAbility import *
+from Ability.InvasionAbility import *
 
 nan = None
