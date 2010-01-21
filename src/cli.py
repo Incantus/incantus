@@ -113,8 +113,7 @@ def print_player(idx, player):
     txt.append("="*10)
     printer("=".join(txt))
     printer.indent()
-    if active: 
-        print_zone(player.hand, hand_card_str)
+    print_zone(player.hand, hand_card_str)
     print_zone(player.battlefield, battlefield_card_str)
     print_zone(player.graveyard, nonbattlefield_card_str)
     print_zone(player.exile, nonbattlefield_card_str)
