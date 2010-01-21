@@ -9,14 +9,16 @@ class KickerCost(SpecialCost):
         if isinstance(cost, str): cost = ManaCost(cost)
         self.cost = cost
     def precompute(self, source, player):
-        self.kicked = player.you_may("pay the kicker cost of %s"%self.cost)
-        if self.kicked:
-            source.kicked.add(str(self.cost))
-            return super(KickerCost, self).precompute(source, player)
-        else: return True
+        self.kicked = False
+        if player.you_may("pay the kicker cost of %s"%self.cost):
+            if super(KickerCost, self).precompute(source, player):
+                source.kicked.add(str(self.cost))
+                self.kicked = True
+        return True
     def compute(self, source, player):
-        if self.kicked: return super(KickerCost, self).compute(source, player)
-        else: return True
+        if self.kicked:
+            self.kicked = super(KickerCost, self).compute(source, player)
+        return True
     def pay(self, source, player):
         if self.kicked: super(KickerCost, self).pay(source, player)
     def payment(self):
