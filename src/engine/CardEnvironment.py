@@ -29,6 +29,7 @@ from Ability.PermanentAbility import *
 from Ability.CyclingAbility import *
 
 from Ability.GeneralAbility import *
+from Ability.MirageAbility import *
 from Ability.PortalThreeKingdomsAbility import *
 from Ability.FifthDawnAbility import *
 from Ability.UrzasSagaAbility import *
@@ -45,5 +46,6 @@ from Ability.DissensionAbility import *
 from Ability.NemesisAbility import *
 from Ability.ConfluxAbility import *
 from Ability.InvasionAbility import *
+from Ability.UnimplementedAbility import *
 
 nan = None

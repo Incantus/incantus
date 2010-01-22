@@ -93,21 +93,3 @@ def doesntUntapAbility(txt):
 #    dredge_ability = GlobalStaticAbility(card,
 #      effects=ReplacementEffect(draw_single, "draw_single", txt='%s - dredge?'%card, expire=False, condition=condition), zone="graveyard")
 #    card.abilities.add(dredge_ability)
-
-#def suspend(card, number):
-#    pass
-
-#def flash(card):
-#    casting_ability = card.play_spell
-#    if isinstance(casting_ability.limit, SorceryLimit):
-#        casting_ability.limit = Unlimited(card)
-#    elif isinstance(casting_ability.limit, MultipleLimits):
-#        for i, limit in enumerate(casting_ability.limit):
-#            if isinstance(limit, SorceryLimit): break
-#        casting_ability.limit.limits.pop(i)
-
-def flash():  # Essentially a noop
-    def effects(source):
-        yield lambda: None
-    return CardStaticAbility(effects, keyword="flash", zone="non-battlefield")
-
