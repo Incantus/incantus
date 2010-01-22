@@ -164,8 +164,19 @@ class NonBattlefieldRole(CardRole):
         else: self.abilities.add(cast_permanent())
         self._play_spell = self.abilities.cast()
         super(NonBattlefieldRole, self).activate()
+    @overridable(logical_or)
+    def _playable_timing(self):
+        return sorcery_limit(self)
+    @overridable(logical_or)
+    def _playable_zone(self):
+        return str(self.zone) == "hand"
+    @overridable(logical_or)
+    def _playable_other_restrictions(self):
+        return False
     def playable(self):
-        return self._play_spell.playable()
+        return (self._playable_timing() and self._playable_zone() and
+                not self._playable_other_restrictions())
+        #return self._play_spell.playable()
     def play(self, player):
         # XXX This is an ugly ugly hack
         play_ability = self._play_spell.copy()
