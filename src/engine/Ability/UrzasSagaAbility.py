@@ -4,6 +4,8 @@ from Trigger import PhaseTrigger
 from Target import NoTarget
 from TriggeredAbility import SpecialTriggeredAbility
 
+__all__ = ["echo"]
+
 def echo(cost):
     #At the beginning of your upkeep, if this came under your control since the beginning of your last upkeep, sacrifice it unless you pay its echo cost.
     def buildup(source):

@@ -3,6 +3,8 @@ from TriggeredAbility import TriggeredAbility
 from Target import NoTarget
 from Trigger import EnterFromTrigger
 
+__all__ = ["recover"]
+
 def recover(cost):
     def condition(source, card):
         return isCreature(card)

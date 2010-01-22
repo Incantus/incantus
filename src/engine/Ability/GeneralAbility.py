@@ -4,6 +4,9 @@ from engine.Player import Player
 from EffectsUtilities import combine, do_replace
 from Utils import flatten
 
+__all__ = ["prevent_all_damage", "prevent_all_combat_damage",
+           "prevent_all_noncombat_damage", "modal_effects"]
+
 preventAll = lambda self, amt, source, combat=False: 0
 
 def prevent_all_damage():

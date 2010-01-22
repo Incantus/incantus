@@ -1,6 +1,9 @@
 from EffectsUtilities import do_override, do_replace
 from StaticAbility import SimpleStaticAbility
 
+__all__ = ["CiPAbility", "attach_on_enter", "enters_battlefield_tapped", "enter_tapped", 
+            "CiP", "no_before"]
+
 class CiPAbility(SimpleStaticAbility):
     def __init__(self, effects, txt='', keyword=''):
         super(CiPAbility, self).__init__(effects, zone="all", txt=txt, keyword=keyword)

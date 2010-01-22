@@ -3,6 +3,9 @@ from ActivatedAbility import CostAbility
 from Limit import sorcery_limit
 from Target import Target, NoTarget
 
+__all__ = ["CastSpell", "CastPermanentSpell", "CastAuraSpell", "CastInstantSpell",
+        "CastSorcerySpell"]
+
 class CastSpell(CostAbility):
     cast = True
     zone = "hand"

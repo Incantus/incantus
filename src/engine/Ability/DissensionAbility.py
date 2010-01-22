@@ -5,6 +5,8 @@ from Target import NoTarget
 from Trigger import EnterTrigger
 from engine.Match import isCreature
 
+__all__ = ["graft"]
+
 def graft(value):
     txt = "Graft %d"%value
     def enterBattlefieldWith(self):

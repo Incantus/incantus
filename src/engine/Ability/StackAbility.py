@@ -1,6 +1,8 @@
 import copy
 from engine.GameEvent import AbilityAnnounced, AbilityCanceled, AbilityCountered, AbilityResolved, TimestepEvent
 
+__all__ = ["StackAbility"]
+
 class StackAbility(object):
     def __init__(self, effects, txt=''):
         self.effect_generator = effects

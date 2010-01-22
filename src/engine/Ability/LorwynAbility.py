@@ -8,6 +8,8 @@ from Target import NoTarget
 from Trigger import EnterTrigger, LeaveTrigger, DealDamageToTrigger
 from EffectsUtilities import keyword_action
 
+__all__ = ["champion", "hideaway", "changeling", "evoke"]
+
 # This should be called from within an effects function
 @keyword_action
 def clash(controller, opponent=None):

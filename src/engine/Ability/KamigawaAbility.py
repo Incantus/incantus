@@ -6,6 +6,8 @@ from Trigger import Trigger, EnterFromTrigger
 from Target import Target, NoTarget
 from EffectsUtilities import until_end_of_turn
 
+__all__ = ["soulshift", "bushido"]
+
 def soulshift(n):
     def effects(controller, source):
         target = yield Target(isCard.with_condition(lambda c: c.subtypes == Spirit and c.converted_mana_cost <= n), zone = "graveyard", player = "you")

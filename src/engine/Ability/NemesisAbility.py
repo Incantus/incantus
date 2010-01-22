@@ -4,6 +4,8 @@ from Target import NoTarget
 from Trigger import PhaseTrigger
 from engine.GameEvent import UpkeepStepEvent
 
+__all__ = ["fading"]
+
 def fading(value):
     txt = "Fading %d"%value
     def enterBattlefieldWith(self):

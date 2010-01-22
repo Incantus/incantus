@@ -5,6 +5,8 @@ from Target import Target
 from CiPAbility import CiP, CiPAbility
 from Counters import PowerToughnessCounter
 
+__all__ = ["modular"]
+
 def modular(n):
     txt = "Modular %d"%n
     def enterBattlefieldWith(self):

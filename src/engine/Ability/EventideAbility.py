@@ -3,7 +3,9 @@ from engine.Match import isLandCard
 from StaticAbility import CardStaticAbility
 from Cost import DiscardCost
 
-# XXX These are currently incorrect - fix this with new spell playing
+__all__ = ["retrace", "chroma"]
+
+# XXX Retrace is currently incorrect - fix this with new spell playing
 def retrace():
     def retrace_effect(card):
         orig_spell = card.play_spell

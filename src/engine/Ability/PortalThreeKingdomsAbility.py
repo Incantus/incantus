@@ -3,6 +3,8 @@ from engine.GameEvent import DeclareAttackersEvent, NewTurnEvent
 from EffectsUtilities import override_effect
 from Limit import Limit, TurnLimit
 
+__all__ = ["horsemanship", "portal_limit"]
+
 class PortalLimit(TurnLimit):
     def __init__(self):
         self.register(self.attacked, event=DeclareAttackersEvent())

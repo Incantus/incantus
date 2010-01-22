@@ -6,6 +6,8 @@ from Counters import PowerToughnessCounter
 from CreatureAbility import KeywordOnlyAbility
 from CiPAbility import CiP
 
+__all__ = ["persist", "wither"]
+
 def persist():
     def condition(source, card):
         return source_match(source, card) and card.num_counters("-1-1") == 0

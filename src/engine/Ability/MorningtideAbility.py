@@ -10,6 +10,8 @@ from Counters import PowerToughnessCounter
 from MemoryVariable import MemoryVariable
 from EffectsUtilities import keyword_action
 
+__all__ = ["reinforce", "prowl", "kinship_triggered"]
+
 def reinforce(cost, number=1):
     def effects(controller, source):
         payment = yield cost+DiscardCost()

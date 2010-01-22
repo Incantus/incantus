@@ -3,6 +3,8 @@ from Counters import PowerToughnessCounter
 from CiPAbility import CiP, CiPAbility
 from EffectsUtilities import keyword_action
 
+__all__ = ["sunburst"]
+
 @keyword_action
 def scry(player, number):
     cards = player.library.top(number)

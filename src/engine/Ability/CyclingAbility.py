@@ -5,8 +5,11 @@ from engine.GameEvent import DiscardCardEvent, CardCycledEvent, TimestepEvent
 from engine.symbols import *
 from Target import NoTarget
 
-# A bit of a hack, but neccessary to make sure the event gets sent at the right time.
+__all__ = ["cycling", "search_cycling", "basic_landcycling", 
+            "plains_cycling", "island_cycling", "swamp_cycling",
+            "forest_cycling", "mountain_cycling"]
 
+# A bit of a hack, but neccessary to make sure the event gets sent at the right time.
 class CycleDiscard(Cost):
     def precompute(self, source, player): return True
     def compute(self, source, player): return str(source.zone) == "hand"

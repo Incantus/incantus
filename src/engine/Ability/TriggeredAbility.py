@@ -3,6 +3,9 @@ from StackAbility import StackAbility
 from EffectsUtilities import robustApply
 from Utils import flatten
 
+__all__ = ["source_match", "sender_match", "attached_match", "TriggeredAbility",
+           "SpecialTriggeredAbility", "modal_triggered_effects"]
+
 source_match = lambda source, card: source == card
 sender_match = lambda source, sender: source == sender
 attached_match = lambda source, card: source.attached_to == card
