@@ -19,7 +19,7 @@ class abilities(object):
     def _check_zone(self, ability, zone):
         ability_zone = ability.zone
         return (ability_zone == "all" or 
-                (zone == "non-battlefield" and not ability_zone == "battlefield") or
+                (ability_zone == "non-battlefield" and not zone == "battlefield") or
                 ability_zone == zone)
     def enable(self, zone, source):
         for ability in self._abilities:
