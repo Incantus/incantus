@@ -1,5 +1,5 @@
 from ActivatedAbility import ActivatedAbility, ManaAbility
-from TriggeredAbility import TriggeredAbility, attached_match
+from TriggeredAbility import TriggeredAbility
 from StaticAbility import *
 from CastingAbility import CastInstantSpell, CastSorcerySpell
 from Target import NoTarget, Target
@@ -65,7 +65,6 @@ def attached(zone="attached", txt=''):
             ability = ConditionalStaticAbility(effects, condition, zone, txt)
         else:
             ability = CardStaticAbility(effects, zone, txt)
-        ability.LKI_condition = attached_match
         return ability
     return make_ability
 

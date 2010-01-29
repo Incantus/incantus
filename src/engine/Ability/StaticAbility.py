@@ -129,7 +129,6 @@ class CardStaticAbility(StaticAbility):
         # XXX The zone is not quite right, for attached static abilities that can 
         # attach to something out of the battlefield
         self.control_changed = Trigger(ControllerChanged(), sender="source")  # card with ability changed controller
-        self.LKI_condition = lambda source, card: source == card
     def _enable(self):
         super(CardStaticAbility, self)._enable()
         self.control_changed.setup_trigger(self.source, self.new_controller, priority=CONTINUOUS_PRIORITY)
