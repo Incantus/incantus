@@ -26,8 +26,7 @@ def echo(cost):
         if not controller.you_may_pay(source, cost):
             controller.sacrifice(source)
         yield
-    return SpecialTriggeredAbility(PhaseTrigger(UpkeepStepEvent()),
-            condition=condition,
+    return SpecialTriggeredAbility(PhaseTrigger(UpkeepStepEvent(), condition=condition),
             effects=effects,
             special_funcs=(buildup, teardown),
             txt="echo %s"%cost, keyword="echo")

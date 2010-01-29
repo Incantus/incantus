@@ -3,7 +3,7 @@ from functools import partial
 from engine.pydispatch.dispatcher import CONTINUOUS_PRIORITY
 from engine.GameEvent import ControllerChanged, TimestepEvent
 from engine.MtGObject import MtGObject
-from Trigger import Trigger, EnterTrigger, LeaveTrigger, CardTrigger
+from Trigger import Trigger, EnterTrigger, LeaveTrigger
 from EffectsUtilities import combine
 
 __all__ = ["SimpleStaticAbility", "CardStaticAbility", "ConditionalStaticAbility", "CardTrackingAbility", "ConditionalTrackingAbility"]
@@ -40,13 +40,13 @@ class StaticAbility(object):
 class CardTrackingAbility(StaticAbility):
     def __init__(self, effects, condition, events = [], tracking="battlefield", zone="battlefield", txt=''):
         super(CardTrackingAbility, self).__init__(effects, zone, txt)
-        self.enter_trigger = EnterTrigger(tracking, player="any")
+        self.enter_trigger = EnterTrigger(tracking, condition, player="any")
         self.leave_trigger = LeaveTrigger(tracking, player="any")
         self.control_changed = Trigger(ControllerChanged(), sender="source")  # card with ability changed controller
         if isinstance(events, tuple): events = list(events)
         elif not isinstance(events, list): events = [events]
         self.other_triggers = [Trigger(event) for event in [ControllerChanged()] + events] # triggers for tracked cards
-        if not condition: condition = lambda *args: True
+        if not condition: condition = all_match
         self.condition = condition
         self.tracking = tracking
         self.events = events
@@ -68,7 +68,7 @@ class CardTrackingAbility(StaticAbility):
         # Get all cards in the tracked zone
         for card in self.get_current(): self.add_effects(card)
 
-        self.enter_trigger.setup_trigger(self.source, self.entering, self.condition, priority=CONTINUOUS_PRIORITY)
+        self.enter_trigger.setup_trigger(self.source, self.entering, priority=CONTINUOUS_PRIORITY)
         self.leave_trigger.setup_trigger(self.source, self.leaving, priority=CONTINUOUS_PRIORITY)
         self.control_changed.setup_trigger(self.source, self.new_controller, priority=CONTINUOUS_PRIORITY)
         for trigger in self.other_triggers: trigger.setup_trigger(self.source, self.card_changed, priority=CONTINUOUS_PRIORITY)

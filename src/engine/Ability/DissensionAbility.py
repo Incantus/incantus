@@ -24,8 +24,7 @@ def graft(value):
                 source.remove_counters(PowerToughnessCounter(1,1))
                 card.add_counters(PowerToughnessCounter(1,1))
         yield
-    graft_Triggered = TriggeredAbility(EnterTrigger("battlefield", player="any"), 
-            condition=condition,
+    graft_Triggered = TriggeredAbility(EnterTrigger("battlefield", condition, player="any"),
             effects=graft_2,
             txt=txt)
     return graft_CiP, graft_Triggered

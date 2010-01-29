@@ -23,7 +23,6 @@ def fading(value):
         else:
             controller.sacrifice(source)
         yield
-    fading_Triggered = TriggeredAbility(PhaseTrigger(UpkeepStepEvent()),
-            condition=condition, 
+    fading_Triggered = TriggeredAbility(PhaseTrigger(UpkeepStepEvent(),condition=condition),
             effects=fading_2)
     return fading_CiP, fading_Triggered

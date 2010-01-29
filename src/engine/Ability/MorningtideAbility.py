@@ -68,7 +68,7 @@ def kinship_triggered(txt=''):
         effects = ability()
         def condition(source, player):
             return source.controller == player
-        return TriggeredAbility(PhaseTrigger(UpkeepStepEvent()), condition=condition, effects=effects, txt="Kinship - %s"%txt)
+        return TriggeredAbility(PhaseTrigger(UpkeepStepEvent(), condition=condition), effects=effects, txt="Kinship - %s"%txt)
     return wrap
 
 @keyword_action

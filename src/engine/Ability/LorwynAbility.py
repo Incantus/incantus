@@ -1,7 +1,7 @@
 from engine.Match import isCreature, isPermanent
 from engine.GameEvent import ClashEvent
 from engine.symbols.subtypes import all_creatures
-from TriggeredAbility import TriggeredAbility
+from TriggeredAbility import TriggeredAbility, source_match
 from CiPAbility import enters_battlefield_tapped
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
@@ -63,8 +63,7 @@ def champion(types=None, subtypes=None):
         else:
             controller.sacrifice(source)
         yield
-    champion_send = TriggeredAbility(EnterTrigger("battlefield"),
-            condition = lambda source, card: source == card,
+    champion_send = TriggeredAbility(EnterTrigger("battlefield", source_match),
             effects = champion1,
             txt = "Champion a %s"%cardtype)
 
@@ -74,8 +73,7 @@ def champion(types=None, subtypes=None):
         exiled = source.championed if hasattr(source, "championed") else None
         if exiled: exiled.move_to("battlefield")
         yield
-    champion_return = TriggeredAbility(LeaveTrigger("battlefield"),
-            condition = lambda source, card: source == card,
+    champion_return = TriggeredAbility(LeaveTrigger("battlefield", source_match),
             effects = champion2)
     return champion_send, champion_return
 
@@ -94,8 +92,7 @@ def hideaway(cost="0"):
             topcards.remove(card)
             for card in topcards: card.move_to("library", position="bottom")
         yield
-    hideaway = TriggeredAbility(EnterTrigger("battlefield"),
-            condition = lambda source, card: source == card,
+    hideaway = TriggeredAbility(EnterTrigger("battlefield", source_match),
             effects = hideaway_effect)
     return cip, hideaway
 
@@ -125,8 +122,7 @@ def deathtouch_old():
         to.destroy()
         yield
 
-    return TriggeredAbility(DealDamageToTrigger(sender="source"),
-        condition = condition,
+    return TriggeredAbility(DealDamageToTrigger(condition, sender="source"),
         effects = effects,
         keyword = "deathtouch")
 

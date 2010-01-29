@@ -22,8 +22,7 @@ def persist():
             expire()
         yield
 
-    return TriggeredAbility(EnterFromTrigger(from_zone="battlefield", to_zone="graveyard"),
-            condition = condition,
+    return TriggeredAbility(EnterFromTrigger(from_zone="battlefield", to_zone="graveyard", condition = condition),
             effects = persist_effect,
             keyword="persist")
 

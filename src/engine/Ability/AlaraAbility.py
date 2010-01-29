@@ -9,7 +9,7 @@ from CiPAbility import CiP, CiPAbility
 from CreatureAbility import haste
 from EffectsUtilities import until_end_of_turn, delay, do_replace, no_condition
 from Target import NoTarget
-from Trigger import Trigger, PhaseTrigger
+from Trigger import Trigger, PhaseTrigger, SpellPlayedTrigger
 from Counters import PowerToughnessCounter
 from Limit import sorcery_limit
 
@@ -22,7 +22,7 @@ def exalted():
         yield NoTarget()
         until_end_of_turn(attackers[0].augment_power_toughness(1, 1))
         yield
-    return TriggeredAbility(Trigger(DeclareAttackersEvent()), condition, effects, zone="battlefield", keyword='exalted')
+    return TriggeredAbility(Trigger(DeclareAttackersEvent(), condition), effects, zone="battlefield", keyword='exalted')
 
 def devour(value):
     txt = "Devour %d"%value
@@ -92,8 +92,7 @@ def cascade():
                 card.move_to("library", position='bottom')
                 yield
         yield
-    return TriggeredAbility(Trigger(SpellPlayedEvent()),
-            condition = condition,
+    return TriggeredAbility(SpellPlayedTrigger(condition),
             zone = "stack",
             effects = cascade_effects,
             keyword = "cascade")

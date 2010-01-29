@@ -181,7 +181,7 @@ def flanking():
         yield NoTarget()
         until_end_of_turn(sender.augment_power_toughness(-1, -1))
         yield
-    return TriggeredAbility(Trigger(BlockerDeclaredEvent()), condition, effects, zone="battlefield", keyword='flanking')
+    return TriggeredAbility(Trigger(BlockerDeclaredEvent(), condition), effects, zone="battlefield", keyword='flanking')
 
 def prevent_damage(target, amount, next=True, txt='', condition=None):
     if not txt:
@@ -283,7 +283,6 @@ def lifelink_old():
         yield
 
     return TriggeredAbility(DealDamageTrigger(sender="source"),
-        condition = None,
         effects = lifelink_effect,
         keyword = "lifelink")
 

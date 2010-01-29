@@ -31,10 +31,10 @@ def activated(limit=None, zone='battlefield', txt=''):
         return ActivatedAbility(effects, limit, zone, txt)
     return make_ability
 
-def triggered(triggers, expiry=-1, zone='battlefield', txt=''):
+def triggered(expiry=-1, zone='battlefield', txt=''):
     def make_triggered(ability):
-        condition, effects = ability()
-        return TriggeredAbility(triggers, condition, effects, expiry, zone, txt)
+        triggers, effects = ability()
+        return TriggeredAbility(triggers, effects, expiry, zone, txt)
     return make_triggered
 
 delayed_trigger = triggered
