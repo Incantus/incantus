@@ -31,13 +31,17 @@ def activated(limit=None, zone='battlefield', txt=''):
         return ActivatedAbility(effects, limit, zone, txt)
     return make_ability
 
-def triggered(expiry=-1, zone='battlefield', txt=''):
+def triggered(zone='battlefield', txt=''):
     def make_triggered(ability):
         triggers, effects = ability()
-        return TriggeredAbility(triggers, effects, expiry, zone, txt)
+        return TriggeredAbility(triggers, effects, zone=zone, expiry=-1, txt=txt)
     return make_triggered
 
-delayed_trigger = triggered
+def delayed_trigger(zone='battlefield', txt=''):
+    def make_triggered(ability):
+        triggers, effects = ability()
+        return TriggeredAbility(triggers, effects, zone=zone, expiry=1, txt=txt)
+    return make_triggered
 
 def static_tracking(events=[], tracking="battlefield", zone="battlefield", txt=''):
     def make_ability(ability):

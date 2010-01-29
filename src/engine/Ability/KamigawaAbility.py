@@ -27,6 +27,6 @@ def bushido(value):
         value = int(value)
         until_end_of_turn(source.augment_power_toughness(value, value))
         yield
-    ability = TriggeredAbility([Trigger(BlockerDeclaredEvent(), sender_match), Trigger(AttackerBlockedEvent(), sender_match)], effects, zone="battlefield", txt=txt, keyword='bushido')
+    ability = TriggeredAbility([Trigger(BlockerDeclaredEvent(), sender_match), Trigger(AttackerBlockedEvent(), sender_match)], effects, txt=txt, keyword='bushido')
     ability.bushido_value = value
     return ability

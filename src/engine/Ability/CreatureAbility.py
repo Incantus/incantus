@@ -181,7 +181,7 @@ def flanking():
         yield NoTarget()
         until_end_of_turn(sender.augment_power_toughness(-1, -1))
         yield
-    return TriggeredAbility(Trigger(BlockerDeclaredEvent(), condition), effects, zone="battlefield", keyword='flanking')
+    return TriggeredAbility(Trigger(BlockerDeclaredEvent(), condition), effects, keyword='flanking')
 
 def prevent_damage(target, amount, next=True, txt='', condition=None):
     if not txt:

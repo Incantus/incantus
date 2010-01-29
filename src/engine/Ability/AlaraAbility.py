@@ -93,6 +93,6 @@ def cascade():
                 yield
         yield
     return TriggeredAbility(SpellPlayedTrigger(condition),
-            zone = "stack",
             effects = cascade_effects,
+            zone = "stack",
             keyword = "cascade")
