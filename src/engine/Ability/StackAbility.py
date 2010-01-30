@@ -20,8 +20,8 @@ class StackAbility(object):
             return False
     def preannounce(self):
         self.targets = []
-        self.controller.send(AbilityAnnounced(), ability=self)
-    def canceled(self): self.controller.send(AbilityCanceled(), ability=self)
+        self.source.send(AbilityAnnounced(), ability=self)
+    def canceled(self): self.source.send(AbilityCanceled(), ability=self)
     def do_announce(self): raise NotImplementedException()
     def played(self): self.controller.stack.push(self)
     def targets_from_effects(self): raise NotImplementedException()
