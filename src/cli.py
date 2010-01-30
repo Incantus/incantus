@@ -165,7 +165,9 @@ def playerInput(context, prompt=''):
     elif context.get("get_target", False):
         while action == False:
             txt = text_input("Select target (P# for player): ").upper()
-            if txt:
+            if not txt: action = process(Action.PassPriority())
+            elif txt == "/": action = process(Action.CancelAction())
+            else:
                 if txt[0] == "P":
                     try:
                         pnum = int(txt[1:])
