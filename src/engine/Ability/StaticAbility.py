@@ -4,6 +4,7 @@ from engine.pydispatch.dispatcher import CONTINUOUS_PRIORITY
 from engine.GameEvent import ControllerChanged, TimestepEvent
 from engine.MtGObject import MtGObject
 from Trigger import Trigger, EnterTrigger, LeaveTrigger
+from TriggeredAbility import all_match
 from EffectsUtilities import combine
 
 __all__ = ["SimpleStaticAbility", "CardStaticAbility", "ConditionalStaticAbility", "CardTrackingAbility", "ConditionalTrackingAbility"]
