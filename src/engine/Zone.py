@@ -3,7 +3,10 @@ from MtGObject import MtGObject
 from GameObjects import GameObject
 from GameEvent import CardEnteringZoneFrom, CardLeftZone, CardEnteredZone, CardCeasesToExist, TimestepEvent, ShuffleEvent
 
-all_match = lambda card: True
+__all__ = ["Zone", "GraveyardZone", "HandZone", "ExileZone", "LibraryZone",
+           "BattlefieldZone"]
+
+all_cards = lambda card: True
 
 class Zone(MtGObject):
     def __init__(self):
@@ -29,7 +32,7 @@ class Zone(MtGObject):
         else:
             if len(self) == 0: return None
             else: return self._cards[0]
-    def get(self, match=all_match):
+    def get(self, match=all_cards):
         # Retrieve all of a type of Card in current location
         return [card for card in iter(self._cards[::-1]) if match(card)]
     def _remove_card(self, card, event=CardLeftZone()):
@@ -168,7 +171,7 @@ class BattlefieldView(object):
         return iter(self.get())
     def __len__(self):
         return len(self.get())
-    def get(self, match=all_match, all=False):
+    def get(self, match=all_cards, all=False):
         cards = self.battlefield.get(match)
         if not all: cards = [card for card in cards if card.controller == self.player]
         return cards
