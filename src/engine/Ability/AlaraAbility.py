@@ -53,18 +53,25 @@ def unearth(cost):
         yield
         source.abilities.add(haste())
 
-        @delayed_trigger(PhaseTrigger(EndTurnStepEvent()), txt="Exile this from the game at end of turn.")
-        def d_trigger():
+        # Exile at end of turn
+        @source.delayed
+        def ability():
+            def condition(source):
+                return str(source.zone) == "battlefield"
             def effects(controller, source):
+                '''Exile this from the game at end of turn'''
                 yield NoTarget()
                 source.move_to("exile")
                 yield
-            return no_condition, effects
+            return PhaseTrigger(EndTurnStepEvent(), condition), effects
 
+        # Exile if it leaves play
         leave_battlefield_condition = lambda self, zone, position="top": str(self.zone) == "battlefield"
         def move_to(self, zone, position="top"):
             return self.move_to("exile")
-        until_end_of_turn(delay(source, d_trigger), do_replace(source, "move_to", move_to, msg="%s - exile from game"%source.name, condition=leave_battlefield_condition))
+        until_end_of_turn(do_replace(source, "move_to", move_to,
+            condition=leave_battlefield_condition,
+            msg="%s - exile from game"%source.name))
         yield
     return ActivatedAbility(effects, limit=sorcery_limit, zone="graveyard", txt="Unearth %s"%str(cost), keyword="unearth")
 

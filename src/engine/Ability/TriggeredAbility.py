@@ -1,6 +1,6 @@
 from engine.Util import isiterable
 from StackAbility import StackAbility
-from EffectsUtilities import robustApply
+from EffectsUtilities import robustApply, permanent_method
 from Utils import flatten
 
 __all__ = ["source_match", "sender_match", "attached_match", "controller_match",
@@ -94,3 +94,14 @@ def modal_triggered_effects(*modes, **kw):
             for res in mode: yield res
 
     return modal_effects
+
+@permanent_method
+def delayed(source, ability):
+    triggers, effects = ability()
+    if not isiterable(triggers): triggers=(triggers,)
+    def playAbility(**trigger_keys):
+        delayed = TriggeredStackAbility(effects, trigger_keys, source)
+        source.controller.stack.add_triggered(delayed)
+        for t in triggers: t.clear_trigger()
+
+    for t in triggers: t.setup_trigger(source, playAbility, 1)
