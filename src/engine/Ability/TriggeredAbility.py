@@ -14,11 +14,12 @@ controller_match = lambda source, player: source.controller == player
 
 class TriggeredStackAbility(StackAbility):
     triggered = True
-    def __init__(self, effects, trigger_keys, source, controller, txt=''):
+    def __init__(self, effects, trigger_keys, source, txt=''):
         super(TriggeredStackAbility, self).__init__(effects, txt)
         self.trigger_keys = trigger_keys
         self.source = source
-        self.controller = controller
+        self.controller = source.controller
+        trigger_keys["controller"] = self.controller
     def do_announce(self):
         self.effects = robustApply(self.effect_generator, **self.trigger_keys)
         return self.get_targets()
@@ -54,10 +55,8 @@ class TriggeredAbility(object):
     def disable(self):
         self.toggle(False)
     def playAbility(self, **trigger_keys):
-        player = self.source.controller
-        trigger_keys["controller"] = player
-        ability = TriggeredStackAbility(self.effect_generator, trigger_keys, self.source, player, txt=self.txt)
-        player.stack.add_triggered(ability)
+        ability = TriggeredStackAbility(self.effect_generator, trigger_keys, self.source, txt=self.txt)
+        self.source.controller.stack.add_triggered(ability)
     def copy(self):
         return TriggeredAbility([t.copy() for t in self.triggers], self.effect_generator, self.zone, self.expiry, self.txt)
     def __str__(self):
