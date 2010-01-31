@@ -1,11 +1,11 @@
 from engine.Match import isCreature, isPermanent
 from engine.GameEvent import ClashEvent
 from engine.symbols.subtypes import all_creatures
-from TriggeredAbility import TriggeredAbility, source_match
+from TriggeredAbility import TriggeredAbility
 from CiPAbility import enters_battlefield_tapped
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
-from Trigger import EnterTrigger, LeaveTrigger, DealDamageToTrigger
+from Trigger import EnterTrigger, LeaveTrigger, DealDamageToTrigger, source_match
 from EffectsUtilities import keyword_action
 
 __all__ = ["champion", "hideaway", "changeling", "evoke"]

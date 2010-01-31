@@ -1,6 +1,6 @@
 from engine.Match import isArtifactCreature
-from TriggeredAbility import TriggeredAbility, source_match
-from Trigger import EnterFromTrigger
+from TriggeredAbility import TriggeredAbility
+from Trigger import EnterFromTrigger, source_match
 from Target import Target
 from CiPAbility import CiP, CiPAbility
 from Counters import PowerToughnessCounter

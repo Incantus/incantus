@@ -9,9 +9,13 @@ __all__ = ["Trigger",
            "SpellPlayedTrigger",
            "DealDamageTrigger", "DealDamageToTrigger", "ReceiveDamageTrigger",
            "EnterTrigger", "LeaveTrigger", "EnterFromTrigger",
-           "all_match"]
+           "all_match", "source_match", "sender_match", "attached_match", "controller_match"]
 
 all_match = lambda *args: True
+source_match = lambda source, card: source == card
+sender_match = lambda source, sender: source == sender
+attached_match = lambda source, card: source.attached_to == card
+controller_match = lambda source, player: source.controller == player
 
 class Trigger(MtGObject):
     def __init__(self, event=None, condition=None, sender=None):
@@ -54,7 +58,7 @@ class PhaseTrigger(Trigger):
 
 class YourUpkeepTrigger(PhaseTrigger):
     def __init__(self):
-        super(PhaseTrigger, self).__init__(UpkeepStepEvent(), condition=lambda source, player: source.controller == player)
+        super(PhaseTrigger, self).__init__(UpkeepStepEvent(), condition=controller_match)
 
 class SpellPlayedTrigger(Trigger):
     def __init__(self, condition=None, sender=None):

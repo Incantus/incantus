@@ -1,7 +1,7 @@
-from TriggeredAbility import TriggeredAbility, source_match
+from TriggeredAbility import TriggeredAbility
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
-from Trigger import EnterFromTrigger
+from Trigger import EnterFromTrigger, source_match
 from Counters import PowerToughnessCounter
 from CreatureAbility import KeywordOnlyAbility
 from CiPAbility import CiP
