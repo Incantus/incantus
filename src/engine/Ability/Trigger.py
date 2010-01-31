@@ -1,10 +1,12 @@
 import copy
 from engine.MtGObject import MtGObject
-from engine.GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZoneFrom
+from engine.GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZoneFrom, UpkeepStepEvent
 from engine.pydispatch.dispatcher import Any, LOWEST_PRIORITY
 from EffectsUtilities import robustApply
 
-__all__ = ["Trigger", "PhaseTrigger", "SpellPlayedTrigger",
+__all__ = ["Trigger",
+           "PhaseTrigger", "YourUpkeepTrigger",
+           "SpellPlayedTrigger",
            "DealDamageTrigger", "DealDamageToTrigger", "ReceiveDamageTrigger",
            "EnterTrigger", "LeaveTrigger", "EnterFromTrigger",
            "all_match"]
@@ -49,6 +51,10 @@ class PhaseTrigger(Trigger):
         if (self.expiry == -1 or self.count < self.expiry) and robustApply(self.condition, **keys):
             robustApply(self.trigger_function, **keys)
             self.count += 1
+
+class YourUpkeepTrigger(PhaseTrigger):
+    def __init__(self):
+        super(PhaseTrigger, self).__init__(UpkeepStepEvent(), condition=lambda source, player: source.controller == player)
 
 class SpellPlayedTrigger(Trigger):
     def __init__(self, condition=None, sender=None):
