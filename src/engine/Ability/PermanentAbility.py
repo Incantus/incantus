@@ -1,16 +1,19 @@
 from engine.Match import isCard, isCreature, isLand
 from engine.symbols import Forest, Island, Plains, Mountain, Swamp
+from engine.GameEvent import UpkeepStepEvent
 from ActivatedAbility import ActivatedAbility, ManaAbility
 from CastingAbility import CastPermanentSpell, CastAuraSpell
 from StaticAbility import CardStaticAbility
 from Target import NoTarget, Target
+from Trigger import PhaseTrigger
 from Cost import TapCost
 from EffectsUtilities import do_override, override_effect
 from Limit import no_limit, sorcery_limit
 
 __all__ = ["basic_mana_ability", "cast_permanent", "cast_aura", "attach_artifact",
            "enchant", "optionally_untap", "doesntUntapAbility",
-           "doesnt_untap_controllers_next_untap_step"]
+           "doesnt_untap_controllers_next_untap_step",
+           "draw_card_next_upkeep"]
 
 def basic_mana_ability(subtype, subtype_to_mana=dict(zip([Plains,Island,Swamp,Mountain,Forest], "WUBRG"))):
     color = subtype_to_mana[subtype]
@@ -58,6 +61,15 @@ def doesnt_untap_controllers_next_untap_step(target):
     return do_override(target, "canUntapDuringUntapStep", cantUntap)
 def doesntUntapAbility(txt):
     return CardStaticAbility(effects=override_effect("canUntapDuringUntapStep", lambda self: False), txt=txt)
+
+# draw a card at the beginning of the next turn's upkeep
+def draw_card_next_upkeep():
+    def effects(controller, source):
+        '''Draw a card at the beginning of the next turn's upkeep'''
+        target = yield NoTarget()
+        controller.draw(1)
+        yield
+    return PhaseTrigger(UpkeepStepEvent()), effects
 
 #class ThresholdAbility(ActivatedAbility):
 #    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="battlefield"):
