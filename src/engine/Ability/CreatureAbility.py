@@ -2,11 +2,12 @@ from functools import partial
 from engine.symbols import *
 from engine.Match import isPlayer, isCreature, isLand, isArtifact
 from engine.GameEvent import BlockerDeclaredEvent, AttackerDeclaredEvent
+from engine.CardRoles import permanent_method
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from TriggeredAbility import TriggeredAbility
 from Trigger import Trigger, DealDamageTrigger
-from EffectsUtilities import until_end_of_turn, do_override, do_replace, combine, permanent_method, override_effect
+from EffectsUtilities import until_end_of_turn, do_override, do_replace, combine, override_effect
 
 def keyword_effect(target):
     yield lambda: None

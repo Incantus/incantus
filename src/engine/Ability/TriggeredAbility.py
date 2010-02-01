@@ -1,6 +1,7 @@
 from engine.Util import isiterable
+from engine.CardRoles import card_method
 from StackAbility import StackAbility
-from EffectsUtilities import robustApply, card_method
+from EffectsUtilities import robustApply
 from Utils import flatten
 
 __all__ = ["TriggeredAbility", "SpecialTriggeredAbility",

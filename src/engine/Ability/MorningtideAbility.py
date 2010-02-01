@@ -1,3 +1,4 @@
+from engine.Player import keyword_action
 from engine.GameEvent import UpkeepStepEvent, DealsDamageToEvent
 from engine.Match import isCreature, isPlayer
 from ActivatedAbility import ActivatedAbility
@@ -8,7 +9,6 @@ from Cost import DiscardCost
 from Trigger import Trigger, EnterTrigger, PhaseTrigger
 from Counters import PowerToughnessCounter
 from MemoryVariable import MemoryVariable
-from EffectsUtilities import keyword_action
 
 __all__ = ["reinforce", "prowl", "kinship_triggered"]
 

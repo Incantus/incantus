@@ -662,3 +662,6 @@ class Player(MtGObject):
         player = cards[0].controller
         context = {'reveal_card': True, 'cards': cards, 'from_zone': zone, 'from_player': player, 'all': all, 'process': lambda action: True} #isinstance(action, PassPriority)}
         return self.input(context, "%s: %s"%(self.name, prompt))
+
+def keyword_action(func):
+    setattr(Player, func.__name__, func)

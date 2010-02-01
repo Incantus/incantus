@@ -31,18 +31,6 @@ def combine(*restores):
 def until_end_of_turn(*restores):
     dispatcher.connect(combine(*restores), signal=CleanupEvent(), weak=False, expiry=1)
 
-def keyword_action(func):
-    from engine.Player import Player
-    setattr(Player, func.__name__, func)
-
-def permanent_method(func):
-    from engine.CardRoles import Permanent
-    setattr(Permanent, func.__name__, func)
-
-def card_method(func):
-    from engine.CardRoles import CardRole
-    setattr(CardRole, func.__name__, func)
-
 do_override = override
 do_replace = replace
 

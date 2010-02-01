@@ -1,34 +1,18 @@
 from engine.Match import isCard, isCreature, isLand
-from engine.symbols import Forest, Island, Plains, Mountain, Swamp
-from engine.GameEvent import UpkeepStepEvent
-from ActivatedAbility import ActivatedAbility, ManaAbility
-from CastingAbility import CastPermanentSpell, CastAuraSpell
+from engine.GameEvent import UntapStepEvent, UpkeepStepEvent
+from engine.CardRoles import permanent_method
+from ActivatedAbility import ActivatedAbility
 from StaticAbility import CardStaticAbility
 from Target import NoTarget, Target
 from Trigger import PhaseTrigger
-from Cost import TapCost
-from EffectsUtilities import do_override, override_effect
+from EffectsUtilities import do_override, override_effect, do_when
 from Limit import no_limit, sorcery_limit
 
-__all__ = ["basic_mana_ability", "cast_permanent", "cast_aura", "attach_artifact",
-           "enchant", "optionally_untap", "doesntUntapAbility",
+__all__ = ["attach_artifact", "enchant",
+           "optionally_untap", "doesntUntapAbility",
            "doesnt_untap_controllers_next_untap_step",
+           "doesnt_untap_your_next_untap_step",
            "draw_card_next_upkeep"]
-
-def basic_mana_ability(subtype, subtype_to_mana=dict(zip([Plains,Island,Swamp,Mountain,Forest], "WUBRG"))):
-    color = subtype_to_mana[subtype]
-    def effects(controller, source):
-        payment = yield TapCost()
-        yield NoTarget()
-        controller.add_mana(color)
-        yield
-    return ManaAbility(effects, txt="T: Add %s to your mana pool"%color)
-
-def cast_permanent():
-    return CastPermanentSpell()
-
-def cast_aura():
-    return CastAuraSpell()
 
 def attach_artifact(cost, keyword, limit=no_limit):
     def effects(controller, source):
@@ -51,14 +35,27 @@ def enchant(target_type, zone="battlefield", player=None):
     return CardStaticAbility(effects, keyword="Enchant %s in %s"%(target_type, zone), zone="all")
 
 # Untapping abilities
+@permanent_method
 def optionally_untap(target):
     return do_override(target, "canUntapDuringUntapStep", 
             lambda self: self.canUntap() and self.controller.getIntention("Untap %s"%self))
+@permanent_method
 def doesnt_untap_controllers_next_untap_step(target):
     def cantUntap(self):
         cantUntap.expire()
         return False
-    return do_override(target, "canUntapDuringUntapStep", cantUntap)
+    do_override(target, "canUntapDuringUntapStep", cantUntap)
+@permanent_method
+def doesnt_untap_your_next_untap_step(target):
+    # This is different than doesnt_untap_controllers_next_untap_step because it specifies
+    # YOU, not controller
+    # So we don't set it up until the start of your turn, after which it will expire
+    controller = target.controller # save the current controller
+    def canUntap(self):
+        cantUntap.expire()
+        return False
+    do_when(lambda: do_override(target, "canUntapDuringUntapStep", canUntap), UntapStepEvent(), lambda player: player==controller)
+
 def doesntUntapAbility(txt):
     return CardStaticAbility(effects=override_effect("canUntapDuringUntapStep", lambda self: False), txt=txt)
 

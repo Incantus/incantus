@@ -1,7 +1,7 @@
 from engine.symbols import Creature
 from Counters import PowerToughnessCounter
 from CiPAbility import CiP, CiPAbility
-from EffectsUtilities import keyword_action
+from engine.Player import keyword_action
 
 __all__ = ["sunburst"]
 

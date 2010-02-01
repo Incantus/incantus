@@ -6,7 +6,8 @@ from MtGObject import MtGObject
 from GameEvent import DealsDamageToEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingBattlefield, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, LandPlayedEvent
 from Planeswalker import PlaneswalkerType
 from Ability.Counters import Counter, PowerToughnessCounter, PowerToughnessModifier, PowerToughnessSetter, PowerToughnessSwitcher, PowerSetter, ToughnessSetter
-from Ability.PermanentAbility import basic_mana_ability, cast_permanent, cast_aura
+from Ability.CastingAbility import CastPermanentSpell, CastAuraSpell
+from Ability.LandAbility import basic_mana_ability
 from Ability.EffectsUtilities import combine
 from symbols.subtypes import all_basic_lands
 from Ability.Cost import Cost, MultipleCosts
@@ -162,8 +163,8 @@ class NonBattlefieldRole(CardRole):
     def activate(self):
         if self.types == Instant or self.types == Sorcery: pass
         elif self.subtypes == Aura:
-            self.abilities.add(cast_aura(), attach_on_enter())
-        else: self.abilities.add(cast_permanent())
+            self.abilities.add(CastAuraSpell(), attach_on_enter())
+        else: self.abilities.add(CastPermanentSpell())
         self._play_spell = self.abilities.cast()
         super(NonBattlefieldRole, self).activate()
     @overridable(logical_or)
@@ -545,3 +546,10 @@ class AttachmentType(object):
             check_player = (self.target_player == "you" and attachment.controller == self.controller) or (self.target_player == "opponent" and attachment.controller in self.controller.opponents)
         else: check_player = True
         return (attachment and str(attachment.zone) == self.target_zone and check_player and self.target_type(attachment) and attachment.canBeAttachedBy(self))
+
+
+def card_method(func):
+    setattr(CardRole, func.__name__, func)
+
+def permanent_method(func):
+    setattr(Permanent, func.__name__, func)
