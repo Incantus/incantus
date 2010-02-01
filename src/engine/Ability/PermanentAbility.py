@@ -41,10 +41,10 @@ def optionally_untap(target):
             lambda self: self.canUntap() and self.controller.getIntention("Untap %s"%self))
 @permanent_method
 def doesnt_untap_controllers_next_untap_step(target):
-    def cantUntap(self):
-        cantUntap.expire()
+    def canUntap(self):
+        canUntap.expire()
         return False
-    do_override(target, "canUntapDuringUntapStep", cantUntap)
+    do_override(target, "canUntapDuringUntapStep", canUntap)
 @permanent_method
 def doesnt_untap_your_next_untap_step(target):
     # This is different than doesnt_untap_controllers_next_untap_step because it specifies
@@ -52,7 +52,7 @@ def doesnt_untap_your_next_untap_step(target):
     # So we don't set it up until the start of your turn, after which it will expire
     controller = target.controller # save the current controller
     def canUntap(self):
-        cantUntap.expire()
+        canUntap.expire()
         return False
     do_when(lambda: do_override(target, "canUntapDuringUntapStep", canUntap), UntapStepEvent(), lambda player: player==controller)
 
