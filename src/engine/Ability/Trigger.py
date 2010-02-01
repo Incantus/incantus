@@ -24,7 +24,7 @@ class Trigger(MtGObject):
         self.activated = False
         if condition: self.condition = condition
         else: self.condition = all_match
-    def check_expiry():
+    def check_expiry(self):
         return (self.expiry == -1 or self.count < self.expiry)
     def setup_trigger(self, source, trigger_function, expiry=-1, priority=LOWEST_PRIORITY):
         self.source = source
@@ -41,8 +41,6 @@ class Trigger(MtGObject):
             else: sender=Any
             self.unregister(self.filter, event=self.trigger_event, sender=sender)
             self.activated = False
-            del self.expiry
-            del self.count
     def filter(self, sender, **keys):
         keys["source"] = self.source
         keys["sender"] = sender
