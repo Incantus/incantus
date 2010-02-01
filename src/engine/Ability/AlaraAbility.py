@@ -2,7 +2,6 @@ from random import shuffle
 from engine.symbols import Land
 from engine.GameEvent import DeclareAttackersEvent, InvalidTargetEvent, EndTurnStepEvent, SpellPlayedEvent
 from engine.Match import isCreature
-from Decorators import delayed_trigger
 from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
 from CiPAbility import CiP, CiPAbility
