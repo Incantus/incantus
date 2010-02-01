@@ -84,17 +84,19 @@ class MoveTrigger(Trigger):
         super(MoveTrigger, self).__init__(event=event, condition=condition)
         self.zone = zone
         self.player = player
-    def check_player(self, sender, card):
-        player_cmp = card.controller  # Out of battlefield defaults to owner
+    def check_player(self, card):
+        card_cntrl = card.controller  # Out of battlefield defaults to owner
+        cntrl = self.source.controller
 
-        if self.player == "you" and player_cmp == self.source.controller: return True
-        elif self.player == "opponent" and player_cmp in self.source.controller.opponents: return True
-        elif self.player == "any": return True
-        else: return False
+        return ((self.player == "you" and card_cntrl == cntrl) or
+                (self.player == "opponent" and card_cntrl in cntrl.opponents) or
+                (self.player == "any"))
     def filter(self, sender, card):
         keys = {"sender": sender, "source": self.source, "card":card}
-        if (self.zone == str(sender) and self.check_player(sender, card) and
-            robustApply(self.condition, **keys) and self.check_expiry())):
+        if (self.zone == str(sender) and
+            self.check_player(card) and
+            robustApply(self.condition, **keys) and
+            self.check_expiry()):
             robustApply(self.trigger_function, **keys)
             self.count += 1
 
@@ -112,7 +114,7 @@ class EnterFromTrigger(MoveTrigger):
     def filter(self, sender, from_zone, oldcard, newcard):
         keys = {"source": self.source, "card": oldcard, "newcard": newcard}
         if ((str(sender) == self.to_zone and str(from_zone) == self.zone) and
-             self.check_player(sender, oldcard) and
+             self.check_player(oldcard) and
              robustApply(self.condition, **keys) and
              self.check_expiry()):
             robustApply(self.trigger_function, **keys)
