@@ -6,7 +6,7 @@ from ActivatedAbility import ActivatedAbility
 from TriggeredAbility import TriggeredAbility
 from CiPAbility import CiP, CiPAbility
 from CreatureAbility import haste
-from EffectsUtilities import until_end_of_turn, delay, do_replace, no_condition
+from EffectsUtilities import until_end_of_turn, do_replace, no_condition
 from Target import NoTarget
 from Trigger import Trigger, PhaseTrigger, SpellPlayedTrigger
 from Counters import PowerToughnessCounter

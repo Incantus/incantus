@@ -1,6 +1,6 @@
 from engine.Util import isiterable
 from StackAbility import StackAbility
-from EffectsUtilities import robustApply, permanent_method
+from EffectsUtilities import robustApply, card_method
 from Utils import flatten
 
 __all__ = ["TriggeredAbility", "SpecialTriggeredAbility",
@@ -87,13 +87,26 @@ def modal_triggered_effects(*modes, **kw):
 
     return modal_effects
 
-@permanent_method
-def delayed(source, ability):
+@card_method
+def delay(source, ability):
+    '''Ability should be defined for stack abilities. Setup a one time delayed triggered ability'''
     triggers, effects = ability()
     if not isiterable(triggers): triggers=(triggers,)
     def playAbility(**trigger_keys):
         delayed = TriggeredStackAbility(effects, trigger_keys, source)
         source.controller.stack.add_triggered(delayed)
         for t in triggers: t.clear_trigger()
+    for t in triggers: t.setup_trigger(source, playAbility)
 
-    for t in triggers: t.setup_trigger(source, playAbility, 1)
+@card_method
+def trigger(source, ability):
+    '''Ability should be defined for stack abilities. Setup a recurring delayed triggered ability'''
+    triggers, effects = ability()
+    if not isiterable(triggers): triggers=(triggers,)
+    def playAbility(**trigger_keys):
+        delayed = TriggeredStackAbility(effects, trigger_keys, source)
+        source.controller.stack.add_triggered(delayed)
+    for t in triggers: t.setup_trigger(source, playAbility)
+    def expire():
+        for t in triggers: t.clear_trigger()
+    return expire
