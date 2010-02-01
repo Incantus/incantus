@@ -51,7 +51,7 @@ def text_input(msg):
         text = raw_input(printer.prefix+msg)
         if (text and text[0] == '!'): # Helper functions
             if text == "!d": debug.set_trace()
-            if text[:2] == "!p":
+            if text[:2] == "!c":
                 try:
                     card = card_map.get(int(text[2:]), None)
                     if card: printer("%s"%card.info)
