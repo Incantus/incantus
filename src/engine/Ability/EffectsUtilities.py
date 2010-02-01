@@ -46,6 +46,10 @@ def permanent_method(func):
     from engine.CardRoles import Permanent
     setattr(Permanent, func.__name__, func)
 
+def card_method(func):
+    from engine.CardRoles import CardRole
+    setattr(CardRole, func.__name__, func)
+
 do_override = override
 do_replace = replace
 
