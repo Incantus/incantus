@@ -34,13 +34,7 @@ def activated(limit=None, zone='battlefield', txt=''):
 def triggered(zone='battlefield', txt=''):
     def make_triggered(ability):
         triggers, effects = ability()
-        return TriggeredAbility(triggers, effects, zone=zone, expiry=-1, txt=txt)
-    return make_triggered
-
-def delayed_trigger(zone='battlefield', txt=''):
-    def make_triggered(ability):
-        triggers, effects = ability()
-        return TriggeredAbility(triggers, effects, zone=zone, expiry=1, txt=txt)
+        return TriggeredAbility(triggers, effects, zone=zone, txt=txt)
     return make_triggered
 
 def static_tracking(events=[], tracking="battlefield", zone="battlefield", txt=''):

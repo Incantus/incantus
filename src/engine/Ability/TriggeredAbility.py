@@ -22,11 +22,10 @@ class TriggeredStackAbility(StackAbility):
 
 class TriggeredAbility(object):
     enabled = property(fget=lambda self: self._status_count > 0)
-    def __init__(self, triggers, effects, zone="battlefield", expiry=-1, txt='', keyword=''):
+    def __init__(self, triggers, effects, zone="battlefield", txt='', keyword=''):
         if not isiterable(triggers): triggers=(triggers,)
         self.triggers = triggers
         self.effect_generator = effects
-        self.expiry = expiry
         self.zone = zone
         if keyword and not txt: self.txt = keyword.capitalize()
         else: self.txt = txt
@@ -37,7 +36,7 @@ class TriggeredAbility(object):
             self._status_count += 1
             if self._status_count == 1:
                 for trigger in self.triggers:
-                    trigger.setup_trigger(self.source,self.playAbility,self.expiry)
+                    trigger.setup_trigger(self.source,self.playAbility)
         else:
             self._status_count -= 1
             if self._status_count == 0:
@@ -52,14 +51,14 @@ class TriggeredAbility(object):
         ability = TriggeredStackAbility(self.effect_generator, trigger_keys, self.source, txt=self.txt)
         self.source.controller.stack.add_triggered(ability)
     def copy(self):
-        return TriggeredAbility([t.copy() for t in self.triggers], self.effect_generator, self.zone, self.expiry, self.txt)
+        return TriggeredAbility([t.copy() for t in self.triggers], self.effect_generator, self.zone, self.txt)
     def __str__(self):
         return self.txt
     def __repr__(self): return "%s<%s %o: %s>"%('*' if self.enabled else '', self.__class__.__name__, id(self), self.txt)
 
 class SpecialTriggeredAbility(TriggeredAbility):
-    def __init__(self, triggers, effects, special_funcs, zone="battlefield", expiry=-1, txt='', keyword=''):
-        super(SpecialTriggeredAbility, self).__init__(triggers, effects, zone, expiry, txt, keyword)
+    def __init__(self, triggers, effects, special_funcs, zone="battlefield", txt='', keyword=''):
+        super(SpecialTriggeredAbility, self).__init__(triggers, effects, zone, txt, keyword)
         self.buildup, self.teardown = special_funcs
     def toggle(self, val):
         if val: self.buildup(self.source)

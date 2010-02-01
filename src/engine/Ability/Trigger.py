@@ -24,6 +24,8 @@ class Trigger(MtGObject):
         self.activated = False
         if condition: self.condition = condition
         else: self.condition = all_match
+    def check_expiry():
+        return (self.expiry == -1 or self.count < self.expiry)
     def setup_trigger(self, source, trigger_function, expiry=-1, priority=LOWEST_PRIORITY):
         self.source = source
         self.count = 0
@@ -39,10 +41,12 @@ class Trigger(MtGObject):
             else: sender=Any
             self.unregister(self.filter, event=self.trigger_event, sender=sender)
             self.activated = False
+            del self.expiry
+            del self.count
     def filter(self, sender, **keys):
         keys["source"] = self.source
         keys["sender"] = sender
-        if (self.expiry == -1 or self.count < self.expiry) and robustApply(self.condition, **keys):
+        if self.check_expiry() and robustApply(self.condition, **keys):
             robustApply(self.trigger_function, **keys)
             self.count += 1
     def __str__(self): return self.__class__.__name__
@@ -52,7 +56,7 @@ class Trigger(MtGObject):
 class PhaseTrigger(Trigger):
     def filter(self, sender, player):
         keys = {'player': player, 'source': self.source}
-        if (self.expiry == -1 or self.count < self.expiry) and robustApply(self.condition, **keys):
+        if self.check_expiry() and robustApply(self.condition, **keys):
             robustApply(self.trigger_function, **keys)
             self.count += 1
 
@@ -92,7 +96,7 @@ class MoveTrigger(Trigger):
     def filter(self, sender, card):
         keys = {"sender": sender, "source": self.source, "card":card}
         if (self.zone == str(sender) and self.check_player(sender, card) and
-            robustApply(self.condition, **keys) and (self.expiry == -1 or self.count < self.expiry)):
+            robustApply(self.condition, **keys) and self.check_expiry())):
             robustApply(self.trigger_function, **keys)
             self.count += 1
 
@@ -133,6 +137,6 @@ class EnterFromTrigger(Trigger):
         if ((str(sender) == self.to_zone and str(from_zone) == self.from_zone) and 
              self.check_player(sender, oldcard) and 
              robustApply(self.condition, **keys) and 
-             (self.expiry == -1 or self.count < self.expiry)):
+             self.check_expiry()):
             robustApply(self.trigger_function, **keys)
             self.count += 1
