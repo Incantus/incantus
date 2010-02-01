@@ -8,11 +8,14 @@ __all__ = ["TriggeredAbility", "SpecialTriggeredAbility",
 
 class TriggeredStackAbility(StackAbility):
     triggered = True
-    def __init__(self, effects, trigger_keys, source, txt=''):
+    def __init__(self, effects, trigger_keys, source, controller=None, txt=''):
         super(TriggeredStackAbility, self).__init__(effects, txt)
         self.trigger_keys = trigger_keys
         self.source = source
-        self.controller = source.controller
+        # Sometimes the controller of triggered ability effect isn't the same as the
+        # controller of the source
+        if not controller: self.controller = source.controller
+        else: self.controller = controller
         trigger_keys["controller"] = self.controller
     def do_announce(self):
         self.effects = robustApply(self.effect_generator, **self.trigger_keys)
@@ -92,9 +95,10 @@ def delay(source, ability):
     '''Ability should be defined for stack abilities. Setup a one time delayed triggered ability'''
     triggers, effects = ability()
     if not isiterable(triggers): triggers=(triggers,)
+    controller = source.controller # in case controller changes before it triggers
     def playAbility(**trigger_keys):
-        delayed = TriggeredStackAbility(effects, trigger_keys, source)
-        source.controller.stack.add_triggered(delayed)
+        delayed = TriggeredStackAbility(effects, trigger_keys, source, controller)
+        controller.stack.add_triggered(delayed)
         for t in triggers: t.clear_trigger()
     for t in triggers: t.setup_trigger(source, playAbility)
 
@@ -103,9 +107,10 @@ def trigger(source, ability):
     '''Ability should be defined for stack abilities. Setup a recurring delayed triggered ability'''
     triggers, effects = ability()
     if not isiterable(triggers): triggers=(triggers,)
+    controller = source.controller # in case controller changes before it triggers
     def playAbility(**trigger_keys):
-        delayed = TriggeredStackAbility(effects, trigger_keys, source)
-        source.controller.stack.add_triggered(delayed)
+        delayed = TriggeredStackAbility(effects, trigger_keys, source, controller)
+        controller.stack.add_triggered(delayed)
     for t in triggers: t.setup_trigger(source, playAbility)
     def expire():
         for t in triggers: t.clear_trigger()
