@@ -105,36 +105,15 @@ class LeaveTrigger(MoveTrigger):
     def __init__(self, zone, condition=None, player="you"):
         super(LeaveTrigger,self).__init__(event=CardLeftZone(), zone=zone, condition=condition, player=player)
 
-class EnterFromTrigger(Trigger):
-    # We need to keep track of all zone changes, to make sure that we catch the right sequence of events
+class EnterFromTrigger(MoveTrigger):
     def __init__(self, to_zone, from_zone, condition=None, player="you"):
-        super(EnterFromTrigger,self).__init__(event=None, condition=condition)
-        self.from_zone = from_zone
+        super(EnterFromTrigger,self).__init__(event=CardEnteringZoneFrom(), zone=from_zone, condition=condition, player=player)
         self.to_zone = to_zone
-        self.player = player
-    def setup_trigger(self, source, trigger_function, expiry=-1, priority=LOWEST_PRIORITY):
-        self.count = 0
-        self.expiry = expiry
-        self.source = source
-        self.trigger_function = trigger_function
-        self.register(self.filter, event=CardEnteringZoneFrom(), priority=priority)
-        self.activated = True
-    def clear_trigger(self):
-        if self.activated:
-            self.unregister(self.filter, event=CardEnteringZoneFrom())
-            self.activated = False
-    def check_player(self, sender, card):
-        player_cmp = card.controller  # Out of battlefield defaults to owner
-
-        if self.player == "you" and player_cmp == self.source.controller: return True
-        elif self.player == "opponent" and player_cmp in self.source.controller.opponents: return True
-        elif self.player == "any": return True
-        else: return False
     def filter(self, sender, from_zone, oldcard, newcard):
         keys = {"source": self.source, "card": oldcard, "newcard": newcard}
-        if ((str(sender) == self.to_zone and str(from_zone) == self.from_zone) and 
-             self.check_player(sender, oldcard) and 
-             robustApply(self.condition, **keys) and 
+        if ((str(sender) == self.to_zone and str(from_zone) == self.zone) and
+             self.check_player(sender, oldcard) and
+             robustApply(self.condition, **keys) and
              self.check_expiry()):
             robustApply(self.trigger_function, **keys)
             self.count += 1
