@@ -34,12 +34,14 @@ class CardRole(MtGObject):
                 for counter in self.counters:
                     count[str(counter)] = count.get(str(counter), 0)+1
                 txt.append('\n\nCounters: %s'%', '.join(["%s (%d)"%(counter, num) for counter, num in count.items()]))
-            #type_info = self.type_info()
-            #if type_info: txt.append('\n\n'+type_info)
+            type_info = self.type_info()
+            if type_info: txt.append('\n\n'+type_info)
             return ''.join(txt)
         return locals()
 
     info = property(**info())
+    def type_info(self): return ""
+
     controller = property(fget=lambda self: self.owner)
     converted_mana_cost = property(fget=lambda self: self.cost.converted_mana_cost())
 
@@ -503,10 +505,10 @@ class CreatureType(object):
     def type_info(self):
         txt = ["%d/%d"%(self.base_power, self.base_toughness)]
         txt.append(str(self.PT_set_modifiers))
-        txt.append(', '.join([str(c) for c in self.counters if hasattr(c,"power")]))
         txt.append(str(self.PT_augment_modifiers))
+        txt.append(', '.join([str(c) for c in self.counters if hasattr(c,"power")]))
         txt.append(str(self.PT_switch_modifiers))
-        return 'P/T:\n'+'\n'.join(["6%s: %s"%(layer, mod) for layer, mod in zip("ABCDE", txt) if mod])
+        return 'P/T: (%d/%d)\n'%(self.power, self.toughness)+'\n'.join(["7%s: %s"%(layer, mod) for layer, mod in zip("abcde", txt) if mod])
 
 class AttachmentType(object):
     attached_abilities = property(fget=lambda self: self.abilities.attached())
