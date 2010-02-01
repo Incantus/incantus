@@ -1,6 +1,7 @@
 #!/usr/bin/python
+from optparse import OptionParser
 import readline, pudb, pdb
-import time, random, sys
+import time, random
 from itertools import chain, repeat, izip
 import ConfigParser
 from engine.GameKeeper import Keeper
@@ -280,11 +281,24 @@ if __name__ == "__main__":
 
     conf = ConfigParser.ConfigParser()
     conf.read("data/incantus.ini")
-    replay_file = conf.get("general", "replay")
 
-    if len(sys.argv) > 1:
+    parser = OptionParser()
+    parser.add_option("-f", "--replayfile", dest="replay_file",
+                              help="Name of replay file to use", metavar="FILE")
+    parser.add_option("-r", "--replay",
+                              action="store_true", dest="replay", default=False,
+                                                help="start in replay mode")
+
+    (options, args) = parser.parse_args()
+
+    if not options.replay_file:
+        replay_file = conf.get("general", "replay")
+    else:
+        replay_file = options.replay_file
+
+    if options.replay:
         # Do replay
-        dump_to_replay = replaydump.ReplayDump(save=False)
+        dump_to_replay = replaydump.ReplayDump(save=False, filename=replay_file)
         dump_to_replay.read()
         seed = dump_to_replay.read()
         player1 = dump_to_replay.read()
@@ -293,7 +307,7 @@ if __name__ == "__main__":
         other_deck = dump_to_replay.read()
         input = replayInput
     else:
-        dump_to_replay = replaydump.ReplayDump(save=True)
+        dump_to_replay = replaydump.ReplayDump(save=True, filename=replay_file)
         seed = time.time()
         player1 = conf.get("main", "playername")
         player2 = conf.get("solitaire", "playername")
