@@ -11,7 +11,7 @@ from Ability.LandAbility import basic_mana_ability
 from Ability.EffectsUtilities import combine
 from symbols.subtypes import all_basic_lands
 from Ability.Cost import Cost, MultipleCosts
-from Ability.Limit import sorcery_limit
+from Ability.Limit import sorcery_limit, no_limit
 from Ability.CiPAbility import CiP, enter_tapped, attach_on_enter
 from Ability.Cost import ManaCost
 
@@ -161,15 +161,17 @@ class SpellRole(CardRole):
 
 class NonBattlefieldRole(CardRole):
     def activate(self):
-        if self.types == Instant or self.types == Sorcery: pass
-        elif self.subtypes == Aura:
+        if self.types == Instant: self._timing = no_limit
+        else: self._timing = sorcery_limit
+
+        if self.subtypes == Aura:
             self.abilities.add(CastAuraSpell(), attach_on_enter())
         else: self.abilities.add(CastPermanentSpell())
         self._play_spell = self.abilities.cast()
         super(NonBattlefieldRole, self).activate()
     @overridable(logical_or)
     def _playable_timing(self):
-        return sorcery_limit(self)
+        return self._timing(self)
     @overridable(logical_or)
     def _playable_zone(self):
         return str(self.zone) == "hand"
