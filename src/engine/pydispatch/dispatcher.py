@@ -83,6 +83,7 @@ WEAKREF_TYPES = (weakref.ReferenceType, saferef.BoundMethodWeakref)
 connections = {}
 senders = {}
 sendersBack = {}
+connection_info = {}
 
 disconnected = set()
 recurse = 0
@@ -196,12 +197,7 @@ def connect(receiver, signal=Any, sender=Any, weak=True, expiry=-1, priority=LOW
     except:
         pass
 
-    #receiver.expiry = expiry
-    #receiver.sender = sender
-    #receiver.signal = signal
-    #receiver.weak = weak
-    #receiver.priority = priority
-    receiver.cxn_info = _ConnectionData(priority, expiry, sender, signal, weak)
+    connection_info[receiver] = _ConnectionData(priority, expiry, sender, signal, weak)
     receivers.append(receiver)
 
 
@@ -294,7 +290,7 @@ def liveReceivers(receivers):
     receivers.
     """
     for receiver in receivers:
-        cxn_info = receiver.cxn_info
+        cxn_info = connection_info[receiver]
         if isinstance( receiver, WEAKREF_TYPES):
             # Dereference the weak reference.
             receiver = receiver()
@@ -514,6 +510,7 @@ def _removeOldBackRefs(senderkey, signal, receiver, receivers):
     else:
         oldReceiver = receivers[index]
         del receivers[index]
+        del connection_info[receiver]
         found = 0
         signals = connections.get(signal)
         if signals is not None:
