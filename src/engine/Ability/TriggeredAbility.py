@@ -101,7 +101,7 @@ def delay(source, ability):
         delayed = TriggeredStackAbility(effects, trigger_keys, source, controller)
         controller.stack.add_triggered(delayed)
         for t in triggers: t.clear_trigger()
-    for t in triggers: t.setup_trigger(source, playAbility)
+    for t in triggers: t.setup_trigger(source, playAbility, weak=False)
 
 @card_method
 def trigger(source, ability):
@@ -112,7 +112,7 @@ def trigger(source, ability):
     def playAbility(**trigger_keys):
         delayed = TriggeredStackAbility(effects, trigger_keys, source, controller)
         controller.stack.add_triggered(delayed)
-    for t in triggers: t.setup_trigger(source, playAbility)
+    for t in triggers: t.setup_trigger(source, playAbility, weak=False)
     def expire():
         for t in triggers: t.clear_trigger()
     return expire

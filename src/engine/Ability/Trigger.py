@@ -26,14 +26,14 @@ class Trigger(MtGObject):
         else: self.condition = all_match
     def check_expiry(self):
         return (self.expiry == -1 or self.count < self.expiry)
-    def setup_trigger(self, source, trigger_function, expiry=-1, priority=LOWEST_PRIORITY):
+    def setup_trigger(self, source, trigger_function, expiry=-1, priority=LOWEST_PRIORITY, weak=True):
         self.source = source
         self.count = 0
         self.expiry = expiry
         self.trigger_function = trigger_function
         if self.trigger_sender == "source": sender = self.source
         else: sender=Any
-        self.register(self.filter, event=self.trigger_event, sender=sender, priority=priority)
+        self.register(self.filter, event=self.trigger_event, sender=sender, priority=priority, weak=weak)
         self.activated = True
     def clear_trigger(self):
         if self.activated:
