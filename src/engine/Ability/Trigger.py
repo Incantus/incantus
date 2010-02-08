@@ -1,6 +1,6 @@
 import copy
 from engine.MtGObject import MtGObject
-from engine.GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZoneFrom, UpkeepStepEvent
+from engine.GameEvent import DealsDamageEvent, DealsDamageToEvent, ReceivesDamageEvent, CardEnteredZone, CardLeftZone, CardEnteringZoneFrom, UpkeepStepEvent, SpellPlayedEvent
 from engine.pydispatch.dispatcher import Any, LOWEST_PRIORITY
 from EffectsUtilities import robustApply
 

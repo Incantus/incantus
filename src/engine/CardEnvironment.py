@@ -11,8 +11,8 @@ from GameEvent import *
 from CardRoles import *
 
 from Ability.Decorators import *
-from Ability.ActivatedAbility import ActivatedAbility, ManaAbility
-from Ability.TriggeredAbility import TriggeredAbility
+from Ability.ActivatedAbility import *
+from Ability.TriggeredAbility import *
 from Ability.StaticAbility import *
 from Ability.CastingAbility import *
 from Ability.CiPAbility import *
