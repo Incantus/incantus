@@ -57,8 +57,8 @@ class stacked_function(object):
         self.global_overrides = []
         self.overrides = []
         self.replacements = []
-        self.setup_overrides(f_name, f_class)
         self.set_combiner(self.first_in_mro("combiner"))
+        self.setup_overrides(f_name, f_class)
     def set_combiner(self, combiner):
         self.combiner = combiner
     def first_in_mro(self, attr):
