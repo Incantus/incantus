@@ -24,6 +24,7 @@ from Ability.Limit import *
 from Ability.EffectsUtilities import *
 from Ability.MemoryVariable import *
 
+from Ability.SpellAbility import *
 from Ability.CreatureAbility import *
 from Ability.PermanentAbility import *
 from Ability.CyclingAbility import *

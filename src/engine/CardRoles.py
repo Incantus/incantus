@@ -142,21 +142,21 @@ class SpellRole(CardRole):
     def get_casting_cost(self):
         cost = self.cost.current
         # Handle alternative costs
-        alternative = self.get_alternative_costs()
+        alternative = self._get_alternative_costs()
         if alternative:
             alternative = [c for c in alternative if c]
             # get player to choose
             if len(alternative) > 1:
                 cost = self.controller.make_selection(alternative, "choose alternative cost")
             else: cost = alternative[0]
-        additional = self.get_additional_costs()
+        additional = self._get_additional_costs()
         if additional: cost = cost+additional
         return cost
     @overridable(do_sum)
-    def get_additional_costs(self):
+    def _get_additional_costs(self):
         return Cost()
     @overridable(do_map)
-    def get_alternative_costs(self):
+    def _get_alternative_costs(self):
         return None
 
 class NonBattlefieldRole(CardRole):
@@ -192,7 +192,7 @@ class NonBattlefieldRole(CardRole):
     def play_without_mana_cost(self, player):
         def modifyNewRole(self, new, zone):
             if str(zone) == "stack":
-                override(new, "get_alternative_costs", lambda self: ManaCost("0"))
+                override(new, "_get_alternative_costs", lambda self: ManaCost("0"))
         override(self, "modifyNewRole", modifyNewRole)
         self.play(player)
     def move_to_battlefield_tapped(self, txt):
