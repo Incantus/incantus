@@ -129,8 +129,9 @@ class CardRole(MtGObject):
         return combine(*reverse)
     def __str__(self): return str(self.name)
     def __repr__(self): return "%s %s at %d"%(self.name, self.__class__.__name__, id(self))
-    def __del__(self): pass
+    def __del__(self):
         #print "Deleting %s role for %s"%(self.__class__.__name__, self.name)
+        pass
 
 # Idea for spells - just have the OutBattlefieldRole mirror a cast spell in terms of when it
 # can be played and its cost
@@ -140,23 +141,30 @@ class SpellRole(CardRole):
         if self.subtypes == Aura: self.abilities.add(attach_on_enter())
         super(SpellRole, self).activate()
     def get_casting_cost(self):
-        cost = self.cost.current
-        # Handle alternative costs
-        alternative = self._get_alternative_costs()
-        if alternative:
-            alternative = [c for c in alternative if c]
-            # get player to choose
+        # Handle alternative costs - default is casting cost
+        alternative = self._get_special_alternative_cost()
+        if alternative: cost = alternative
+        else:
+            alternative = self._get_alternative_costs()
             if len(alternative) > 1:
-                cost = self.controller.make_selection(alternative, "choose alternative cost")
+                # get player to choose
+                cost = self.controller.make_selection(alternative, prompt="choose alternative cost")
             else: cost = alternative[0]
+
+        # Additional costs
         additional = self._get_additional_costs()
         if additional: cost = cost+additional
         return cost
+    def set_casting_cost(self, cost):
+        return override(self, "_get_special_alternative_cost", lambda self: cost)
     @overridable(do_sum)
     def _get_additional_costs(self):
         return Cost()
-    @overridable(do_map)
+    @overridable(do_sum)
     def _get_alternative_costs(self):
+        return [self.cost.current]
+    @overridable(most_recent)
+    def _get_special_alternative_cost(self):
         return None
 
 class NonBattlefieldRole(CardRole):
@@ -192,7 +200,7 @@ class NonBattlefieldRole(CardRole):
     def play_without_mana_cost(self, player):
         def modifyNewRole(self, new, zone):
             if str(zone) == "stack":
-                override(new, "_get_alternative_costs", lambda self: ManaCost("0"))
+                new.set_casting_cost(ManaCost("0"))
         override(self, "modifyNewRole", modifyNewRole)
         self.play(player)
     def move_to_battlefield_tapped(self, txt):
