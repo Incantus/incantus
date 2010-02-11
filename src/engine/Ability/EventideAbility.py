@@ -2,24 +2,19 @@ from engine.Util import isiterable
 from engine.Match import isLandCard
 from StaticAbility import CardStaticAbility
 from Cost import DiscardCost
+from EffectsUtilities import override
 
 __all__ = ["retrace", "chroma"]
 
-# XXX Retrace is currently incorrect - fix this with new spell playing
 def retrace():
-    def retrace_effect(card):
-        orig_spell = card.play_spell
-        def play_retrace(controller, source):
-            play = orig_spell.effect_generator(controller, source)
-            payment = yield play.next()+DiscardCost(cardtype=isLandCard)
-            target = yield play.send(payment[:-1])
-            yield play.send(target)
-        # Set up a different way to play
-        card.play_spell = orig_spell.__class__(play_retrace, limit=orig_spell.limit, zone="graveyard", txt=orig_spell.txt, keyword=orig_spell.keyword)
-        def restore(): card.play_spell = orig_spell
-        yield restore
-
-    return CardStaticAbility(effects=retrace_effect, zone="graveyard", keyword="retrace")
+    '''Retrace appears on some instants and sorceries. It represents a static ability that functions while the card is in a player's graveyard. 'Retrace' means "You may play this card from your graveyard by discarding a land card as an additional cost to play it." '''
+    def retrace_effects(card):
+        def modifyNewRole(self, new, zone):
+            if str(zone) == "stack":
+                override(new, "_get_additional_costs", lambda self: DiscardCost(cardtype=isLandCard))
+        yield (override(card, "_playable_zone", lambda self: str(self.zone) == "graveyard"),
+               override(card, "modifyNewRole", modifyNewRole))
+    return CardStaticAbility(effects=retrace_effects, zone="graveyard", keyword="retrace")
 
 def chroma(selection, mana_color):
     if not isiterable(selection): selection = (selection,)
