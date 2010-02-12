@@ -12,8 +12,12 @@ def retrace():
         def modifyNewRole(self, new, zone):
             if str(zone) == "stack":
                 override(new, "_get_additional_costs", lambda self: DiscardCost(cardtype=isLandCard))
-        yield (override(card, "_playable_zone", lambda self: str(self.zone) == "graveyard"),
-               override(card, "modifyNewRole", modifyNewRole))
+        def play_from_graveyard(self):
+            if self.controller.you_may("Play %s using retrace"%self):
+                override(self, "modifyNewRole", modifyNewRole)
+                return True
+            else: return False
+        yield override(card, "_playable_zone", play_from_graveyard)
     return CardStaticAbility(effects=retrace_effects, zone="graveyard", keyword="retrace")
 
 def chroma(selection, mana_color):
