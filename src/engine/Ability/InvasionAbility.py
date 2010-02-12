@@ -32,7 +32,7 @@ class kicked(set):
 def kicker(cost):
     def effects(card):
         card.kicked = kicked()
-        yield (do_override(card, "get_additional_costs", lambda self: KickerCost(cost)),
+        yield (do_override(card, "_get_additional_costs", lambda self: KickerCost(cost)),
               do_override(card, "modifyNewRole", lambda self, new, zone: setattr(new, "kicked", self.kicked)))
     return CardStaticAbility(effects, zone="stack", keyword="kicker")
 
