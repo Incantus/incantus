@@ -550,18 +550,3 @@ class ChoiceCost(SpecialCost):
         return super(ChoiceCost, self).precompute(source, player)
     def __str__(self):
         return "Choose between %s"%' or '.join([str(c) for c in self.choice_costs])
-
-class EvokeCost(SpecialCost):
-    def __init__(self, orig_cost, evoke_cost):
-        if isinstance(orig_cost, str): orig_cost = ManaCost(orig_cost)
-        if isinstance(evoke_cost, str): evoke_cost = ManaCost(evoke_cost)
-        self.orig_cost = orig_cost
-        self.evoke_cost = evoke_cost
-        self.reset()
-    def reset(self):
-        self.evoked = False
-        self.cost = self.orig_cost
-    def precompute(self, source, player):
-        self.evoked = player.getIntention("Pay evoke cost?", "...pay evoke cost?")
-        if self.evoked: self.cost = self.evoke_cost
-        return super(EvokeCost, self).precompute(source, player)

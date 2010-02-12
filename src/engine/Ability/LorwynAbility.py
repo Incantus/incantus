@@ -7,6 +7,8 @@ from CiPAbility import enters_battlefield_tapped
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from Trigger import EnterTrigger, LeaveTrigger, DealDamageToTrigger, source_match
+from Cost import ManaCost, SpecialCost
+from EffectsUtilities import do_override
 
 __all__ = ["champion", "hideaway", "changeling", "evoke"]
 
@@ -101,18 +103,27 @@ def changeling():
         yield card.subtypes.add_all(all_creatures, "Every creature type")
     return CardStaticAbility(effects=effects, zone="all", keyword="changeling")
 
-#def evoke(card, cost):
-#    evoke_cost = EvokeCost(orig_cost=card.cost, evoke_cost=cost)
-#    card.play_spell.cost = evoke_cost
-#    evoke = TriggeredAbility(card, trigger = EnterTrigger("battlefield"),
-#            match_condition=SelfMatch(card, lambda x: evoke_cost.evoked),
-#            ability=Ability(card, target=Target(targeting="self"),
-#                effects=[SacrificeSelf(), NullEffect(lambda c, t: evoke_cost.reset())]))
-#    card.abilities.add(evoke)
-def evoke(cost):  # Essentially a noop
+
+class EvokeCost(SpecialCost):
+    def __init__(self, cost):
+        if isinstance(cost, str): cost = ManaCost(cost)
+        self.cost = cost
+    def pay(self, source, player):
+        source.evoked = True
+        super(EvokeCost, self).pay(source, player)
+    def __str__(self): return super(EvokeCost, self).__str__()+" (Evoke)"
+def evoke(cost):
     def effects(source):
-        yield lambda: None
-    return CardStaticAbility(effects, keyword="evoke", zone="all")
+        source.evoked = False
+        yield (do_override(source, "_get_alternative_costs", lambda self: [EvokeCost(cost)]),
+              do_override(source, "modifyNewRole", lambda self, new, zone: setattr(new, "evoked",self.evoked)))
+    def evoke_effects(controller, source):
+        '''When this permanent comes into play, if its evoke cost was paid, its controller sacrifices it.'''
+        yield NoTarget()
+        if source.evoked: source.controller.sacrifice(source)
+        yield
+    return (CardStaticAbility(effects, keyword="evoke", zone="stack"),
+           TriggeredAbility(EnterTrigger("battlefield", source_match), effects=evoke_effects))
 
 def deathtouch_old():
     def condition(source, to):
