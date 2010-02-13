@@ -34,7 +34,7 @@ def attach_on_enter():
 # Comes onto battlefield functionality
 def enters_battlefield_with(func, txt=""):
     def effects(source):
-        yield Cip(source, func, no_before, txt=txt)
+        yield CiP(source, func, no_before, txt=txt)
     return CiPAbility(effects, txt=txt)
 
 def enter_tapped(self):
