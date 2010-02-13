@@ -314,8 +314,8 @@ class Permanent(CardRole):
         if self.types == Creature and not CreatureType in orig_bases:
             cls.__bases__ = (CreatureType,)+orig_bases
             self.activateCreature()
-        if self.types == Planeswalker and not Planeswalker in orig_bases:
-            cls.__bases__ = (Planeswalker,)+orig_bases
+        if self.types == Planeswalker and not PlaneswalkerType in orig_bases:
+            cls.__bases__ = (PlaneswalkerType,)+orig_bases
             self.activatePlaneswalker()
         if (self.subtypes.intersects(set([Aura, Equipment, Fortification]))) and not AttachmentType in orig_bases:
             cls.__bases__ = (AttachmentType,)+orig_bases
