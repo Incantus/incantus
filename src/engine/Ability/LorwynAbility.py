@@ -3,7 +3,7 @@ from engine.Match import isCreature, isPermanent
 from engine.GameEvent import ClashEvent
 from engine.symbols.subtypes import all_creatures
 from TriggeredAbility import TriggeredAbility
-from CiPAbility import enters_battlefield_tapped
+from CiPAbility import enters_battlefield_with
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from Trigger import EnterTrigger, LeaveTrigger, DealDamageToTrigger, source_match
@@ -79,8 +79,11 @@ def champion(types=None, subtypes=None):
             effects = champion2)
     return champion_send, champion_return
 
-def hideaway(cost="0"):
-    cip = enters_battlefield_tapped(txt="~ enters the battlefield tapped")
+def hideaway():
+    def enter_tapped(self):
+        '''Enters the battlefield tapped'''
+        self.tapped = True
+        self.hidden = None
 
     def hideaway_effect(controller, source):
         source.hidden = None
@@ -88,15 +91,17 @@ def hideaway(cost="0"):
         topcards = controller.library.top(4)
         if topcards:
             card = controller.choose_from(topcards, number=1, prompt="Choose 1 card to hideaway")
-            source.hidden = card
-            card.move_to("exile")
-            card.faceDown()
+            newcard = card.move_to("exile")
+            if newcard == card:
+                newcard.faceDown()
+                source.hidden = newcard
             topcards.remove(card)
             for card in topcards: card.move_to("library", position="bottom")
         yield
     hideaway = TriggeredAbility(EnterTrigger("battlefield", source_match),
-            effects = hideaway_effect)
-    return cip, hideaway
+                     effects = hideaway_effect, keyword="hideaway")
+    return enters_battlefield_with(enter_tapped), hideaway
+
 
 def changeling():
     def effects(card):
