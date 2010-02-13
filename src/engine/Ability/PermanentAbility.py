@@ -7,14 +7,16 @@ from Target import NoTarget, Target
 from Trigger import PhaseTrigger
 from EffectsUtilities import do_override, override_effect, do_when
 from Limit import no_limit, sorcery_limit
+from Cost import ManaCost
 
-__all__ = ["attach_artifact", "enchant",
+__all__ = ["attach_artifact", "equip", "fortify", "enchant",
            "optionally_untap", "doesntUntapAbility",
            "doesnt_untap_controllers_next_untap_step",
            "doesnt_untap_your_next_untap_step",
            "draw_card_next_upkeep"]
 
 def attach_artifact(cost, keyword, limit=no_limit):
+    if isinstance(cost, str): cost = ManaCost(cost)
     def effects(controller, source):
         yield cost
         target = yield Target(source.target_type, player='you')
