@@ -1,4 +1,4 @@
-from engine.GameEvent import SpellPlayedEvent
+from engine.GameEvent import SpellPlayedEvent, TimestepEvent
 from ActivatedAbility import CostAbility
 from Limit import sorcery_limit
 from Target import Target, NoTarget
@@ -20,6 +20,11 @@ class CastSpell(CostAbility):
             # XXX This is incorrect - what i really need to do is rewind
             # XXX Rewind
             self.source = self.source.move_to(old_zone)
+            # XXX This is a hack on top of a hack: All it does is allow you to cancel casting
+            # a spell from an ordered zone without having to wait for the next timestep for it to
+            # re-appear in that zone. In other words, just as hacky as our regular "not-rewind",
+            # only more so, because it needs to work on an OrderedZone.
+            self.source.send(TimestepEvent())
             return False
     def get_cost(self):
         # ignore the cost returned by effects generator
