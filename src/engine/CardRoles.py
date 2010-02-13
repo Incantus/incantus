@@ -47,6 +47,9 @@ class CardRole(MtGObject):
     converted_mana_cost = property(fget=lambda self: self.cost.converted_mana_cost())
 
     def __init__(self, key):
+        # Insert dummy class for mixins - this should probably be a metaclass thing
+        cls = self.__class__
+        self.__class__ = new.classobj("_%s"%cls.__name__, (cls,), {})
         self.key = key
         self.zone = None
         self._counters = []
@@ -61,8 +64,6 @@ class CardRole(MtGObject):
     @overridable(do_all)
     def modifyEntering(self):
         # Add the necessary superclasses, depending on our type/subtypes
-        cls = self.__class__
-        self.__class__ = new.classobj("_%s"%cls.__name__, (cls,), {})
         self.activate()
     @overridable(do_all)
     def modifyNewRole(self, new_role, zone): pass
