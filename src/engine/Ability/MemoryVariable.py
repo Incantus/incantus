@@ -68,6 +68,46 @@ class DamageTrackingVariable(MemoryVariable):
         if source: return self.amount_dealt(source, to)
         else: return sum([dealing[to] for dealing in self.dealing.values() if to in dealing])
 
+# To see how many cards a given player has drawn this turn (used by e.g. Archmage Ascension).
+class CardDrawingTrackingVariable(MemoryVariable):
+    def __init__(self):
+        self.reset()
+        self.register(self.draw, event=DrawCardEvent())
+        super(CardDrawingTrackingVariable, self).__init__()
+    def reset(self):
+        self.drawn = {}
+    def value(self): return sum(self.drawn.values()) # Total cards drawn this turn
+    def draw(self, sender):
+        if not sender in self.drawn: self.drawn[sender] = 1
+        else: self.drawn[sender] += 1
+    def player_check(self, player):
+        if not player in self.drawn: return 0
+        else: return self.drawn[player]
+
+# Complements DamageTrackingVariable. Used by a *lot* of cards, just never added until now (Those purely in trigger conditions: Luminarch Ascension, Needlebite Trap, Bloodchief Ascension, and Sygg, River Cutthroat).
+class LifeChangeTrackingVariable(MemoryVariable):
+    def __init__(self):
+        self.reset()
+        self.register(self.lose, event=LifeLostEvent())
+        self.register(self.gain, event=LifeGainedEvent())
+        super(LifeChangeTrackingVariable, self).__init__()
+    def reset(self):
+        self.lost = {}
+        self.gained = {}
+    def value(self): raise NotImplementedError # What exactly would this return?
+    def lose(self, sender, amount):
+        if not sender in self.lost: self.lost[sender] = amount
+        else: self.lost[sender] += amount
+    def gain(self, sender, amount):
+        if not sender in self.gained: self.gained[sender] = amount
+        else: self.gained[sender] += amount
+    def amount_lost(self, player):
+        if not player in self.lost: return 0
+        else: return self.lost[player]
+    def amount_gained(self, player):
+        if not player in self.gained: return 0
+        else: return self.gained[player]
+
 class PlaySpellVariable(MemoryVariable):
     def __init__(self, condition):
         self.was_played = False
@@ -176,3 +216,5 @@ damage_tracker = DamageTrackingVariable()
 graveyard_tracker = ZoneMoveVariable(from_zone="battlefield", to_zone="graveyard")
 spell_record = SpellRecordVariable()
 combat_tracker = CombatTrackingVariable()
+cards_tracker = CardDrawingTrackingVariable()
+life_tracker = LifeChangeTrackingVariable()
