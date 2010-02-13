@@ -1,7 +1,8 @@
 from EffectsUtilities import do_override, do_replace
 from StaticAbility import SimpleStaticAbility
 
-__all__ = ["CiPAbility", "attach_on_enter", "enters_battlefield_tapped", "enter_tapped", 
+__all__ = ["CiPAbility", "attach_on_enter", "enters_battlefield_with",
+            "enters_battlefield_tapped", "enter_tapped", 
             "CiP", "no_before"]
 
 class CiPAbility(SimpleStaticAbility):
@@ -31,14 +32,17 @@ def attach_on_enter():
     return CiPAbility(effects, txt="")
 
 # Comes onto battlefield functionality
+def enters_battlefield_with(func, txt=""):
+    def effects(source):
+        yield Cip(source, func, no_before, txt=txt)
+    return CiPAbility(effects, txt=txt)
+
 def enter_tapped(self):
     '''Enters the battlefield tapped'''
     self.tapped = True
 
-def enters_battlefield_tapped(txt):
-    def effects(source):
-        yield CiP(source, enter_tapped, no_before, txt=txt)
-    return CiPAbility(effects, txt=txt)
+def enters_battlefield_tapped(txt=""):
+    return enters_battlefield_with(enter_tapped, txt)
 
 no_before = lambda source: True
 def CiP(obj, during, before=no_before, condition=None, txt=''):
