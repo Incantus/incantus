@@ -143,9 +143,11 @@ class SpellRole(CardRole):
         super(SpellRole, self).activate()
     def get_casting_cost(self):
         # Handle alternative costs - default is casting cost
-        alternative = self._get_special_alternative_cost()
-        if alternative: cost = alternative
-        else:
+
+        # "Special" costs are set during spell resolution,
+        # as in "play that card without paying its mana cost".
+        cost = self._get_special_cost()
+        if not cost:
             alternative = self._get_alternative_costs()
             if len(alternative) > 1:
                 # get player to choose
@@ -157,7 +159,7 @@ class SpellRole(CardRole):
         if additional: cost = cost+additional
         return cost
     def set_casting_cost(self, cost):
-        return override(self, "_get_special_alternative_cost", lambda self: cost)
+        return override(self, "_get_special_cost", lambda self: cost)
     @overridable(do_sum)
     def _get_additional_costs(self):
         return Cost()
@@ -165,7 +167,7 @@ class SpellRole(CardRole):
     def _get_alternative_costs(self):
         return [self.cost.current]
     @overridable(most_recent)
-    def _get_special_alternative_cost(self):
+    def _get_special_cost(self):
         return None
 
 class NonBattlefieldRole(CardRole):
