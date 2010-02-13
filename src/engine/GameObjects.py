@@ -3,7 +3,7 @@ from symbols import Land, Instant, Sorcery
 from GameEvent import NameModifiedEvent, CostModifiedEvent, TextModifiedEvent, ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent, PowerToughnessModifiedEvent, LoyaltyModifiedEvent
 from abilities import abilities, stacked_abilities
 from characteristics import characteristic, stacked_variable, stacked_characteristic, stacked_type
-from CardRoles import Permanent, SpellRole, NoRole, LandNonBattlefieldRole, NonBattlefieldRole, TokenNonBattlefieldRole, TokenPermanent
+from CardRoles import Permanent, SpellRole, NoRole, LandNonBattlefieldRole, OtherNonBattlefieldRole, TokenNonBattlefieldRole, TokenPermanent
 import CardDatabase
 
 class GameObject(MtGObject):
@@ -73,7 +73,7 @@ class Card(GameObject):
             self.out_battlefield_role = LandNonBattlefieldRole
         else:
             self.stack_role = SpellRole
-            self.out_battlefield_role = NonBattlefieldRole
+            self.out_battlefield_role = OtherNonBattlefieldRole
 
         if (self.base_types == Instant or self.base_types == Sorcery):
             self.in_battlefield_role = NoRole

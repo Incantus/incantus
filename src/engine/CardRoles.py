@@ -169,15 +169,6 @@ class SpellRole(CardRole):
         return None
 
 class NonBattlefieldRole(CardRole):
-    def activate(self):
-        if self.types == Instant: self._timing = no_limit
-        else: self._timing = sorcery_limit
-
-        if self.subtypes == Aura:
-            self.abilities.add(CastAuraSpell(), attach_on_enter())
-        else: self.abilities.add(CastPermanentSpell())
-        self._play_spell = self.abilities.cast()
-        super(NonBattlefieldRole, self).activate()
     @overridable(logical_or)
     def _playable_timing(self):
         return self._timing(self)
@@ -191,26 +182,46 @@ class NonBattlefieldRole(CardRole):
         return (self._playable_timing() and self._playable_zone() and
                 not self._playable_other_restrictions())
         #return self._play_spell.playable()
-    def play(self, player):
-        # XXX This is an ugly ugly hack
-        play_ability = self._play_spell.copy()
-        play_ability.controller = player
-        play_ability.source = self
-        return play_ability.announce()
     # These are helper functions
     def play_without_mana_cost(self, player):
         def modifyNewRole(self, new, zone):
             if str(zone) == "stack":
                 new.set_casting_cost(ManaCost("0"))
         override(self, "modifyNewRole", modifyNewRole)
-        self.play(player)
+        if not self._playable_other_restrictions():
+            self.play(player)
+            return True
+        else: return False
     def move_to_battlefield_tapped(self, txt):
         CiP(self, enter_tapped, txt=txt)
         self.move_to("battlefield")
 
-class LandNonBattlefieldRole(CardRole):
-    def playable(self):
-        return sorcery_limit(self) and str(self.zone) == "hand" and self.owner.land_actions > 0
+class OtherNonBattlefieldRole(NonBattlefieldRole):
+    def activate(self):
+        if self.types == Instant: self._timing = no_limit
+        else: self._timing = sorcery_limit
+
+        if self.subtypes == Aura:
+            self.abilities.add(CastAuraSpell(), attach_on_enter())
+        else: self.abilities.add(CastPermanentSpell())
+        self._play_spell = self.abilities.cast()
+        super(OtherNonBattlefieldRole, self).activate()
+    def play(self, player):
+        # XXX This is an ugly ugly hack
+        play_ability = self._play_spell.copy()
+        play_ability.controller = player
+        play_ability.source = self
+        return play_ability.announce()
+
+
+class LandNonBattlefieldRole(NonBattlefieldRole):
+    def activate(self):
+        self._timing = sorcery_limit
+        super(LandNonBattlefieldRole, self).activate()
+    @overridable(logical_or)
+    def _playable_other_restrictions(self):
+        return (self.owner.land_actions < 1 or 
+               super(LandNonBattlefieldRole,self)._playable_other_restrictions())
     def play(self, player):
         player.land_actions -= 1
         card = self.move_to(player.battlefield)
@@ -218,9 +229,6 @@ class LandNonBattlefieldRole(CardRole):
         # do we send the original or new land?
         player.send(LandPlayedEvent(), card=card)
         return True
-    def move_to_battlefield_tapped(self, txt):
-        CiP(self, enter_tapped, txt=txt)
-        self.move_to("battlefield")
 
 class TokenNonBattlefieldRole(CardRole):
     is_LKI = True
