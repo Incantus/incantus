@@ -51,15 +51,16 @@ def loads(str):
 class ReplayFinishedException(Exception): pass
 
 class ReplayDump(object):
-    def __init__(self, filename="game.replay", save=False):
+    def __init__(self, filename="game.replay", save=False, continue_save=False):
         self.filename = filename
+        self.continue_save = continue_save
         if save:
             flags = 'wb'
             self.write = self.do_write
-            self.read = lambda self: False
+            self.read = lambda: False
         else: 
             flags = 'rb'
-            self.write = lambda: None
+            self.write = lambda obj: None
             self.read = self.do_read
 
         self.dumpfile = open(self.filename, flags, 0)
@@ -84,7 +85,7 @@ class ReplayDump(object):
         self.close()
         self.dumpfile = open(self.filename, 'a+b')
         self.dumpfile.seek(self.lastpos, 0)
-        self.read = lambda self: False
-        self.write = self.do_write
+        self.read = lambda: False
+        if self.continue_save: self.write = self.do_write
     def __del__(self):
         self.close()

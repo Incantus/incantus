@@ -287,7 +287,10 @@ if __name__ == "__main__":
                               help="Name of replay file to use", metavar="FILE")
     parser.add_option("-r", "--replay",
                               action="store_true", dest="replay", default=False,
-                                                help="start in replay mode")
+                                                help="replay from replay file")
+    parser.add_option("-p", "--replay-and-save",
+                              action="store_true", dest="replay_and_save", default=False,
+                                                help="replay game, don't continue saving")
 
     (options, args) = parser.parse_args()
 
@@ -298,7 +301,7 @@ if __name__ == "__main__":
 
     if options.replay:
         # Do replay
-        dump_to_replay = replaydump.ReplayDump(save=False, filename=replay_file)
+        dump_to_replay = replaydump.ReplayDump(filename=replay_file, save=False, continue_save=options.replay_and_save)
         dump_to_replay.read()
         seed = dump_to_replay.read()
         player1 = dump_to_replay.read()
@@ -307,7 +310,7 @@ if __name__ == "__main__":
         other_deck = dump_to_replay.read()
         input = replayInput
     else:
-        dump_to_replay = replaydump.ReplayDump(save=True, filename=replay_file)
+        dump_to_replay = replaydump.ReplayDump(filename=replay_file, save=True)
         seed = time.time()
         player1 = conf.get("main", "playername")
         player2 = conf.get("solitaire", "playername")
