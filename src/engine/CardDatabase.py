@@ -1,3 +1,4 @@
+from engine.characteristics import characteristic
 from engine.Util import isiterable
 import bsddb, os, glob, traceback
 import cPickle as pickle
@@ -72,8 +73,6 @@ def execCode(card, code):
     else: card.base_cost = CardEnvironment.NoCost()
 
     # Build default characteristics
-    chr = CardEnvironment.characteristic
-
     card.base_name = card.name
     card.base_text = code
     # characteristics
@@ -81,7 +80,7 @@ def execCode(card, code):
         if hasattr(card, char_name):
             char = getattr(card, char_name)
             if not isinstance(char, tuple): char = (char,)
-            setattr(card, "base_"+char_name, chr(*char))
+            setattr(card, "base_"+char_name, characteristic(*char))
 
     if hasattr(card, "power"): card.base_power = card.power
     if hasattr(card, "toughness"): card.base_toughness = card.toughness
