@@ -327,6 +327,7 @@ if __name__ == "__main__":
     random.seed(seed)
     for player in players:
         player.dirty_input = input
+        replaydump.players[player.name] = player
 
     Keeper.init(players)
     Keeper.start()
