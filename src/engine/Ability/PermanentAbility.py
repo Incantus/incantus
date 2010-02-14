@@ -13,7 +13,8 @@ __all__ = ["attach_artifact", "equip", "fortify", "enchant",
            "optionally_untap", "doesntUntapAbility",
            "doesnt_untap_controllers_next_untap_step",
            "doesnt_untap_your_next_untap_step",
-           "draw_card_next_upkeep"]
+           "draw_card_next_upkeep",
+           "this_card_is_indestructible"]
 
 def attach_artifact(cost, keyword, limit=no_limit):
     if isinstance(cost, str): cost = ManaCost(cost)
@@ -69,6 +70,17 @@ def draw_card_next_upkeep():
         controller.draw(1)
         yield
     return PhaseTrigger(UpkeepStepEvent()), effects
+
+@permanent_method
+def indestructible(target):
+    def shouldDestroy(self): return False
+    def destroy(self, regenerate=True): return False
+    return combine(do_override(target, "shouldDestroy", shouldDestroy), do_override(target, "destroy", destroy))
+
+def this_card_is_indestructible():
+    def indestructible_effect(target):
+        yield target.indestructible(target)
+    return CardStaticAbility(effects=indestructible_effect, txt="~ is indestructible.")
 
 #class ThresholdAbility(ActivatedAbility):
 #    def __init__(self, card, cost="0", target=None, effects=[], copy_targets=True, limit=None, zone="battlefield"):

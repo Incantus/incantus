@@ -160,16 +160,6 @@ def unblockable():
         yield make_unblockable(target)
     return CardStaticAbility(effects=unblockable_effect, txt="~ is unblockable.")
 
-def make_indestructible(target):
-    def shouldDestroy(self): return False
-    def destroy(self, regenerate=True): return False
-    return combine(do_override(target, "shouldDestroy", shouldDestroy), do_override(target, "destroy", destroy))
-
-def indestructible():
-    def indestructible_effect(target):
-        yield make_indestructible(target)
-    return CardStaticAbility(effects=indestructible_effect, txt="~ is indestructible.")
-
 def absorb(value):
     def absorb_effects(source):
         yield prevent_damage(source, value, False)
