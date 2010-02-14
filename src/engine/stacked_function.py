@@ -1,4 +1,4 @@
-import new, types
+import new, types, weakref
 
 __all__ = ['global_override', 'override', 'replace', 'logical_or', 'logical_and', 
     'do_all', 'do_map', 'do_sum', 'most_recent', 'overridable']
@@ -84,7 +84,7 @@ class stacked_function(object):
             else: setattr(self.f_class, self.f_name, self.original)
     def _add(self, stacked_list, func, obj):
         stacked_list.append(func)
-        if obj: func.obj = obj
+        if obj: func.obj = weakref.ref(obj)
         else: func.obj = "all"
         func.seen = False
         def restore():
@@ -112,12 +112,12 @@ class stacked_function(object):
             if self.f_name in cls.__dict__:
                 func = getattr(cls, self.f_name)
                 if hasattr(func, "stacked"):
-                    replacements.update([f for f in func.replacements if not f.seen and (f.obj == "all" or f.obj == obj) and f.cond(*args, **kw)])
+                    replacements.update([f for f in func.replacements if not f.seen and (f.obj == "all" or f.obj() == obj) and f.cond(*args, **kw)])
         return replacements
     def __call__(self, *args, **kw):
         from Match import isPlayer, isCard
         obj = args[0]
-        global_overrides = [f for f in self.global_overrides[::-1] if f.obj == "all" or f.obj == obj]
+        global_overrides = [f for f in self.global_overrides[::-1] if f.obj == "all" or f.obj() == obj]
         if global_overrides: return global_overrides[0](*args, **kw)
         else:
             funcs = self.build_replacements(*args, **kw)
@@ -137,7 +137,7 @@ class stacked_function(object):
                 func.seen = False
                 return result
             else:
-                overrides = [f for f in self.overrides[::-1] if f.obj == "all" or f.obj == obj]+[self.original]
+                overrides = [f for f in self.overrides[::-1] if f.obj == "all" or f.obj() == obj]+[self.original]
                 return self.combiner(overrides, *args, **kw)
 
     def __get__(self, obj, objtype=None):
