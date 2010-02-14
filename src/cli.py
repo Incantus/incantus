@@ -288,8 +288,8 @@ if __name__ == "__main__":
     parser.add_option("-r", "--replay",
                               action="store_true", dest="replay", default=False,
                                                 help="replay from replay file")
-    parser.add_option("-p", "--replay-and-save",
-                              action="store_true", dest="replay_and_save", default=False,
+    parser.add_option("-s", "--continue-saving",
+                              action="store_true", dest="continue_saving", default=False,
                                                 help="replay game, don't continue saving")
 
     (options, args) = parser.parse_args()
@@ -301,7 +301,7 @@ if __name__ == "__main__":
 
     if options.replay:
         # Do replay
-        dump_to_replay = replaydump.ReplayDump(filename=replay_file, save=False, continue_save=options.replay_and_save)
+        dump_to_replay = replaydump.ReplayDump(filename=replay_file, save=False, continue_save=options.continue_saving)
         dump_to_replay.read()
         seed = dump_to_replay.read()
         player1 = dump_to_replay.read()
