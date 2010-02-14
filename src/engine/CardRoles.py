@@ -130,6 +130,9 @@ class CardRole(MtGObject):
         return combine(*reverse)
     def __str__(self): return str(self.name)
     def __repr__(self): return "%s %s at %d"%(self.name, self.__class__.__name__, id(self))
+    def __getattr__(self, attr):
+        # Any attribute not defined should be false
+        return False
     def __del__(self):
         #print "Deleting %s role for %s"%(self.__class__.__name__, self.name)
         pass
