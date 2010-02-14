@@ -92,7 +92,7 @@ def hideaway():
         if topcards:
             card = controller.choose_from(topcards, number=1, prompt="Choose 1 card to hideaway")
             newcard = card.move_to("exile")
-            if newcard == card:
+            if not newcard == card:
                 newcard.faceDown()
                 source.hidden = newcard
             topcards.remove(card)
