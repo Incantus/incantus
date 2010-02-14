@@ -9,6 +9,23 @@ from TriggeredAbility import TriggeredAbility
 from Trigger import Trigger, DealDamageTrigger
 from EffectsUtilities import until_end_of_turn, do_override, do_replace, combine, override_effect
 
+__all__ = ["keyword_effect", "KeywordOnlyAbility",
+           "reach", "double_strike", "first_strike",
+           "trample", "lifelink", "deathtouch",
+           "landwalk", "basic_landwalk",
+           "plainswalk", "swampwalk", "forestwalk", "islandwalk", "mountainwalk",
+           "legendary_landwalk", "nonbasic_landwalk", "flying",
+           "shadow", "haste", "defender", "shroud", "vigilance",
+           "fear", "absorb", "flanking",
+           "protection", "protection_from_black", "aura_protection",
+           "protection_from_blue", "protection_from_white",
+           "protection_from_red", "protection_from_green",
+           "protection_from_ge_cmc", "protection_from_le_cmc",
+           "protection_from_artifacts", "protection_from_everything",
+           "protection_from_multicolored", "protection_from_monocolored",
+           "this_card_must_attack", "this_card_can_only_block", "this_card_is_unblockable",
+           "prevent_damage", "redirect_damage"]
+
 def keyword_effect(target):
     yield lambda: None
 
@@ -127,39 +144,6 @@ protection_from_monocolored = partial(protection, condition = lambda other: len(
 protection_from_multicolored = partial(protection, condition = lambda other: len(other.color) > 1, attribute="multicolored")
 protection_from_everything = partial(protection, condition = lambda other: True, attribute="everything")
 
-# Unless I completely misunderstand, this is for auras which say "Enchanted creature gains protection from <attribute>. This protection does not remove CARDNAME." I hope that's what it's for, anyway, because otherwise, I'm clueless. -MK17
-def aura_protection(aura, condition, attribute):
-    keyword = "protection from %s"%attribute
-    # DEBT is an acronym. It stands for Damage, Enchantments/Equipment, Blocking, and Targeting
-    prevent_condition = lambda self, amt, source, combat=False: condition(source)
-    def mk_override(cond):
-        return lambda self, by: not cond(by)
-
-    def effects(target):
-        yield combine(*[do_override(target, func_name, mk_override(cond)) for func_name, cond in [("canBeAttachedBy", lambda o: not o==aura and condition(o)), ("canBeBlockedBy", condition), ("canBeTargetedBy", condition)]]+[prevent_damage(target, -1, txt="Protection effect", condition=prevent_condition)])
-
-    return CardStaticAbility(effects=effects, keyword=keyword)
-
-# These are additional ones that aren't actually keyword abilities, but the structure is the same
-def must_attack():
-    def checkAttack(self, attackers, not_attacking):
-        return self in attackers or not self.canAttack()
-    return CardStaticAbility(effects=override_effect("checkAttack", checkAttack), txt="~ must attack each turn if able.")
-
-def only_block(keyword):
-    def canBlockAttacker(self, attacker):
-        return keyword in attacker.abilities
-    return CardStaticAbility(effects=override_effect("canBlockAttacker", canBlockAttacker), txt="~ can only block creatures with %s."%keyword)
-
-def make_unblockable(target):
-    def canBeBlocked(self): return False
-    return do_override(target, "canBeBlocked", canBeBlocked)
-
-def unblockable():
-    def unblockable_effect(target):
-        yield make_unblockable(target)
-    return CardStaticAbility(effects=unblockable_effect, txt="~ is unblockable.")
-
 def absorb(value):
     def absorb_effects(source):
         yield prevent_damage(source, value, False)
@@ -173,6 +157,40 @@ def flanking():
         until_end_of_turn(sender.augment_power_toughness(-1, -1))
         yield
     return TriggeredAbility(Trigger(BlockerDeclaredEvent(), condition), effects, keyword='flanking')
+
+# This is for auras which say "Enchanted creature gains protection from <attribute>. This protection does not remove CARDNAME." 
+def aura_protection(aura, condition, attribute):
+    keyword = "protection from %s"%attribute
+    # DEBT is an acronym. It stands for Damage, Enchantments/Equipment, Blocking, and Targeting
+    prevent_condition = lambda self, amt, source, combat=False: condition(source)
+    def mk_override(cond):
+        return lambda self, by: not cond(by)
+
+    def effects(target):
+        yield combine(*[do_override(target, func_name, mk_override(cond)) for func_name, cond in [("canBeAttachedBy", lambda o: not o==aura and condition(o)), ("canBeBlockedBy", condition), ("canBeTargetedBy", condition)]]+[prevent_damage(target, -1, txt="Protection effect", condition=prevent_condition)])
+
+    return CardStaticAbility(effects=effects, keyword=keyword)
+
+# These are additional ones that aren't actually keyword abilities, but the structure is the same
+def this_card_must_attack():
+    def checkAttack(self, attackers, not_attacking):
+        return self in attackers or not self.canAttack()
+    return CardStaticAbility(effects=override_effect("checkAttack", checkAttack), txt="~ must attack each turn if able.")
+
+def this_card_can_only_block(keyword):
+    def canBlockAttacker(self, attacker):
+        return keyword in attacker.abilities
+    return CardStaticAbility(effects=override_effect("canBlockAttacker", canBlockAttacker), txt="~ can only block creatures with %s."%keyword)
+
+@permanent_method
+def unblockable(target):
+    def canBeBlocked(self): return False
+    return do_override(target, "canBeBlocked", canBeBlocked)
+
+def this_card_is_unblockable():
+    def unblockable_effect(target):
+        yield target.unblockable()
+    return CardStaticAbility(effects=unblockable_effect, txt="~ is unblockable.")
 
 def prevent_damage(target, amount, next=True, txt='', condition=None):
     if not txt:
