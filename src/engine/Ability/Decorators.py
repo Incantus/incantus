@@ -6,6 +6,11 @@ from Target import NoTarget, Target
 from Cost import ManaCost
 from CiPAbility import CiP, CiPAbility
 
+__all__ = ["sorcery", "instant", "mana", 
+           "activated", "triggered", "static_tracking",
+           "static_tracking_conditional", "static",
+           "attached", "enters_battlefield"]
+
 # Decorators for effects of cards
 def sorcery(txt="Play sorcery"):
     def make_spell(ability):

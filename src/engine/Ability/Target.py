@@ -3,6 +3,8 @@ from engine.Match import isPermanent, isPlayer, PlayerMatch, OpponentMatch, Play
 from engine.GameEvent import InvalidTargetEvent
 
 # XXX Fix the targeting code when i do multiplayer
+__all__ = ["NoTarget", "InvalidTarget", "MultipleTargets",
+           "Target", "StackTarget"]
 
 class NoTarget(object):
     def __init__(self): pass

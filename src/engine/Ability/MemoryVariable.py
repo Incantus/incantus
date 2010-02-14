@@ -2,6 +2,9 @@ from engine.MtGObject import MtGObject
 from engine.Match import isPlayer
 from engine.GameEvent import *
 
+__all__ = ["timestep_damage_tracker", "damage_tracker",
+           "graveyard_tracker", "spell_record",
+           "combat_tracker", "cards_tracker", "life_tracker"]
 
 class MemoryVariable(MtGObject):
     def __init__(self):
