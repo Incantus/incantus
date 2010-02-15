@@ -72,7 +72,7 @@ def convert_mana_string(manastr):
 
 def converted_mana_cost(mana):
     if isinstance(mana, str):
-        if "(" in mana: mana = generate_hybrid_choices(mana)[0]
+        if ("(" in mana or '{' in mana): mana = generate_hybrid_choices(mana)[0]
         mana = convert_mana_string(mana)
     return sum(mana)
 
@@ -89,14 +89,14 @@ def parse_hybrid(manastr):
     choices = []
     parsing_hybrid = False
     for c in manastr:
-        if not c in "(/)":
+        if not c in "()/{}":
             if not parsing_hybrid: choices.append([c])
             else: hybrid.append(c)
-        elif c == '(':
+        elif c == '(' or c == '{':
             parsing_hybrid = True
             hybrid = []
         elif c == '/': pass
-        elif c == ')':
+        elif c == ')' or c == '}':
             parsing_hybrid = False
             choices.append(hybrid)
     return choices

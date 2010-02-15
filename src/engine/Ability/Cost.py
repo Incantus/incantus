@@ -122,7 +122,7 @@ class ManaCost(Cost):
         return self._num_X > 0
     def isHybrid(self):
         # XXX this is hacky
-        return '(' in self.cost
+        return ('(' in self.cost or '{' in self.cost)
     def converted_mana_cost(self):
         return Mana.converted_mana_cost(self.cost)
     #def __eq__(self, other):
