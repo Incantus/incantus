@@ -31,6 +31,7 @@ class Trigger(MtGObject):
         self.count = 0
         self.expiry = expiry
         self.trigger_function = trigger_function
+        self.weak = weak
         if self.trigger_sender == "source": sender = self.source
         else: sender=Any
         self.register(self.filter, event=self.trigger_event, sender=sender, priority=priority, weak=weak)
@@ -39,7 +40,7 @@ class Trigger(MtGObject):
         if self.activated:
             if self.trigger_sender == "source": sender = self.source
             else: sender=Any
-            self.unregister(self.filter, event=self.trigger_event, sender=sender)
+            self.unregister(self.filter, event=self.trigger_event, sender=sender, weak=self.weak)
             self.activated = False
     def filter(self, sender, **keys):
         keys["source"] = self.source
