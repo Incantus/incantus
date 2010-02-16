@@ -6,7 +6,7 @@ from engine.CardRoles import permanent_method
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
 from TriggeredAbility import TriggeredAbility
-from Trigger import Trigger, DealDamageTrigger
+from Trigger import Trigger, DealsDamageTrigger
 from EffectsUtilities import until_end_of_turn, do_override, do_replace, combine, override_effect
 
 __all__ = ["keyword_effect", "KeywordOnlyAbility",
@@ -291,7 +291,7 @@ def lifelink_old():
         source.controller.life += amount
         yield
 
-    return TriggeredAbility(DealDamageTrigger(sender="source"),
+    return TriggeredAbility(DealsDamageTrigger(sender="source"),
         effects = lifelink_effect,
         keyword = "lifelink")
 

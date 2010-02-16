@@ -6,7 +6,7 @@ from TriggeredAbility import TriggeredAbility
 from CiPAbility import enters_battlefield_with
 from StaticAbility import CardStaticAbility
 from Target import NoTarget
-from Trigger import EnterTrigger, LeaveTrigger, DealDamageToTrigger, source_match
+from Trigger import EnterTrigger, LeaveTrigger, DealsDamageToTrigger, source_match
 from Cost import ManaCost, SpecialCost
 from EffectsUtilities import do_override
 
@@ -138,7 +138,7 @@ def deathtouch_old():
         to.destroy()
         yield
 
-    return TriggeredAbility(DealDamageToTrigger(condition, sender="source"),
+    return TriggeredAbility(DealsDamageToTrigger(condition, sender="source"),
         effects = effects,
         keyword = "deathtouch")
 

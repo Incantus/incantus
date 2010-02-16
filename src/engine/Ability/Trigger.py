@@ -7,7 +7,7 @@ from EffectsUtilities import robustApply
 __all__ = ["Trigger",
            "PhaseTrigger", "YourUpkeepTrigger",
            "SpellPlayedTrigger",
-           "DealDamageTrigger", "DealDamageToTrigger", "ReceiveDamageTrigger",
+           "DealsDamageTrigger", "DealsDamageToTrigger", "ReceivesDamageTrigger",
            "EnterTrigger", "LeaveTrigger", "EnterFromTrigger",
            "all_match", "source_match", "sender_match", "attached_match", "controller_match"]
 
@@ -68,15 +68,15 @@ class SpellPlayedTrigger(Trigger):
         super(SpellPlayedTrigger, self).__init__(event=SpellPlayedEvent(), condition=condition, sender=sender)
 
 
-class DealDamageTrigger(Trigger):
+class DealsDamageTrigger(Trigger):
     def __init__(self, condition=None, sender=None):
-        super(DealDamageTrigger, self).__init__(event=DealsDamageEvent(), condition=condition, sender=sender)
-class DealDamageToTrigger(Trigger):
+        super(DealsDamageTrigger, self).__init__(event=DealsDamageEvent(), condition=condition, sender=sender)
+class DealsDamageToTrigger(Trigger):
     def __init__(self, condition=None, sender=None):
-        super(DealDamageToTrigger, self).__init__(event=DealsDamageToEvent(), condition=condition, sender=sender)
-class ReceiveDamageTrigger(Trigger):
+        super(DealsDamageToTrigger, self).__init__(event=DealsDamageToEvent(), condition=condition, sender=sender)
+class ReceivesDamageTrigger(Trigger):
     def __init__(self, condition=None, sender=None):
-        super(ReceiveDamageTrigger, self).__init__(event=ReceivesDamageEvent(), condition=condition, sender=sender)
+        super(ReceivesDamageTrigger, self).__init__(event=ReceivesDamageEvent(), condition=condition, sender=sender)
 
 # The next triggers are for events that pertain to cards but aren't sent by the card itself (ie zone changes, spells of abilities of cards)
 
