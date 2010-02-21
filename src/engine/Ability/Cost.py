@@ -125,6 +125,7 @@ class ManaCost(Cost):
         return ('(' in self.cost or '{' in self.cost)
     def converted_mana_cost(self):
         return Mana.converted_mana_cost(self.cost)
+    def colors(self): return Mana.convert_to_color(self.cost)
     #def __eq__(self, other):
     #     XXX compare_mana doesn't work with hybrid
     #    if isinstance(other, str): return Mana.compare_mana(self.cost, other)

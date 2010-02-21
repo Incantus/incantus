@@ -68,7 +68,11 @@ def execCode(card, code):
 
     # For converted manacost comparisons
     if hasattr(card, "cost"):
-        if isinstance(card.cost, str): card.base_cost = CardEnvironment.ManaCost(card.cost)
+        if isinstance(card.cost, str): 
+            cost = card.cost
+            card.base_cost = CardEnvironment.ManaCost(cost)
+            # Get colors from mana cost
+            card.base_color = characteristic(*card.base_cost.colors())
         else: card.base_cost = card.cost
     else: card.base_cost = CardEnvironment.NoCost()
 
