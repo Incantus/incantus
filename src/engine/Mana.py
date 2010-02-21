@@ -1,8 +1,14 @@
 ''' Everything to do with Mana
 '''
-
+from symbols.colors import *
 from MtGObject import MtGObject
 from GameEvent import ManaAdded, ManaSpent, ManaCleared
+
+__all__ = ["ManaPool",
+           "convert_to_color", "subset_in_pool", "compare_mana",
+           "convert_to_mana_string", "combine_mana_strings",
+           "convert_mana_string", "converted_mana_cost",
+           ]
 
 class Colors:
     numberOfColors = 6
@@ -19,6 +25,9 @@ class Colors:
     realColors = set(["W", "U", "B", "R", "G"])
     ColorMap = dict([(c[0], c[1]) for c in __colors])
     ReverseMap = dict([(c[1], c[0]) for c in __colors])
+
+def convert_to_color(manastr, color_dict = dict(W=White,U=Blue,B=Black,R=Red,G=Green)):
+    return [color for c, color in color_dict.items() if c in manastr]
 
 def subset_in_pool(pool_manastr, comp_manastr):
     pool = convert_mana_string(pool_manastr)
