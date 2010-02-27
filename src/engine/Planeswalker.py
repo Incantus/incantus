@@ -1,4 +1,3 @@
-import weakref
 from stacked_function import replace
 from abilities import stacked_abilities
 from Ability.Counters import Counter
@@ -36,7 +35,7 @@ class PlaneswalkerType(object):
         # These are immutable and come from the card
         self.add_counters("loyalty", self.loyalty)
         self.redirect_expire = redirect_to(self)
-        self.abilities = planeswalker_abilities(weakref.ref(self), self.abilities)
+        self.abilities = planeswalker_abilities(self, self.abilities)
     def leavingZone(self):
         super(PlaneswalkerType, self).leavingZone()
         self.redirect_expire()
