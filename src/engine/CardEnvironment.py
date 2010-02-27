@@ -1,7 +1,5 @@
-from math import *
 from random import shuffle
 from symbols import *
-from characteristics import characteristic, no_characteristic
 from stacked_function import *
 from Player import Player
 from GameKeeper import Keeper
