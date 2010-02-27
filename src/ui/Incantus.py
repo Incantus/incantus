@@ -205,6 +205,7 @@ class IncantusLayer(Layer):
         glMatrixMode(GL_MODELVIEW)
 
     def clear_game(self):
+        dispatcher.reset()
         self.phase_status.clear()
         self.game_status.clear()
         self.stack.clear()
@@ -335,10 +336,21 @@ class IncantusLayer(Layer):
         if self.client: self.client.send_action(result)
         return result
 
+    def switch_to_rules_engine(self, action=None):
+        try:
+            self.rules_engine.switch(action)
+        except engine.GameEvent.GameOverException:
+            # Game over
+            pyglet.app.exit()
+
     def process_action(self, action):
         if not self.network:
             #this is like pushing an event onto the pyglet loop
-            pyglet.clock.schedule_once(lambda dt: self.gamelet.switch(action), 0.0001)
+            pyglet.clock.schedule_once(lambda dt: self.switch_to_rules_engine(action), 0.0001)
+
+    def start_rules_engine(self):
+        self.rules_engine = greenlet(Keeper.start)
+        pyglet.clock.schedule_once(lambda dt: self.rules_engine.switch(), 0.001)
 
     def do_action(self, context):
         if context.get("get_ability", False): pass
@@ -384,6 +396,8 @@ class IncantusLayer(Layer):
             trample = context['trample']
             deathtouch = context['deathtouch']
             self.damage_assignment.activate(blocking_list, trample, deathtouch)
+        elif context.get("get_game_over", False):
+            director.pop()
 
     def game_reload(self, replay_file):
         self.game_status.log("Reloading game")
@@ -415,9 +429,8 @@ class IncantusLayer(Layer):
         replaydump.players = dict([(player.name,player) for player in players])
         replaydump.stack = Keeper.stack
 
-        self.gamelet = greenlet(Keeper.start)
         self.client = None
-        pyglet.clock.schedule_once(lambda dt: self.gamelet.switch(), 0.01)
+        self.start_rules_engine()
 
     def game_start(self, player_name, seed, player_data, client=None):
         self.game_status.log("Starting game")
@@ -450,12 +463,11 @@ class IncantusLayer(Layer):
         replaydump.players = dict([(player.name,player) for player in players])
         replaydump.stack = Keeper.stack
 
-        self.gamelet = greenlet(Keeper.start)
         self.client = client
         if client:
-            client.call_action = lambda result: self.gamelet.switch(result)
+            client.call_action = lambda result, self=self: self.switch_to_rules_engine(result)
             client.ready_to_play()
-        pyglet.clock.schedule_once(lambda dt: self.gamelet.switch(), 0.01)
+        self.start_rules_engine()
 
 from network import realm
 

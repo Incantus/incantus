@@ -73,10 +73,12 @@ class Player(MtGObject):
     # The following functions are part of the card code DSL
     def win(self, msg=''):
         if msg: msg = " %s and"%msg
-        raise GameOverException("%s%s wins the game!"%(self, msg))
+        self.getIntention(msg="%s%s wins the game!"%(self, msg), notify=True)
+        raise GameOverException()
     def lose(self, msg=''):
         if msg: msg = " %s and"%msg
-        raise GameOverException("%s%s loses the game!"%(self, msg))
+        self.getIntention(msg="%s%s loses the game!"%(self, msg), notify=True)
+        raise GameOverException()
     def add_mana(self, *amount):
         if len(amount) > 1:
             amount = self.make_selection(amount, 1, prompt="Choose mana to add")

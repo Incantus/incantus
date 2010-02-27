@@ -6,9 +6,7 @@ class Event(object):
         return self.__class__ == other.__class__
     def __str__(self): return self.__class__.__name__
 
-class GameOverException(Exception):
-    def __init__(self, msg):
-        self.msg = msg
+class GameOverException(Exception): pass
 
 class GameStartEvent(Event): pass
 class GameOverEvent(Event): pass

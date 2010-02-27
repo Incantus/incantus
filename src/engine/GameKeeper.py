@@ -102,7 +102,8 @@ class GameKeeper(MtGObject):
         except GameOverException, g:
             self.send(GameOverEvent())
             self.cleanup()
-            return g.msg
+            #self.send(TimestepEvent())
+            raise g
 
     def loadMods(self):
         import glob, traceback, CardEnvironment
