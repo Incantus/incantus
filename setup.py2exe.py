@@ -21,7 +21,7 @@ opts = {"py2exe": {
            "optimize": 1,
            "dist_dir": dist_dir,
            #"excludes": ["encodings"],
-           "includes": ["pyglet.media.drivers.directsound"],
+           "includes": ["pyglet.media.drivers.directsound", "pyglet.resource"],
            "dll_excludes": ["MSVCR71.dll"],
          }
 }
@@ -49,7 +49,7 @@ def copy_data_dirs():
     import shutil
     shutil.copytree("data", os.path.join(dist_dir, "data"))
     shutil.copytree("decks", os.path.join(dist_dir, "decks"))
-    shutil.copy("incantus.ini", os.path.join(dist_dir, "incantus.ini"))
+    #shutil.copy("incantus.ini", os.path.join(dist_dir, "incantus.ini"))
 
 print "-" * 40
 print "copying files"
