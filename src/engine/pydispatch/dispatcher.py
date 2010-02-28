@@ -88,6 +88,17 @@ connection_info = {}
 disconnected = set()
 recurse = 0
 
+def reset():
+    global connections, senders, sendersBack, connection_info, disconnected, recurse
+    #print connections, senders, sendersBack, connection_info
+    return
+    connections = {}
+    senders = {}
+    sendersBack = {}
+    connection_info = {}
+    disconnected = set()
+    recurse = 0
+
 class _ConnectionData(object):
     __slots__ = ["priority", "expiry", "sender", "signal", "weak"]
     def __init__(self, priority, expiry, sender, signal, weak):
@@ -96,13 +107,6 @@ class _ConnectionData(object):
         self.sender = sender
         self.signal = signal
         self.weak = weak
-
-def reset():
-    return # XXX Fix this when setting up enabling game resetting
-    global connections, senders, sendersBack
-    connections = {}
-    senders = {}
-    sendersBack = {}
 
 def connect(receiver, signal=Any, sender=Any, weak=True, expiry=-1, priority=LOWEST_PRIORITY):
     """Connect receiver to sender for signal
