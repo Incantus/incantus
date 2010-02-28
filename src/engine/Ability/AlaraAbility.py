@@ -88,6 +88,7 @@ def cascade():
                 break
         yield
         if exiled:
+            controller.reveal_cards(exiled)
             exile = exiled[-1]
             if controller.you_may("cast %s without paying its mana cost?"%exile):
                 exiled.remove(exile)

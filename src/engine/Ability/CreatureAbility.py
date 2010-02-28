@@ -230,7 +230,7 @@ def regenerate(target, txt="Regenerate", condition=None):
 
 def redirect_damage(from_target, to_target, amount, next=True, txt='', condition=None):
     if not txt:
-        txt = 'Redirect %s%s damage from %s to %s'%("the next " if next else '', str(amount) if amount == -1 else "all", from_target, to_target)
+        txt = 'Redirect %s%s damage from %s to %s'%("the next " if next else '', str(amount) if not amount == -1 else "all", from_target, to_target)
     def redirectDamage(self, amt, source, combat=False):
         dmg = 0
         if redirectDamage.curr_amt != -1:

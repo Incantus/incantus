@@ -9,13 +9,13 @@ def suspend(number):
 def intimidate():
     return CardStaticAbility(no_effects, keyword="intimidate", zone="battlefield")
 
-def rampage():
+def rampage(n):
     return CardStaticAbility(no_effects, keyword="rampage", zone="battlefield")
 
 def cumulative_upkeep(cost):
     return CardStaticAbility(no_effects, keyword="cumulative upkeep", zone="battlefield")
 
-def phasing():
+def phasing(n):
     return CardStaticAbility(no_effects, keyword="phasing", zone="battlefield")
 
 def buyback(cost):
@@ -64,6 +64,9 @@ def dredge(n):
     return CardStaticAbility(no_effects, keyword="dredge", zone="graveyard")
 
 def bloodthirst(n):
+    return CardStaticAbility(no_effects, keyword="bloodthirst", zone="non-battlefield")
+
+def bloodthirst_x():
     return CardStaticAbility(no_effects, keyword="bloodthirst", zone="non-battlefield")
 
 def haunt():

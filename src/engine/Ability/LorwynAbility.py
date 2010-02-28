@@ -128,7 +128,7 @@ def evoke(cost):
         if source.evoked: source.controller.sacrifice(source)
         yield
     return (CardStaticAbility(effects, keyword="evoke", zone="stack"),
-           TriggeredAbility(EnterTrigger("battlefield", source_match), effects=evoke_effects))
+            TriggeredAbility(EnterTrigger("battlefield", lambda source, card: source == card and source.evoked), effects=evoke_effects))
 
 def deathtouch_old():
     def condition(source, to):
