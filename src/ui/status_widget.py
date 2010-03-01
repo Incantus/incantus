@@ -442,7 +442,7 @@ class StatusView(Widget):
         for symbol in self.symbols.values():
             symbol.alpha = 0.5
         self.player_name = Label(" ", 20, halign=("right" if is_opponent else "left"), shadow=True)
-        self.values = dict([(symbol, Label('', size, halign="center", valign="center")) for symbol, size in zip(self.symbols, sizes)])
+        self.values = dict([(symbol, Label('', size, halign="center", valign="center")) for symbol, size in zip(symbols, sizes)])
         self.values["life"].halign = "center"
         self.values["life"].valign = "center"
         self.manapool = ManaView()
