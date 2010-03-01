@@ -69,8 +69,8 @@ class GameKeeper(MtGObject):
         self.battlefield = BattlefieldZone(self)
 
         self.loadMods()
-        self._tokens_out_battlefield = []
-        self.register(lambda sender: setattr(sender, "is_LKI", True) or self._tokens_out_battlefield.append(sender), TokenLeavingBattlefield(), weak=False)
+        self._non_card_leaving_zone = []
+        self.register(lambda sender: self._non_card_leaving_zone.append(sender), NonCardLeavingZone(), weak=False)
 
         all_players = set(players)
         for player in players:
@@ -205,11 +205,12 @@ class GameKeeper(MtGObject):
             actions.append(SBE)
 
         # 420.5f A token in a zone other than the battlefield zone ceases to exist.
-        if len(self._tokens_out_battlefield) > 0:
+        # 704.5e. If a copy of a spell is in a zone other than the stack, it ceases to exist. If a copy of a card is in any zone other than the stack or the battlefield, it ceases to exist.
+        if len(self._non_card_leaving_zone) > 0:
             def SBE():
-                for token in self._tokens_out_battlefield: token.zone.cease_to_exist(token)
+                for noncard in self._non_card_leaving_zone: noncard.zone.cease_to_exist(noncard)
                 # XXX Now only GameObjects.cardmap has a reference to the token - we need to delete it somehow
-                self._tokens_out_battlefield[:] = []
+                self._non_card_leaving_zone[:] = []
             actions.append(SBE)
         # 420.5g A player who attempted to draw a card from an empty library since the last time state-based effects were checked loses the game.
         for player in players:

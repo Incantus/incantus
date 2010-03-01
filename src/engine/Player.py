@@ -1,13 +1,13 @@
 from MtGObject import MtGObject
 from Util import isiterable
-from GameObjects import Card, Token
+from GameObjects import Card, Token, CardCopy
 from GameKeeper import Keeper
 from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, BlockersReorderedEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent, GameOverException, DealsDamageToEvent
 from Mana import ManaPool, generate_hybrid_choices
 from Zone import LibraryZone, HandZone, GraveyardZone, ExileZone
 from Action import CancelAction, PassPriority, OKAction
 from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isPlaneswalker, OpponentMatch
-from stacked_function import replace
+from stacked_function import replace, override
 from Ability.Cost import ManaCost
 
 class life(int):
@@ -98,6 +98,14 @@ class Player(MtGObject):
             cost.pay(source, self)
             return True
         else: return False
+    def create_copy(self, card):
+        copy = CardCopy.create(name=str(card.name), owner=self)
+        copy.clone(card)
+        # Make sure it copies when it moves to the stack
+        def modifyNewRole(self, new, zone):
+            if str(zone) == "stack": new.clone(card)
+        override(copy, "modifyNewRole", modifyNewRole)
+        return self.exile.add_new_card(copy)
     def create_tokens(self, info, number=1, tag=''):
         return [self.exile.add_new_card(Token.create(info, owner=self)) for _ in range(number)]
     def play_tokens(self, info, number=1, tag=''):

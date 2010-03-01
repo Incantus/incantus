@@ -43,15 +43,15 @@ class _CardLibrary:
                 self.cardfile[name] = data
 
     def loadImage(self, name):
+        name, cardtype = name.split(":")
         table = string.maketrans(" -", "__")
         imagename = name.translate(table, "',")
         altname = name.replace(" ", "_").replace("'","").replace(",","")
         if name in self.cardfile: data = self.cardfile[name]
         else:
-            if name.endswith("Token"):
-                token_type = name[:-6]
-                if token_type in token_cards:
-                    ed, number = token_cards[token_type]
+            if cardtype == "Token":
+                if name in token_cards:
+                    ed, number = token_cards[name]
                     try:
                         img_file = urllib.urlopen("http://magiccards.info/tokens/thumb/%s-%03d.jpg"%(ed,number))
                         data = img_file.read()

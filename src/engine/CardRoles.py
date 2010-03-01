@@ -3,7 +3,7 @@ from stacked_function import *
 from characteristics import stacked_controller, stacked_PT, stacked_land_subtype
 from symbols import Land, Creature, Planeswalker, Instant, Sorcery, Aura, Equipment, Fortification
 from MtGObject import MtGObject
-from GameEvent import DealsDamageToEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, TokenLeavingBattlefield, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, LandPlayedEvent
+from GameEvent import DealsDamageToEvent, CardTapped, CardUntapped, PermanentDestroyedEvent, AttachedEvent, UnAttachedEvent, AttackerDeclaredEvent, AttackerBlockedEvent, BlockerDeclaredEvent, NonCardLeavingZone, TargetedByEvent, PowerToughnessModifiedEvent, NewTurnEvent, TimestepEvent, CounterAddedEvent, CounterRemovedEvent, AttackerClearedEvent, BlockerClearedEvent, CreatureInCombatEvent, CreatureCombatClearedEvent, LandPlayedEvent
 from Planeswalker import PlaneswalkerType
 from Ability.Counters import Counter, PowerToughnessCounter, PowerToughnessModifier, PowerToughnessSetter, PowerToughnessSwitcher, PowerSetter, ToughnessSetter
 from Ability.CastingAbility import CastPermanentSpell, CastAuraSpell
@@ -134,7 +134,7 @@ class CardRole(MtGObject):
         # Any attribute not defined should be false
         return False
     def __del__(self):
-        #print "Deleting %s role for %s"%(self.__class__.__name__, self.name)
+        #print "Deleting %s role for %3d)%s in zone %s"%(self.__class__.__name__, self.key[0],self.name, self.zone)
         pass
 
 # Idea for spells - just have the OutBattlefieldRole mirror a cast spell in terms of when it
@@ -172,6 +172,13 @@ class SpellRole(CardRole):
     @overridable(most_recent)
     def _get_special_cost(self):
         return None
+
+class CopySpellRole(SpellRole):
+    def move_to(self, zone, position="top"):
+        newrole = super(CopySpellRole, self).move_to(zone, position)
+        newrole.is_LKI = True
+        newrole.send(NonCardLeavingZone())
+        return newrole
 
 class NonBattlefieldRole(CardRole):
     @overridable(logical_or)
@@ -329,7 +336,8 @@ class TokenPermanent(Permanent):
     _token = True
     def move_to(self, zone, position="top"):
         newrole = super(TokenPermanent, self).move_to(zone, position)
-        if not str(zone) == "battlefield": newrole.send(TokenLeavingBattlefield())
+        newrole.is_LKI = True
+        newrole.send(NonCardLeavingZone())
         return newrole
 
 class LandType(object):

@@ -3,7 +3,7 @@ from symbols import Land, Instant, Sorcery
 from GameEvent import NameModifiedEvent, CostModifiedEvent, TextModifiedEvent, ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent, PowerToughnessModifiedEvent, LoyaltyModifiedEvent
 from abilities import abilities, stacked_abilities
 from characteristics import characteristic, stacked_variable, stacked_characteristic, stacked_type
-from CardRoles import Permanent, SpellRole, NoRole, LandNonBattlefieldRole, OtherNonBattlefieldRole, TokenNonBattlefieldRole, TokenPermanent
+from CardRoles import Permanent, SpellRole, CopySpellRole, NoRole, LandNonBattlefieldRole, OtherNonBattlefieldRole, TokenNonBattlefieldRole, TokenPermanent
 import CardDatabase
 
 class GameObject(MtGObject):
@@ -59,7 +59,7 @@ class GameObject(MtGObject):
     _current_roles = {}
     _cardmap = {}
     def _add_to_map(self, key_name):
-        self.key = (GameObject._counter, key_name)
+        self.key = (GameObject._counter, key_name+":"+str(self.__class__.__name__))
         self._cardmap[self.key] = self
         GameObject._counter += 1
 
@@ -95,7 +95,7 @@ class Token(GameObject):
         CardDatabase.execCode(self, info)
         self.out_battlefield_role = self.stack_role = TokenNonBattlefieldRole
         self.in_battlefield_role = TokenPermanent
-        self._add_to_map(self.base_name+" Token")
+        self._add_to_map(self.base_name)
 
     @classmethod
     def create(cls, info, owner):
@@ -106,3 +106,17 @@ class Token(GameObject):
 
     def __str__(self):
         return "Token: %s"%self.base_name
+
+class CardCopy(GameObject):
+    def __init__(self, name, owner):
+        super(CardCopy, self).__init__(owner)
+        self.out_battlefield_role = OtherNonBattlefieldRole
+        self.stack_role = CopySpellRole
+        self.in_battlefield_role = NoRole
+        self._add_to_map(name)
+    @classmethod
+    def create(cls, name, owner):
+        copy = cls(name, owner)
+        return copy.new_role(copy.out_battlefield_role)
+    def __str__(self):
+        return "Card Copy: %s"%self.name
