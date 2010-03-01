@@ -39,8 +39,8 @@ class StackZone(Zone):
         self.send(AbilityPlacedOnStack(), ability=ability)
     def resolve(self):
         ability = self._abilities.pop()
-        ability.resolve()
         self.send(AbilityRemovedFromStack(), ability=ability)
+        ability.resolve()
     def counter(self, ability):
         self._abilities.remove(ability)
         self.send(AbilityRemovedFromStack(), ability=ability)
