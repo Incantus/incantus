@@ -341,7 +341,7 @@ class IncantusLayer(Layer):
             self.rules_engine.switch(action)
         except engine.GameEvent.GameOverException:
             # Game over
-            pyglet.app.exit()
+            quit()
 
     def process_action(self, action):
         if not self.network:

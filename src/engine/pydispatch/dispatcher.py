@@ -90,8 +90,10 @@ recurse = 0
 
 def reset():
     global connections, senders, sendersBack, connection_info, disconnected, recurse
-    #print connections, senders, sendersBack, connection_info
-    return
+    #print "connections: ",connections
+    #print "senders ", senders
+    #print "sendersBack", sendersBack
+    #print "connection_info", connection_info
     connections = {}
     senders = {}
     sendersBack = {}
