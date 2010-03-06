@@ -179,6 +179,8 @@ class IncantusLayer(Layer):
         elif symbol == key.F:
             self.finish_turn = True
             self.process_action(engine.Action.PassPriority())
+        elif symbol == key.F1:
+            show_ingame_menu()
         elif symbol == key.F2:
             self.phase_controller.activate(other=False)
         elif symbol == key.F3:
@@ -471,10 +473,6 @@ class IncantusLayer(Layer):
 
 from network import realm
 
-# This is necessary for resuming from the in-game menu
-# another option is to push the onscreen menu on top of the game
-gamescene = None
-
 # XXX Note, because of the way scene transitions work (the on_enter and on_exit handler of the transitioning scenes is called twice - see http://groups.google.com/group/cocos2d-iphone-discuss/browse_frm/thread/41dc2e67a16a1136/f77139350307a45f?lnk=gst) we can't use them to play the game layer (since those handlers set up the controller event handlers)
 
 def start_server(port, num_players):
@@ -482,7 +480,6 @@ def start_server(port, num_players):
     gamerealm.start()
 
 def start_solitaire(player_name, players):
-    global gamescene
     gamescene = Scene()
     gamelayer = IncantusLayer()
     gamescene.add(gamelayer, z=0, name="table")
@@ -491,7 +488,6 @@ def start_solitaire(player_name, players):
     gamelayer.game_start(player_name, pyglet.clock.time.time(), players)
 
 def reload_solitaire(replay_file):
-    global gamescene
     gamescene = Scene()
     gamelayer = IncantusLayer()
     gamescene.add(gamelayer, z=0, name="table")
@@ -502,7 +498,6 @@ def reload_solitaire(replay_file):
 def join_game(player_name, decklist, host, port):
     #chatbox = ChatBox(0, 40, 400, 40, 'bottom')
     def setup_board(client):
-        global gamescene
         gamelayer = IncantusLayer()
         gamescene = Scene()
         gamescene.add(gamelayer, z=0, name="table")
@@ -526,7 +521,6 @@ def join_game(player_name, decklist, host, port):
 
 def observe_game(player_name, host, port):
     def connected(client, avatar):
-        global gamescene
         client.avatar = avatar
         #client.msg_callback = chatbox.add_text
         #chatbox.set_callback(client.send_message)
@@ -545,9 +539,9 @@ def observe_game(player_name, host, port):
     defrd.addCallback(lambda avatar: connected(client, avatar))
     return defrd
 
-def resume_game():
-    director.push(gamescene)
-    #director.push(ZoomTransition(gamescene, 1.))
+def show_ingame_menu():
+    from menu import HierarchicalMenu, InGameMenu
+    director.push(Scene(HierarchicalMenu(InGameMenu())))
 
 def quit():
     director.pop()

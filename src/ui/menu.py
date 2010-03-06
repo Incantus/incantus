@@ -72,7 +72,7 @@ class IncantusMenu(Menu):
         self.parent.move_up()
 
 class MainMenu(IncantusMenu):
-    def __init__(self, options):
+    def __init__(self):
         super(MainMenu, self).__init__()
         items = []
         items.append(SubMenuItem('Start Solitaire Game', SolitaireGameMenu()))
@@ -80,27 +80,26 @@ class MainMenu(IncantusMenu):
         items.append(SubMenuItem('Start Network Game', StartGameMenu()))
         items.append(SubMenuItem('Join Network Game', JoinGameMenu()))
         items.append(SubMenuItem('Observe Network Game', ObserveGameMenu()))
-        items.append(SubMenuItem('Options', options))
+        items.append(SubMenuItem('Options', OptionsMenu()))
         items.append(MenuItem('Quit', self.on_quit) )
         self.create_menu(items)
     def on_quit(self):
         pyglet.app.exit()
 
 class InGameMenu(IncantusMenu):
-    def __init__(self, options):
+    def __init__(self):
         super(InGameMenu, self).__init__()
         items = []
-        items.append(MenuItem('Resume Game', self.on_quit_menu))
-        items.append(SubMenuItem('Options', options))
+        items.append(MenuItem('Resume Game', self.on_quit))
+        items.append(SubMenuItem('Options', OptionsMenu()))
         items.append(MenuItem('Exit Game', self.on_quit_game))
         self.create_menu(items)
-    def on_quit_menu(self):
+    def on_quit(self):
         # Quitting the menu
-        Incantus.resume_game()
+        director.pop()
     def on_quit_game(self):
-        # XXX Properly quit game
+        director.pop()
         Incantus.quit()
-        self.parent.parent.switch_to(0)
 
 class OptionsMenu(IncantusMenu):
     def __init__(self):
@@ -265,7 +264,3 @@ class ReloadSolitaireGameMenu(IncantusMenu):
         self.replay_file = replay
     def on_reload(self):
         Incantus.reload_solitaire(self.replay_file)
-
-def build_menus():
-    options = OptionsMenu()
-    return MultiplexLayer(HierarchicalMenu(MainMenu(options)), HierarchicalMenu(InGameMenu(options)))

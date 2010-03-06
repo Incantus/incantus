@@ -9,7 +9,7 @@ from cocos.director import director
 from cocos.scene import Scene
 
 from ui import anim
-from ui.menu import build_menus
+from ui.menu import HierarchicalMenu, MainMenu
 
 @director.event
 def on_exit():
@@ -21,7 +21,7 @@ def main():
     pyglet.clock.schedule(anim.add_time)
 
     director.init(resizable=True, width=1024, height=768)
-    menu_scene = Scene(build_menus())
+    menu_scene = Scene(HierarchicalMenu(MainMenu()))
     director.run(menu_scene)
     #win.set_icon(pyglet.image.load("./data/Incantus.png"))
 
