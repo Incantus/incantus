@@ -137,13 +137,13 @@ class AbilityMatch(Match):
         if self.txt: return self.txt
         else: return str(self.ability_type.__name__)
 
-from Ability.StackAbility import StackAbility
-from Ability.CastingAbility import CastSpell, CastSorcerySpell, CastInstantSpell
-from Ability.ActivatedAbility import ActivatedAbility
-from Ability.TriggeredAbility import TriggeredStackAbility
-isStackAbility = AbilityMatch(StackAbility, "Ability")
-isSpell = AbilityMatch(CastSpell, "Spell")
-isInstantSpell = AbilityMatch(CastInstantSpell, "Instant")
-isSorcerySpell = AbilityMatch(CastSorcerySpell, "Sorcery")
-isActivatedAbility = AbilityMatch(ActivatedAbility, "Activated Ability")
-isTriggeredAbility = AbilityMatch(TriggeredStackAbility, "Triggered Ability")
+#from Ability.StackAbility import StackAbility
+#from Ability.CastingAbility import CastSpell, CastSorcerySpell, CastInstantSpell
+#from Ability.ActivatedAbility import ActivatedAbility
+#from Ability.TriggeredAbility import TriggeredStackAbility
+#isStackAbility = AbilityMatch(StackAbility, "Ability")
+#isActivatedAbility = AbilityMatch(ActivatedAbility, "Activated Ability")
+#isTriggeredAbility = AbilityMatch(TriggeredStackAbility, "Triggered Ability")
+#isSpell = AbilityMatch(CastSpell, "Spell")
+#isInstantSpell = AbilityMatch(CastInstantSpell, "Instant")
+#isSorcerySpell = AbilityMatch(CastSorcerySpell, "Sorcery")

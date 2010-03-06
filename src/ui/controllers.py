@@ -852,7 +852,7 @@ class HandController(object):
         else: return False
 
 from engine.Ability.Target import MultipleTargets
-from engine.Match import isPlayer, isPermanent, isStackAbility
+from engine.Match import isPlayer, isPermanent #, isStackAbility
 class StackController(object):
     def __init__(self, stack_gui, window):
         self.stack_gui = stack_gui
@@ -881,13 +881,7 @@ class StackController(object):
             else: t = t.get_targeted()
             for i, tt in enumerate(t):
                 if tt == None: continue  # For delayed targeting abilities, like champion
-                if isStackAbility(tt):
-                    guicard = self.stack_gui.get_card(tt)
-                    if guicard:
-                        self.highlighted.append(guicard)
-                        if guicard in old_highlighted: old_highlighted.remove(guicard)
-                        guicard.highlight()
-                elif isPlayer(tt):
+                if isPlayer(tt):
                     for status in [self.window.mainplayer_status, self.window.otherplayer_status]:
                         if tt == status.player:
                             status.animate("life")
@@ -898,6 +892,12 @@ class StackController(object):
                             self.highlighted.append(guicard)
                             if guicard in old_highlighted: old_highlighted.remove(guicard)
                             guicard.highlight()
+                #elif isStackAbility(tt):
+                #    guicard = self.stack_gui.get_card(tt)
+                #    if guicard:
+                #        self.highlighted.append(guicard)
+                #        if guicard in old_highlighted: old_highlighted.remove(guicard)
+                #        guicard.highlight()
         for obj in old_highlighted: obj.unhighlight()
     def focus_previous(self):
         if self.stack_gui.focus_previous():

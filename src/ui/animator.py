@@ -9,7 +9,7 @@ from resources import ColorDict
 import CardLibrary
 from engine import GameEvent
 from engine.pydispatch import dispatcher
-from engine.Match import isPlayer, isPermanent, isStackAbility
+from engine.Match import isPlayer, isPermanent #, isStackAbility
 from engine.Ability.CastingAbility import CastSpell
 
 from play_view import CombatZone
@@ -154,11 +154,7 @@ class ZoneAnimator(object):
     def project_to_window(self, x, y, z):
         return self.window.camera.project_to_window(x, y, z)
     def invalid_target(self, sender, target):
-        if isStackAbility(target):
-            guicard = self.stack.get_card(target)
-            guicard.shake()
-            clock.schedule_once(lambda t: guicard.unshake(), 0.25)
-        elif isPlayer(target):
+        if isPlayer(target):
             pstatus, life = self.player_status[target]
             if life.shaking == 0:
                 life.shaking = 1
@@ -170,6 +166,10 @@ class ZoneAnimator(object):
             guicard = zone.get_card(target)
             guicard.shake()
             clock.schedule_once(lambda t: guicard.unshake(), 0.25)
+        #elif isStackAbility(target):
+        #    guicard = self.stack.get_card(target)
+        #    guicard.shake()
+        #    clock.schedule_once(lambda t: guicard.unshake(), 0.25)
     def select_card(self, sender, card):
         zone = self.play_zones[card.controller]
         guicard = zone.get_card(card)
