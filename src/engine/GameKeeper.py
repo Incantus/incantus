@@ -162,7 +162,7 @@ class GameKeeper(MtGObject):
             return SBE
         for player in players:
             if player.life <= 0: 
-                actions.append(LoseGame(player, "has less than 0 life"))
+                actions.append(LoseGame(player, "has less than 1 life"))
 
         # 420.5b and 420.5c are combined
         # 420.5b A creature with toughness 0 or less is put into its owner's graveyard. Regeneration can't replace this event.
