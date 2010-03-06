@@ -136,6 +136,10 @@ class GameKeeper(MtGObject):
                 getattr(self, phase)()
                 self.emptyManaPools()
 
+    def isSorceryTiming(self, player):
+        return (self.stack.empty() and player == self.active_player and
+               (self.current_phase == "Main1" or self.current_phase == "Main2"))
+
     def setState(self, state):
         # Send notice that state changed
         self.current_phase = state

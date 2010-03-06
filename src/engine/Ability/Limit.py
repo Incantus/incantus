@@ -70,16 +70,9 @@ class UpkeepLimit(Limit):
         return self.correct_phase and self.active_player == card.controller
 
 class SorceryLimit(Limit):
-    def __init__(self):
-        self.register(self.state, event=MainPhase1Event())
-        self.register(self.state, event=MainPhase2Event())
-        self.register(self.state, event=EndMainPhaseEvent())
-        self.correct_phase = False
-    def state(self, signal, sender):
-        self.active_player = sender.active_player
-        self.correct_phase = (signal == MainPhase1Event() or signal == MainPhase2Event())
     def __call__(self, card):
-        return self.correct_phase and self.active_player == card.controller and card.controller.stack.empty()
+        from engine.GameKeeper import Keeper
+        return Keeper.isSorceryTiming(card.controller)
 
 class ThresholdLimit(Limit):
     def __call__(self, card):
