@@ -1,4 +1,4 @@
-from engine.GameEvent import SpellPlayedEvent, TimestepEvent
+from engine.GameEvent import SpellPlayedEvent
 from ActivatedAbility import CostAbility
 from Limit import sorcery_limit
 from Target import Target, NoTarget
@@ -24,7 +24,7 @@ class CastSpell(CostAbility):
             # a spell from an ordered zone without having to wait for the next timestep for it to
             # re-appear in that zone. In other words, just as hacky as our regular "not-rewind",
             # only more so, because it needs to work on an OrderedZone.
-            self.source.send(TimestepEvent())
+            self.timestep()
             return False
     def get_cost(self):
         # ignore the cost returned by effects generator

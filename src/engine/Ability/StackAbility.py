@@ -9,11 +9,13 @@ class StackAbility(object):
         if not txt and effects.__doc__: txt = effects.__doc__
         self.txt = txt
         self.controller = None
+    def timestep(self):
+        self.source.send(TimestepEvent())
     def announce(self):
         self.preannounce()
         if self.do_announce():
             self.played()
-            self.source.send(TimestepEvent())
+            self.timestep()
             return True
         else:
             self.canceled()
@@ -37,14 +39,14 @@ class StackAbility(object):
             targets = tuple((target.get_targeted() for target in self.targets))
             if len(targets) == 1: targets = targets[0]
             self.effects.send(targets)
-            self.source.send(TimestepEvent())
+            self.timestep()
             for _ in self.effects:
-                self.source.send(TimestepEvent())
+                self.timestep()
             self.resolved()
         else: self.countered()
         del self.effects
     def resolved(self):
-        self.source.send(TimestepEvent())
+        self.timestep()
         self.source.send(AbilityResolved())
     def can_be_countered(self): return True
     def counter(self):

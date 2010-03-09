@@ -1,7 +1,7 @@
 from Cost import ManaCost, Cost
 from ActivatedAbility import ActivatedAbility
 from engine.Match import isCard, isBasicLandCard
-from engine.GameEvent import DiscardCardEvent, CardCycledEvent, TimestepEvent
+from engine.GameEvent import DiscardCardEvent, CardCycledEvent
 from engine.symbols import *
 from Target import NoTarget
 
@@ -15,8 +15,8 @@ class CycleDiscard(Cost):
     def compute(self, source, player): return str(source.zone) == "hand"
     def pay(self, source, player):
         self.payment = player.discard(source)
-        #XXX This is a bit of a hack - i don't like sending the TimestepEvent here
-        player.send(TimestepEvent())
+        #XXX This is a bit of a hack - i don't like sending a timestep here
+        source.timestep()
         if self.payment: self.payment.send(CardCycledEvent())
     def __str__(self): return "Discard this card"
 
