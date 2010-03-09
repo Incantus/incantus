@@ -21,7 +21,7 @@ class StackAbility(object):
             self.canceled()
             return False
     def preannounce(self):
-        self.targets = []
+        self._targets = []
         self.source.send(AbilityAnnounced(), ability=self)
     def canceled(self): self.source.send(AbilityCanceled(), ability=self)
     def do_announce(self): raise NotImplementedException()
@@ -31,12 +31,12 @@ class StackAbility(object):
         targets = self.targets_from_effects()
         if not isinstance(targets, tuple): targets = (targets,)
         if all((target.get(self.source) for target in targets)):
-            self.targets = targets
+            self._targets = targets
             return True
         else: return False
     def resolve(self):
-        if any([target.check_target(self.source) for target in self.targets]):
-            targets = tuple((target.get_targeted() for target in self.targets))
+        if any([target.check_target(self.source) for target in self._targets]):
+            targets = tuple((target.get_targeted() for target in self._targets))
             if len(targets) == 1: targets = targets[0]
             self.effects.send(targets)
             self.timestep()
