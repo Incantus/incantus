@@ -157,34 +157,34 @@ class TapCost(Cost):
         if self.cardtype == None: return source.canTap()
         else: return len(player.battlefield.get(self.cardtype)) >= self.number
     def compute(self, source, player):
-        self.targets = []
+        self._cards = []
         # Tap myself
         if self.cardtype == None:
-            if source.canTap(): self.targets.append(source)
+            if source.canTap(): self._cards.append(source)
             else: return False
-        # otherwise see if there are enough targets for tapping
+        # otherwise see if there are enough cards for tapping
         else:
-            prompt = "Select %d %s(s) for tapping"%(self.number-len(self.targets), self.cardtype)
+            prompt = "Select %d %s(s) for tapping"%(self.number-len(self._cards), self.cardtype)
             while True:
-                target = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
-                if target == False: return False
-                if target in self.targets:
+                card = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
+                if card == False: return False
+                if card in self._cards:
                     prompt = "Card already selected - select again"
-                    player.send(InvalidTargetEvent(), target=target)
-                elif target.tapped:
+                    player.send(InvalidTargetEvent(), target=card)
+                elif card.tapped:
                     prompt = "Card already tapped - select again"
-                    player.send(InvalidTargetEvent(), target=target)
-                elif not target.canBeTapped():
+                    player.send(InvalidTargetEvent(), target=card)
+                elif not card.canBeTapped():
                     prompt = "Card cannot be tapped - select again"
-                    player.send(InvalidTargetEvent(), target=target)
+                    player.send(InvalidTargetEvent(), target=card)
                 else:
-                    self.targets.append(target)
-                    prompt = "Select %d %s(s) for tapping"%(self.number-len(self.targets), self.cardtype)
-                if len(self.targets) == self.number: break
+                    self._cards.append(card)
+                    prompt = "Select %d %s(s) for tapping"%(self.number-len(self._cards), self.cardtype)
+                if len(self._cards) == self.number: break
         return True
     def pay(self, source, player):
-        for target in self.targets: target.tap()
-        self.payment = self.targets
+        for card in self._cards: card.tap()
+        self.payment = self._cards
     def __str__(self):
         if self.cardtype: who = " %s"%self.cardtype
         else: who = ""
@@ -199,34 +199,34 @@ class UntapCost(Cost):
         if self.cardtype == None: return source.canUntap()
         else: return len(player.battlefield.get(self.cardtype)) >= self.number
     def compute(self, source, player):
-        self.targets = []
+        self._cards = []
         # Untap myself
         if self.cardtype == None:
-            if source.canUntap(): self.targets.append(source)
+            if source.canUntap(): self._cards.append(source)
             else: return False
-        # otherwise see if there are enough targets for untapping
+        # otherwise see if there are enough cards for untapping
         else:
-            prompt = "Select %d %s(s) for untapping"%(self.number-len(self.targets), self.cardtype)
+            prompt = "Select %d %s(s) for untapping"%(self.number-len(self._cards), self.cardtype)
             while True:
-                target = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
-                if target == False: return False
-                if target in self.targets:
+                card = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
+                if card == False: return False
+                if card in self._cards:
                     prompt = "Card already selected - select again"
-                    player.send(InvalidTargetEvent(), target=target)
-                elif not target.tapped:
+                    player.send(InvalidTargetEvent(), target=card)
+                elif not card.tapped:
                     prompt = "Card already untapped - select again"
-                    player.send(InvalidTargetEvent(), target=target)
-                elif not target.canUntap():
+                    player.send(InvalidTargetEvent(), target=card)
+                elif not card.canUntap():
                     prompt = "Card cannot be untapped - select again"
-                    player.send(InvalidTargetEvent(), target=target)
+                    player.send(InvalidTargetEvent(), target=card)
                 else:
-                    self.targets.append(target)
-                    prompt = "Select %d %s(s) for untapping"%(self.number-len(self.targets), self.cardtype)
-                if len(self.targets) == self.number: break
+                    self._cards.append(card)
+                    prompt = "Select %d %s(s) for untapping"%(self.number-len(self._cards), self.cardtype)
+                if len(self._cards) == self.number: break
         return True
     def pay(self, source, player):
-        for target in self.targets: target.untap()
-        self.payment = self.targets
+        for card in self._cards: card.untap()
+        self.payment = self._cards
     def __str__(self):
         if self.cardtype: who = " %s"%self.cardtype
         else: who = ""
@@ -242,30 +242,30 @@ class SacrificeCost(Cost):
         if self.cardtype == None: return True
         else: return len(player.battlefield.get(self.cardtype)) >= self.number
     def compute(self, source, player):
-        self.targets = []
+        self._cards = []
         if self.cardtype == None:
             # Sacrifice myself
-            if str(source.zone) == "battlefield": self.targets.append(source)
+            if str(source.zone) == "battlefield": self._cards.append(source)
             else: return False
         else:
-            prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
+            prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self._cards), self.cardtype)
             if self.msg: prompt = self.msg
             while True:
-                target = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
-                if target == False: return False
-                if target in self.targets:
+                card = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
+                if card == False: return False
+                if card in self._cards:
                     prompt = "Card already selected - select again"
-                    player.send(InvalidTargetEvent(), target=target)
+                    player.send(InvalidTargetEvent(), target=card)
                 else:
-                    self.targets.append(target)
-                    prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self.targets), self.cardtype)
+                    self._cards.append(card)
+                    prompt = "Select %d %s(s) for sacrifice"%(self.number-len(self._cards), self.cardtype)
                     if self.msg: prompt = self.msg
-                if len(self.targets) == self.number: break
+                if len(self._cards) == self.number: break
         return True
     def pay(self, source, player):
-        for target in self.targets:
-            player.sacrifice(target)
-        self.payment = self.targets
+        for card in self._cards:
+            player.sacrifice(card)
+        self.payment = self._cards
     def __str__(self):
         return 'Sacrifice'
 
@@ -281,31 +281,31 @@ class ChangeZoneCost(Cost):
         if self.cardtype == None: return True
         else: return len(from_zone.get(self.cardtype)) >= self.number
     def compute(self, source, player):
-        self.targets = []
+        self._cards = []
         if self.cardtype == None:
-            if str(source.zone) == self.from_zone: self.targets.append(source)
+            if str(source.zone) == self.from_zone: self._cards.append(source)
             else: return False
         else:
-            prompt = "Select %d %s(s) to %s"%(self.number-len(self.targets), self.cardtype, self.action_txt%'')
+            prompt = "Select %d %s(s) to %s"%(self.number-len(self._cards), self.cardtype, self.action_txt%'')
             while True:
-                target = player.getTarget(self.cardtype, zone=self.from_zone, from_player="you", required=False, prompt=prompt)
-                if target == False: return False
-                if target in self.targets:
-                    prompt = "%s already selected - select again"%target
-                    player.send(InvalidTargetEvent(), target=target)
+                card = player.getTarget(self.cardtype, zone=self.from_zone, from_player="you", required=False, prompt=prompt)
+                if card == False: return False
+                if card in self._cards:
+                    prompt = "%s already selected - select again"%card
+                    player.send(InvalidTargetEvent(), target=card)
                 else:
-                    self.targets.append(target)
-                    prompt = "Select %d %s(s) to %s"%(self.number-len(self.targets), self.cardtype, self.action_txt%'')
-                if len(self.targets) == self.number: break
+                    self._cards.append(card)
+                    prompt = "Select %d %s(s) to %s"%(self.number-len(self._cards), self.cardtype, self.action_txt%'')
+                if len(self._cards) == self.number: break
         return True
     def pay(self, source, player):
         self.payment = {}
         self.payment['after'] = []
-        for target in self.targets:
-            result = target.move_to(self.to_zone)
+        for card in self._cards:
+            result = card.move_to(self.to_zone)
             if str(result.zone) == self.to_zone: self.payment['after'].append(result)
             else: self.payment['after'].append(None)
-        self.payment['before'] = self.targets
+        self.payment['before'] = self._cards
     def __str__(self):
         if self.cardtype: txt = ' '+str(self.cardtype)
         else: txt = ''
@@ -317,9 +317,9 @@ class ExileFromLibraryCost(ChangeZoneCost):
         self.position = position
     def compute(self, source, player):
         if self.position == "top":
-            self.targets = self.library.top(self.number)
+            self._cards = self.library.top(self.number)
         elif self.position == "bottom":
-            self.targets = self.library.bottom(self.number)
+            self._cards = self.library.bottom(self.number)
         return True
 
 class ReturnToHandCost(ChangeZoneCost):
@@ -355,27 +355,27 @@ class RemoveCounterCost(Cost):
     def compute(self, source, player):
         if self.cardtype == None:
             # Target myself
-            if self.enough_counters(source): self.target = source
+            if self.enough_counters(source): self._card = source
             else: return False
         else:
             prompt = "Select %s from which to remove %d %s counter(s)"%(self.cardtype, self.number, self.counter_type)
             if not self.counter_type: prompt = "Select %s from which to remove %d counter(s)"%(self.cardtype, self.number)
             while True:
-                target = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
-                if target == False: return False
-                if not self.enough_counters(target):
+                card = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
+                if card == False: return False
+                if not self.enough_counters(card):
                     prompt = "Card doesn't have enough %s counters - select again"%self.counter_type
-                    player.send(InvalidTargetEvent(), target=target)
+                    player.send(InvalidTargetEvent(), target=card)
                 else:
-                    self.target = target
+                    self._card = card
                     break
         if not self.counter_type:
-            sellist = list(set([counter.ctype for counter in self.target.counters]))
+            sellist = list(set([counter.ctype for counter in self._card.counters]))
             if len(sellist) == 1: self.counter_type = sellist[0]
             else: self.counter_type = player.make_selection(sellist, prompt='Choose a counter')
         return True
     def pay(self, source, player):
-        self.payment = self.target.remove_counters(self.counter_type, self.number)
+        self.payment = self._card.remove_counters(self.counter_type, self.number)
     def __str__(self):
         return "Remove %d %s counter(s)"%(self.number, self.counter_type)
 
@@ -390,19 +390,19 @@ class AddCounterCost(Cost):
     def compute(self, source, player):
         if self.cardtype == None:
             # Target myself
-            if str(source.zone) == "battlefield": self.target = source
+            if str(source.zone) == "battlefield": self._card = source
             else: return False
         else:
             prompt = "Select %s on which to place %d %s counter(s)"%(self.cardtype, self.number, self.counter_type)
             while True:
-                target = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
-                if target == False: return False
+                card = player.getTarget(self.cardtype, zone="battlefield", from_player="you", required=False, prompt=prompt)
+                if card == False: return False
                 else:
-                    self.target = target
+                    self._card = card
                     break
         return True
     def pay(self, source, player):
-        self.target.add_counters(self.counter_type, self.number)
+        self._card.add_counters(self.counter_type, self.number)
         self.payment = self.number
     def __str__(self):
         return "Add %d %s counter(s)"%(self.number, self.counter_type)
@@ -454,10 +454,10 @@ class RevealCost(Cost):
             num = 0
             prompt = "Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
             while num < self.number:
-                target = player.getTarget(self.cardtype, zone="hand", from_player="you", required=False,prompt=prompt)
-                if not target: return False
-                if not target in self.reveals:
-                    self.reveals.append(target)
+                card = player.getTarget(self.cardtype, zone="hand", from_player="you", required=False,prompt=prompt)
+                if not card: return False
+                if not card in self.reveals:
+                    self.reveals.append(card)
                     num += 1
                     prompt = "Select %s card%s to reveal: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
                 else:
@@ -493,10 +493,10 @@ class DiscardCost(Cost):
             num = 0
             prompt = "Select %s card%s to discard: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
             while num < self.number:
-                target = player.getTarget(self.cardtype, zone="hand", from_player="you",required=False,prompt=prompt)
-                if not target: return False
-                if not target in self.discards:
-                    self.discards.append(target)
+                card = player.getTarget(self.cardtype, zone="hand", from_player="you",required=False,prompt=prompt)
+                if not card: return False
+                if not card in self.discards:
+                    self.discards.append(card)
                     num += 1
                     prompt = "Select %s card%s to discard: %d left of %d"%(self.cardtype, a, self.number-num,self.number)
                 else:
