@@ -1,41 +1,23 @@
-import copy
 from functools import partial
 from engine.pydispatch.dispatcher import CONTINUOUS_PRIORITY
 from engine.GameEvent import ControllerChanged, TimestepEvent
 from engine.MtGObject import MtGObject
+from Ability import Ability
 from Trigger import Trigger, EnterTrigger, LeaveTrigger, all_match
 from EffectsUtilities import combine
 
 __all__ = ["SimpleStaticAbility", "CardStaticAbility", "ConditionalStaticAbility", "CardTrackingAbility", "ConditionalTrackingAbility"]
 
 # Static abilities always function while the permanent is in the relevant zone
-class StaticAbility(object):
-    enabled = property(fget=lambda self: self._status_count > 0)
+class StaticAbility(Ability):
     def __init__(self, effects, zone="battlefield", txt='', keyword=''):
         self.effect_generator = effects
-        self.zone = zone
-        if keyword and not txt: self.txt = keyword.capitalize()
-        else: self.txt = txt
-        self.keyword = keyword
         self.effect_tracking = None
-        self._status_count = 0
-    def enable(self, source):
-        self.source = source
-        self.toggle(True)
-    def disable(self):
-        self.toggle(False)
-    def toggle(self, val):
-        if val:
-            self._status_count += 1
-            if self._status_count == 1: self._enable()
-        else:
-            self._status_count -= 1
-            if self._status_count == 0: self._disable()
-    def _enable(self): pass
-    def _disable(self): pass
+        self.zone = zone
+        self.keyword = keyword
+        if keyword and not txt: txt = keyword.capitalize()
+        super(StaticAbility, self).__init__(txt)
     def copy(self): return self.__class__(self.effect_generator, self.zone, self.txt, self.keyword)
-    def __str__(self): return self.txt
-    def __repr__(self): return "%s<%s %o: %s>"%('*' if self.enabled else '', self.__class__.__name__, id(self), self.txt)
 
 class CardTrackingAbility(StaticAbility):
     def __init__(self, effects, condition, events = [], tracking="battlefield", zone="battlefield", txt=''):

@@ -1,14 +1,15 @@
 import copy
 from engine.GameEvent import AbilityAnnounced, AbilityCanceled, AbilityCountered, AbilityResolved, TimestepEvent
+from Ability import Ability
 
 __all__ = ["StackAbility"]
 
-class StackAbility(object):
+class StackAbility(Ability):
     def __init__(self, effects, txt=''):
         self.effect_generator = effects
         if not txt and effects.__doc__: txt = effects.__doc__
-        self.txt = txt
         self.controller = None
+        super(StackAbility, self).__init__(txt)
     def timestep(self):
         self.source.send(TimestepEvent())
     def announce(self):
@@ -56,6 +57,3 @@ class StackAbility(object):
             return True
         else: return False
     def countered(self): self.source.send(AbilityCountered())
-    def copy(self): return copy.copy(self)
-    def __str__(self):
-        return self.txt

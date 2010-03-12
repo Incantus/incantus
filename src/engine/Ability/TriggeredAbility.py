@@ -1,5 +1,6 @@
 from engine.Util import isiterable
 from engine.CardRoles import card_method
+from Ability import Ability
 from StackAbility import StackAbility
 from EffectsUtilities import robustApply
 from Utils import flatten
@@ -24,50 +25,37 @@ class TriggeredStackAbility(StackAbility):
     def targets_from_effects(self):
         return self.effects.next()
 
-class TriggeredAbility(object):
-    enabled = property(fget=lambda self: self._status_count > 0)
+class TriggeredAbility(Ability):
     def __init__(self, triggers, effects, zone="battlefield", txt='', keyword=''):
         if not isiterable(triggers): triggers=(triggers,)
         self.triggers = triggers
         self.effect_generator = effects
         self.zone = zone
-        if keyword and not txt: self.txt = keyword.capitalize()
-        else: self.txt = txt
         self.keyword = keyword
-        self._status_count = 0
-    def toggle(self, val):
-        if val:
-            self._status_count += 1
-            if self._status_count == 1:
-                for trigger in self.triggers:
-                    trigger.setup_trigger(self.source,self.playAbility)
-        else:
-            self._status_count -= 1
-            if self._status_count == 0:
-                for trigger in self.triggers:
-                    trigger.clear_trigger()
-    def enable(self, source):
-        self.source = source
-        self.toggle(True)
-    def disable(self):
-        self.toggle(False)
+        if keyword and not txt: txt = keyword.capitalize()
+        super(TriggeredAbility, self).__init__(txt)
+    def _enable(self):
+        for trigger in self.triggers:
+            trigger.setup_trigger(self.source,self.playAbility)
+    def _disable(self):
+        for trigger in self.triggers:
+            trigger.clear_trigger()
     def playAbility(self, **trigger_keys):
         ability = TriggeredStackAbility(self.effect_generator, trigger_keys, self.source, txt=self.txt)
         self.source.controller.stack.add_triggered(ability)
     def copy(self):
         return TriggeredAbility([t.copy() for t in self.triggers], self.effect_generator, self.zone, self.txt)
-    def __str__(self):
-        return self.txt
-    def __repr__(self): return "%s<%s %o: %s>"%('*' if self.enabled else '', self.__class__.__name__, id(self), self.txt)
 
 class SpecialTriggeredAbility(TriggeredAbility):
     def __init__(self, triggers, effects, special_funcs, zone="battlefield", txt='', keyword=''):
         super(SpecialTriggeredAbility, self).__init__(triggers, effects, zone, txt, keyword)
         self.buildup, self.teardown = special_funcs
-    def toggle(self, val):
-        if val: self.buildup(self.source)
-        else: self.teardown(self.source)
-        super(SpecialTriggeredAbility, self).toggle(val)
+    def _enable(self):
+        self.buildup(self.source)
+        super(SpecialTriggeredAbility, self)._enable()
+    def _disable(self):
+        self.teardown(self.source)
+        super(SpecialTriggeredAbility, self)._disable()
     def copy(self):
         newcopy = super(SpecialTriggeredAbility, self).copy()
         newcopy.buildup, newcopy.teardown = self.buildup, self.teardown

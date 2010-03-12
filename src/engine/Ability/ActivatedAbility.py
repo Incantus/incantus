@@ -8,13 +8,12 @@ class CostAbility(StackAbility):
     zone = "battlefield"
     limit_type = no_limit   # This is because if instantiate when the class is created, all the signalling is cleared
     def __init__(self, effects, limit=None, zone=None, txt='', keyword=''):
-        super(CostAbility,self).__init__(effects, txt=txt)
         if limit: self.limit = limit
         else: self.limit = self.limit_type
         if zone: self.zone = zone
-        if keyword and not txt: self.txt = keyword.capitalize()
         self.keyword = keyword
-        self._status_count = 0
+        if keyword and not txt: txt = keyword.capitalize()
+        super(CostAbility,self).__init__(effects, txt=txt)
     def playable(self):
         return self.enabled and self.limit(self.source)
     def do_announce(self):
@@ -40,17 +39,6 @@ class CostAbility(StackAbility):
     def get_cost(self):
         cost = self.effects.next()
         self.cost = cost
-    def __str__(self):
-        return self.txt
-
-    enabled = property(fget=lambda self: self._status_count > 0)
-    def enable(self, source):
-        self.source = source
-        self.toggle(True)
-    def disable(self): self.toggle(False)
-    def toggle(self, val):
-        if val: self._status_count += 1
-        else: self._status_count -= 1
 
 class ActivatedAbility(CostAbility):
     activated = True
@@ -59,7 +47,6 @@ class ActivatedAbility(CostAbility):
         copy = self.copy()
         copy.controller = player
         return copy.announce()
-    def __repr__(self): return "%s<%s %o: %s>"%('*' if self.enabled else '', self.__class__.__name__, id(self), self.txt)
 
 class ManaAbility(ActivatedAbility):
     mana_ability = True
