@@ -39,8 +39,6 @@ def get_all_objects():
   return olist
 
 
-debug = pdb
-
 def grouper(n, iterable, padvalue=None):
     "grouper(3, 'abcdefg', 'x') --> ('a','b','c'), ('d','e','f'), ('g','x','x')"
     return izip(*[chain(iterable, repeat(padvalue, n-1))]*n)
@@ -81,7 +79,8 @@ def text_input(msg):
     while True:
         text = raw_input(printer.prefix+msg)
         if (text and text[0] == '!'): # Helper functions
-            if text == "!d": debug.set_trace()
+            if text == "!d": pdb.set_trace()
+            elif text == "!pu": pudb.set_trace()
             elif text[:2] == "!c":
                 try:
                     card = card_map.get(int(text[2:]), None)
