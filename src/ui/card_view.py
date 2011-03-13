@@ -309,7 +309,7 @@ class StackView(CardView):
         if isinstance(ability, CastSpell): func = CardLibrary.CardLibrary.getStackCard
         elif isinstance(ability, ActivatedAbility): func = CardLibrary.CardLibrary.getActivatedCard
         else: func = CardLibrary.CardLibrary.getTriggeredCard
-        newcard = func(ability.source)
+        newcard = func(ability.source, str(ability))
         newcard.ability = ability
         newcard.alpha = anim.animate(0, 0.5, startt=startt, dt=1.0, method="ease_out_circ")
         return self.add_ability(newcard, startt)
