@@ -7,7 +7,7 @@ from pyglet import font
 import anim
 import euclid
 from anim_euclid import AnimatedVector3, AnimatedQuaternion
-from resources import ImageCache, fontname
+from resources import ImageCache, render_9_part, fontname as global_fontname
 class Widget(anim.Animable):
     def pos():
         def fget(self): return euclid.Vector3(self._pos.x, self._pos.y, self._pos.z)
@@ -33,7 +33,6 @@ class Widget(anim.Animable):
 
     def __init__(self, pos=euclid.Vector3(0,0,0)):
         self._pos = AnimatedVector3(pos)
-        self._pos.set_transition(dt=0.5, method="linear")
         self.orig_pos = pos
         self.visible = anim.animate(0, 1, dt=1.0)
         self.rotatex = anim.animate(0,0,dt=1.0)
@@ -49,9 +48,9 @@ class Widget(anim.Animable):
         if self.visible > 0:
             glPushMatrix()
             glTranslatef(self.pos.x, self.pos.y, self.pos.z)
-            glRotatef(self.rotatex, 1, 0, 0)
-            glRotatef(self.rotatey, 0, 1, 0)
-            glRotatef(self.rotatez, 0, 0, 1)
+            #glRotatef(self.rotatex, 1, 0, 0)
+            #glRotatef(self.rotatey, 0, 1, 0)
+            #glRotatef(self.rotatez, 0, 0, 1)
             glScalef(self.scale, self.scale, self.scale)
             self.render_after_transform()
             glPopMatrix()
@@ -67,7 +66,6 @@ class Image(Widget):
         else: self.img = value
         self.alpha = anim.animate(1.0,1.0,dt=1,method="sine")
         self.color = (1.0, 1.0, 1.0)
-        self._pos.set_transition(dt=0.5, method="ease_out_back")
         self._scale = anim.animate(self._final_scale, self._final_scale, dt=0.25, method="sine")
     def render_after_transform(self):
         glColor4f(self.color[0], self.color[1], self.color[2], self.alpha)
@@ -87,7 +85,7 @@ class Label(Widget):
         return locals()
     value = property(**value())
 
-    def __init__(self, value, size=20, color=(1,1,1,1), shadow=True, halign="left", valign="bottom", background=False, pos=euclid.Vector3(0,0,0), border=False, width=None):
+    def __init__(self, value, size=20, color=(1,1,1,1), shadow=True, halign="left", valign="bottom", background=False, pos=euclid.Vector3(0,0,0), border=False, width=None, fontname=None):
         super(Label,self).__init__(pos)
         self._fixed_width = width
         self._value = None
@@ -96,10 +94,9 @@ class Label(Widget):
         self.valign = valign
         self.background = background
         self.color = color
-        self.fontname = fontname
+        self.fontname = fontname if fontname else global_fontname
         self.size = size
         self.font = font.load(self.fontname, self.size, dpi=96)
-        self._pos.set_transition(dt=0.5, method="ease_out_back")
         self.visible = anim.constant(1)
         self.render_border = border
         self.border = 5
@@ -123,22 +120,10 @@ class Label(Widget):
         elif self.halign == "center": x = -width/2
         if self.valign == "top": y = -height
         elif self.valign == "center": y = -height/2
-        glDisable(GL_TEXTURE_2D)
-        glColor4f(0.1, 0.1, 0.1, 0.8)
-        glBegin(GL_QUADS)
-        glVertex2f(x-border,y-border)
-        glVertex2f(x+width+border,y-border)
-        glVertex2f(x+width+border,y+height+border)
-        glVertex2f(x-border,y+height+border)
-        glEnd()
-        glColor4f(0, 0, 0, 1)
-        glBegin(GL_LINE_LOOP)
-        glVertex2f(x-border,y-border)
-        glVertex2f(x+width+border,y-border)
-        glVertex2f(x+width+border,y+height+border)
-        glVertex2f(x-border,y+height+border)
-        glEnd()
-        glEnable(GL_TEXTURE_2D)
+
+        x -= border; y -= border
+        w = width+2*border; h = height+2*border
+        render_9_part("box2", w, h, x, y)
     def render_after_transform(self):
         if not self._value: return
         if self.background or self.render_border:
@@ -147,5 +132,4 @@ class Label(Widget):
         if self.shadow:
             self.shadow.draw()
             glTranslatef(-0.1*(self.width/(self.scale*len(self.value))), 0.1*(self.main_text.height/self.scale), 0.001)
-            # XXX Deprecated in pyglet 1.1 glTranslatef(-0.1*(self.width/(self.scale*len(self.value))), 0.1*(self.main_text.line_height/self.scale), 0.001)
         self.main_text.draw()
