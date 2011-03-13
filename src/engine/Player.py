@@ -493,7 +493,8 @@ class Player(MtGObject):
             if not isPlayer(sel) and sel.controller == self: return action
             else: return False
 
-        context = {"get_ability": True, "process": convert_gui_action}
+        #context = {"get_ability": True, "process": convert_gui_action}
+        context = {"get_choice": True, 'msg': prompt, 'notify': True, 'options': 'Pass Priority', 'process': convert_gui_action}
         # This loop seems really ugly - is there a way to structure it better?
         passed = False
         while True:
