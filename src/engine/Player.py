@@ -81,7 +81,7 @@ class Player(MtGObject):
         raise GameOverException()
     def add_mana(self, *amount):
         if len(amount) > 1:
-            amount = self.make_selection(amount, 1, prompt="Choose mana to add")
+            amount = self.make_selection([('Add {%s}'%c, c) for c in amount], 1, prompt="Choose mana to add")
         else: amount = amount[0]
         # XXX This is a bit hacky - used by, ex Calciform Pools
         # Add X mana in any combination of W and/or U to your manapool
@@ -474,7 +474,7 @@ class Player(MtGObject):
             else: return False
         
         context = {"get_ability": True, "process": convert_gui_action}
-        prompt = "Need %s - play mana abilities (Esc to cancel)"%required
+        prompt = "Need %s - play mana abilities (Esc to cancel)"%"".join(['{%s}'%r for r in required])
         # This loop seems really ugly - is there a way to structure it better?
         cancel = False    # This is returned - it's a way to back out of playing an ability
         while True:

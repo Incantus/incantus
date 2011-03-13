@@ -41,7 +41,7 @@ def enter_tapped(self):
     '''Enters the battlefield tapped'''
     self.tapped = True
 
-def enters_battlefield_tapped(txt=""):
+def enters_battlefield_tapped(txt="~ enters the battlefield tapped."):
     return enters_battlefield_with(enter_tapped, txt)
 
 no_before = lambda source: True

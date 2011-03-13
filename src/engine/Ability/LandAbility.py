@@ -13,4 +13,4 @@ def basic_mana_ability(subtype, subtype_to_mana=dict(zip([Plains,Island,Swamp,Mo
         yield NoTarget()
         controller.add_mana(color)
         yield
-    return ManaAbility(effects, txt="T: Add %s to your mana pool"%color)
+    return ManaAbility(effects, txt="{T}: Add {%s} to your mana pool"%color)

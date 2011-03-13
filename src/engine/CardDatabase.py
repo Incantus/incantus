@@ -78,7 +78,7 @@ def execCode(card, code):
 
     # Build default characteristics
     card.base_name = card.name
-    card.base_text = code
+    card.base_text = '\n'.join(card.text) if hasattr(card, "text") else ""
     # characteristics
     for char_name in ["color", "types", "subtypes", "supertypes"]:
         if hasattr(card, char_name):

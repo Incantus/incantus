@@ -143,7 +143,7 @@ class ManaCost(Cost):
         elif isinstance(other, Cost): return MultipleCosts([self, other])
     def __str__(self):
         coststr = self.cost
-        if self.hasX(): coststr += ",(X=%d)"%self.X
+        #if self.hasX(): coststr += ",(X=%d)"%self.X
         return coststr
     def __cmp__(self, value):
         return cmp(self.converted_mana_cost(), value)
