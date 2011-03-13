@@ -48,9 +48,9 @@ class Widget(anim.Animable):
         if self.visible > 0:
             glPushMatrix()
             glTranslatef(self.pos.x, self.pos.y, self.pos.z)
-            #glRotatef(self.rotatex, 1, 0, 0)
-            #glRotatef(self.rotatey, 0, 1, 0)
-            #glRotatef(self.rotatez, 0, 0, 1)
+            glRotatef(self.rotatex, 1, 0, 0)
+            glRotatef(self.rotatey, 0, 1, 0)
+            glRotatef(self.rotatez, 0, 0, 1)
             glScalef(self.scale, self.scale, self.scale)
             self.render_after_transform()
             glPopMatrix()
