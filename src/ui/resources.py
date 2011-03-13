@@ -38,6 +38,14 @@ class ImageCache(object):
         status = ["exile", "graveyard", "library", "hand"]
         ImageCache._load_multi("status.png", status, 2, 2)
         ImageCache._load("life.png", "life")
+        ImageCache._load("9partbox1.png", "box1")
+        ImageCache._load("9partbox2.png", "box2")
+        ImageCache._load("9partbox3.png", "box3")
+        ImageCache._load("9partbox4.png", "box4")
+        ImageCache._load("9partbox5.png", "box5")
+        ImageCache._load("button1.png", "button1")
+        ImageCache._load("button2.png", "button2")
+        ImageCache._load("button3.png", "button3")
         status = ['Untap','Upkeep','Draw','Main1','BeginCombat','Attack','Block','Damage','EndCombat','Main2','EndStep','Cleanup']
         ImageCache._load_multi("phases.png", status, 4, 3)
         fx = ["ring", "spiral", "targeting", "glow"]
