@@ -50,14 +50,13 @@ class SparkFXManager(object):
         spark.scale = anim.animate(1.0, 1.3, dt=dt, method="sine")
         if dim == 2: self.active_sparks.append(spark)
         else: self.active_sparks_3d.append(spark)
-    def add_card_spark(self, card, start_pos, end_pos, dt=1.0, color=None, grow=False, dim=2):
-        spark = Image(card.front, pos=start_pos)
-        spark._final_scale = 0.5
-        spark._pos.set_transition(dt=dt, method="ease_out_circ") #ease_out_back")
+    def add_card_spark(self, card, start_pos, end_pos, size, dt=1.0, grow=False, dim=2):
+        spark = Image(card._texture, pos=start_pos)
+        spark._pos.set_transition(dt=dt, method="ease_in") #ease_out_back")
         spark.pos = end_pos
-        spark.visible = anim.animate(1., 0., dt=dt)
-        if grow: spark.scale = anim.animate(0.5, 1.0, dt=dt, method="sine")
-        else: spark.scale = anim.animate(1.5, 0.2, dt=dt, method="sine")
+        spark.visible = anim.animate(1., 0., dt=dt, method="step")
+        if grow: spark.scale = anim.animate(0.1, size, dt=dt, method="sine")
+        else: spark.scale = anim.animate(1.5, size, dt=dt, method="sine")
         if dim == 2: self.active_sparks.append(spark)
         else: self.active_sparks_3d.append(spark)
     def add_spark(self, start_pos, end_pos, dt=1.0, color=None, grow=False, dim=2):
@@ -131,11 +130,16 @@ class ZoneAnimator(object):
         self.board = board
         self.register()
     def register(self):
+        dispatcher.connect(self.new_turn, signal=GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
+
         dispatcher.connect(self.enter_zone, signal=GameEvent.CardEnteredZone(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.leave_zone, signal=GameEvent.CardLeftZone(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.enter_stack, signal=GameEvent.AbilityAnnounced(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.leave_stack, signal=GameEvent.AbilityRemovedFromStack(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.controller_changed, signal=GameEvent.ControllerChanged(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.end_combat, signal=GameEvent.EndCombatEvent(), priority=dispatcher.UI_PRIORITY)
+
+        dispatcher.connect(self.setup_redzone, signal=GameEvent.AttackStepEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.select_attacker, signal=GameEvent.AttackerSelectedEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.reset_attackers, signal=GameEvent.AttackersResetEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.declare_attackers, signal=GameEvent.DeclareAttackersEvent(), priority=dispatcher.UI_PRIORITY)
@@ -143,7 +147,6 @@ class ZoneAnimator(object):
         dispatcher.connect(self.reset_blockers, signal=GameEvent.BlockersResetEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.reorder_blockers, signal=GameEvent.BlockersReorderedEvent(), priority=dispatcher.UI_PRIORITY)
 
-        dispatcher.connect(self.end_combat, signal=GameEvent.EndCombatEvent())
         dispatcher.connect(self.card_damage, signal=GameEvent.DealsDamageToEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.player_life, signal=GameEvent.LifeGainedEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.player_life, signal=GameEvent.LifeLostEvent(), priority=dispatcher.UI_PRIORITY)
@@ -153,6 +156,10 @@ class ZoneAnimator(object):
         dispatcher.connect(self.deselect_all, signal=GameEvent.AllDeselectedEvent(), priority=dispatcher.UI_PRIORITY)
     def project_to_window(self, x, y, z):
         return self.window.camera.project_to_window(x, y, z)
+    def new_turn(self, sender, player):
+        if player == self.player: # local player
+            self.board.highlight = "bottom"
+        else: self.board.highlight = "top"
     def invalid_target(self, sender, target):
         if isPlayer(target):
             pstatus, life = self.player_status[target]
@@ -204,21 +211,21 @@ class ZoneAnimator(object):
         if amount < 0: color = (1, 0, 0, 1)
         else: color = (1, 1, 1, 1)
         self.sparks.add_number_spark(amount, start_pos, end_pos, dt=1.0, color=color, dim=2)
+    def setup_redzone(self, player):  # active player
+        play_zones = self.play_zones.values()
+        attack_zone = self.play_zones[player]
+        play_zones.remove(attack_zone)
+        block_zone = play_zones[0]
+        self.red_zone = CombatZone(attack_zone, block_zone)
+        self.board.render_redzone = True
+        self.red_zone.setup_attack_zone()
+        self.red_zone.setup_block_zone()
     def select_attacker(self, sender, attacker):
-        if not self.red_zone:
-            play_zones = self.play_zones.values()
-            attack_zone = self.play_zones[sender]
-            play_zones.remove(attack_zone)
-            block_zone = play_zones[0]
-            self.red_zone = CombatZone(attack_zone, block_zone)
-            self.board.render_redzone = True
-            self.red_zone.setup_attack_zone()
-            self.red_zone.setup_block_zone()
         self.red_zone.add_attacker(attacker)
     def reset_attackers(self):
-        if self.red_zone: self.red_zone.reset_attackers()
+        self.red_zone.reset_attackers()
     def declare_attackers(self):
-        if self.red_zone: self.red_zone.declare_attackers()
+        self.red_zone.declare_attackers()
     def reorder_blockers(self, sender, attacker, blockers):
         self.red_zone.reorder_blockers_for_attacker(attacker, blockers)
     def select_blocker(self, sender, attacker, blocker):
@@ -247,6 +254,7 @@ class ZoneAnimator(object):
         if start_pos:
             guicard = self.stack.announce(ability, 0.5)
             end_pos = self.stack.pos + guicard.pos
+            #self.sparks.add_card_spark(guicard, start_pos, end_pos, size=0.4, dt=0.5, grow=True)
             self.sparks.add_spark(start_pos, end_pos, grow=True, dt=0.6, color=str(card.color))
         else: self.stack.announce(ability)
     def leave_stack(self, sender, ability):
