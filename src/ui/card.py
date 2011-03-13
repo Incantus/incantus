@@ -6,15 +6,21 @@
 __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
-import math
+import math, re, itertools
 from pyglet.gl import *
+import ctypes
 
 import anim
 import euclid
 from anim_euclid import AnimatedVector3, AnimatedQuaternion
 from widget import Label
-from resources import ColorDict
+from resources import ColorDict, ImageCache
 from counter import Counter
+import mtg_decoder
+
+from engine.symbols import Creature, Land, Artifact
+from engine.GameEvent import TypesModifiedEvent, TimestepEvent, PowerToughnessModifiedEvent, CounterAddedEvent, CounterRemovedEvent
+from engine.pydispatch import dispatcher
 
 #from foil import foil
 
@@ -53,6 +59,8 @@ class Card(anim.Animable):
 
     vertlist = None
     cardlist = None
+    renderlist = None
+    fbo = None
 
     def __init__(self, gamecard, front, back):
         self.gamecard = gamecard
@@ -66,15 +74,263 @@ class Card(anim.Animable):
         self._orientation = AnimatedQuaternion()
         self.visible = anim.constant(1.0)
         self.alpha = anim.constant(1.0)
-        if not Card.cardlist: self.build_displaylist()
-    def build_displaylist(self):
+        if not Card.cardlist: Card.cardlist = self.build_displaylist(self.width, self.height)
+        self.renderwidth, self.renderheight = 736, 1050
+        self.renderwidth, self.renderheight = 368, 525
+        if not Card.fbo: self.build_fbo()
+        if not Card.renderlist: Card.renderlist = self.build_renderlist(self.renderwidth, self.renderheight)
+    def build_fbo(self):
+        id = ctypes.c_uint()
+        glGenFramebuffersEXT(1, ctypes.byref(id))
+        fbo = id.value
+        
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo)
+        
+        width, height = self.renderwidth, self.renderheight
+        #img = pyglet.image.Texture.create(self.width, self.height, force_rectangle=True)
+        img = pyglet.image.Texture.create(width, height, force_rectangle=True)
+        #glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, img.target, img.id, 0);
+        #glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        #glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        #glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        #glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        
+        #status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)
+        #if not status == GL_FRAMEBUFFER_COMPLETE_EXT:
+        #    raise Exception()
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+        Card.fbo = fbo
+        Card._img = img
+    def del_fbo(self):
+        glDeleteFramebuffersEXT(1, self.fbo)
+
+    def render_extra(self, width, height): pass
+    def render(self, img=None):
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, self.fbo)
+        if not img: img = Card._img
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, img.target, img.id, 0);
+        width, height = self.renderwidth, self.renderheight
+        #//-------------------------
+        glPushAttrib(GL_VIEWPORT_BIT);
+        glViewport(0, 0, width, height)
+        glPushAttrib(GL_TRANSFORM_BIT);
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()
+        glLoadIdentity()
+        glMatrixMode(GL_PROJECTION)
+        glPushMatrix()
+        glLoadIdentity()
+        glOrtho(0.0, width, 0.0, height, -1.0, 1.0)
+        
+        glClearColor(1.,1.,1.,1.)
+        glClear(GL_COLOR_BUFFER_BIT)
+        
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        
+        gamecard = self.gamecard
+        cmap = dict(zip(["White", "Blue", "Black", "Red", "Green"], "WUBRG"))
+        cmap1 = dict(zip("WUBRG", range(5)))
+        colors = tuple(sorted([cmap[str(c)] for c in gamecard.color], key=lambda c:cmap1[c]))
+        num_colors = len(colors)
+
+        blend_color = None
+        overlay_color = None
+        overlay_blend = None
+        final_overlay = None
+        if gamecard.types == Land:
+            frame = ImageCache.get_texture("frames/Land.png")
+            abilities = map(str,gamecard.abilities)
+            mana = list(itertools.chain(*[re.findall("{([WUBRG])}", a) for a in abilities if "Add " in a]))
+            num_colors = len(mana)
+            if num_colors == 0: pass
+            elif num_colors <= 2:
+                overlay_color = mana[0]
+                if num_colors == 2: 
+                    overlay_blend = mana[1]
+                    final_overlay = "C"
+            else:
+                overlay_color = "Gld"
+
+        elif gamecard.types == Artifact:
+            frame = ImageCache.get_texture("frames/Art.png")
+            if num_colors == 1: overlay_color = colors[0]
+            elif num_colors == 2:
+                overlay_color, overlay_blend = colors
+                final_overlay = "Gld"
+            elif num_colors > 2:
+                overlay_color = "Gld"
+        else:
+            if num_colors == 0:
+                frame = ImageCache.get_texture("frames/C.png")
+            elif num_colors == 1:
+                frame = ImageCache.get_texture("frames/%s.png"%colors[0])
+            else:
+                frame = ImageCache.get_texture("frames/Gld.png")
+                if num_colors == 2:
+                    overlay_color, overlay_blend = colors
+                    final_overlay = "Gld"
+
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        frame.blit(0,0)
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
+   
+        def blend(texture):
+            first_p = 0.35*width
+            second_p = width-first_p
+        
+            start, end = second_p, width
+            glEnable(texture.target)
+            glBindTexture(texture.target, texture.id)
+            glBegin(GL_QUADS)
+            glColor4f(1., 1., 1., 1.0)
+            glTexCoord2f(start, 0)
+            glVertex3f(start, 0, 0)
+            glTexCoord2f(end, 0)
+            glVertex3f(end, 0, 0)
+            glTexCoord2f(end, height)
+            glVertex3f(end, height, 0)
+            glTexCoord2f(start, height)
+            glVertex3f(start, height, 0)
+
+            glColor4f(1., 1., 1., 0)
+            glTexCoord2f(first_p, 0)
+            glVertex3f(first_p, 0, 0)
+            glColor4f(1., 1., 1., 1)
+            glTexCoord2f(second_p, 0)
+            glVertex3f(second_p, 0, 0)
+            glColor4f(1., 1., 1., 1)
+            glTexCoord2f(second_p, height)
+            glVertex3f(second_p, height, 0)
+            glColor4f(1., 1., 1., 0)
+            glTexCoord2f(first_p, height)
+            glVertex3f(first_p, height, 0)
+
+            glEnd()
+            glDisable(texture.target)
+            glColor4f(1., 1., 1., 1.)
+        
+        if blend_color:
+            blend(ImageCache.get_texture("frames/%s.png"%blend_color))
+        
+        if overlay_color:
+            ImageCache.get_texture("overlays/%s.png"%overlay_color).blit(0,0)
+            if overlay_blend:
+                blend(ImageCache.get_texture("overlays/%s.png"%overlay_blend))
+        
+        if final_overlay:
+            ImageCache.get_texture("overlays/%s-overlay.png"%final_overlay).blit(0,0)
+       
+        # mana costs
+        mana_x, mana_y, diff_x = 0.885*width, 0.918*height, 0.057*width
+        mana = set("BCGRUWXYZ")
+        for c in str(gamecard.cost)[::-1]:
+            if c in mana: 
+                ImageCache.get(c).blit(mana_x, mana_y)
+            else: 
+                ImageCache.get("C").blit(mana_x, mana_y)
+                pyglet.text.Label(c,
+                   font_name="MPlantin", font_size=0.047*width,
+                   color=(0,0,0,255),
+                   x=mana_x+0.012*width, y=mana_y+0.007*height).draw()
+
+            mana_x -= diff_x
+
+        # expansion symbol
+        exp = ImageCache.get_texture("sets/M10_C.png")
+        exp.blit(0.842*width, 0.388*height)
+
+
+        if gamecard.types == Creature:
+            if num_colors == 0: 
+                if gamecard.types == Artifact: pt = ImageCache.get_texture("pt/Art.png")
+                else: pt = ImageCache.get_texture("pt/C.png")
+            elif num_colors == 1: pt = ImageCache.get_texture("pt/%s.png"%colors[0])
+            elif num_colors > 1:
+                if final_overlay: col = final_overlay
+                elif overlay_color: col = overlay_color
+                else: col = "Gld"
+                pt = ImageCache.get_texture("pt/%s.png"%col)
+
+            pt.blit(0,0)
+        
+            ptbox = pyglet.text.Label('%s/%s'%(gamecard.power, gamecard.toughness),
+                              font_name="MatrixBoldSmallCaps", font_size=0.0489*width,
+                              color=(0,0,0,255),
+                              x=0.853*width, y=0.050*height,
+                              anchor_x="center", anchor_y="baseline")
+
+            ptbox.draw()
+        
+        # draw card image
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        self.front.get_region(8, 125, 185, 135).blit(0.054*width, 0.4428*height, width=0.889*width, height=0.4619*height)
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
+
+        # card text
+        name = unicode(gamecard.name)
+        name_label = pyglet.text.Label(name,
+                          font_name="MatrixBold", font_size=0.047*width,
+                          color=(0,0,0,255),
+                          x=0.0652*width, y=0.925*height)
+        supertypes = unicode(gamecard.supertypes)
+        types = unicode(gamecard.types)
+        subtypes = unicode(gamecard.subtypes)
+        typeline = u""
+        if supertypes: typeline += supertypes + " "
+        typeline += types
+        if subtypes: typeline += u" \u2014 " + subtypes
+        type_label = pyglet.text.Label(typeline,
+                          font_name="MatrixBold", font_size=0.0407*width,
+                          color=(0,0,0,255),
+                          x=0.0733*width, y=0.395*height)
+        text = unicode("\n\n".join([str(a).replace("~", name) for a in list(gamecard.abilities)[:4]]))
+        if text:
+            document = mtg_decoder.decode_text(text)
+            document.set_style(0, len(document.text), dict(font_name='MPlantin', font_size=0.038*width, color=(0,0,0,255)))
+            textbox = pyglet.text.DocumentLabel(document,
+                              multiline=True, width=width*0.85,
+                              x=width/2, y=height*.23,
+                              anchor_x="center", anchor_y="center")
+            textbox.draw()
+
+        for text in [name_label, type_label]:
+            text.draw()
+
+        self.render_extra(width, height)
+        
+        glPopMatrix()
+        glMatrixMode(GL_MODELVIEW)
+        glPopMatrix()
+        
+        glPopAttrib()
+        glPopAttrib()
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0)
+        #self._img.save("temp.png")
+    def build_renderlist(self, width, height):
+        renderlist = glGenLists(1)
+        width, height = width/2, height/2
+        glNewList(renderlist, GL_COMPILE)
+        glBegin(GL_QUADS)
+        glTexCoord2f(0, 0)
+        glVertex3f(-width, -height, 0)
+        glTexCoord2f(width*2, 0)
+        glVertex3f(width, -height, 0)
+        glTexCoord2f(width*2, height*2)
+        glVertex3f(width, height, 0)
+        glTexCoord2f(0, height*2)
+        glVertex3f(-width, height, 0)
+        glEnd()
+        glEndList()
+        return renderlist
+
+    def build_displaylist(self, width, height):
         cls = Card
-        width = self.width/2.0; height=self.height/2.0
-        cls.vertlist = [euclid.Point3(-width, -height, 0), euclid.Point3(width, -height, 0), euclid.Point3(width, height, 0), euclid.Point3(-width, height, 0)]
-        vertlist = cls.vertlist
+        width, height = width/2.0, height/2.0
+        vertlist = [euclid.Point3(-width, -height, 0), euclid.Point3(width, -height, 0), euclid.Point3(width, height, 0), euclid.Point3(-width, height, 0)]
+        cls.vertlist = vertlist
         tc = self._texture.tex_coords
         cardlist = glGenLists(1)
-        cls.cardlist = cardlist
         glNewList(cardlist, GL_COMPILE)
         glBegin(GL_QUADS)
         glTexCoord2f(tc[0], tc[1])
@@ -87,6 +343,7 @@ class Card(anim.Animable):
         glVertex3f(*tuple(vertlist[3]))
         glEnd()
         glEndList()
+        return cardlist
     def shake(self):
         self._pos.set_transition(dt=0.25, method=lambda t: anim.oscillate_n(t, 3))
         self.pos += euclid.Vector3(0.05, 0, 0)
@@ -134,20 +391,31 @@ class StackCard(Card):
     highlighting = anim.Animatable()
     borderedlist = None
     COLORS = ColorDict()
-    def __init__(self, gamecard, front, back, bordered=False, border=None):
+    def __init__(self, gamecard, front, back, text="", style="regular"):
         super(StackCard,self).__init__(gamecard,front,back)
-        self.highlighting = anim.animate(0, 0, dt=0.2)
+        self.highlighting = anim.animate(0, 0, dt=0.2, method="step")
         self.size = anim.animate(self.size, self.size, dt=0.2, method="sine")
         self.alpha = anim.animate(0, 0, dt=1.0, method="ease_out_circ")
-        #self.color = self.COLORS.get(str(gamecard.color))
-        colors = self.COLORS.get_multi(str(gamecard.color))
-        if len(colors) == 1: self.color = colors[0]
+        self.style = style
+        self.stackwidth, self.stackheight = 368, 414
+        if self.style == "regular":
+            self._texture = pyglet.image.Texture.create(self.renderwidth, self.renderheight, force_rectangle=True)
+            self.render(self._texture)
         else:
-            self.color = colors
-            self.draw = self.draw_multi
-        self.bordered = bordered
-        self.border = border
-        if bordered and not StackCard.borderedlist: self.build_borderedlist()
+            self._texture = pyglet.image.Texture.create(self.stackwidth, self.stackheight, force_rectangle=True)
+            self.text = text
+            self.render_special()
+        if not StackCard.borderedlist: StackCard.borderedlist = self.build_renderlist(self.stackwidth, self.stackheight)
+        
+        #self.color = self.COLORS.get(str(gamecard.color))
+        #colors = self.COLORS.get_multi(str(gamecard.color))
+        #if len(colors) == 1: self.color = colors[0]
+        #else:
+        #    self.color = colors
+        #    self.draw = self.draw_multi
+        #self.bordered = bordered
+        #self.border = border
+        #if bordered and not StackCard.borderedlist: self.build_borderedlist()
     def build_borderedlist(self):
         cls = StackCard
         width = self.border.width/2.0; height=self.border.height/2.0
@@ -186,6 +454,104 @@ class StackCard(Card):
         glTexCoord2f(tc[9], tc[10])
         glVertex3f(*tuple(vertlist[3]))
         glEnd()
+    def render_special(self):
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, self.fbo)
+        img = self._texture
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, img.target, img.id, 0);
+
+        width, height = self.stackwidth, self.stackheight
+        #//-------------------------
+        glPushAttrib(GL_VIEWPORT_BIT);
+        glViewport(0, 0, width, height)
+        glPushAttrib(GL_TRANSFORM_BIT);
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()
+        glLoadIdentity()
+        glMatrixMode(GL_PROJECTION)
+        glPushMatrix()
+        glLoadIdentity()
+        glOrtho(0.0, width, 0.0, height, -1.0, 1.0)
+        
+        glClearColor(1.,1.,1.,1.)
+        glClear(GL_COLOR_BUFFER_BIT)
+
+        # draw card image
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        
+        glColor4f(1., 1., 1., 1.0)
+        #art = self.front.get_region(8, 125, 185, 135)
+        #art.blit(0.054*width, 0.2428*height, width=0.889*width, height=0.5857*height)
+       
+        blend_frac = 0.5
+        blend_y = blend_frac*135
+        artsolid = self.front.get_region(8, 125+blend_y, 185, 135-blend_y)
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        artsolid.blit(0.054*width, 0.54564*height, width=0.889*width, height=(0.5857*height)*blend_frac)
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
+
+        artfade = self.front.get_region(8, 125, 185, blend_y)
+    
+        tc = artfade.tex_coords
+        glEnable(artfade.target)
+        glBindTexture(artfade.target, artfade.id)
+        glBegin(GL_QUADS)
+        glColor4f(1., 1., 1., 0.0)
+        glTexCoord2f(tc[0], tc[1])
+        glVertex3f(0.054*width, 0.2428*height, 0)
+        glTexCoord2f(tc[3], tc[4])
+        glVertex3f(0.943*width, 0.2428*height, 0)
+        glColor4f(1., 1., 1., 1.0)
+        glTexCoord2f(tc[6], tc[7])
+        glVertex3f(0.943*width, 0.54564*height, 0) 
+        glTexCoord2f(tc[9], tc[10])
+        glVertex3f(0.054*width, 0.54564*height, 0)
+        glEnd()
+        glDisable(artfade.target)
+
+        x, y, x2, y2 = 20, 44, 345, 152
+        glBegin(GL_QUADS)
+        glColor4f(1., 1., 1., 1.0)
+        glVertex3f(x, y, 0)
+        glVertex3f(x2, y, 0)
+        glColor4f(1., 1., 1., 0.0)
+        glVertex3f(x2, y2, 0)
+        glVertex3f(x, y2, 0)
+        glEnd()
+
+        glColor4f(1., 1., 1., 1.)
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        ImageCache.get_texture("frames/Gld-stack.png").blit(0,0)
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
+
+        name = str(self.gamecard.name)
+        header = "%s ability of\n%s"%(self.style.capitalize(), name)
+        document = pyglet.text.decode_text(header)
+        document.set_style(0, len(document.text), dict(font_name="MatrixBold",
+                          font_size=0.047*width, leading=0, color=(0,0,0,255)))
+        namebox = pyglet.text.DocumentLabel(document, multiline=True,
+                          width = width*0.85,
+                          x = width/2.05, y=0.905*height,
+                          anchor_x="center", anchor_y="baseline")
+
+        document = mtg_decoder.decode_text(self.text.replace('~', name))
+        document.set_style(0, len(document.text), dict(bold=True, font_name="MPlantin", font_size=0.0353*width, color=(0,0,0,255)))
+        textbox = pyglet.text.DocumentLabel(document,
+                              multiline=True, width=width*0.85,
+                              x=width/2, y=height*.23,
+                              anchor_x="center", anchor_y="center")
+
+        for text in [namebox, textbox]:
+            text.draw()
+        
+        glPopMatrix()
+        glMatrixMode(GL_MODELVIEW)
+        glPopMatrix()
+        
+        glPopAttrib()
+        glPopAttrib()
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0)
+        #img.save("temp2.png")
     def highlight(self):
         if self.highlighting == 0:
             self.highlighting = anim.animate(0,1,dt=0.75)
@@ -204,12 +570,13 @@ class StackCard(Card):
             glEnable(self._texture.target)
             glBindTexture(self._texture.target, self._texture.id)
             glColor4f(1, 1, 1, self.alpha)
-            glCallList(self.cardlist)
-            if self.bordered:
-                color = self.color
-                glBindTexture(self.border.target, self.border.id)
-                glColor4f(color[0], color[1], color[2], self.alpha)
-                glCallList(self.borderedlist)
+            if self.style == "regular": glCallList(self.renderlist)
+            else: glCallList(self.borderedlist)
+            #if self.bordered:
+            #    color = self.color
+            #    glBindTexture(self.border.target, self.border.id)
+            #    glColor4f(color[0], color[1], color[2], self.alpha)
+            #    glCallList(self.borderedlist)
             glDisable(self._texture.target)
             glPopMatrix()
     def draw_multi(self):
@@ -229,9 +596,6 @@ class StackCard(Card):
             glDisable(self._texture.target)
             glPopMatrix()
 
-from engine.Match import isCreature
-from engine.GameEvent import TypesModifiedEvent, TimestepEvent, PowerToughnessModifiedEvent, CounterAddedEvent, CounterRemovedEvent
-from engine.pydispatch import dispatcher
 class PlayCard(Card):
     tapping = anim.Animatable()
     zooming = anim.Animatable()
@@ -247,14 +611,15 @@ class PlayCard(Card):
         super(PlayCard, self).__init__(gamecard, front, back)
         self.is_creature = False
         self.draw = self.draw_permanent
-        self.info_box = Label("", size=12, background=True, shadow=False, valign="top")
-        self.info_box._pos.set_transition(dt=0.4, method="sine")
-        self.info_box.pos = euclid.Vector3(self.width/2+self.info_box.border, self.height/2-self.info_box.border, 0.005)
-        self.info_box.visible = False
+        #self.info_box = Label("", size=12, background=True, shadow=False, valign="top")
+        #self.info_box._pos.set_transition(dt=0.4, method="sine")
+        #self.info_box.pos = euclid.Vector3(self.width/2+self.info_box.border, self.height/2-self.info_box.border, 0.005)
+        #self.info_box.visible = False
     def type_modified(self, sender):
-        if isCreature(self.gamecard) and not self.is_creature:
+        is_creature = self.gamecard.types == Creature
+        if is_creature and not self.is_creature:
             self.setup_creature_role()
-        elif not isCreature(self.gamecard) and self.is_creature:
+        elif not is_creature and self.is_creature:
             self.remove_creature_role()
     def setup_creature_role(self):
         self.is_creature = True
@@ -269,17 +634,17 @@ class PlayCard(Card):
         self.text = Label("", size=34, background=True, shadow=False, halign="center", valign="center")
         #self.text._scale = anim.animate(0, 2.0, dt=0.25, method="sine")
         self.text.scale = 2.0
-        self.text._pos.set(euclid.Vector3(0,0,0)) #_transition(dt=0.25, method="sine")
+        #self.text._pos.set(euclid.Vector3(0,0,0)) #_transition(dt=0.25, method="sine")
         self.text.orig_pos = euclid.Vector3(0,-self.height*0.25,0.001)
         self.text.zoom_pos = euclid.Vector3(self.width*1.375,-self.height*0.454, 0.01)
         self.text.pos = self.text.orig_pos
-        self.damage_text = Label("", size=34, background=True, shadow=False, halign="center", valign="center", color=(1., 0., 0., 1.))
+        #self.damage_text = Label("", size=34, background=True, shadow=False, halign="center", valign="center", color=(1., 0., 0., 1.))
         #self.damage_text._scale = anim.animate(0.0, 0.0, dt=0.25, method="sine")
-        self.damage_text.scale = 0.4
-        self.damage_text.visible = 0
-        self.damage_text._pos.set(euclid.Vector3(0,0,0)) #_transition(dt=0.25, method="sine")
-        self.damage_text.zoom_pos = euclid.Vector3(self.width*(1-.375),-self.height*0.454, 0.01)
-        self.damage_text.pos = self.damage_text.zoom_pos
+        #self.damage_text.scale = 0.4
+        #self.damage_text.visible = 0
+        #self.damage_text._pos.set(euclid.Vector3(0,0,0)) #_transition(dt=0.25, method="sine")
+        #self.damage_text.zoom_pos = euclid.Vector3(self.width*(1-.375),-self.height*0.454, 0.01)
+        #self.damage_text.pos = self.damage_text.zoom_pos
         self.change_value()
         self.draw = self.draw_creature
         dispatcher.connect(self.change_value, signal=TimestepEvent())
@@ -291,13 +656,13 @@ class PlayCard(Card):
         self.is_tapped = False
         self.tapping = anim.animate(0, 0, dt=0.3)
         self.highlighting = anim.animate(0, 0, dt=0.2)
-        self.zooming = anim.animate(0, 0, dt=0.4)
+        self.zooming = anim.animate(0, 0, dt=0.2)
         self.pos_transition = "ease_out_circ" #"ease_out_back"
         self._pos.set_transition(dt=0.4, method=self.pos_transition)
         #self._pos.y = anim.animate(guicard._pos.y, guicard._pos.y, dt=0.4, method="ease_out")
         self._orientation.set_transition(dt=0.3, method="sine")
         self.can_layout = True
-        if isCreature(self.gamecard): self.setup_creature_role()
+        if self.gamecard.types == Creature: self.setup_creature_role()
         # Check for counters
         dispatcher.connect(self.add_counter, signal=CounterAddedEvent(), sender=self.gamecard)
         dispatcher.connect(self.remove_counter, signal=CounterRemovedEvent(), sender=self.gamecard)
@@ -345,8 +710,8 @@ class PlayCard(Card):
         if not (self.power == p and self.toughness == t and self.damage == d):
             self.power, self.toughness, self.damage = p, t, d
             self.text.set_text("%d/%d"%(p, t-d))
-            if d > 0: self.damage_text.set_text("-%d"%d)
-            else: self.damage_text.set_text("")
+            #if d > 0: self.damage_text.set_text("-%d"%d)
+            #else: self.damage_text.set_text("")
     def tap(self):
         if self.tapping == 0.0:
             self.is_tapped = True
@@ -385,9 +750,11 @@ class PlayCard(Card):
         self._pos.set_transition(dt=0.4, method=self.pos_transition)
     def zoom_to_camera(self, camera, z, size=0.02, show_info = True, offset = euclid.Vector3(0,0,0)):
         if self.zooming == 0.0:
+            self._texture = self._img
+            self._old_list, self.cardlist = self.cardlist, self.renderlist
             self.zooming = 1.0
             self.old_pos = self.pos
-            self._pos.set_transition(dt=0.4, method="ease_out_back") #self.pos_transition)
+            self._pos.set_transition(dt=0.2, method="ease_out") #self.pos_transition)
             #self._pos.y = anim.animate(self._pos.y, self._pos.y, dt=0.4, method="sine")
             #self._orientation.set_transition(dt=0.5, method="sine")
             if show_info: offset = offset + euclid.Vector3(-self.width*size/2, 0, 0)
@@ -395,19 +762,22 @@ class PlayCard(Card):
             self.orig_orientation = self.orientation
             self.orientation = camera.orientation
             self.old_size = self.size
-            self.size = size
+            self.size = size*0.7
             if self.is_creature:
+                self.text.visible = False
                 self.text.set_text("%d/%d"%(self.power, self.toughness))
                 self.text.pos = self.text.zoom_pos
                 self.text.scale = 0.4
-                self.damage_text.visible = 1.0
-            if show_info:
-                self.info_box.visible = True
-                self.info_box.set_text('\n'.join(self.gamecard.info.split("\n")[:17]), width=self.width)
-                self.info_box._height = self.height-self.info_box.border
-            else: self.info_box.visible = False
+                #self.damage_text.visible = True
+            #if show_info:
+            #    self.info_box.visible = True
+            #    self.info_box.set_text('\n'.join(self.gamecard.info.split("\n")[:17]), width=self.width)
+            #    self.info_box._height = self.height-self.info_box.border
+            #else: self.info_box.visible = False
     def restore_pos(self):
         self.zooming = 0.0 #anim.animate(self.zooming, 0.0, dt=0.2)
+        self._texture = self.front
+        self.cardlist = self._old_list
         self._pos.set_transition(dt=0.4, method=self.pos_transition)
         #self._pos.y = anim.animate(self._pos.y, self._pos.y, dt=0.4, method="sine")
         # XXX old self._pos.set_transition(dt=0.2, method="ease_out_circ")
@@ -416,13 +786,22 @@ class PlayCard(Card):
         self.orientation = self.orig_orientation
         self.size = self.old_size
         if self.is_creature:
+            self.text.visible = True
             self.text.set_text("%d/%d"%(self.power, self.toughness - self.damage))
             self.text.pos = self.text.orig_pos
             self.text.scale = 2.0
-            self.damage_text.scale = 0.4
-            self.damage_text.pos = self.damage_text.zoom_pos
-            self.damage_text.visible = 0.0
-        self.info_box.visible = False
+            #self.damage_text.scale = 0.4
+            #self.damage_text.pos = self.damage_text.zoom_pos
+            #self.damage_text.visible = 0.0
+        #self.info_box.visible = False
+    def render_extra(self, width, height):
+        if hasattr(self, "damage") and self.damage != 0:
+            ImageCache.get_texture("overlays/damage.png").blit(0.59*width,-0.01*height)
+            pyglet.text.Label("%d"%self.damage, 
+                              #font_name="MPlantin",
+                              font_size=0.073*width,
+                              x = 0.69*width, y = 0.073*height,
+                              anchor_x="center", anchor_y="center").draw()
     def draw_permanent(self):
         if self.visible > 0:
             size = self.size
@@ -445,7 +824,7 @@ class PlayCard(Card):
             #foil.install()
             glCallList(self.cardlist)
             #foil.uninstall()
-            self.info_box.render()
+            #self.info_box.render()
             glDisable(self._texture.target)
             for c in self.counters: c.draw()
             glPopMatrix()
@@ -470,9 +849,9 @@ class PlayCard(Card):
             glBindTexture(self._texture.target, self._texture.id)
             glColor4f(self.alpha, self.alpha, self.alpha, self.alpha)
             glCallList(self.cardlist)
-            self.info_box.render()
+            #self.info_box.render()
             self.text.render()
-            self.damage_text.render()
+            #self.damage_text.render()
             glDisable(self._texture.target)
             for c in self.counters: c.draw()
             glPopMatrix()

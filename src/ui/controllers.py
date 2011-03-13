@@ -748,7 +748,8 @@ class PlayController(object):
         # Zoom the card
         if self.selected and (button == mouse.RIGHT or modifiers & key.MOD_OPTION):
             self.zooming = True
-            self.selected.zoom_to_camera(self.camera, play.pos.z)
+            self.selected.render()
+            self.selected.zoom_to_camera(self.camera, play.pos.z, show_info=False)
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         # Move the camera based on mouse movement
         if not self.selected:

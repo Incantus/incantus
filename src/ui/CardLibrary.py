@@ -95,13 +95,13 @@ class _CardLibrary:
             self.img_cache[img_key] = cardImage
         return card_cls(gamecard, cardImage, self.back)
 
-    def getStackCard(self, gamecard, bordered=False, border=None):
+    def getStackCard(self, gamecard, text="", style="regular"):
         card = self.getCard(gamecard)
-        return StackCard(card.gamecard, card.front, card.back, bordered, border)
-    def getActivatedCard(self, gamecard):
-        return self.getStackCard(gamecard, bordered=True, border=self.activated)
-    def getTriggeredCard(self, gamecard):
-        return self.getStackCard(gamecard, bordered=True, border=self.triggered)
+        return StackCard(card.gamecard, card.front, card.back, text, style)
+    def getActivatedCard(self, gamecard, text):
+        return self.getStackCard(gamecard, text, style="activated")
+    def getTriggeredCard(self, gamecard, text):
+        return self.getStackCard(gamecard, text, style="triggered")
 
     def getHandCard(self, gamecard):
         return self.getCard(gamecard,HandCard)

@@ -11,8 +11,14 @@ config = ConfigParser.ConfigParser()
 config.read("data/incantus.ini")
 
 resource.path.append("./data/images")
+resource.path.append("./data/compositing")
 resource.path.append("./data/images/fx")
 font.add_file("./data/fonts/dum1.ttf")
+font.add_file("./data/fonts/MPlantin.ttf")
+font.add_file("./data/fonts/MPlantinI.ttf")
+font.add_file("./data/fonts/MatrixB.ttf")
+font.add_file("./data/fonts/MatrixBSmallCaps.ttf")
+
 resource.reindex()
 
 class ImageCache(object):
@@ -37,6 +43,8 @@ class ImageCache(object):
         ImageCache._load_multi("mana.png", colors, 2, 3)
         status = ["exile", "graveyard", "library", "hand"]
         ImageCache._load_multi("status.png", status, 2, 2)
+        ImageCache._load_multi("mana/cmana.png", "BCGRUWXYZ", 3, 3)
+        ImageCache._load_multi("text_symbols.png", map(lambda l: 's'+l, 'BCGQRTUWXYZ '), 4, 3)
         ImageCache._load("life.png", "life")
         ImageCache._load("9partbox1.png", "box1")
         ImageCache._load("9partbox2.png", "box2")
