@@ -24,7 +24,7 @@ class player_order(object):
         random.shuffle(players)
         self._current = tuple(players)
         for idx, player in enumerate(players[:-1]):
-            if player.getIntention("", "Would you like to go first?"):
+            if player.getIntention("Would you like to go first?"):
                 break
         else: idx = len(players) - 1
         self._current = tuple(players[idx:]+players[:idx])
@@ -90,7 +90,7 @@ class GameKeeper(MtGObject):
         mulligan_count = 7
         while another_mulligan:
             players = [player for player in players 
-                       if player.getIntention("", "Would you like to mulligan?")]
+                       if player.getIntention("Would you like to mulligan?", options=('Mulligan', 'Keep all %d'%mulligan_count))]
             if len(players) > 0:
                 mulligan_count -= 1
                 for player in players:

@@ -442,9 +442,9 @@ class Player(MtGObject):
         return combat_assignment
 
     def doNonInstantAction(self):
-        return self.getAction(prompt="Play Spells or Activated Abilities")
+        return self.getAction(prompt="Play Spells, Activated Abilities, or Pass Priority")
     def doInstantAction(self):
-        return self.getAction(prompt="Play Instants or Activated Abilities")
+        return self.getAction(prompt="Play Instants, Activated Abilities or Pass Priority")
     def chooseAndDoAbility(self, card, abilities):
         numabilities = len(abilities)
         if numabilities == 0: return False
@@ -487,7 +487,7 @@ class Player(MtGObject):
         return not cancel
     def getAction(self, prompt=''):
         def convert_gui_action(action):
-            if isinstance(action, PassPriority): return action
+            if isinstance(action, PassPriority) or isinstance(action, OKAction) : return action
             elif isinstance(action, CancelAction): return False
             sel = action.selection
             if not isPlayer(sel) and sel.controller == self: return action
@@ -498,7 +498,7 @@ class Player(MtGObject):
         passed = False
         while True:
             action = self.input(context, "%s: %s"%(self.name,prompt))
-            if isinstance(action, PassPriority):
+            if isinstance(action, PassPriority) or isinstance(action, OKAction):
                 passed = True
                 break
             card = action.selection
@@ -516,13 +516,13 @@ class Player(MtGObject):
             if ability.play(self): break
         return not passed
 
-    def getIntention(self, prompt='', msg="", notify=False):
+    def getIntention(self, prompt='', msg="", options=("Yes", "No"), notify=False):
         def filter(action):
             if not (isinstance(action, OKAction) or isinstance(action, CancelAction)): return False
             else: return action
-        context = {'get_choice': True, 'msg': msg, 'notify': notify, 'process': filter}
-        if not prompt: prompt = "Declare intention"
         if not msg: msg = prompt
+        context = {'get_choice': True, 'msg': msg, 'notify': notify, 'options': options, 'process': filter}
+        #if not prompt: prompt = "Declare intention"
         result = self.input(context, "%s: %s"%(self.name,prompt))
         return isinstance(result, OKAction)
     def getSelection(self, sellist, numselections=1, required=True, idx=True, msg='', prompt=''):

@@ -14,6 +14,7 @@ import euclid
 import GUIEvent
 from widget import Widget, Label
 from anim_euclid import BezierPath
+from resources import render_9_part
 from engine.pydispatch import dispatcher
 
 sixteenfv = GLfloat*16
@@ -81,13 +82,15 @@ class HandView(CardView):
     def __init__(self, pos=euclid.Vector3(0,0,0), is_opponent=False):
         super(HandView,self).__init__(pos, reverse_draw=True)
         self._pos.set_transition(dt=0.3, method="sine") #"ease_out_back")
-        if is_opponent: 
-            self.dir = -1
-            align="left"
-        else:
-            self.dir = 1
-            align = "right"
-        self.hand_size = Label("0", size=30, halign=align, valign="center")
+        #if is_opponent: 
+        #    self.dir = -1
+        #    align="left"
+        #else:
+        #    self.dir = 1
+        #    align = "right"
+        self.dir = 1
+        align = "left"
+        #self.hand_size = Label("0", size=30, halign=align, valign="center")
         self.is_opponent = is_opponent
         self.small_size = 0.6
         self.focus_idx = 0
@@ -97,7 +100,7 @@ class HandView(CardView):
         self.height = 0
         self.layout = self.unfocused_layout
         self.render_after_transform = self.render_unfocused
-        self.unfocused_size = (0.05, 0.30)
+        self.unfocused_size = (0.05, 0.40)
         self.unfocused_spacing = 1.025
         self.hidden = True
         self._card_map = {}
@@ -106,29 +109,32 @@ class HandView(CardView):
         for card in self.cards: card.hidden = value
     def resize(self, width, height, avail_width):
         self.screen_width = width
-        self.avail_width = avail_width-10
-        self.height = 85.5
-        if not self.is_opponent: self.pos = euclid.Vector3(width-self.avail_width, 1.1*self.height/2, 0)
-        else: self.pos = euclid.Vector3(0, height - 1.1*self.height/2, 0)
+        offset = 5
+        self.avail_width = avail_width-10-2*offset
+        self.height = 136 #90 #85.5
+        if not self.is_opponent: self.pos = euclid.Vector3(width-offset-self.avail_width, offset+self.height/2, 0)
+        else: self.pos = euclid.Vector3(width-self.avail_width-offset, height - self.height/2 - offset, 0)
+        #if not self.is_opponent: self.pos = euclid.Vector3(width-self.avail_width, 1.1*self.height/2, 0)
+        #else: self.pos = euclid.Vector3(0, height - 1.1*self.height/2, 0)
         self.layout()
-    def show(self):
-        #self.focus_idx = len(self)/2
-        self.layout = self.layout_staggered
-        self.render_after_transform = self.render_focused
-        self.pos = euclid.Vector3(self.screen_width/2, 150, 0)
-        for card in self.cards:
-            card.alpha = 1.0
-            card._pos.set_transition(dt=0.4, method=self.pos_transition)
-        self.layout()
-        #super(HandView,self).show()
-    def hide(self):
-        self.layout = self.unfocused_layout
-        self.render_after_transform = self.render_unfocused
-        for card in self.cards:
-            #card.alpha = 0.85
-            card._pos.set_transition(dt=0.4, method="sine")
-        self.layout()
-        #super(HandView,self).hide()
+    #def show(self):
+    #    #self.focus_idx = len(self)/2
+    #    self.layout = self.layout_staggered
+    #    self.render_after_transform = self.render_focused
+    #    self.pos = euclid.Vector3(self.screen_width/2, 150, 0)
+    #    for card in self.cards:
+    #        card.alpha = 1.0
+    #        card._pos.set_transition(dt=0.4, method=self.pos_transition)
+    #    self.layout()
+    #    #super(HandView,self).show()
+    #def hide(self):
+    #    self.layout = self.unfocused_layout
+    #    self.render_after_transform = self.render_unfocused
+    #    for card in self.cards:
+    #        #card.alpha = 0.85
+    #        card._pos.set_transition(dt=0.4, method="sine")
+    #    self.layout()
+    #    #super(HandView,self).hide()
     def add_card(self, card):
         newcard = CardLibrary.CardLibrary.getHandCard(card)
         self._card_map[card.key] = newcard
@@ -175,10 +181,11 @@ class HandView(CardView):
             card.pos = card.old_pos
     def unfocused_layout(self):
         numhand = len(self.cards)
-        self.hand_size.set_text(numhand)
-        if not self.is_opponent: self.hand_size.pos = euclid.Vector3(self.avail_width-10, 0, 0)
-        else: self.hand_size.pos = euclid.Vector3(10, 0, 0)
-        avail_width = self.avail_width - self.hand_size.width - 20
+        #self.hand_size.set_text(numhand)
+        #if not self.is_opponent: self.hand_size.pos = euclid.Vector3(self.avail_width-10, 0, 0)
+        #else: self.hand_size.pos = euclid.Vector3(10, 0, 0)
+        #avail_width = self.avail_width - self.hand_size.width - 20
+        avail_width = self.avail_width - 20
         size = self.unfocused_size[1]
         if numhand > 0:
             self.visible = 1.0
@@ -193,8 +200,9 @@ class HandView(CardView):
                     spacing = self.unfocused_spacing
                     size -= 0.005
             x_incr = cardwidth*size*spacing*self.dir
-            if not self.is_opponent: x, y = avail_width-cardwidth*size/2, 0
-            else: x, y = self.hand_size.width + cardwidth*size/2 + 20, 0
+            x, y = avail_width-cardwidth*size/2, 0
+            #if not self.is_opponent: x, y = avail_width-cardwidth*size/2, 0
+            #else: x, y = self.hand_size.width + cardwidth*size/2 + 20, 0
             z = 0
             for card in self.cards:
                 card.size = size
@@ -204,7 +212,7 @@ class HandView(CardView):
                 x -= x_incr
         else:
             self.visible = 0.0
-        self.box = (-5, -self.height/2-5, self.avail_width, self.height/2+5)
+        self.box = (0, -self.height/2, self.avail_width, self.height/2)
     def layout_original(self):
         if len(self) > 0:
             if self.focus_idx == -1: self.focus_idx = len(self)-1
@@ -268,24 +276,13 @@ class HandView(CardView):
                 y_incr += h*0.1*self.small_size
                 i += 0.001
     def render_unfocused(self):
-        glColor4f(0.2,0.2,0.3,0.5)
-        glDisable(GL_TEXTURE_2D)
-        glBegin(GL_QUADS)
+        #glColor4f(0.2,0.2,0.3,0.5)
+        #glDisable(GL_TEXTURE_2D)
+        #glBegin(GL_QUADS)
         l, b, r, t = self.box
-        glVertex2f(l, b)
-        glVertex2f(r, b)
-        glVertex2f(r, t)
-        glVertex2f(l, t)
-        glEnd()
-        glColor3f(0,0,0)
-        glLineWidth(2.0)
-        glBegin(GL_LINE_LOOP)
-        glVertex2f(l, b)
-        glVertex2f(r, b)
-        glVertex2f(r, t)
-        glVertex2f(l, t)
-        glEnd()
-        self.hand_size.render()
+        render_9_part("box3",
+                      r-l, t-b,
+                      x=l, y=b)
         for card in self.cards: card.draw()
     def render_focused(self):
         for card in self.cards[self.focus_idx::-1]: card.draw()
@@ -297,13 +294,17 @@ class StackView(CardView):
     def __init__(self, pos=euclid.Vector3(0,0,0)):
         super(StackView,self).__init__(pos)
         self.is_focused = False
+        self._is_spaced = True
         self.visible = anim.constant(0)
-        self.header = Label("Stack", halign="left", valign="top")
-        self.header.pos = euclid.Vector3(0,0,0)
-        self.text = Label("", halign="left", valign="center", shadow=False, background=True)
-        self.text.visible = anim.animate(0, 0, dt=0.4, method="linear")
-        self.width = anim.animate(0, 0, dt=0.4, method="sine")
-        self.height = anim.animate(0, 0, dt=0.4, method="sine")
+        #self.header = Label("Stack", halign="left", valign="top")
+        #self.header.pos = euclid.Vector3(0,0,0)
+        #self.text = Label("", halign="left", valign="center", shadow=False, background=True)
+        #self.text.visible = anim.animate(0, 0, dt=0.4, method="linear")
+        self.width = anim.animate(0, 0, dt=0.2, method="ease_out")
+        self.height = anim.animate(0, 0, dt=0.2, method="ease_out")
+        #self.layout()
+    def toggle(self):
+        self._is_spaced = not self._is_spaced
         self.layout()
     def announce(self, ability, startt=0):
         if isinstance(ability, CastSpell): func = CardLibrary.CardLibrary.getStackCard
@@ -316,13 +317,13 @@ class StackView(CardView):
     def add_ability(self, newcard, startt):
         self.cards.append(newcard)
         self.focus_idx = len(self)-1
-        newcard.size = anim.animate(0.2, 0.2, dt=0.2, method="cosine")
+        newcard.size = anim.animate(0.2, 0.2, dt=0.2, method="ease_out_circ")
         if startt != 0:
             newcard.visible = anim.animate(0,1,dt=startt, method="step")
-            self.header.dt = startt
-        else: self.header.dt = 0.01
+            #self.header.dt = startt
+        else: pass #self.header.dt = 0.01
         self.layout()
-        newcard._pos.set_transition(dt=0.2, method="linear") #self.pos_transition)
+        newcard._pos.set_transition(dt=0.2, method="ease_out") #self.pos_transition)
         newcard.announced = False
         return newcard
     def finalize_announcement(self, ability):
@@ -360,31 +361,43 @@ class StackView(CardView):
         if self.is_focused: self.focused_layout()
         else: self.unfocused_layout()
     def unfocused_layout(self):
-        size = 0.25
-        self.text.visible = anim.animate(0.0, 0.0, dt=0.1)
+        if self._is_spaced: 
+            spacing = 0.4
+            alpha = 1.0
+        else: 
+            spacing = 0.1
+            alpha = 0.1
+        size = 0.5
+        #self.text.visible = anim.animate(0.0, 0.0, dt=0.1)
         if len(self.cards):
             self.visible = 1.0
-            self.header.visible = anim.animate(self.header.visible, 1.0, dt=self.header.dt, method="linear")
-            card = self.cards[0]
-            x_incr, y_incr = card.width*size*0.15, -card.height*size*0.20
-            x, y = card.width*size/2, -self.header.height-card.height*size/2
-            z = 0
+            #self.header.visible = anim.animate(self.header.visible, 1.0, dt=self.header.dt, method="linear")
+            #width, height = self.cards[0].width*size, self.cards[0].height*size
+            width, height = self.cards[0].renderwidth*size, self.cards[0].renderheight*size
+
+            self.cardwidth = width
+            x_incr, y_incr = width*spacing, 0 #-height*size*0.20
+            #x, y = width*size/2, -self.header.height-height*size/2
+            #x, y = width*size/2+spacing, -height*size/2+y_incr
+            x, y, z = spacing,0,0
             for card in self.cards:
                 card.size = size
                 card.pos = euclid.Vector3(x,y,z)
+                card.alpha = alpha
                 x += x_incr
                 y += y_incr
                 z += 0.001
-            self.width = x + card.width*size/2
-            self.height = y - card.height*size/2
+            #card.alpha = alpha
+            self.width = width + x_incr*(len(self.cards)-1)
+            self.height = height 
         else:
             self.visible = 0
     def focused_layout(self):
         min_size = 0.2
         if len(self) > 0:
             self.visible = 1.0
-            self.header.visible = 0
-            self.header.dt = 0.01
+            #self.header.visible = 0
+            #self.header.dt = 0.01
             w, h = self.cards[0].width, self.cards[0].height
             x_incr = w*0.025
             y_incr = h*0.025
@@ -401,11 +414,11 @@ class StackView(CardView):
             card = self.cards[self.focus_idx]
             card.size = self.focus_size #anim.animate(card.size, self.focus_size, dt=0.2, method="sine")
             card.pos = euclid.Vector3(startx+w*0.45, y-h*0.4, z)
-            self.text.visible = 1.0
-            if card.bordered: self.text.visible = 1.0
-            else: self.text.visible = 0.0
-            self.text.pos = euclid.Vector3(startx, y-h*0.7, z)
-            self.text.set_text(str(card.ability), width=0.9*w)
+            #self.text.visible = 1.0
+            #if card.bordered: self.text.visible = 1.0
+            #else: self.text.visible = 0.0
+            #self.text.pos = euclid.Vector3(startx, y-h*0.7, z)
+            #self.text.set_text(str(card.ability), width=0.9*w)
             x -= x_incr*4
             y -= h*0.8
             z += 0.001
@@ -420,33 +433,22 @@ class StackView(CardView):
     def handle_click(self, x, y):
         x -= self.pos.x
         y -= self.pos.y
-        if -10 < x < self.width+10 and self.height-10 < y < 5:
+        w, h = self.width/2, self.height/2
+        if -w < x < w and -h < y < h:
+        #if -10 < x < self.width+10 and self.height-10 < y < 5:
             for idx, card in enumerate(self.cards[::-1]):
                 sx, sy, sw, sh = card.pos.x, card.pos.y, card.width*card.size/2, card.height*card.size/2
                 if x > sx-sw and x < sx+sw and y >= sy-sh and y <= sy+sh:
                     return len(self.cards)-1-idx, card
         return -1, None
     def render_after_transform(self):
-        if self.header.visible == 1.0:
-            glColor4f(0.7,0.7,0.7, 0.5)
-            glDisable(GL_TEXTURE_2D)
-            glBegin(GL_QUADS)
-            glVertex3f(-10, 5, 0)
-            glVertex3f(self.width+10, 5, 0)
-            glVertex3f(self.width+10, self.height-10, 0)
-            glVertex3f(-10, self.height-10, 0)
-            glEnd()
-            glColor3f(0,0,0)
-            glLineWidth(2.0)
-            glBegin(GL_LINE_LOOP)
-            glVertex3f(-10, 5, 0)
-            glVertex3f(self.width+12, 5, 0)
-            glVertex3f(self.width+12, self.height-12, 0)
-            glVertex3f(-10, self.height-12, 0)
-            glEnd()
-            self.header.render()
+        #if self.header.visible == 1.0:
+        #w, h = self.width, self.height
+        #render_9_part("box2",
+        #              self.width*1.2, self.height,
+        #              x=-self.cardwidth/2, y=-h/2)
         super(StackView,self).render_after_transform()
-        self.text.render()
+        #self.text.render()
 
 class ZoneView(CardView):
     def __init__(self, pos=euclid.Vector3(0,0,0)):

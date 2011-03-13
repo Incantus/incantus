@@ -21,7 +21,7 @@ import soundfx
 from Camera import Camera
 from card_view import HandView, StackView, ZoneView
 from play_view import PlayView, Table
-from status_widget import StatusView, GameStatus, SelectionList, MessageDialog, ManaView, PhaseStatus
+from status_widget import StatusView, GameStatus, SelectionList, MessageDialog, ManaView, PhaseStatus, PhaseBar
 from animator import ZoneAnimator
 from controllers import *
 import GUIEvent
@@ -57,8 +57,9 @@ class IncantusLayer(Layer):
         self.x_controller = XSelector(self.mainplayer_status.manapool, self.otherplayer_status.manapool, self)
         self.zone_view = ZoneView()
         self.card_selector = CardSelector(self.mainplayer_status, self.otherplayer_status, self.zone_view, self)
-        self.game_status = GameStatus()
+        #self.game_status = GameStatus()
         self.phase_status = PhaseStatus()
+        self.phase_bar = PhaseBar()
         self.phase_controller = PhaseController(self.phase_status, self)
         self.status_controller = StatusController(self.mainplayer_status, self.otherplayer_status, self.zone_view, self.phase_status, self)
         self.selection = SelectionList()
@@ -125,16 +126,26 @@ class IncantusLayer(Layer):
         glLoadIdentity()
         gluPerspective(80., width/float(height), 0.1, 3000.)
         glMatrixMode(GL_MODELVIEW)
+        
+        offset = 5
+        self.phase_bar.pos = euclid.Vector3(offset+self.phase_bar.width/2,offset+self.phase_bar.height/2, 0)
+        self.msg_dialog.pos = euclid.Vector3(offset+self.msg_dialog.width/2, 2*offset+self.phase_bar.height+self.msg_dialog.height/2,0)
+        self.mainplayer_status.pos = euclid.Vector3(offset, 3*offset+self.phase_bar.height+self.msg_dialog.height, 0)
         self.mainplayer_status.resize(width, height)
+        self.otherplayer_status.pos = euclid.Vector3(offset, height-self.otherplayer_status.height-offset, 0)
         self.otherplayer_status.resize(width, height)
-        self.stack.pos = euclid.Vector3(50,height-110,0)
-        self.player_hand.resize(width, height, width-self.mainplayer_status.width)
-        self.otherplayer_hand.resize(width, height, width-self.mainplayer_status.width)
-        self.game_status.resize(width, height, self.mainplayer_status.width)
+        self.stack.pos = euclid.Vector3(150,height/2,0)
+        self.player_hand.resize(width, height, width-self.msg_dialog.width)
+        self.otherplayer_hand.resize(width, height, width-self.otherplayer_status.width)
+        #self.game_status.resize(width, height, self.mainplayer_status.width)
         self.phase_status.resize(width, height)
+        self.selection.pos = euclid.Vector3(width/2., height/2., 0)
 
     def draw(self):
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
         self.camera.setup()
+        glEnable(GL_LIGHTING)
+        glEnable(GL_DEPTH_TEST)
         self.table.draw()
         glClear(GL_DEPTH_BUFFER_BIT)
         self.mainplay.render()
@@ -143,25 +154,25 @@ class IncantusLayer(Layer):
         glDisable(GL_LIGHTING)
         glDisable(GL_DEPTH_TEST)
         self.draw_overlay()
-        glEnable(GL_LIGHTING)
-        glEnable(GL_DEPTH_TEST)
         self.camera.reset()
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
 
     def draw_overlay(self):
         # draw left mask
         self.set_2d(-50, 50)
         self.phase_status.render()
-        self.otherplayer_status.render()
-        self.mainplayer_status.render()
-        self.stack.render()
-        self.zone_animator.render2d()
-        self.game_status.render()
-        self.msg_dialog.render()
+        self.phase_bar.render()
         self.otherplayer_hand.render()
         self.player_hand.render()
+        self.otherplayer_status.render()
+        self.mainplayer_status.render()
+        #self.game_status.render()
+        self.stack.render()
         self.zone_view.render()
+        self.zone_animator.render2d()
+        self.msg_dialog.render()
         self.selection.render()
-        glDisable(GL_TEXTURE_2D)
+        #glDisable(GL_TEXTURE_2D)
         self.unset_2d()
 
     def on_key_press(self, symbol, modifiers):
@@ -169,8 +180,8 @@ class IncantusLayer(Layer):
             self.process_action(engine.Action.PassPriority())
         elif symbol == key.ESCAPE:
             self.process_action(engine.Action.CancelAction())
-        elif symbol == key.L and modifiers & key.MOD_SHIFT:
-            self.game_status.toggle_gamelog()
+        #elif symbol == key.L and modifiers & key.MOD_SHIFT:
+        #    self.game_status.toggle_gamelog()
         elif symbol == key.D and modifiers & key.MOD_SHIFT:
             import pdb
             pdb.set_trace()
@@ -187,6 +198,8 @@ class IncantusLayer(Layer):
             self.phase_controller.activate(other=True)
         elif symbol == key.Q:
             quit()
+        elif symbol == key.F7:
+            pyglet.image.get_buffer_manager().get_color_buffer().save('screenshot.png')
         else:
             return event.EVENT_UNHANDLED
         return True
@@ -209,7 +222,7 @@ class IncantusLayer(Layer):
     def clear_game(self):
         dispatcher.reset()
         self.phase_status.clear()
-        self.game_status.clear()
+        #self.game_status.clear()
         self.stack.clear()
         self.mainplay.clear()
         self.otherplay.clear()
@@ -249,10 +262,12 @@ class IncantusLayer(Layer):
         dispatcher.connect(self.otherplayer_status.manapool.update_mana, signal=engine.GameEvent.ManaSpent(), sender=player2.manapool, priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.otherplayer_status.manapool.clear_mana, signal=engine.GameEvent.ManaCleared(), sender=player2.manapool, priority=dispatcher.UI_PRIORITY)
 
+        dispatcher.connect(self.phase_bar.new_turn, signal=engine.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.phase_bar.set_phase, signal=engine.GameEvent.GameStepEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.phase_status.new_turn, signal=engine.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.phase_status.set_phase, signal=engine.GameEvent.GameStepEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.phase_status.change_focus, signal=engine.GameEvent.GameFocusEvent(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.game_status.log_event, signal=engine.GameEvent.LogEvent(), priority=dispatcher.UI_PRIORITY)
+        #dispatcher.connect(self.game_status.log_event, signal=engine.GameEvent.LogEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.mainplayer_status.new_turn, signal=engine.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.otherplayer_status.new_turn, signal=engine.GameEvent.NewTurnEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.mainplayer_status.pass_priority, signal=engine.GameEvent.HasPriorityEvent(), priority=dispatcher.UI_PRIORITY)
@@ -300,7 +315,8 @@ class IncantusLayer(Layer):
         else: self._keep_priority = False
 
     def network_input(self, context, prompt=''):
-        self.game_status.log("Waiting for %s"%prompt.split(":")[0])
+        #self.game_status.log("Waiting for %s"%prompt.split(":")[0])
+        self.msg_controller.prompt("Waiting for %s"%prompt.split(":")[0])
         self.pending_actions = []   # this is necessary to clear any extra actions
         self.network = True
         result = False
@@ -312,7 +328,8 @@ class IncantusLayer(Layer):
         return result
 
     def replay_input(self, context, prompt=''):
-        self.game_status.log(prompt)
+        #self.game_status.log(prompt)
+        self.msg_controller.prompt(prompt)
         process = context['process']
         try:
             result = self.dump_to_replay.read()
@@ -324,7 +341,8 @@ class IncantusLayer(Layer):
         return result
 
     def greenlet_input(self, context, prompt=''):
-        self.game_status.log(prompt)
+        #self.game_status.log(prompt)
+        self.msg_controller.prompt(prompt)
         process = context['process']
         result = False
         if self.pending_actions:
@@ -355,9 +373,9 @@ class IncantusLayer(Layer):
         pyglet.clock.schedule_once(lambda dt: self.rules_engine.switch(), 0.001)
 
     def do_action(self, context):
-        if context.get("get_ability", False): pass
-        elif context.get("get_target", False): pass
-        elif context.get("get_cards", False):
+        #if context.get("get_ability", False): pass
+        #elif context.get("get_target", False): pass
+        if context.get("get_cards", False):
             sellist = context['list']
             numselections = context['numselections']
             required = context['required']
@@ -379,8 +397,9 @@ class IncantusLayer(Layer):
         elif context.get("get_choice", False):
             msg = context['msg']
             notify = context['notify']
-            if notify: self.msg_controller.notify(msg)
-            else: self.msg_controller.ask(msg)
+            options = context['options']
+            if notify: self.msg_controller.notify(msg, options)
+            else: self.msg_controller.ask(msg, options)
         elif context.get("get_mana_choice", False):
             required = context['required']
             manapool = context['manapool']
@@ -402,7 +421,8 @@ class IncantusLayer(Layer):
             director.pop()
 
     def game_reload(self, replay_file):
-        self.game_status.log("Reloading game")
+        #self.game_status.log("Reloading game")
+        self.msg_controller.prompt("Reloading game")
 
         self.dump_to_replay = replaydump.ReplayDump(filename=replay_file, save=False)
         isserver = self.dump_to_replay.read()
@@ -435,7 +455,8 @@ class IncantusLayer(Layer):
         self.start_rules_engine()
 
     def game_start(self, player_name, seed, player_data, client=None):
-        self.game_status.log("Starting game")
+        #self.game_status.log("Starting game")
+        self.msg_controller.prompt("Starting game")
 
         self.dump_to_replay = replaydump.ReplayDump(save=True)
         self.dump_to_replay.write(True)
@@ -504,7 +525,8 @@ def join_game(player_name, decklist, host, port):
         #gamescene.add(chatbox, z=1, name="chat")
         director.push(gamescene)
         #director.push(ZoomTransition(gamescene, 1.5))
-        gamelayer.game_status.log("Waiting for other players")
+        gamelayer.msg_controller.prompt("Waiting for other players")
+        #gamelayer.game_status.log("Waiting for other players")
         defrd = client.ready_to_start()
         defrd.addCallback(lambda (seed, players): gamelayer.game_start(player_name, seed, players, client))
     def connected(client, avatar):
@@ -530,7 +552,8 @@ def observe_game(player_name, host, port):
         #gamescene.add(chatbox, z=1, name="chat")
         director.push(gamescene)
         #director.push(ZoomTransition(gamescene, 1.5))
-        gamelayer.game_status.log("Waiting for other players")
+        #gamelayer.game_status.log("Waiting for other players")
+        gamelayer.msg_controller.prompt("Waiting for other players")
         defrd = client.ready_to_start()
         defrd.addCallback(lambda (seed, players): gamelayer.game_start(player_name, seed, players, client))
 

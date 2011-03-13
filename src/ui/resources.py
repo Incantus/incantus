@@ -5,6 +5,8 @@ from pyglet import resource, font, image
 from pyglet.gl import *
 
 fontname = "Dumbledor 1"
+fontname = "MPlantin"
+fontname = "Arial"
 
 import ConfigParser
 config = ConfigParser.ConfigParser()
@@ -12,6 +14,7 @@ config.read("data/incantus.ini")
 
 resource.path.append("./data/images")
 resource.path.append("./data/compositing")
+resource.path.append("./data/avatars")
 resource.path.append("./data/images/fx")
 font.add_file("./data/fonts/dum1.ttf")
 font.add_file("./data/fonts/MPlantin.ttf")
@@ -41,10 +44,11 @@ class ImageCache(object):
     def load_images():
         colors = ["red", "white", "black", "colorless", "green", "blue"]
         ImageCache._load_multi("mana.png", colors, 2, 3)
-        status = ["exile", "graveyard", "library", "hand"]
-        ImageCache._load_multi("status.png", status, 2, 2)
         ImageCache._load_multi("mana/cmana.png", "BCGRUWXYZ", 3, 3)
         ImageCache._load_multi("text_symbols.png", map(lambda l: 's'+l, 'BCGQRTUWXYZ '), 4, 3)
+        #status = ["exile", "graveyard", "library", "hand"]
+        status = ["graveyard", "exile", "hand", "library"]
+        ImageCache._load_multi("status1.png", status, 2, 2)
         ImageCache._load("life.png", "life")
         ImageCache._load("9partbox1.png", "box1")
         ImageCache._load("9partbox2.png", "box2")

@@ -11,21 +11,27 @@ class MessageController(object):
         self.window = window
         self.do_action = True
         self.click = None
+        self.activate()
     def activate(self):
-        self.dialog._pos.set(euclid.Vector3(self.window.width/2, self.window.height/2, 0))
+        #self.dialog._pos.set(euclid.Vector3(self.window.width/2, self.window.height/2, 0))
         self.dialog.show()
         director.window.push_handlers(self)
     def deactivate(self):
-        self.dialog.hide()
+        return
+        #self.dialog.hide()
         director.window.remove_handlers(self)
-    def ask(self, prompt, action=True):
-        self.dialog.construct(prompt, msg_type='ask')
+    def ask(self, prompt, options, action=True):
+        self.dialog.construct(prompt, options, msg_type='ask')
         self.do_action = action
-        self.activate()
-    def notify(self,prompt,action=True):
-        self.dialog.construct(prompt, msg_type='notify')
+        #self.activate()
+    def notify(self,prompt, options, action=True):
+        self.dialog.construct(prompt, options, msg_type='notify')
         self.do_action = action
-        self.activate()
+        #self.activate()
+    def prompt(self,prompt):
+        self.dialog.construct(prompt, msg_type='prompt')
+        self.do_action = False
+        #self.activate()
     def on_key_press(self, symbol, modifiers):
         if symbol == key.ENTER:
             if self.do_action: self.window.process_action(Action.OKAction())
@@ -37,6 +43,7 @@ class MessageController(object):
             return True
         elif symbol in [key.F2, key.F3]:
             return True
+        else: return False
     def on_mouse_press(self, x, y, button, modifiers):
         if (button == mouse.RIGHT or modifiers & key.MOD_OPTION): return False
         x -= self.dialog.pos.x
@@ -44,19 +51,19 @@ class MessageController(object):
         item, result = self.dialog.handle_click(x, y)
         if not result == -1:
             self.click = item
-            item.main_text.color = (0.5, 0.5, 0.5, 1.0)
-        return True
+            item.toggled = True
+            return True
+        else: return False
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        if (buttons == mouse.RIGHT or modifiers & key.MOD_OPTION): return False
         if self.click:
             x -= self.dialog.pos.x
             y -= self.dialog.pos.y
             item, result = self.dialog.handle_click(x, y)
-            if not item == self.click: self.click.main_text.color = self.click.color
-            else: item.main_text.color = (0.5, 0.5, 0.5, 1.0)
-        return True
+            if not item == self.click: self.click.toggled = False
+            else: item.toggled = True
+            return True
+        else: return False
     def on_mouse_release(self, x, y, button, modifiers):
-        if (button == mouse.RIGHT or modifiers & key.MOD_OPTION): return False
         if self.click:
             x -= self.dialog.pos.x
             y -= self.dialog.pos.y
@@ -66,9 +73,10 @@ class MessageController(object):
                     if result == True: self.window.process_action(Action.OKAction())
                     else: self.window.process_action(Action.CancelAction())
                 self.deactivate()
-            self.click.main_text.color = self.click.color
+            self.click.toggled = False
             self.click = None
-        return True
+            return True
+        else: return False
 
 class SelectController(object):
     def __init__(self, listview, window):
@@ -108,10 +116,10 @@ class SelectController(object):
     def toggle_selection(self):
         if self.index in self.indices:
             self.indices.remove(self.index)
-            self.listview.options[self.index][0].main_text.color = (1., 1., 1., 1.)
+            #self.listview.options[self.index][0].main_text.color = (1., 1., 1., 1.)
         else:
             self.indices.add(self.index)
-            self.listview.options[self.index][0].main_text.color = (0.5, 0.5, 0.5, 1.0)
+            #self.listview.options[self.index][0].main_text.color = (0.5, 0.5, 0.5, 1.0)
             if self.numselections == 1: self.return_selections()
         #if len(self.indices) == self.numselections: self.return_selections()
     def return_selections(self):
@@ -122,19 +130,20 @@ class SelectController(object):
     def on_mouse_press(self, x, y, button, modifiers):
         x -= self.listview.pos.x
         y -= self.listview.pos.y
-        self.listview.focus_idx = self.index
+        #self.listview.focus_idx = self.index
+        self.index = self.listview.handle_click(x, y)
         return True
-    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        if not self.index == -1:
-            self.dragging = True
-            self.tmp_dy += dy
-            if self.tmp_dy > self.listview.scroll:
-                self.tmp_dy = 0
-                self.listview.move_up()
-            elif self.tmp_dy < -self.listview.scroll:
-                self.tmp_dy = 0
-                self.listview.move_down()
-        return True
+    #def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
+    #    if not self.index == -1:
+    #        self.dragging = True
+    #        self.tmp_dy += dy
+    #        if self.tmp_dy > self.listview.scroll:
+    #            self.tmp_dy = 0
+    #            self.listview.move_up()
+    #        elif self.tmp_dy < -self.listview.scroll:
+    #            self.tmp_dy = 0
+    #            self.listview.move_down()
+    #    return True
     def on_mouse_release(self, x, y, button, modifiers):
         if not self.index == -1:
             x -= self.listview.pos.x
@@ -149,12 +158,12 @@ class SelectController(object):
                 if idx == self.index:
                     self.toggle_selection()
         return True
-    def on_mouse_motion(self, x, y, dx, dy):
-        x -= self.listview.pos.x
-        y -= self.listview.pos.y
-        idx = self.listview.handle_click(x, y)
-        options = self.listview.options
-        self.index = idx
+    #def on_mouse_motion(self, x, y, dx, dy):
+    #    x -= self.listview.pos.x
+    #    y -= self.listview.pos.y
+    #    idx = self.listview.handle_click(x, y)
+    #    #options = self.listview.options
+    #    self.index = idx
         #if not idx == -1:
         #    if not idx == self.index and not self.index in self.indices:
         #        options[self.index][0].main_text.color = (1., 1., 1., 1.)
@@ -493,22 +502,21 @@ class StatusController(object):
         for status in [self.mainstatus, self.otherstatus]:
             value = status.handle_click(x, y)
             if value:
-                if value == "life": self.window.process_action(Action.PlayerSelected(status.player))
-                if value == "library" and not self.solitaire: return True # and self.window.start_new_game: return True
+                if modifiers & key.MOD_CTRL:
+                    status.toggle()
+                elif value == True or value == "life":
+                    self.window.process_action(Action.PlayerSelected(status.player))
+                elif value == "library": 
+                        status.toggle_library()
                 elif value in self.observable_zones:
-                    zone = getattr(status.player, value)
-                    if len(zone):
-                        self.clicked = True
-                        self.zone_view.pos = euclid.Vector3(x, y, 0)
-                        self.zone_view.pos = status.pos + status.symbols[value].pos
-                        self.zone_view.build(zone, status.is_opponent)
-                        self.zone_view.show()
+                        zone = getattr(status.player, value)
+                        if len(zone):
+                            self.clicked = True
+                            self.zone_view.pos = euclid.Vector3(x, y, 0)
+                            self.zone_view.pos = status.pos + status.symbols[value].pos
+                            self.zone_view.build(zone, status.is_opponent)
+                            self.zone_view.show()
                 return True
-        # Check phase status
-        value = self.phase_status.handle_click(x, y)
-        if value:
-            self.window.process_action(Action.PassPriority())
-            return True
 
 class XSelector(object):
     def __init__(self, mainmana_gui, othermana_gui, window):
@@ -662,7 +670,9 @@ class PhaseController(object):
         self.phases = phasegui
         self.window = window
         self.dim = 0.4
+        self.phases.visible = 0
     def activate(self, other=False):
+        self.phases.visible = 1
         self.other = other
         if not other: self.stops = self.phases.my_turn_stops
         else: self.stops = self.phases.opponent_turn_stops
@@ -693,6 +703,7 @@ class PhaseController(object):
             label.main_text.color = (col[0], col[1], col[2], 1.0)
         self.phases.toggle_select()
         director.window.remove_handlers(self)
+        self.phases.visible = 0
     def on_key_press(self, symbol, modifiers):
         if symbol in [key.ENTER, key.ESCAPE, key.F]:
             return True
@@ -927,7 +938,9 @@ class StackController(object):
             if (button == mouse.RIGHT or modifiers & key.MOD_OPTION):
                 self.focused = True
                 self.stack_gui.focus(idx)
-                self.highlight_targets()
+                #self.highlight_targets()
+            elif (modifiers & key.MOD_CTRL):
+                self.stack_gui.toggle()
             elif card.announced:
                 pass
                 #self.window.process_action(Action.CardSelected(card.ability))

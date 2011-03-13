@@ -121,10 +121,10 @@ class ZoneAnimator(object):
         self.red_zone = None
     def setup(self, main_status, other_status, stack, main_play, other_play, board):
         for playerstatus, playzone in zip([main_status, other_status], [main_play, other_play]):
-            for status in ["library", "graveyard", "exile"]:
+            for status in ["library", "hand", "graveyard", "exile"]:
                 self.status_zones[getattr(playerstatus.player, status)] = (playerstatus, playerstatus.symbols[status])
             self.play_zones[playerstatus.player] = playzone
-            self.player_status[playerstatus.player] = (playerstatus, playerstatus.symbols["life"])
+            self.player_status[playerstatus.player] = playerstatus
         self.player = main_status.player
         self.stack = stack
         self.board = board
@@ -137,7 +137,6 @@ class ZoneAnimator(object):
         dispatcher.connect(self.enter_stack, signal=GameEvent.AbilityAnnounced(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.leave_stack, signal=GameEvent.AbilityRemovedFromStack(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.controller_changed, signal=GameEvent.ControllerChanged(), priority=dispatcher.UI_PRIORITY)
-        dispatcher.connect(self.end_combat, signal=GameEvent.EndCombatEvent(), priority=dispatcher.UI_PRIORITY)
 
         dispatcher.connect(self.setup_redzone, signal=GameEvent.AttackStepEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.select_attacker, signal=GameEvent.AttackerSelectedEvent(), priority=dispatcher.UI_PRIORITY)
@@ -146,6 +145,7 @@ class ZoneAnimator(object):
         dispatcher.connect(self.select_blocker, signal=GameEvent.BlockerSelectedEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.reset_blockers, signal=GameEvent.BlockersResetEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.reorder_blockers, signal=GameEvent.BlockersReorderedEvent(), priority=dispatcher.UI_PRIORITY)
+        dispatcher.connect(self.end_combat, signal=GameEvent.EndCombatEvent(), priority=dispatcher.UI_PRIORITY)
 
         dispatcher.connect(self.card_damage, signal=GameEvent.DealsDamageToEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.player_life, signal=GameEvent.LifeGainedEvent(), priority=dispatcher.UI_PRIORITY)
@@ -162,12 +162,13 @@ class ZoneAnimator(object):
         else: self.board.highlight = "top"
     def invalid_target(self, sender, target):
         if isPlayer(target):
-            pstatus, life = self.player_status[target]
-            if life.shaking == 0:
-                life.shaking = 1
-                life._pos.set_transition(dt=0.25, method=lambda t: anim.oscillate_n(t, 4))
-                life.pos += euclid.Vector3(10, 0, 0)
-                clock.schedule_once(lambda t: setattr(life, "shaking", 0), 0.5)
+            pstatus = self.player_status[target]
+            avatar = pstatus.avatar
+            if avatar.shaking == 0:
+                avatar.shaking = 1
+                avatar._pos.set_transition(dt=0.25, method=lambda t: anim.oscillate_n(t, 4))
+                avatar.pos += euclid.Vector3(10, 0, 0)
+                clock.schedule_once(lambda t: setattr(avatar, "shaking", 0), 0.5)
         elif isPermanent(target):
             zone = self.play_zones[target.controller]
             guicard = zone.get_card(target)
@@ -189,8 +190,9 @@ class ZoneAnimator(object):
         color =  (0.5,0.71,0.94, 1.0)
         dt = 2.0
         if isPlayer(sender):
-            pstatus, life = self.player_status[sender]
-            pos = pstatus.pos + life.pos
+            pstatus = self.player_status[sender]
+            avatar = pstatus.avatar
+            pos = pstatus.pos + avatar.pos
             self.sparks.add_star_spark(pos, pos, dt=dt, color=color, dim=2)
         if isPermanent(sender):
             zone = self.play_zones[sender.controller]
@@ -205,7 +207,8 @@ class ZoneAnimator(object):
             end_pos = start_pos + euclid.Vector3(0,40,0)
             self.sparks.add_number_spark(amount, start_pos, end_pos, color=(1,0,0,1), dt=1.0, dim=2)
     def player_life(self, sender, amount):
-        pstatus, life = self.player_status[sender]
+        pstatus = self.player_status[sender]
+        life = pstatus.symbols["life"]
         start_pos = pstatus.pos + life.pos + euclid.Vector3(0,10,0)
         end_pos = start_pos + euclid.Vector3(0,30,0)
         if amount < 0: color = (1, 0, 0, 1)
