@@ -2,6 +2,7 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
 from pyglet import resource, font, image
+from pyglet.gl import *
 
 fontname = "Dumbledor 1"
 
@@ -70,3 +71,77 @@ class ColorDict(object):
             colors = color.split()
             if len(colors) > 2: return [self.gold]
             else: return [self.colors[c] for c in colors]
+
+def render_9_part(name, width, height, x=0, y=0, xs=None, ys=None):
+    texture = ImageCache.get(name)
+    w, h = float(texture.width), float(texture.height)
+    if xs == None: x_1, x_2 = w/2., w/2.
+    else: x_1, x_2 = xs
+    if ys == None: y_1, y_2 = h/2., h/2.
+    else: y_1, y_2 = ys
+
+    x0, x1, x2, x3 = x+0, x+x_1, x+width-x_2, x+width
+    y0, y1, y2, y3 = y+0, y+y_1, y+height-y_2, y+height
+
+    tc = texture.tex_coords
+    tx0, tx3, ty0, ty3 = tc[0], tc[3], tc[1], tc[7]
+    tx1, tx2, ty1, ty2 = (x_1*(tx3-tx0)/w+tx0), (x_2*(tx3-tx0)/w+tx0), (y_1*(ty3-ty0)/h+ty0), (y_2*(ty3-ty0)/h+ty0)
+
+    #print tc, width, height, w, h, x_1, x_2, y_1, y_2
+    #print tx0, tx1, tx2, tx3
+    #print ty0, ty1, ty2, ty3
+    rounded_array = (
+        # Top left
+        tx0, ty2, 0,  1,  x0,  y2,  0,  1,
+        tx1, ty2, 0,  1,  x1,  y2,  0,  1,
+        tx1, ty3, 0,  1,  x1,  y3,  0,  1,
+        tx0, ty3, 0,  1,  x0,  y3,  0,  1,
+        # Top stretch
+        tx1, ty2, 0,  1,  x1,  y2,  0,  1,
+        tx2, ty2, 0,  1,  x2,  y2,  0,  1,
+        tx2, ty3, 0,  1,  x2,  y3,  0,  1,
+        tx1, ty3, 0,  1,  x1,  y3,  0,  1,
+        # Top right
+        tx2, ty2, 0,  1,  x2,  y2,  0,  1,
+        tx3, ty2, 0,  1,  x3,  y2,  0,  1,
+        tx3, ty3, 0,  1,  x3,  y3,  0,  1,
+        tx2, ty3, 0,  1,  x2,  y3,  0,  1,
+        # Middle left
+        tx0, ty1, 0,  1,  x0,  y1,  0,  1,
+        tx1, ty1, 0,  1,  x1,  y1,  0,  1,
+        tx1, ty2, 0,  1,  x1,  y2,  0,  1,
+        tx0, ty2, 0,  1,  x0,  y2,  0,  1,
+        # Middle stretch
+        tx1, ty1, 0,  1,  x1,  y1,  0,  1,
+        tx2, ty1, 0,  1,  x2,  y1,  0,  1,
+        tx2, ty2, 0,  1,  x2,  y2,  0,  1,
+        tx1, ty2, 0,  1,  x1,  y2,  0,  1,
+        # Middle right
+        tx2, ty1, 0,  1,  x2,  y1,  0,  1,
+        tx3, ty1, 0,  1,  x3,  y1,  0,  1,
+        tx3, ty2, 0,  1,  x3,  y2,  0,  1,
+        tx2, ty2, 0,  1,  x2,  y2,  0,  1,
+        # Bottom left
+        tx0, ty0, 0,  1,  x0,  y0,  0,  1,
+        tx1, ty0, 0,  1,  x1,  y0,  0,  1,
+        tx1, ty1, 0,  1,  x1,  y1,  0,  1,
+        tx0, ty1, 0,  1,  x0,  y1,  0,  1,
+        # Bottom stretch
+        tx1, ty0, 0,  1,  x1,  y0,  0,  1,
+        tx2, ty0, 0,  1,  x2,  y0,  0,  1,
+        tx2, ty1, 0,  1,  x2,  y1,  0,  1,
+        tx1, ty1, 0,  1,  x1,  y1,  0,  1,
+        # Bottom right
+        tx2, ty0, 0,  1,  x2,  y0,  0,  1,
+        tx3, ty0, 0,  1,  x3,  y0,  0,  1,
+        tx3, ty1, 0,  1,  x3,  y1,  0,  1,
+        tx2, ty1, 0,  1,  x2,  y1,  0,  1)
+    glPushAttrib(GL_ENABLE_BIT)
+    glEnable(texture.target)
+    glBindTexture(texture.target, texture.id)
+
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
+    glInterleavedArrays(GL_T4F_V4F, 0, (GLfloat*len(rounded_array))(*rounded_array))
+    glDrawArrays(GL_QUADS, 0, 4*9)
+    glPopClientAttrib()
+    glPopAttrib()
