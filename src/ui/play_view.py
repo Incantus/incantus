@@ -150,7 +150,7 @@ class CombatZone(object):
         for card, position in zip(cards, total_positions):
             card.pos = position - euclid.Vector3(halfx, 0, 0)
 
-from engine.symbols import Plains, Island, Swamp, Mountain, Forest, Basic
+from engine.symbols import Basic, Creature, Land, Aura, Plains, Island, Swamp, Mountain, Forest, Basic
 landtypes = [Plains, Island, Swamp, Mountain, Forest, 'Other']
 
 class PlayView(Widget):
@@ -181,11 +181,11 @@ class PlayView(Widget):
         self._card_map[card.key] = guicard
         guicard.entering_play()
         guicard._pos.set(euclid.Vector3(0,0,0))
-        if Match.isCreature(card):
         cardsize = CARDSIZE
+        if card.types == Creature:
             self.creatures.insert(0, guicard)
             guicard._row = self.creatures
-        elif Match.isLand(card):
+        elif card.types == Land:
             if card.supertypes == Basic:
                 for key in self.lands.keys():
                     if card.subtypes == key:
@@ -196,7 +196,7 @@ class PlayView(Widget):
             else:
                 self.lands['Other'].append(guicard)
                 guicard._row = self.lands['Other']
-        elif Match.isAura(card) and Match.isPermanent(card.attached_to) and card.controller == card.attached_to.controller:
+        elif card.types == Aura and card.controller == card.attached_to.controller and Match.isPermanent(card.attached_to):
             # it should be attached at this point
             self.attached.append(guicard)
             guicard._row = self.attached
@@ -230,7 +230,7 @@ class PlayView(Widget):
         if attachment and attached:
             self.attached.append(attachment)
             attachment._row.remove(attachment)
-            if Match.isBasicLand(attached.gamecard):
+            if attached.gamecard.types == Land and attached.gamecard.supertypes == Basic:
                 attached._row.remove(attached)
                 self.lands["Other"].append(attached)
             self.layout()
@@ -240,7 +240,7 @@ class PlayView(Widget):
         if attachment and attachment in self.attached:
             self.attached.remove(attachment)
             attachment._row.append(attachment)
-            if unattached and Match.isBasicLand(unattached.gamecard):
+            if unattached and unattached.gamecard.types == Land and unattached.gamecard.supertypes == Basic:
                 self.lands["Other"].remove(unattached)
                 unattached._row.append(unattached)
             self.layout()
