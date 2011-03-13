@@ -18,6 +18,8 @@ from engine import Match
 
 from widget import Widget
 
+CARDSIZE = 0.011
+
 class CombatZone(object):
     def __init__(self, attack_zone, block_zone):
         self.attack_zone = attack_zone
@@ -67,7 +69,7 @@ class CombatZone(object):
         self.layout_attackers()
     def layout_attackers(self):
         shift_vec = -self.zone_shift_vec * 1.5
-        size = 0.01*1.1*self.orient
+        size = CARDSIZE*1.1*self.orient
         self.attack_zone.layout_subset(self.attackers, size, 0.1, 0.001, shift_vec.z, self.compare, combat=True)
     def declare_attackers(self):
         self.blocking_list = dict([(attacker, []) for attacker in self.attackers])
@@ -112,7 +114,7 @@ class CombatZone(object):
     def layout_all(self):
         shift_vec = self.zone_shift_vec * 1.5
         x = 0
-        size = 0.01*1.05*self.orient
+        size = CARDSIZE*1.05*self.orient
         cards = []
         total_positions = []
         for attacker in self.attackers:
@@ -179,8 +181,8 @@ class PlayView(Widget):
         self._card_map[card.key] = guicard
         guicard.entering_play()
         guicard._pos.set(euclid.Vector3(0,0,0))
-        cardsize = 0.010
         if Match.isCreature(card):
+        cardsize = CARDSIZE
             self.creatures.insert(0, guicard)
             guicard._row = self.creatures
         elif Match.isLand(card):
@@ -189,7 +191,7 @@ class PlayView(Widget):
                     if card.subtypes == key:
                         self.lands[key].append(guicard)
                         guicard._row = self.lands[key]
-                        cardsize = 0.0085
+                        cardsize = CARDSIZE*0.8
                         break
             else:
                 self.lands['Other'].append(guicard)
@@ -301,7 +303,7 @@ class PlayView(Widget):
         else:
             orient = 1
             compare = max
-        size = 0.01*1.1 * orient
+        size = CARDSIZE*1.1 * orient
         y_incr = 0.005
         row = 0
 
