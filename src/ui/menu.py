@@ -137,7 +137,7 @@ class NetworkGameMenu(IncantusMenu):
         self.port = int(config.get("network", "port"))
         self.deckfile = config.get("main", "deckfile")
         self.flashing = False
-        self.flash_action = Repeat(FadeOut(1)+FadeIn(1))
+        #self.flash_action = Repeat(FadeOut(1)+FadeIn(1))
     def on_name(self, name):
         self.player_name = name
     def on_port(self, port):
@@ -150,8 +150,8 @@ class NetworkGameMenu(IncantusMenu):
         decklist = Incantus.load_deckfile(self.deckfile)
         defrd = Incantus.join_game(self.player_name, decklist, self.host, self.port)
         defrd.addCallback(lambda x: self.parent.parent.switch_to(1))
-        defrd.addErrback(lambda x: self.stop_flashing())
-        self.flash()
+        #defrd.addErrback(lambda x: self.stop_flashing())
+        #self.flash()
     def on_key_press(self, symbol, modifiers):
         if not self.flashing: return super(NetworkGameMenu, self).on_key_press(symbol, modifiers)
         elif symbol == key.ESCAPE:
@@ -164,7 +164,7 @@ class NetworkGameMenu(IncantusMenu):
         if not self.flashing: return super(NetworkGameMenu, self).on_mouse_motion(x, y, dx, dy)
     def on_exit(self):
         super(NetworkGameMenu, self).on_exit()
-        self.stop_flashing()
+        #self.stop_flashing()
     def stop_flashing(self):
         if self.flashing:
             self.flash_item.remove_action(self.flash_action)
@@ -179,6 +179,7 @@ class StartGameMenu(NetworkGameMenu):
         self.flash_item = MenuItem('Create', self.on_create)
         self.num_players = 2
         items = []
+        items.append(self.flash_item)
         items.append(EntryMenuItem('Name:', self.on_name, self.player_name))
         items.append(EntryMenuItem('Deck file:', self.on_deckfile, self.deckfile))
         items.append(EntryMenuItem('Port:', self.on_port, str(self.port)))
@@ -188,7 +189,6 @@ class StartGameMenu(NetworkGameMenu):
         #    ['2', '3', '4'],
         #    0)
         #)
-        items.append(self.flash_item)
         items.append(MenuItem('Back', self.on_quit))
         self.create_menu(items)
     def on_num_players(self, val): self.num_players = int(val)
@@ -201,11 +201,11 @@ class JoinGameMenu(NetworkGameMenu):
         super(JoinGameMenu, self).__init__('Join Game')
         self.flash_item = MenuItem('Join', self.on_join)
         items = []
+        items.append(self.flash_item)
         items.append(EntryMenuItem('Name:', self.on_name, self.player_name))
         items.append(EntryMenuItem('Deck file:', self.on_deckfile, self.deckfile))
         items.append(EntryMenuItem('Host:', self.on_host, self.host))
         items.append(EntryMenuItem('Port:', self.on_port, str(self.port)))
-        items.append(self.flash_item)
         items.append(MenuItem('Back', self.on_quit))
         self.create_menu(items)
 
@@ -214,10 +214,10 @@ class ObserveGameMenu(NetworkGameMenu):
         super(ObserveGameMenu, self).__init__('Observe Game')
         self.flash_item = MenuItem('Observe', self.on_join)
         items = []
+        items.append(self.flash_item)
         items.append(EntryMenuItem('Name:', self.on_name, self.player_name))
         items.append(EntryMenuItem('Host:', self.on_host, self.host))
         items.append(EntryMenuItem('Port:', self.on_port, str(self.port)))
-        items.append(self.flash_item)
         items.append(MenuItem('Back', self.on_quit))
         self.create_menu(items)
     def on_join(self):
@@ -234,11 +234,11 @@ class SolitaireGameMenu(IncantusMenu):
         self.p1_deckfile = config.get("main", "deckfile")
         self.p2_deckfile = config.get("solitaire", "deckfile")
         items = []
+        items.append(MenuItem('Start', self.on_start))
         items.append(EntryMenuItem('Player 1 Name:', lambda v: self.on_name(1, v), self.p1_name))
         items.append(EntryMenuItem('Player 1 Deck file:', lambda v: self.on_deckfile(1, v), self.p1_deckfile))
         items.append(EntryMenuItem('Player 2 Name:', lambda v: self.on_name(2, v), self.p2_name))
         items.append(EntryMenuItem('Player 2 Deck file:', lambda v: self.on_deckfile(2, v), self.p2_deckfile))
-        items.append(MenuItem('Start', self.on_start))
         items.append(MenuItem('Back', self.on_quit))
         self.create_menu(items)
     def on_name(self, num, val):
@@ -256,8 +256,8 @@ class ReloadSolitaireGameMenu(IncantusMenu):
         super(ReloadSolitaireGameMenu, self).__init__('Reload Solitaire Game')
         self.replay_file = config.get("general", "replay")
         items = []
-        items.append(EntryMenuItem('Replay File:', self.on_replayfile, self.replay_file))
         items.append(MenuItem('Reload', self.on_reload))
+        items.append(EntryMenuItem('Replay File:', self.on_replayfile, self.replay_file))
         items.append(MenuItem('Back', self.on_quit))
         self.create_menu(items)
     def on_replayfile(self, replay):
