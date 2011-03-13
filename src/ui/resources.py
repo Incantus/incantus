@@ -17,7 +17,7 @@ resource.reindex()
 class ImageCache(object):
     cache = {}
     @staticmethod
-    def get(key): return ImageCache.cache[key]
+    def get(key): return ImageCache.cache.get(key,None)
     @staticmethod
     def _load(filename, key):
         cache = ImageCache.cache
@@ -41,6 +41,14 @@ class ImageCache(object):
         ImageCache._load_multi("phases.png", status, 4, 3)
         fx = ["ring", "spiral", "targeting", "glow"]
         ImageCache._load_multi("fx.png", fx, 2, 2)
+    @staticmethod
+    def get_texture(fname):
+        cache = ImageCache.cache
+        tex = cache.get(fname, None)
+        if not tex:
+            tex = resource.image(fname).texture
+            ImageCache.cache[fname] = tex
+        return tex
 
 class ColorDict(object):
     def __init__(self, default=(1.0, 1.0, 1.0)):
