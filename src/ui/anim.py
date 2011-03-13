@@ -72,6 +72,7 @@ def cosine(t): return 1-cos(t*pi/2)
 def sine(t): return sin(t*pi/2)
 def exponential(t): return (exp(t)-1)/(exp(1)-1)
 def ease_out(t): return sqrt(sin(t*pi/2))
+def ease_in(t): return sqrt(1 - cos(t*pi/2))
 def ease_in_elastic(t, a=None, p=None):
     if not p: p = 0.3
     if not a or a < 1.0:
@@ -101,7 +102,7 @@ def oscillate(t):
 def oscillate_n(t, n=2):
     return sin(t*n*pi)
 
-_funcs = ["step", "reverse_step", "linear", "cosine", "sine", "exponential", "ease_out_back", "ease_in_circ", "ease_out_circ", "ease_out", "oscillate", "oscillate_n"]
+_funcs = ["step", "reverse_step", "linear", "cosine", "sine", "exponential", "ease_out_back", "ease_in_circ", "ease_out_circ", "ease_in", "ease_out", "oscillate", "oscillate_n"]
 _time_extension = ["constant", "extrapolate", "reverse", "repeat"]
 
 _funcs = dict([(l, globals()[l]) for l in _funcs])
