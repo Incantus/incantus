@@ -11,6 +11,7 @@ from pyglet.gl import *
 import anim
 import euclid
 from anim_euclid import AnimatedVector3, AnimatedQuaternion
+from resources import ImageCache
 
 import math
 import CardLibrary
@@ -361,43 +362,117 @@ class PlayView(Widget):
     def render_after_transform(self):
         for card in self.cards: card.draw()
 
-class Table(object):
+class Table(Widget):
+    redzone_width = anim.Animatable()
+    _render_redzone = anim.Animatable()
+    _highlight_top = anim.Animatable()
+    _highlight_bottom = anim.Animatable()
+
+    def highlight():
+        def fset(self, val):
+            if val == "top":
+                self._highlight_top, self._highlight_bottom = 1.0, 0.7
+            elif val == "bottom":
+                self._highlight_top, self._highlight_bottom = 0.7, 1.0
+        return locals()
+    highlight = property(**highlight())
+
+    def render_redzone():
+        def fget(self):
+            return self._render_redzone
+        def fset(self, val):
+            if val:
+                self._render_redzone = 1.
+                self.redzone_width = 1.5
+            else:
+                self._render_redzone = 0.
+                self.redzone_width = 0
+        return locals()
+    render_redzone = property(**render_redzone())
+
     def __init__(self):
-        self.table_plane = euclid.Plane(euclid.Point3(0., 0, 0.), euclid.Vector3(0., 1., 0.))
-        self.render_redzone = False
-        self.background = pyglet.image.load("./data/images/hardwoodfloor.png").texture
+        self.background = ImageCache.get_texture("matte.png")
+        self.redzone_width = anim.animate(0,0,dt=0.5, method="linear")
+        self._render_redzone = anim.animate(0,0,dt=0.5, method="linear")
+        self._highlight_top = anim.animate(0,0,dt=0.8, method="ease_out")
+        self._highlight_bottom = anim.animate(0,0,dt=0.8, method="ease_out")
+        self.highlight = "bottom"
+        self.numtiles = 8
+        self.size = 8
     def draw(self):
-        SIZE = 8
-        z = 0 #5
+        glClearColor(0,0,0,1)
+        glClear(GL_COLOR_BUFFER_BIT)
+        numtiles, size, z = self.numtiles, self.size, 0
+        length = size*numtiles
         glNormal3f(.0, 1., .0)
-        for x in range(-4*SIZE, 4*SIZE, SIZE):
-            for y in range(-4*SIZE, 4*SIZE, SIZE):
-                if ((x + y) / SIZE) % 2:
-                    glColor3f(0.2, 0.2, 0.2)
-                else:
-                    glColor3f(0.3, 0.3, 0.3)
-                glEnable(GL_TEXTURE_2D)
-                tc = self.background.tex_coords
-                glBindTexture(self.background.target, self.background.id)
-                glBegin(GL_QUADS)
-                glTexCoord2f(tc[0], tc[1])
-                glVertex3f(x, z, y)
-                glTexCoord2f(tc[3], tc[4])
-                glVertex3f(x+SIZE, z, y)
-                glTexCoord2f(tc[6], tc[7])
-                glVertex3f(x+SIZE, z, y+SIZE)
-                glTexCoord2f(tc[9], tc[10])
-                glVertex3f(x, z, y+SIZE)
-                glEnd()
-        if self.render_redzone:
-            x = 4*SIZE
-            ymin = -3.2
-            ymax = 3.2
-            z += 0.001
-            glColor4f(1.0, 0.0, 0.0, 0.8)
+        playmat = self.background
+        glEnable(playmat.target)
+        glBindTexture(playmat.target, playmat.id)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        tc = playmat.tex_coords
+        glBegin(GL_QUADS)
+        ht, hb = self._highlight_top, self._highlight_bottom
+        glColor4f(1.0,1.0,1.0, self._highlight_bottom)
+        #glTexCoord2f(-numtiles, -numtiles)
+        #glVertex3f(-length, z, -length)
+        #glTexCoord2f(numtiles, -numtiles)
+        #glVertex3f(length, z, -length)
+        #glTexCoord2f(numtiles, numtiles)
+        #glVertex3f(length, z, length)
+        #glTexCoord2f(-numtiles, numtiles)
+        #glVertex3f(-length, z, length)
+        glTexCoord2f(-numtiles, 0)
+        glVertex3f(-length, z, 0)
+        glTexCoord2f(numtiles, 0)
+        glVertex3f(length, z, 0)
+        glTexCoord2f(numtiles, numtiles)
+        glVertex3f(length, z, length)
+        glTexCoord2f(-numtiles, numtiles)
+        glVertex3f(-length, z, length)
+        glColor4f(1.,1.,1., self._highlight_top)
+        glTexCoord2f(-numtiles, -numtiles)
+        glVertex3f(-length, z, -length)
+        glTexCoord2f(numtiles, -numtiles)
+        glVertex3f(length, z, -length)
+        glTexCoord2f(numtiles, 0)
+        glVertex3f(length, z, 0)
+        glTexCoord2f(-numtiles, 0)
+        glVertex3f(-length, z, 0)
+        glEnd()
+        glDisable(self.background.target)
+
+        z += 0.005
+        if not self.render_redzone:
+            glLineWidth(5.0)
+            glBegin(GL_LINES)
+            glColor4f(0., 0., 0., 0.7)
+            glVertex3f(-length,z,0)
+            glVertex3f(length,z,0)
+            glEnd()
+        else:
+            y = self.redzone_width
+            glEnable(playmat.target)
+            glBindTexture(playmat.target, playmat.id)
+            glColor4f(1.0, 0.0, 0.0, 1.0)
             glBegin(GL_QUADS)
-            glVertex3f(-x, z, ymin)
-            glVertex3f(x, z, ymin)
-            glVertex3f(x, z, ymax)
-            glVertex3f(-x, z, ymax)
+            glTexCoord2f(-numtiles, -1)
+            glVertex3f(-length, z, -y)
+            glTexCoord2f(numtiles, -1)
+            glVertex3f(length, z, -y)
+            glTexCoord2f(numtiles, 1)
+            glVertex3f(length, z, y)
+            glTexCoord2f(-numtiles, 1)
+            glVertex3f(-length, z, y)
+            glEnd()
+            glDisable(playmat.target)
+            glLineWidth(2.0)
+            glColor4f(0., 0., 0., .7)
+            glBegin(GL_LINES)
+            glVertex3f(-length,z,-y)
+            glVertex3f(length,z,-y)
+            glVertex3f(-length,z,y)
+            glVertex3f(length,z,y)
             glEnd()
