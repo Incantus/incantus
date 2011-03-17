@@ -14,7 +14,7 @@ from ui.menu import HierarchicalMenu, MainMenu
 @director.event
 def on_exit():
     reactor.stop()
-    reactor.resume()
+    #reactor.resume()
 
 def main():
     pyglet.clock.schedule(lambda dt: reactor.resume())
