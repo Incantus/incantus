@@ -6,6 +6,7 @@ from pyglet.gl import *
 import anim, math
 import euclid
 import mtg_decoder
+import colors
 from widget import Widget, Image, Label
 from engine import Mana
 from resources import ImageCache, render_9_part
@@ -568,9 +569,9 @@ class StatusView(Widget):
             return (0 < x <= self.width and 0 < y <= self.height)
     def setup_player(self, player, color, avatar_data):
         self.player = player
-        self.color = color
         avatar = pyglet.image.load('avatar.png', StringIO(avatar_data))
         self.avatar.img = avatar.get_texture()
+        self.color = colors.compute_color_from_image(avatar)
         self.player_name.set_text(player.name)
         self.update_life()
         for zone in ["library", "hand", "graveyard", "exile"]:

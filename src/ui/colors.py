@@ -1,3 +1,21 @@
+import colorsys, struct, itertools
+from array import array
+
+def compute_color_from_image(img):
+    data = img.get_data("RGB", img.width*3)
+    rgb  = iter(struct.unpack("%dB"%len(data), data))
+    hsv = [colorsys.rgb_to_hsv(r/255., g/255., b/255.) for r,g,b in itertools.izip_longest(rgb,rgb,rgb)]
+    # threshold hue and saturation
+    hbin = 30
+    hx = 360/hbin
+    hist = array('I', [0]*(hx*101))
+    for h, s, v  in ((int(h*360), int(s*100), int(v*100)) for h,s,v in hsv):
+        if s > 20: hist[s*hx+(h/hbin)] += 1
+    idx = hist.index(max(hist))
+    h, s = idx % hx, idx // hx
+    return colorsys.hsv_to_rgb(h/float(hx), s/100., 1.0)
+    #return colorsys.hsv_to_rgb(h/float(hx), 1.0, v/100.)
+
 dark_yellow = (196, 160, 0, 255)
 yellow = (237, 212./255, 0, 255)
 light_yellow = (252, 233, 79, 255)
