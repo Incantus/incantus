@@ -1,5 +1,5 @@
 
-import time, random, md5
+import time, random, hashlib
 
 def uuid( *args ):
   """
@@ -14,7 +14,7 @@ def uuid( *args ):
     # if we can't get a network address, just imagine one
     a = random.random()*100000000000000000L
   data = str(t)+' '+str(r)+' '+str(a)+' '+str(args)
-  data = md5.md5(data).hexdigest()
+  data = hashlib.md5(data).hexdigest()
   return data
 
 isiterable = lambda obj: getattr(obj, '__iter__', False)
