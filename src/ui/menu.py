@@ -136,6 +136,7 @@ class NetworkGameMenu(IncantusMenu):
         self.host = config.get("network", "server")
         self.port = int(config.get("network", "port"))
         self.deckfile = config.get("main", "deckfile")
+        self.avatar = config.get("main", "avatar")
         self.flashing = False
         #self.flash_action = Repeat(FadeOut(1)+FadeIn(1))
     def on_name(self, name):
@@ -148,8 +149,9 @@ class NetworkGameMenu(IncantusMenu):
         self.deckfile = deckfile
     def on_join(self):
         decklist = Incantus.load_deckfile(self.deckfile)
-        defrd = Incantus.join_game(self.player_name, decklist, self.host, self.port)
-        defrd.addCallback(lambda x: self.parent.parent.switch_to(1))
+        avatar_data = Incantus.load_avatar(self.avatar)
+        defrd = Incantus.join_game(self.player_name, decklist, avatar_data, self.host, self.port)
+        #defrd.addCallback(lambda x: self.parent.parent.switch_to(1))
         #defrd.addErrback(lambda x: self.stop_flashing())
         #self.flash()
     def on_key_press(self, symbol, modifiers):
@@ -233,12 +235,16 @@ class SolitaireGameMenu(IncantusMenu):
         self.p2_name = config.get("solitaire", "playername")
         self.p1_deckfile = config.get("main", "deckfile")
         self.p2_deckfile = config.get("solitaire", "deckfile")
+        self.p1_avatar = config.get("main", "avatar")
+        self.p2_avatar = config.get("solitaire", "avatar")
         items = []
         items.append(MenuItem('Start', self.on_start))
         items.append(EntryMenuItem('Player 1 Name:', lambda v: self.on_name(1, v), self.p1_name))
         items.append(EntryMenuItem('Player 1 Deck file:', lambda v: self.on_deckfile(1, v), self.p1_deckfile))
+        items.append(EntryMenuItem('Player 1 Avatar:', lambda v: self.on_avatar(1, v), self.p1_avatar))
         items.append(EntryMenuItem('Player 2 Name:', lambda v: self.on_name(2, v), self.p2_name))
         items.append(EntryMenuItem('Player 2 Deck file:', lambda v: self.on_deckfile(2, v), self.p2_deckfile))
+        items.append(EntryMenuItem('Player 2 Avatar:', lambda v: self.on_avatar(2, v), self.p2_avatar))
         items.append(MenuItem('Back', self.on_quit))
         self.create_menu(items)
     def on_name(self, num, val):
@@ -247,8 +253,12 @@ class SolitaireGameMenu(IncantusMenu):
     def on_deckfile(self, num, val):
         varname = "p%d_deckfile"%num
         setattr(self, varname, val)
+    def on_avatar(self, num, val):
+        varname = "p%d_avatar"%num
+        setattr(self, varname, val)
     def on_start(self):
-        players = [(self.p1_name, Incantus.load_deckfile(self.p1_deckfile)), (self.p2_name, Incantus.load_deckfile(self.p2_deckfile))]
+        players = [(self.p1_name, Incantus.load_deckfile(self.p1_deckfile), Incantus.load_avatar(self.p1_avatar)), 
+                   (self.p2_name, Incantus.load_deckfile(self.p2_deckfile), Incantus.load_avatar(self.p2_avatar))]
         Incantus.start_solitaire(self.p1_name, players)
 
 class ReloadSolitaireGameMenu(IncantusMenu):

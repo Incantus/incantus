@@ -10,7 +10,7 @@ class GameServer(object):
         self.avatarTypes = {"player" : PlayerAvatar,
                             "observer" : ObserverAvatar}
         self.avatars = []
-        self.decks = {}
+        self.info = {}
         self.num_players = num_players
         self.seed = seed
         self.game_started = False
@@ -22,9 +22,10 @@ class GameServer(object):
         avatar = self.avatarTypes[avatarType](nickname, self, clientRef)
         self.join(avatar)
         return avatar
-    def playing_with(self, avatar, deckfile):
+    def set_info(self, avatar, info):
+        deckfile, avatar_data = info
         # Check if the deckfile is valid
-        self.decks[avatar.name] = deckfile
+        self.info[avatar.name] = info
         return True
     def can_play(self, avatar, defers=[]):
         # XXX This might possibly have a race condition
@@ -40,7 +41,7 @@ class GameServer(object):
             return dfr
         elif len(self.avatars) == self.num_players:
             self.game_started = True
-            self.players = [(a.name, self.decks[a.name]) for a in self.avatars]
+            self.players = [(a.name, self.info[a.name][0], self.info[a.name][1]) for a in self.avatars]
             result = (self.seed, self.players)
             for dfr in defers: dfr.callback(result)
             # Signal the last one directly
@@ -110,8 +111,8 @@ class Client(pb.Referenceable):
         return self.avatar.callRemote('send_action', dumps(action))
     def send_message(self, msg):
         return self.avatar.callRemote('message', msg)
-    def send_decklist(self, decklist):
-        return self.avatar.callRemote('decklist', decklist)
+    def send_info(self, info):
+        return self.avatar.callRemote('player_info', info)
     def ready_to_start(self):
         return self.avatar.callRemote('can_start')
     def ready_to_play(self):
@@ -145,8 +146,8 @@ class PlayerAvatar(ObserverAvatar):
     caught_up = True
     def perspective_send_action(self, action):
         self.server.propagate_action(self, action)
-    def perspective_decklist(self, decklist):
-        return self.server.playing_with(self, decklist)
+    def perspective_player_info(self, info):
+        return self.server.set_info(self, info)
 
 # Login stuff
 

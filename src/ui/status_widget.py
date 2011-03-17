@@ -9,6 +9,7 @@ import mtg_decoder
 from widget import Widget, Image, Label
 from engine import Mana
 from resources import ImageCache, render_9_part
+from cStringIO import StringIO
 
 zero = euclid.Vector3(0,0,0)
 
@@ -522,7 +523,7 @@ class StatusView(Widget):
         sizes = [20, 14, 14, 14, 14]
         self.values = dict([(symbol, Label('', size, fontname = "Arial Bold", halign="center", valign="center", shadow=False)) for symbol, size in zip(symbols, sizes)])
         #for val in self.values.values():
-        self.avatar = Image(ImageCache.get_texture("avatar%d.png"%(1 if not self.is_opponent else 2)))
+        self.avatar = Image(pyglet.image.Texture.create(80,80))
         self.avatar.shaking = 0
         self.avatar.alpha = anim.animate(1., 1., dt=0.25)
         self.alpha = anim.animate(1., 1., dt=0.25)
@@ -565,9 +566,11 @@ class StatusView(Widget):
                 return status
         else:
             return (0 < x <= self.width and 0 < y <= self.height)
-    def setup_player(self, player, color):
+    def setup_player(self, player, color, avatar_data):
         self.player = player
         self.color = color
+        avatar = pyglet.image.load('avatar.png', StringIO(avatar_data))
+        self.avatar.img = avatar.get_texture()
         self.player_name.set_text(player.name)
         self.update_life()
         for zone in ["library", "hand", "graveyard", "exile"]:
@@ -658,7 +661,7 @@ class StatusView(Widget):
             
     def render_after_transform(self):
         ac = self.color
-        glColor4f(ac[0]*0.5, ac[1]*0.5, ac[2]*0.5, self.alpha)
+        glColor4f(ac[0], ac[1], ac[2], self.alpha)
         life_height = self.values['life'].height
         h1, h2 = self.height - life_height, life_height
         if self.is_opponent: h1, h2 = h2, h1

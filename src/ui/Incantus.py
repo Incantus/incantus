@@ -231,12 +231,12 @@ class IncantusLayer(Layer):
         self.mainplayer_status.clear()
         self.otherplayer_status.clear()
     def make_connections(self, player1_info, player2_info):
-        player1, self_color = player1_info
-        player2, other_color = player2_info
+        player1, self_color, self_avatar = player1_info
+        player2, other_color, other_avatar = player2_info
         self.player1 = player1
         self.player2 = player2
-        self.mainplayer_status.setup_player(player1, self_color)
-        self.otherplayer_status.setup_player(player2, other_color)
+        self.mainplayer_status.setup_player(player1, self_color, self_avatar)
+        self.otherplayer_status.setup_player(player2, other_color, other_avatar)
         self.phase_status.setup_player_colors(player1, self_color, other_color)
         self.zone_animator.setup(self.mainplayer_status, self.otherplayer_status, self.stack, self.mainplay,self.otherplay,self.table)
 
@@ -429,13 +429,15 @@ class IncantusLayer(Layer):
         seed = self.dump_to_replay.read()
         player1_name = self.dump_to_replay.read()
         my_deck = self.dump_to_replay.read()
+        my_avatar = self.dump_to_replay.read_raw()
         player2_name = self.dump_to_replay.read()
         other_deck = self.dump_to_replay.read()
-        player_data = [(player1_name,my_deck), (player2_name,other_deck)]
+        other_avatar = self.dump_to_replay.read_raw()
+        player_data = [(player1_name,my_deck,my_avatar), (player2_name,other_deck,other_avatar)]
 
         random.seed(seed)
         players = []
-        for name, deck in player_data: players.append(GamePlayer(name, deck))
+        for name, deck, avatar in player_data: players.append(GamePlayer(name, deck))
 
         player1, player2 = players[:2]
 
@@ -445,7 +447,7 @@ class IncantusLayer(Layer):
         self.otherplayer_hand.set_hidden(False)
 
         Keeper.init(players)
-        self.make_connections((player1, (0,0,255)), (player2, (255,255,0)))
+        self.make_connections((player1, (0,0,255), my_avatar), (player2, (255,255,0), other_avatar))
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in players])
@@ -461,16 +463,19 @@ class IncantusLayer(Layer):
         self.dump_to_replay = replaydump.ReplayDump(save=True)
         self.dump_to_replay.write(True)
         self.dump_to_replay.write(seed)
-        for name, deck in player_data:
+        for name, deck, avatar in player_data:
             self.dump_to_replay.write(name)
             self.dump_to_replay.write(deck)
+            self.dump_to_replay.write_raw(avatar)
 
         random.seed(seed)
         players = []
-        for name, deck in player_data: players.append(GamePlayer(name, deck))
+        for name, deck, avatar in player_data: players.append(GamePlayer(name, deck))
 
         player1, player2 = players[:2]
-        if player1.name != player_name: player1, player2 = player2, player1
+        if player1.name != player_name: 
+            player1, player2 = player2, player1
+            player_data.reverse()
 
         for player in players:
             if not client or player.name == player_name:
@@ -480,7 +485,7 @@ class IncantusLayer(Layer):
             else: player.dirty_input = self.network_input
 
         Keeper.init(players)
-        self.make_connections((player1, (0,0,255)), (player2, (255,255,0)))
+        self.make_connections((player1, (0,0,255), player_data[0][2]), (player2, (255,255,0), player_data[1][2]))
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in players])
@@ -516,7 +521,7 @@ def reload_solitaire(replay_file):
     #director.push(ZoomTransition(gamescene, 1.5))
     gamelayer.game_reload(replay_file)
 
-def join_game(player_name, decklist, host, port):
+def join_game(player_name, decklist, avatar_data, host, port):
     #chatbox = ChatBox(0, 40, 400, 40, 'bottom')
     def setup_board(client):
         gamelayer = IncantusLayer()
@@ -533,7 +538,7 @@ def join_game(player_name, decklist, host, port):
         client.avatar = avatar
         #client.msg_callback = chatbox.add_text
         #chatbox.set_callback(client.send_message)
-        defrd = client.send_decklist(decklist)
+        defrd = client.send_info((decklist, avatar_data))
         defrd.addCallback(lambda result: setup_board(client))
 
     client = realm.Client(player_name, host, port)
@@ -574,3 +579,5 @@ def load_deckfile(filename):
     decklist = [(l[0], " ".join(l[1:])) for l in deckfile if l and l[0] != "SB:"]
     return decklist
 
+def load_avatar(filename):
+    return file(filename, "rb").read()

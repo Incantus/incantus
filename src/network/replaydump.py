@@ -68,16 +68,19 @@ class ReplayDump(object):
     def close(self):
         self.dumpfile.close()
     def do_write(self, obj):
-        data = dumps(obj)
+        self.write_raw(dumps(obj))
+    def write_raw(self, data):
         data = struct.pack('>I', len(data)) + data
         self.dumpfile.write(data)
         self.dumpfile.flush()
     def do_read(self):
+        return loads(self.read_raw())
+    def read_raw(self):
         try:
             self.lastpos = self.dumpfile.tell()
             size = struct.unpack('>I', self.dumpfile.read(4))[0]
             data = self.dumpfile.read(size)
-            return loads(data)
+            return data
         except Exception: #(EOFError, TypeError, KeyError):
             self.reset_append()
             raise ReplayFinishedException()
