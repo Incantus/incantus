@@ -11,6 +11,7 @@ from widget import Widget, Image, Label
 from engine import Mana
 from resources import ImageCache, render_9_part
 from cStringIO import StringIO
+from card_view import ZoneView
 
 zero = euclid.Vector3(0,0,0)
 
@@ -530,6 +531,7 @@ class StatusView(Widget):
         self.alpha = anim.animate(1., 1., dt=0.25)
 
         self.manapool = ManaPool(is_opponent)
+        self.zone_view = ZoneView()
         self._library = LibraryImage(is_opponent)
         self.width, self.height = 145,135
     #    self.layout()
@@ -680,6 +682,7 @@ class StatusView(Widget):
             symbol.render()
             value.render()
         self.manapool.render()
+        self.zone_view.render()
         if self._reveal_library: self._library.render()
 
 

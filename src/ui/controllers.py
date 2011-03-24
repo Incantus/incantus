@@ -175,15 +175,13 @@ class SelectController(object):
         return True
 
 class CardSelector(object):
-    def __init__(self, mainstatus, otherstatus, zone_view, window):
+    def __init__(self, mainstatus, otherstatus, window):
         self.mainstatus = mainstatus
         self.otherstatus = otherstatus
-        self.zone_view = zone_view
         self.window = window
     def activate(self, sellist, from_zone, number=1, required=False, is_opponent=False, filter=None, actionable=True):
         self.required = required
         self.number = number  # if number is -1 then we can select any number of cards
-        self.tmp_dx = 0
         self.filter = filter
         self.actionable = actionable
         director.window.push_handlers(self)
@@ -194,11 +192,14 @@ class CardSelector(object):
         else:
             if not is_opponent: status = self.mainstatus
             else: status = self.otherstatus
-            self.zone_view.pos = status.pos + status.symbols[from_zone].pos
+            self.zone_view = status.zone_view
+            pos = status.symbols[from_zone].pos
+            self.zone_view.pos = euclid.Vector3(status.width+10+self.zone_view.padding, pos.y, pos.z)
         self.zone_view.build(sellist, is_opponent)
         self.zone_view.show()
         self.dragging = False
         self.resizing = False
+        self._initial_shift = self.zone_view.shift_factor
     def deactivate(self):
         self.zone_view.hide()
         director.window.remove_handlers(self)
@@ -219,28 +220,31 @@ class CardSelector(object):
                 self.deactivate()
             return True
         elif symbol == key.LEFT:
-            if self.zone_view.focus_previous():
-                sc, dx, dir = self.zone_view.scroll, self.zone_view.scroll_shift, self.zone_view.dir
-                self.zone_view.scroll = (sc[0]-dx*dir, sc[1], sc[2]-dx*dir, sc[3])
+            self.zone_view.focus_previous()
             return True
         elif symbol == key.RIGHT:
-            if self.zone_view.focus_next():
-                sc, dx, dir = self.zone_view.scroll, self.zone_view.scroll_shift, self.zone_view.dir
-                self.zone_view.scroll = (sc[0]+dx*dir, sc[1], sc[2]+dx*dir, sc[3])
+            self.zone_view.focus_next()
             return True
         elif symbol == key.UP:
             self.zone_view.toggle_sort()
             return True
     def on_mouse_press(self, x, y, button, modifiers):
-        x -= self.zone_view.pos.x
-        y -= self.zone_view.pos.y
+        if self.zone_view.dir == 1: pos = self.mainstatus.pos
+        else: pos = self.otherstatus.pos
+        x -= self.zone_view.pos.x + pos.x
+        y -= self.zone_view.pos.y + pos.y
         # Check scroll bar
         l, b, r, t = self.zone_view.scroll
-        if self.zone_view.dir == -1: b, t = t, b
+        sb_l, sb_b, sb_r, sb_t = self.zone_view.scroll_bar
+        self.tmp_dx = 0
         if button == mouse.RIGHT or modifiers & key.MOD_SHIFT:
-            pass #self.resizing = True
-        elif x >= l and x <= r and y >= b and y <= t:
-            self.dragging = True
+            self.resizing = True
+        if sb_l <= x <= sb_r and sb_b <= y <= sb_t:   # scroll bar:
+            if x >= l and x <= r and y >= b and y <= t:
+                self.dragging = True
+                self._initial_idx = self.zone_view.focus_idx
+            elif x < l: self.zone_view.focus_previous()
+            else: self.zone_view.focus_next()
         else:
             flag, result = self.zone_view.handle_click(x, y)
             if flag == 0:
@@ -253,30 +257,25 @@ class CardSelector(object):
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         zv = self.zone_view
         if self.dragging:
-            x -= zv.pos.x
-            scroll_width = (zv.scroll[2]-zv.scroll[0])/2
-            if zv.scroll_bar[0]+scroll_width < x < zv.scroll_bar[2]-scroll_width:
-                self.tmp_dx += dx
-                sc = zv.scroll
-                zv.scroll = (sc[0]+dx, sc[1], sc[2]+dx, sc[3])
-                idx_change = int(self.tmp_dx / zv.scroll_shift)
-                if idx_change != 0:
-                    self.tmp_dx = self.tmp_dx % zv.scroll_shift
-                    if idx_change < 0: self.tmp_dx -= zv.scroll_shift
-                    zv.focus_idx += idx_change
-                    zv.layout()
+            self.tmp_dx += dx
+            idx_change = int(self.tmp_dx / zv.scroll_shift)
+
+            old_idx = zv.focus_idx
+            zv.focus_idx = self._initial_idx + idx_change
+            # cap scrolling at each end
+            if zv.focus_idx > len(zv)-1: zv.focus_idx = len(zv)-1
+            elif zv.focus_idx < 0: zv.focus_idx = 0
+            if not zv.focus_idx == old_idx: zv.layout()
         elif self.resizing:
             self.tmp_dx += dx
             zv.shift_factor += self.tmp_dx/400
-            if zv.shift_factor < 0.1:
-                self.tmp_dx = 0
-                zv.shift_factor = 0.1
-            elif zv.shift_factor > 1.1:
-                self.tmp_dx = 0
-                zv.shift_factor = 1.1
+            if zv.shift_factor < self._initial_shift:
+                #self.tmp_dx = 0
+                zv.shift_factor = self._initial_shift
+            elif zv.shift_factor > self._initial_shift*2:
+                #self.tmp_dx = 0
+                zv.shift_factor = self._initial_shift*2
             zv.layout()
-        return True
-    def on_mouse_motion(self, x, y, dx, dy):
         return True
     def on_mouse_release(self, x, y, button, modifiers):
         if self.dragging: self.dragging = False
@@ -458,11 +457,10 @@ class DistributionSelector(object):
         return True
 
 class StatusController(object):
-    def __init__(self, mainstatus, otherstatus, zone_view, phase_status, window):
+    def __init__(self, mainstatus, otherstatus, phase_status, window):
         self.mainstatus = mainstatus
         self.otherstatus = otherstatus
         self.phase_status = phase_status
-        self.zone_view = zone_view
         self.window = window
         self.value = None
         self.clicked = False
@@ -482,22 +480,21 @@ class StatusController(object):
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         self.tmp_dx += dx
         if self.clicked:
-            if self.tmp_dx > 15:
+            if self.tmp_dx > self.zone_view.scroll_shift:
                 self.tmp_dx = 0
                 self.zone_view.focus_next()
-            elif self.tmp_dx < -15:
+            elif self.tmp_dx < -self.zone_view.scroll_shift:
                 self.tmp_dx = 0
                 self.zone_view.focus_previous()
         return self.clicked
-    def on_mouse_release(self, x, y, button, modifiers):
-        if self.clicked:
-            zone_view = self.zone_view
-            if len(zone_view.cards):
-                self.window.process_action(Action.CardSelected(zone_view.focused.gamecard))
-                if modifiers & key.MOD_CTRL: self.window.keep_priority()
-            zone_view.hide()
-            self.tmp_dx = 0
-            self.clicked = False
+    #def on_mouse_release(self, x, y, button, modifiers):
+    #    if self.clicked:
+    #        zone_view = self.zone_view
+    #        if len(zone_view.cards):
+    #            self.window.process_action(Action.CardSelected(zone_view.focused.gamecard))
+    #            if modifiers & key.MOD_CTRL: self.window.keep_priority()
+    #        zone_view.hide()
+    #        self.clicked = False
     def on_mouse_press(self, x, y, button, modifiers):
         for status in [self.mainstatus, self.otherstatus]:
             value = status.handle_click(x, y)
@@ -506,16 +503,25 @@ class StatusController(object):
                     status.toggle()
                 elif value == True or value == "life":
                     self.window.process_action(Action.PlayerSelected(status.player))
-                elif value == "library": 
-                        status.toggle_library()
                 elif value in self.observable_zones:
                         zone = getattr(status.player, value)
-                        if len(zone):
-                            self.clicked = True
-                            self.zone_view.pos = euclid.Vector3(x, y, 0)
-                            self.zone_view.pos = status.pos + status.symbols[value].pos
-                            self.zone_view.build(zone, status.is_opponent)
-                            self.zone_view.show()
+                        self.zone_view = status.zone_view
+                        if not self.zone_view.visible:
+                            if len(zone):
+                                self.clicked = True
+                                self.tmp_dx = 0
+                                #self.zone_view.pos = euclid.Vector3(x, y, 0)
+                                #self.zone_view.pos = status.pos + status.symbols[value].pos
+                                #pos = status.pos + status.symbols[value].pos
+                                #self.zone_view.pos = euclid.Vector3(status.pos.x+status.width+10+self.zone_view.padding, pos.y, pos.z)
+                                pos = status.symbols[value].pos
+                                self.zone_view.pos = euclid.Vector3(status.width+10+self.zone_view.padding, pos.y, pos.z)
+                                self.zone_view.build(zone, status.is_opponent)
+                                self.zone_view.show()
+                        else:
+                            self.zone_view.hide()
+                elif value == "library": 
+                        status.toggle_library()
                 return True
 
 class XSelector(object):

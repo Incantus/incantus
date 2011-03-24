@@ -19,7 +19,7 @@ import euclid
 import soundfx
 
 from Camera import Camera
-from card_view import HandView, StackView, ZoneView
+from card_view import HandView, StackView
 from play_view import PlayView, Table
 from status_widget import StatusView, GameStatus, SelectionList, MessageDialog, ManaView, PhaseStatus, PhaseBar
 from animator import ZoneAnimator
@@ -55,13 +55,12 @@ class IncantusLayer(Layer):
         self.otherplayer_status = StatusView(is_opponent=True)
         self.mana_controller = ManaController(self.mainplayer_status.manapool, self.otherplayer_status.manapool, self)
         self.x_controller = XSelector(self.mainplayer_status.manapool, self.otherplayer_status.manapool, self)
-        self.zone_view = ZoneView()
-        self.card_selector = CardSelector(self.mainplayer_status, self.otherplayer_status, self.zone_view, self)
+        self.card_selector = CardSelector(self.mainplayer_status, self.otherplayer_status, self)
         #self.game_status = GameStatus()
         self.phase_status = PhaseStatus()
         self.phase_bar = PhaseBar()
         self.phase_controller = PhaseController(self.phase_status, self)
-        self.status_controller = StatusController(self.mainplayer_status, self.otherplayer_status, self.zone_view, self.phase_status, self)
+        self.status_controller = StatusController(self.mainplayer_status, self.otherplayer_status, self.phase_status, self)
         self.selection = SelectionList()
         self.list_selector = SelectController(self.selection, self)
         self.msg_dialog = MessageDialog()
@@ -168,7 +167,6 @@ class IncantusLayer(Layer):
         self.mainplayer_status.render()
         #self.game_status.render()
         self.stack.render()
-        self.zone_view.render()
         self.zone_animator.render2d()
         self.msg_dialog.render()
         self.selection.render()

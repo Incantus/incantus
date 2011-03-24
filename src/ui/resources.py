@@ -55,6 +55,7 @@ class ImageCache(object):
         ImageCache._load("9partbox3.png", "box3")
         ImageCache._load("9partbox4.png", "box4")
         ImageCache._load("9partbox5.png", "box5")
+        ImageCache._load("9partbox6.png", "box6")
         ImageCache._load("button1.png", "button1")
         ImageCache._load("button2.png", "button2")
         ImageCache._load("button3.png", "button3")
