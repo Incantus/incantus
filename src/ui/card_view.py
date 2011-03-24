@@ -545,7 +545,7 @@ class ZoneView(CardView):
             sx, sy, sw, sh = card.pos.x, card.pos.y, card.width/2, card.height/2
             if x > sx-sw and x < sx+sw and y >= sy-sh and y <= sy+sh:
                 return 0, card
-        for card in self.selected[::-1]:
+        for card in self.selected:
             sx, sy, sw, sh = card.pos.x, card.pos.y, card.width*size, card.height*size
             if x > sx-sw and x < sx+sw and y >= sy-sh and y <= sy+sh:
                 return 1, card
@@ -565,26 +565,19 @@ class ZoneView(CardView):
             card.pos = euclid.Vector3(-self.padding,0,0)
             card.size = anim.animate(card.size, 0.1, dt=0.25, method="ease_out_circ")
     def layout_selected(self):
-        #dir = self.dir
         if self.selected:
             size = self.focus_size / 2
-            selected_width = self.selected[0].width*size
-            self.selected_width = selected_width+2*self.padding
-            x = self.width+selected_width/2+2*self.padding
-            y = self.height-self.selected[0].height*size/2
-            yincr = y / (len(self.selected)+1)
+            swidth, sheight = self.selected[0].width*size, self.selected[0].height*size
+            self.selected_width = swidth+2*self.padding
+            x = self.width+swidth/2+2*self.padding
+ 
+            yincr = (self.height-sheight) / (len(self.selected)+1)
+            y = yincr+sheight/2
             for card in self.selected:
                 card.size = size
-                #y = card.height*(1.1+size/2)#*dir
                 card.pos = euclid.Vector3(x,y,0)
-                y -= yincr
-                #y -= card.height*0.5*size
-                #x += card.width*size*1.1#*dir
-        #    self.selected_text[0].visible = self.selected_text[1].visible = 1.0
-        #    self.selected_text[0].pos = euclid.Vector3(-card.width*size*0.65*dir, y, 0)
-        #    self.selected_text[1].pos = euclid.Vector3(x-card.width*size*0.45*dir, y, 0)
+                y += yincr
         else:
-        #    self.selected_text[0].visible = self.selected_text[1].visible = 0.0
             self.selected_width = 0
     def layout_straight(self):
         numcards = len(self)
@@ -706,5 +699,5 @@ class ZoneView(CardView):
             for card in self.cards[-1:self.focus_idx:-1]: card.draw()
             for card in self.cards[:self.focus_idx]: card.draw()
             self.focused.draw()
-        for card in self.selected: card.draw()
+        for card in self.selected[::-1]: card.draw()
         #for label in self.selected_text: label.render()
