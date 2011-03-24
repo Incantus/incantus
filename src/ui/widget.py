@@ -33,7 +33,6 @@ class Widget(anim.Animable):
 
     def __init__(self, pos=euclid.Vector3(0,0,0)):
         self._pos = AnimatedVector3(pos)
-        self.orig_pos = pos
         self.visible = anim.animate(0, 1, dt=1.0)
         self.rotatex = anim.animate(0,0,dt=1.0)
         self.rotatey = anim.animate(0,0,dt=1.0)
