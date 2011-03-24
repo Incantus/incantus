@@ -541,7 +541,7 @@ class StatusView(Widget):
     #    else:
     #        pos = euclid.Vector3(offset, offset, 0)
     #    self._pos.set(pos)
-    #    self._orig_pos = pos
+        self._orig_pos = self.pos
     def clear(self):
         self.symbols['life'].rotatey = anim.constant(0)
         status = self.values
