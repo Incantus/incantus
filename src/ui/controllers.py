@@ -249,7 +249,11 @@ class CardSelector(object):
             flag, result = self.zone_view.handle_click(x, y)
             if flag == 0:
                 if len(self.zone_view.cards):
-                    if (self.number == -1 or len(self.zone_view.selected) < self.number) and self.filter(result.gamecard):
+                    if (self.number == -1) and self.filter(result.gamecard):
+                        # Move result to the end
+                        #self.zone_view.move_to_end(result)
+                        self.zone_view.select_card(result)
+                    elif (len(self.zone_view.selected) < self.number and self.filter(result.gamecard)):
                         self.zone_view.select_card(result)
             elif flag == 1:
                 self.zone_view.deselect_card(result)

@@ -361,7 +361,7 @@ class Card(anim.Animable):
             glBindTexture(self._texture.target, self._texture.id)
             #glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST) #LINEAR)
-            glColor4f(self.alpha, self.alpha, self.alpha, self.alpha)
+            glColor4f(self.alpha, self.alpha, self.alpha, 1.0) #self.alpha)
             glCallList(self.cardlist)
             glDisable(self._texture.target)
             glPopMatrix()

@@ -519,8 +519,12 @@ class ZoneView(CardView):
         #newcard._orientation.set(euclid.Quaternion())
         #newcard._orientation.set_transition(dt=0.2, method=self.orientation_transition)
         newcard.size = anim.animate(0.1, 0.1, dt=0.3, method="sine")
-        newcard.alpha = anim.animate(0, 1, dt=0.2, method="linear")
+        newcard.alpha = anim.animate(0, 1, dt=0.1, method="linear")
         self.cards.append(newcard)
+    def move_to_end(self, card):
+        self.cards.remove(card)
+        self.cards.append(card)
+        self.layout()
     def select_card(self, card):
         self.cards.remove(card)
         self.selected.append(card)
@@ -551,7 +555,7 @@ class ZoneView(CardView):
                 return 1, card
         return -1, None
     def show(self):
-        super(ZoneView,self).show()
+        self.visible = 1.0
     def hide(self):
         self.visible = 0.0
         for card in self.cards:
@@ -584,11 +588,11 @@ class ZoneView(CardView):
         if numcards > 0:
             cards = self.cards
             dir = 1 #self.dir
-            size = self.focus_size #0.25
+            size = self.focus_size*0.98 #0.25
             i = 0.001
             x_bump =  ((4-self.focus_idx)*self.shift_factor) if self.focus_idx < 4 else 0
             x, y = self.cards[0].width*size*(x_bump+1/2.), 0
-            self.height = self.cards[0].height*size
+            self.height = self.cards[0].height*self.focus_size
             if self.dir == -1: y = -self.height
             xincr = 0 #self.shift_factor
             j = 0
@@ -596,7 +600,7 @@ class ZoneView(CardView):
                 j+= 1
                 if j > self.focus_idx-4: xincr = self.shift_factor
                 card.size = size
-                #card.alpha = 0.5
+                card.alpha = 0.5
                 x += card.width*size*xincr #*dir
                 card.pos = euclid.Vector3(x, y+card.height*size/2*dir,i)
                 #if self.is_library: card.hidden = True
@@ -604,7 +608,7 @@ class ZoneView(CardView):
             xincr = self.shift_factor*5
             card = cards[self.focus_idx]
             card.size = self.focus_size
-            #card.alpha = 1.0
+            card.alpha = 1.0
             #x += card.width*self.focus_size*0.5*dir
             x += card.width*self.focus_size*2*xincr #*dir
             card.pos = euclid.Vector3(x, y+card.height*self.focus_size/2*dir,i)
@@ -616,7 +620,7 @@ class ZoneView(CardView):
             #i += 0.001
             for card in cards[self.focus_idx+1:]:
                 card.size = size
-                #card.alpha = 0.5
+                card.alpha = 0.5
                 x += card.width*size*xincr#*dir
                 card.pos = euclid.Vector3(x, y+card.height*size/2*dir,i)
                 if self.is_library: card.hidden = False
