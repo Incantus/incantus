@@ -529,13 +529,15 @@ class ZoneView(CardView):
         self.cards.remove(card)
         self.selected.append(card)
         #if self.focus_dir < 0: self.focus_idx += self.focus_dir
-        self.focus_idx -= 1
+        #self.focus_idx += 1
         if self.focus_idx > len(self)-1: self.focus_idx = len(self)-1
         elif self.focus_idx < 0 and self.cards: self.focus_idx = 0
         self.layout()
         self.layout_selected()
     def deselect_card(self, card):
         self.selected.remove(card)
+        #self.cards.insert(self.focus_idx, card) # Find the right position to reinsert
+        #if self.focus_idx < 0: self.focus_idx = 0
         if self.focus_idx == len(self)-1: 
             self.cards.append(card)
         else: self.cards.insert(self.focus_idx+1, card) # Find the right position to reinsert
@@ -588,7 +590,7 @@ class ZoneView(CardView):
         if numcards > 0:
             cards = self.cards
             dir = 1 #self.dir
-            size = self.focus_size*0.98 #0.25
+            size = self.focus_size*0.95 #0.25
             i = 0.001
             x_bump =  ((4-self.focus_idx)*self.shift_factor) if self.focus_idx < 4 else 0
             x, y = self.cards[0].width*size*(x_bump+1/2.), 0
@@ -600,7 +602,7 @@ class ZoneView(CardView):
                 j+= 1
                 if j > self.focus_idx-4: xincr = self.shift_factor
                 card.size = size
-                card.alpha = 0.5
+                card.alpha = 0.8
                 x += card.width*size*xincr #*dir
                 card.pos = euclid.Vector3(x, y+card.height*size/2*dir,i)
                 #if self.is_library: card.hidden = True
@@ -618,14 +620,19 @@ class ZoneView(CardView):
             #x += card.width*self.focus_size*0.5*dir
             xincr = 0 #self.shift_factor
             #i += 0.001
+            xincr = self.shift_factor
+            j = 0
             for card in cards[self.focus_idx+1:]:
+                j += 1
+                if j > 4 : xincr = 0
                 card.size = size
-                card.alpha = 0.5
+                card.alpha = 0.8
                 x += card.width*size*xincr#*dir
                 card.pos = euclid.Vector3(x, y+card.height*size/2*dir,i)
                 if self.is_library: card.hidden = False
                 #i += 0.001
-            self.width = x+card.width*size/2
+            x_bump = ((4-j)*self.shift_factor) if j < 4 else 0
+            self.width = x+card.width*size*(x_bump+1/2.)
             self.scroll_bar = (0, y-28*dir, self.width, y-11*dir)
             self.scroll_shift = 6
             self.scroll = (self.scroll_shift*self.focus_idx, self.scroll_bar[1], self.scroll_shift*(self.focus_idx+1-numcards)+self.width, self.scroll_bar[3])
