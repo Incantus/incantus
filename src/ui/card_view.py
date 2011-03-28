@@ -312,12 +312,12 @@ class StackView(CardView):
         else: func = CardLibrary.CardLibrary.getTriggeredCard
         newcard = func(ability.source, str(ability))
         newcard.ability = ability
-        newcard.alpha = anim.animate(0, 0.5, startt=startt, dt=1.0, method="ease_out_circ")
         return self.add_ability(newcard, startt)
     def add_ability(self, newcard, startt):
         self.cards.append(newcard)
         self.focus_idx = len(self)-1
-        newcard.size = anim.animate(0.2, 0.2, dt=0.2, method="ease_out_circ")
+        newcard.size = anim.animate(0.2, 0.2, startt=startt, dt=0.5, method="ease_out_circ")
+        newcard.alpha = anim.animate(0.5, 1.0, startt=0, dt=0.3, method="ease_out_circ")
         if startt != 0:
             newcard.visible = anim.animate(0,1,dt=startt, method="step")
             #self.header.dt = startt
