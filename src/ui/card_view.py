@@ -583,6 +583,7 @@ class ZoneView(CardView):
  
             yincr = (self.height-sheight) / (len(self.selected)+1)
             y = yincr+sheight/2
+            if self.dir == -1: y += -self.height
             for card in self.selected:
                 card.size = size
                 card.pos = euclid.Vector3(x,y,0)
