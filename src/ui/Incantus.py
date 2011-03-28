@@ -2,12 +2,13 @@ __docformat__ = 'restructuredtext'
 __version__ = '$Id: $'
 
 from greenlet import greenlet
+from cStringIO import StringIO
 
 import pyglet
 from pyglet.gl import *
 from pyglet import event
 from pyglet.window import key
-from colors import hexconvert
+import colors
 
 from cocos.director import director
 from cocos.layer import Layer
@@ -163,10 +164,10 @@ class IncantusLayer(Layer):
         self.phase_bar.render()
         self.otherplayer_hand.render()
         self.player_hand.render()
+        self.stack.render()
         self.otherplayer_status.render()
         self.mainplayer_status.render()
         #self.game_status.render()
-        self.stack.render()
         self.zone_animator.render2d()
         self.msg_dialog.render()
         self.selection.render()
@@ -229,13 +230,19 @@ class IncantusLayer(Layer):
         self.mainplayer_status.clear()
         self.otherplayer_status.clear()
     def make_connections(self, player1_info, player2_info):
-        player1, self_color, self_avatar = player1_info
-        player2, other_color, other_avatar = player2_info
+        player1, self_color, self_avatar_data = player1_info
+        player2, other_color, other_avatar_data = player2_info
+        self_avatar = pyglet.image.load('avatar.png', StringIO(self_avatar_data))
+        other_avatar = pyglet.image.load('avatar.png', StringIO(other_avatar_data))
+        self_color = colors.compute_color_from_image(self_avatar)
+        other_color = colors.compute_color_from_image(other_avatar)
         self.player1 = player1
         self.player2 = player2
         self.mainplayer_status.setup_player(player1, self_color, self_avatar)
         self.otherplayer_status.setup_player(player2, other_color, other_avatar)
         self.phase_status.setup_player_colors(player1, self_color, other_color)
+        self.player_hand.setup_player(self_color)
+        self.otherplayer_hand.setup_player(other_color)
         self.zone_animator.setup(self.mainplayer_status, self.otherplayer_status, self.stack, self.mainplay,self.otherplay,self.table)
 
         dispatcher.connect(self.stack.finalize_announcement, signal=engine.GameEvent.AbilityPlacedOnStack())

@@ -117,6 +117,8 @@ class HandView(CardView):
         #if not self.is_opponent: self.pos = euclid.Vector3(width-self.avail_width, 1.1*self.height/2, 0)
         #else: self.pos = euclid.Vector3(0, height - 1.1*self.height/2, 0)
         self.layout()
+    def setup_player(self, color):
+        self.color = color
     #def show(self):
     #    #self.focus_idx = len(self)/2
     #    self.layout = self.layout_staggered
@@ -279,8 +281,10 @@ class HandView(CardView):
         #glColor4f(0.2,0.2,0.3,0.5)
         #glDisable(GL_TEXTURE_2D)
         #glBegin(GL_QUADS)
+        c = self.color
+        glColor4f(c[0], c[1], c[2], 1.0)
         l, b, r, t = self.box
-        render_9_part("box3",
+        render_9_part("box4",
                       r-l, t-b,
                       x=l, y=b)
         for card in self.cards: card.draw()

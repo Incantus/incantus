@@ -6,11 +6,9 @@ from pyglet.gl import *
 import anim, math
 import euclid
 import mtg_decoder
-import colors
 from widget import Widget, Image, Label
 from engine import Mana
 from resources import ImageCache, render_9_part
-from cStringIO import StringIO
 from card_view import ZoneView
 
 zero = euclid.Vector3(0,0,0)
@@ -569,11 +567,10 @@ class StatusView(Widget):
                 return status
         else:
             return (0 < x <= self.width and 0 < y <= self.height)
-    def setup_player(self, player, color, avatar_data):
+    def setup_player(self, player, color, avatar):
         self.player = player
-        avatar = pyglet.image.load('avatar.png', StringIO(avatar_data))
+        self.color = color
         self.avatar.img = avatar.get_texture()
-        self.color = colors.compute_color_from_image(avatar)
         self.player_name.set_text(player.name)
         self.update_life()
         for zone in ["library", "hand", "graveyard", "exile"]:
