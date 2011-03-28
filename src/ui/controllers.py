@@ -179,6 +179,7 @@ class CardSelector(object):
         self.mainstatus = mainstatus
         self.otherstatus = otherstatus
         self.window = window
+        self.zone_view = mainstatus.zone_view  # XXX Hack!!
     def activate(self, sellist, from_zone, number=1, required=False, is_opponent=False, filter=None, actionable=True):
         self.required = required
         self.number = number  # if number is -1 then we can select any number of cards
