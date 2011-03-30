@@ -608,41 +608,41 @@ class ManaController(object):
             self.old_vals[color] = nummana
             req_mana = required[i]
             spend = min(nummana,req_mana)
-            self.mana.spend_values[color].set_text(spend)
-            self.mana.values[color].set_text(nummana-spend)
-            if nummana == 0:
-                self.mana.spend_values[color].visible = 0
-                self.mana.values[color].visible = 0
-                self.mana.symbols[i].alpha = 0.5
+            self.mana.mana[color] -= spend
+            self.mana.pay[color] += spend
+        self.mana.gen_labels()
         self.set_cost()
     def reset_pool(self):
         for color in self.mana.colors:
-            self.mana.values[color].set_text(self.old_vals[color])
+            self.mana.mana[color] = self.old_vals[color]
     def activate(self):
-        self.mana.select(False)
         director.window.push_handlers(self)
     def deactivate(self):
+        self.mana.clear_pay()
         self.reset_pool()
-        self.mana.select()
         director.window.remove_handlers(self)
     def set_cost(self):
         def convert(val):
             if val == '': return 0
             else: return int(val)
-        mana = [convert(self.mana.spend_values[c].value) for c in self.mana.colors]
+        mana = [self.mana.pay[c] for c in self.mana.colors]
         self.required = Mana.convert_mana_string(self.required_str)
         for i, val in enumerate(mana):
             for j in range(val):
                 if self.required[i] == 0: self.required[-1] -= 1
                 else: self.required[i] -= 1
-        manastr = Mana.convert_to_mana_string(self.required)
-        if manastr == "0": manastr = 'Fulfilled'
-        else: manastr = 'Required (%s): %s'%(self.required_str, manastr)
-        self.mana.cost.set_text(manastr)
+        required = ''.join(["{%s}"%c for c in self.required_str])
+        manastr = ''.join(["{%s}"%c for c in Mana.convert_to_mana_string(self.required)])
+        if manastr == "{0}":
+            self.window.msg_controller.ask(u'The mana cost of %s is fulfilled'%required, ("OK", "Cancel"))
+        else:
+            msg = u"Select mana to pay %s\u2028(Total cost is %s)"%(manastr, required)
+            # there's a layout bug if the starting element in a line isn't a glyph
+            #msg = 'Select mana to pay remaining %s (total cost is %s)'%(manastr, required)
+            self.window.msg_controller.notify(msg, "Cancel")
     def on_key_press(self, symbol, modifiers):
         if symbol == key.ENTER:
-            # Check if we have enough mana
-            mana = [self.mana.spend_values[c].value for c in self.mana.colors]
+            mana = [self.mana.pay[c] for c in self.mana.colors]
             manastr = ''.join([color*int(mana[i]) for i, color in enumerate("WUBRG") if mana[i] != ''])
             if mana[-1] > 0: manastr += str(mana[-1])
             if manastr == '': manastr = '0'
@@ -651,29 +651,18 @@ class ManaController(object):
                 self.deactivate()
             return True
         elif symbol == key.ESCAPE:
-        #    self.window.process_action(Action.CancelAction())
-        #    self.deactivate()
+            self.window.process_action(Action.CancelAction())
+            self.deactivate()
             return True
-    def on_mouse_release(self, x, y, button, modifiers):
-        return True
-    def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-        return True
     def on_mouse_press(self, x, y, button, modifiers):
         # Find out which mana we selected
         if not self.is_opponent: status = self.window.mainplayer_status
         else: status = self.window.otherplayer_status
         x -= status.pos.x + self.mana.pos.x
         y -= status.pos.y + self.mana.pos.y
-        values = self.mana.handle_click(x, y)
-        if values:
-            symbol, current, pay = values
-            if (button == mouse.RIGHT or modifiers & key.MOD_OPTION): current, pay = pay, current
-            if not int(current.value) == 0:
-                current.set_text(int(current.value)-1)
-                pay.set_text(int(pay.value)+1)
-                symbol.animate(sparkle=False)
-                self.set_cost()
-        return True
+        handled = self.mana.handle_click(x, y)
+        self.set_cost()
+        return handled
     def on_mouse_motion(self, x, y, dx, dy):
         return True
 

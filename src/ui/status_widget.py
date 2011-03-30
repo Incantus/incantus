@@ -298,50 +298,126 @@ class ManaPool(Widget):
         if is_opponent: anchor_y = "bottom"
         else: anchor_y = "top"
         self.is_opponent = is_opponent
-        mana_label = pyglet.text.DocumentLabel(document, multiline=True,
-                                  width=100, anchor_x="left", anchor_y=anchor_y)
-        mana_label.set_style("color", (255,255,255,255))
-        mana_label.set_style("font_name", "Arial Bold")
-        mana_label.set_style("font_size", 12)
+        mana_label = pyglet.text.layout.IncrementalTextLayout(document, multiline=True, width=400, height=400)
+        mana_label.anchor_x = "left"
+        mana_label.anchor_y = anchor_y
+        #mana_label = pyglet.text.DocumentLabel(document, multiline=True,
+        #                          width=100, anchor_x="left", anchor_y=anchor_y)
+        #mana_label.set_style("color", (255,255,255,255))
+        #mana_label.set_style("font_name", "Arial Bold")
+        #mana_label.set_style("font_size", 12)
         self.mana_label = mana_label
+ 
+        pay_label = pyglet.text.layout.IncrementalTextLayout(document, multiline=True, width=100, height=400)
+        pay_label.anchor_x = "left"
+        pay_label.anchor_y = anchor_y
+        self.pay_label = pay_label
+
+        self._render = False
+        self._render_pay = False
+
         self.colors = "WUBRGC" 
         self.mana = dict(zip(self.colors, [0]*len(self.colors)))
+        self.pay = dict(zip(self.colors, [0]*len(self.colors)))
+    def remove_pay(self, col):
+        self.pay[col] -= 1
+        self.mana[col] += 1
+        self.gen_labels()
+    def add_pay(self, col):
+        self.pay[col] += 1
+        self.mana[col] -= 1
+        self.gen_labels()
+    def gen_labels(self):
+        mana_text, pay_text = [], []
+        self._render = False
+        self._render_pay = False
+        for c in self.colors:
+            pay_amt, mana_amt = self.pay[c], self.mana[c]
+            if pay_amt:
+                if c == "C": pay_text.append(u"{%d}"%pay_amt)
+                else: pay_text.append((u"{%s}"%c)*pay_amt)
+                self._render_pay = True
+            if mana_amt:
+                if c == "C": mana_text.append(u"{%d}"%mana_amt)
+                else: mana_text.append((u"{%s}"%c)*mana_amt)
+                self._render = True
+        if self._render:
+            self.mana_label.content_width = 0
+            self.mana_label.document = mtg_decoder.decode_text(u'\u2028'.join(mana_text))
+        #self.mana_label.set_style("color", (255,255,255,255))
+        #self.mana_label.set_style("font_name", "Arial Bold")
+        #self.mana_label.set_style("font_size", 12)
+        if self._render_pay:
+            self.pay_label.content_width = 0
+            self.pay_label.document = mtg_decoder.decode_text(u'\u2028'.join(pay_text))
+    def _get_position_from_point(self, label, x, y):
+        line = label.lines[label.get_line_from_point(x, y)]
+        x -= label.top_group.translate_x
+        position = line.start
+        last_glyph_x = line.x
+        for box in line.boxes:
+            if 0 <= x - last_glyph_x < box.advance: break
+            last_glyph_x += box.advance
+            position += box.length
+        return position
+
     def handle_click(self, x, y):
-        return None
-        for color, symbol in zip(self.colors, self.symbols):
-            if not symbol.visible: continue
-            sx, sy = symbol.pos.x, symbol.pos.y
-            rad = symbol.width/2
-            if (x-sx)**2+(y-sy)**2 <= rad*rad:
-                return symbol, self.values[color], self.spend_values[color]
-        else: return None
+        arrow_width = 8.0; shift = -1
+        x -= arrow_width+self.padding
+        y -= shift*self.padding
+        if (0 <= x < self.mana_label.content_width and 
+            0 <= -y < self.mana_label.content_height):
+            pos = self._get_position_from_point(self.mana_label, x, y)
+            try:
+                color = self.mana_label.document.get_element(pos).symbol
+                self.add_pay(color)
+                return True
+            except: pass
+        else:
+            x -= self.mana_label.content_width + 2*self.padding
+            if (0 <= x < self.pay_label.content_width and
+                0 <= -y < self.pay_label.content_height):
+                pos = self._get_position_from_point(self.pay_label, x, y)
+                try:
+                    color = self.pay_label.document.get_element(pos).symbol
+                    self.remove_pay(color)
+                    return True
+                except: pass
+        return False
+        #for color, symbol in zip(self.colors, self.symbols):
+        #    if not symbol.visible: continue
+        #    sx, sy = symbol.pos.x, symbol.pos.y
+        #    rad = symbol.width/2
+        #    if (x-sx)**2+(y-sy)**2 <= rad*rad:
+        #        return symbol, self.values[color], self.spend_values[color]
+        #else: return None
     def select(self, x=False):
         pass
         #self.select_mana = not self.select_mana
         #self.select_x = x
         #self.layout()
     def update_mana(self, sender, amount):
-        mana_text = []
         for idx, c in enumerate(self.colors):
-            new_amount = self.mana[c] + amount[idx]
-            if new_amount > 0: 
-                #mana_text.append(u"%d \u00D7 {%s}"%(new_amount, c))
-                if c == "C": mana_text.append(u"{%d}"%new_amount)
-                else: mana_text.append((u"{%s}"%c)*new_amount)
-            self.mana[c] = new_amount
-        self.mana_label.document = mtg_decoder.decode_text(u'\u2028'.join(mana_text))
-        self.mana_label.set_style("color", (255,255,255,255))
-        self.mana_label.set_style("font_name", "Arial Bold")
-        self.mana_label.set_style("font_size", 12)
+            self.mana[c] = self.mana[c] + amount[idx]
+        self.gen_labels()
+    def clear_pay(self):
+        for key in self.pay: self.pay[key] = 0
+        #self.pay_label.text = ''
+        self._render_pay = False
     def clear_mana(self, sender):
-        for key in self.mana: self.mana[key] = 0
-        self.mana_label.text = '' 
+        for key in self.mana:
+            self.mana[key] = 0
+            self.pay[key] = 0
+        self._render = False
     def render_after_transform(self):
-        if self.mana_label.text:
+        if self._render:
             padding = self.padding
             arrow_width = 8
             width = self.mana_label.content_width + 2*padding
             height = self.mana_label.content_height + 2*padding
+            if self._render_pay:
+                width += self.pay_label.content_width + 2*padding
+                height = max(height, self.pay_label.content_height + 2*padding)
             if self.is_opponent: y, shift = 0, 1
             else: y, shift = -height, -1
             glColor4f(1., 1., 1., 1.)
@@ -357,6 +433,15 @@ class ManaPool(Widget):
             glEnd()
             glTranslatef(arrow_width+padding, shift*padding, 0)
             self.mana_label.draw()
+            if self._render_pay:
+                glTranslatef(self.mana_label.content_width+2*padding, 0, 0)
+                glColor4f(0.5, .5, .5, 1.)
+                glLineWidth(2.0)
+                glBegin(GL_LINES)
+                glVertex2f(-padding, -padding)
+                glVertex2f(-padding, -height+2*padding)
+                glEnd()
+                self.pay_label.draw()
 
 class ManaView(Widget):
     def __init__(self, pos=zero):
