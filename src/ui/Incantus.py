@@ -234,8 +234,8 @@ class IncantusLayer(Layer):
         player2, other_color, other_avatar_data = player2_info
         self_avatar = pyglet.image.load('avatar.png', StringIO(self_avatar_data))
         other_avatar = pyglet.image.load('avatar.png', StringIO(other_avatar_data))
-        self_color = colors.compute_color_from_image(self_avatar)
-        other_color = colors.compute_color_from_image(other_avatar)
+        if not self_color: self_color = colors.compute_color_from_image(self_avatar)
+        if not other_color: other_color = colors.compute_color_from_image(other_avatar)
         self.player1 = player1
         self.player2 = player2
         self.mainplayer_status.setup_player(player1, self_color, self_avatar)
@@ -452,7 +452,7 @@ class IncantusLayer(Layer):
         self.otherplayer_hand.set_hidden(False)
 
         Keeper.init(players)
-        self.make_connections((player1, (0,0,255), my_avatar), (player2, (255,255,0), other_avatar))
+        self.make_connections((player1, None, my_avatar), (player2, None, other_avatar))
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in players])
@@ -490,7 +490,7 @@ class IncantusLayer(Layer):
             else: player.dirty_input = self.network_input
 
         Keeper.init(players)
-        self.make_connections((player1, (0,0,255), player_data[0][2]), (player2, (255,255,0), player_data[1][2]))
+        self.make_connections((player1, None, player_data[0][2]), (player2, None, player_data[1][2]))
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in players])
