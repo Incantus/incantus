@@ -363,7 +363,7 @@ class PlayView(Widget):
         for card in self.cards: card.draw()
 
 class Table(Widget):
-    redzone_width = anim.Animatable()
+    _redzone_width = anim.Animatable()
     _render_redzone = anim.Animatable()
     _highlight_top = anim.Animatable()
     _highlight_bottom = anim.Animatable()
@@ -383,16 +383,16 @@ class Table(Widget):
         def fset(self, val):
             if val:
                 self._render_redzone = 1.
-                self.redzone_width = 1.5
+                self._redzone_width = 1.5
             else:
                 self._render_redzone = 0.
-                self.redzone_width = 0
+                self._redzone_width = 0
         return locals()
     render_redzone = property(**render_redzone())
 
     def __init__(self):
         self.background = ImageCache.get_texture("matte.png")
-        self.redzone_width = anim.animate(0,0,dt=0.5, method="linear")
+        self._redzone_width = anim.animate(0,0,dt=0.5, method="linear")
         self._render_redzone = anim.animate(0,0,dt=0.5, method="linear")
         self._highlight_top = anim.animate(0,0,dt=0.8, method="ease_out")
         self._highlight_bottom = anim.animate(0,0,dt=0.8, method="ease_out")
@@ -453,7 +453,7 @@ class Table(Widget):
             glVertex3f(length,z,0)
             glEnd()
         else:
-            y = self.redzone_width
+            y = self._redzone_width
             glEnable(playmat.target)
             glBindTexture(playmat.target, playmat.id)
             glColor4f(1.0, 0.0, 0.0, 1.0)
