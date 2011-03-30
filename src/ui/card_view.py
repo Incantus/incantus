@@ -321,12 +321,12 @@ class StackView(CardView):
         self.cards.append(newcard)
         self.focus_idx = len(self)-1
         newcard.size = anim.animate(0.2, 0.2, startt=startt, dt=0.5, method="ease_out_circ")
-        newcard.alpha = anim.animate(0.5, 1.0, startt=0, dt=0.3, method="ease_out_circ")
         if startt != 0:
             newcard.visible = anim.animate(0,1,dt=startt, method="step")
             #self.header.dt = startt
         else: pass #self.header.dt = 0.01
         self.layout()
+        newcard.alpha = anim.animate(0, 0.5, startt=startt, dt=0.3, method="ease_out_circ")
         newcard._pos.set_transition(dt=0.2, method="ease_out") #self.pos_transition)
         newcard.announced = False
         return newcard
