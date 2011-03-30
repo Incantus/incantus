@@ -3,6 +3,7 @@
 import re
 
 import pyglet
+from pyglet.text import document
 from pyglet.text.formats import structured
 
 from resources import ImageCache
@@ -20,19 +21,24 @@ _pattern = re.compile(r'''
 # There is a bug with structured.ImageElement not passing in the correct
 # flag for the vertices list to the batch (it uses v2i instead of v2f).
 # Instead of fixing it just make a copy of that class with the fix
-class ImageElement(pyglet.text.document.InlineElement):
-    def __init__(self, image, width=None, height=None, text=None):
+class MtgElement(document.InlineElement):
+    def __init__(self, symbol, width=None, height=None):
+        self.symbol = symbol
+        image = ImageCache.get('s'+symbol)
+        self._colorless = False
+        if not image: 
+            image = ImageCache.get('sC')
+            self._colorless = True
         self.image = image.get_texture()
         self.width = width is None and image.width or width
         self.height = height is None and image.height or height
         self.vertex_lists = {}
         self.labels = {}
-        self.text = text
 
         anchor_y = self.height // image.height * image.anchor_y
         ascent = max(0, self.height - anchor_y)
         descent = min(-2, -anchor_y)
-        super(ImageElement, self).__init__(ascent, descent, self.width)
+        super(MtgElement, self).__init__(ascent, descent, self.width)
 
     def place(self, layout, x, y):
         group = pyglet.graphics.TextureGroup(self.image.texture, 
@@ -45,7 +51,7 @@ class ImageElement(pyglet.text.document.InlineElement):
             ('v2f', (x1, y1, x2, y1, x2, y2, x1, y2)),
             ('c3B', (255, 255, 255) * 4),
             ('t3f', self.image.tex_coords))
-        if self.text: self.labels[layout] = pyglet.text.Label(self.text,
+        if self._colorless: self.labels[layout] = pyglet.text.Label(self.symbol,
                          font_name="MPlantin", font_size=14,
                          color=(0,0,0,255), anchor_x="center", anchor_y="center",
                          x=x1 + self.width/2, y=y1 + self.height/2,
@@ -65,7 +71,7 @@ class MtGDecoder(structured.StructuredTextDecoder):
          'font_name': 'MPlantin',
          'margin_bottom': '6pt',
     }
-         
+
     def decode_structured(self, text, location):
         self.location = location
         self.push_style('_default', self.default_style)
@@ -79,12 +85,6 @@ class MtGDecoder(structured.StructuredTextDecoder):
             elif group == 'nl_hard':
                 self.add_text(u'\u2029')
             elif group == 'escape_symbol':
-                symbol = 's'+m.group('symbol')
-                image = ImageCache.get(symbol)
-                if not image: 
-                    image = ImageCache.get('sC')
-                    self.add_element(ImageElement(image, width=16, height=16, text=symbol[1:]))
-                else:
-                    self.add_element(ImageElement(image, width=16, height=16))
-
+                symbol = m.group('symbol')
+                self.add_element(MtgElement(symbol, width=16, height=16))
 
