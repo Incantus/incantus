@@ -609,7 +609,7 @@ class ZoneView(CardView):
                 card.size = size
                 card.alpha = 0.8
                 x += card.width*size*xincr #*dir
-                card.pos = euclid.Vector3(x, y+card.height*size/2*dir,i)
+                card.pos = euclid.Vector3(x, y+card.height*self.focus_size/2*dir,i)
                 #if self.is_library: card.hidden = True
                 #i += 0.001
             xincr = self.shift_factor*5
@@ -633,7 +633,7 @@ class ZoneView(CardView):
                 card.size = size
                 card.alpha = 0.8
                 x += card.width*size*xincr#*dir
-                card.pos = euclid.Vector3(x, y+card.height*size/2*dir,i)
+                card.pos = euclid.Vector3(x, y+card.height*self.focus_size/2*dir,i)
                 if self.is_library: card.hidden = False
                 #i += 0.001
             x_bump = ((4-j)*self.shift_factor) if j < 4 else 0
