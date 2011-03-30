@@ -92,7 +92,7 @@ class ManaCost(Cost):
         mp = player.manapool
         self._X = 0
         if self.hasX(): self._X = player.getX()
-        if self.isHybrid(): cost = player.make_selection(Mana.generate_hybrid_choices(self.cost), 1, prompt="Choose hybrid cost")
+        if self.isHybrid(): cost = player.make_selection([('Pay {%s}'%c,c) for c in Mana.generate_hybrid_choices(self.cost)], 1, prompt="Choose hybrid cost")
         else: cost = self.cost
         self._final_cost = Mana.convert_mana_string(cost)
         self._final_cost[-1] += self._X*self._num_X
