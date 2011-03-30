@@ -505,7 +505,8 @@ class StatusController(object):
             value = status.handle_click(x, y)
             if value:
                 if modifiers & key.MOD_CTRL:
-                    status.toggle()
+                    self.mainstatus.toggle()
+                    self.otherstatus.toggle()
                 elif value == True or value == "life":
                     self.window.process_action(Action.PlayerSelected(status.player))
                 elif value in self.observable_zones:
