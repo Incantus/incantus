@@ -295,12 +295,9 @@ class ManaPool(Widget):
         super(ManaPool, self).__init__(pos)
         document = mtg_decoder.decode_text(u'')
         self.padding = 6
-        if is_opponent: anchor_y = "bottom"
-        else: anchor_y = "top"
         self.is_opponent = is_opponent
-        mana_label = pyglet.text.layout.IncrementalTextLayout(document, multiline=True, width=400, height=400)
-        mana_label.anchor_x = "left"
-        mana_label.anchor_y = anchor_y
+        mana_label = pyglet.text.layout.IncrementalTextLayout(document, multiline=True, width=50, height=0)
+        mana_label.anchor_y = "top"
         #mana_label = pyglet.text.DocumentLabel(document, multiline=True,
         #                          width=100, anchor_x="left", anchor_y=anchor_y)
         #mana_label.set_style("color", (255,255,255,255))
@@ -308,9 +305,8 @@ class ManaPool(Widget):
         #mana_label.set_style("font_size", 12)
         self.mana_label = mana_label
  
-        pay_label = pyglet.text.layout.IncrementalTextLayout(document, multiline=True, width=100, height=400)
-        pay_label.anchor_x = "left"
-        pay_label.anchor_y = anchor_y
+        pay_label = pyglet.text.layout.IncrementalTextLayout(document, multiline=True, width=50, height=0)
+        pay_label.anchor_y = "top"
         self.pay_label = pay_label
 
         self._render = False
@@ -344,12 +340,16 @@ class ManaPool(Widget):
         if self._render:
             self.mana_label.content_width = 0
             self.mana_label.document = mtg_decoder.decode_text(u'\u2028'.join(mana_text))
+            self.mana_label.height = self.mana_label.content_height
+            self.mana_label.width = self.mana_label.content_width
         #self.mana_label.set_style("color", (255,255,255,255))
         #self.mana_label.set_style("font_name", "Arial Bold")
         #self.mana_label.set_style("font_size", 12)
         if self._render_pay:
             self.pay_label.content_width = 0
             self.pay_label.document = mtg_decoder.decode_text(u'\u2028'.join(pay_text))
+            self.pay_label.height = self.pay_label.content_height
+            self.pay_label.width = self.pay_label.content_width
     def _get_position_from_point(self, label, x, y):
         line = label.lines[label.get_line_from_point(x, y)]
         x -= label.top_group.translate_x
@@ -362,9 +362,13 @@ class ManaPool(Widget):
         return position
 
     def handle_click(self, x, y):
-        arrow_width = 8.0; shift = -1
-        x -= arrow_width+self.padding
-        y -= shift*self.padding
+        arrow_width, padding = 8.0, self.padding 
+        x -= arrow_width+padding
+        height = self.mana_label.content_height+padding
+        if self._render_pay:
+            height = max(height, self.pay_label.content_height + padding)
+        if self.is_opponent: y -= height
+        else: y += padding
         if (0 <= x < self.mana_label.content_width and 
             0 <= -y < self.mana_label.content_height):
             pos = self._get_position_from_point(self.mana_label, x, y)
@@ -374,7 +378,7 @@ class ManaPool(Widget):
                 return True
             except: pass
         else:
-            x -= self.mana_label.content_width + 2*self.padding
+            x -= self.mana_label.content_width + 2*padding
             if (0 <= x < self.pay_label.content_width and
                 0 <= -y < self.pay_label.content_height):
                 pos = self._get_position_from_point(self.pay_label, x, y)
@@ -418,8 +422,9 @@ class ManaPool(Widget):
             if self._render_pay:
                 width += self.pay_label.content_width + 2*padding
                 height = max(height, self.pay_label.content_height + 2*padding)
-            if self.is_opponent: y, shift = 0, 1
-            else: y, shift = -height, -1
+            if self.is_opponent: y, shift, yshift = 0, 1, height-padding
+            else: y, shift, yshift = -height, -1, -padding
+            #y, shift = -height, -1
             glColor4f(1., 1., 1., 1.)
             render_9_part("box2",
                           width, height,
@@ -431,7 +436,7 @@ class ManaPool(Widget):
             glVertex2f(arrow_width+1, shift*arrow_width)
             glVertex2f(arrow_width+1, 3*shift*arrow_width)
             glEnd()
-            glTranslatef(arrow_width+padding, shift*padding, 0)
+            glTranslatef(arrow_width+padding, yshift, 0)
             self.mana_label.draw()
             if self._render_pay:
                 glTranslatef(self.mana_label.content_width+2*padding, 0, 0)
