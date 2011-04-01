@@ -371,9 +371,9 @@ class Table(Widget):
     def highlight():
         def fset(self, val):
             if val == "top":
-                self._highlight_top, self._highlight_bottom = 1.0, 0.4
+                self._highlight_top, self._highlight_bottom = 1.0, 0.7
             elif val == "bottom":
-                self._highlight_top, self._highlight_bottom = 0.4, 1.0
+                self._highlight_top, self._highlight_bottom = 0.7, 1.0
         return locals()
     highlight = property(**highlight())
 
@@ -407,33 +407,43 @@ class Table(Widget):
         glNormal3f(.0, 1., .0)
         playmat = self.background
         
-        glPushAttrib(GL_ENABLE_BIT)
         glEnable(playmat.target)
         glBindTexture(playmat.target, playmat.id)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-        l, nt, hb, ht = length, numtiles, self._highlight_bottom, self._highlight_top
-        mat = (
-            # bottom mat
-            -nt,   0,   hb, hb, hb,   -l, z,  0,
-             nt,   0,   hb, hb, hb,    l, z,  0,
-             nt,  nt,   hb, hb, hb,    l, z,  l,
-            -nt,  nt,   hb, hb, hb,   -l, z,  l,
-            # top mat
-            -nt, -nt,   ht, ht, ht,   -l, z, -l,
-             nt, -nt,   ht, ht, ht,    l, z, -l,
-             nt,   0,   ht, ht, ht,    l, z,  0,
-            -nt,   0,   ht, ht, ht,   -l, z,  0
-        )
-
-        glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
-        glInterleavedArrays(GL_T2F_C3F_V3F, 0, (GLfloat*len(mat))(*mat))
-        glDrawArrays(GL_QUADS, 0, 4*2)
-        glPopClientAttrib()
-        glPopAttrib()
+        #glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        #glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        #glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        #glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        #tc = playmat.tex_coords
+        glBegin(GL_QUADS)
+        ht, hb = self._highlight_top, self._highlight_bottom
+        glColor4f(1.0,1.0,1.0, hb)
+        #glTexCoord2f(-numtiles, -numtiles)
+        #glVertex3f(-length, z, -length)
+        #glTexCoord2f(numtiles, -numtiles)
+        #glVertex3f(length, z, -length)
+        #glTexCoord2f(numtiles, numtiles)
+        #glVertex3f(length, z, length)
+        #glTexCoord2f(-numtiles, numtiles)
+        #glVertex3f(-length, z, length)
+        glTexCoord2f(-numtiles, 0)
+        glVertex3f(-length, z, 0)
+        glTexCoord2f(numtiles, 0)
+        glVertex3f(length, z, 0)
+        glTexCoord2f(numtiles, numtiles)
+        glVertex3f(length, z, length)
+        glTexCoord2f(-numtiles, numtiles)
+        glVertex3f(-length, z, length)
+        glColor4f(1.,1.,1., ht)
+        glTexCoord2f(-numtiles, -numtiles)
+        glVertex3f(-length, z, -length)
+        glTexCoord2f(numtiles, -numtiles)
+        glVertex3f(length, z, -length)
+        glTexCoord2f(numtiles, 0)
+        glVertex3f(length, z, 0)
+        glTexCoord2f(-numtiles, 0)
+        glVertex3f(-length, z, 0)
+        glEnd()
+        glDisable(self.background.target)
         
         z += 0.005
         if not self.render_redzone:
