@@ -20,8 +20,8 @@ plist = dict(
     CFBundleIdentifier='net.incantus',
 )
 
-APP = ['src/Incantus.py']
-DATA_FILES = ['./small_deck.txt', './data', './data/'+NAME+'.icns']
+APP = ['src/main.py']
+DATA_FILES = ['./data', './data/'+NAME+'.icns']
 OPTIONS = dict(argv_emulation=False,
                plist=plist,
                compressed=True,
