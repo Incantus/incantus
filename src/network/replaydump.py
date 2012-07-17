@@ -1,5 +1,5 @@
 import struct
-import simplejson as json
+import json
 from engine.Player import Player
 from engine.Ability.StackAbility import StackAbility
 from engine.GameObjects import GameObject
