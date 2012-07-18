@@ -5,8 +5,11 @@
 *~
 .DS_Store
 
+*.replay
+
 # ignore the build directories
 *.egg-info/
 build/
 dist/
 docs/build/
+data/card_images.db
