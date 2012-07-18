@@ -760,7 +760,10 @@ class PlayCard(Card):
             if show_info: offset = offset + euclid.Vector3(-self.width*size/2, 0, 0)
             self.pos = camera.pos - camera.orientation*euclid.Vector3(0,0,camera.vis_distance) - euclid.Vector3(0,0,z) + offset
             self.orig_orientation = self.orientation
-            self.orientation = camera.orientation
+            
+            new_orient = camera.orientation
+            if self.is_tapped: new_orient *= euclid.Quaternion.new_rotate_axis(math.pi/10, euclid.Vector3(0,0,-1)) 
+            self.orientation = new_orient
             self.old_size = self.size
             self.size = size*0.7
             if self.is_creature:
