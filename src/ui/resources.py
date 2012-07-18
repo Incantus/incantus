@@ -113,56 +113,56 @@ def render_9_part(name, width, height, x=0, y=0, xs=None, ys=None):
     #print ty0, ty1, ty2, ty3
     rounded_array = (
         # Top left
-        tx0, ty2,   x0, y2, 0,
-        tx1, ty2,   x1, y2, 0,
-        tx1, ty3,   x1, y3, 0,
-        tx0, ty3,   x0, y3, 0,
+        tx0, ty2, 0,  1,  x0,  y2,  0,  1,
+        tx1, ty2, 0,  1,  x1,  y2,  0,  1,
+        tx1, ty3, 0,  1,  x1,  y3,  0,  1,
+        tx0, ty3, 0,  1,  x0,  y3,  0,  1,
         # Top stretch
-        tx1, ty2,   x1, y2, 0,
-        tx2, ty2,   x2, y2, 0,
-        tx2, ty3,   x2, y3, 0,
-        tx1, ty3,   x1, y3, 0,
+        tx1, ty2, 0,  1,  x1,  y2,  0,  1,
+        tx2, ty2, 0,  1,  x2,  y2,  0,  1,
+        tx2, ty3, 0,  1,  x2,  y3,  0,  1,
+        tx1, ty3, 0,  1,  x1,  y3,  0,  1,
         # Top right
-        tx2, ty2,   x2, y2, 0,
-        tx3, ty2,   x3, y2, 0,
-        tx3, ty3,   x3, y3, 0,
-        tx2, ty3,   x2, y3, 0,
+        tx2, ty2, 0,  1,  x2,  y2,  0,  1,
+        tx3, ty2, 0,  1,  x3,  y2,  0,  1,
+        tx3, ty3, 0,  1,  x3,  y3,  0,  1,
+        tx2, ty3, 0,  1,  x2,  y3,  0,  1,
         # Middle left
-        tx0, ty1,   x0, y1, 0,
-        tx1, ty1,   x1, y1, 0,
-        tx1, ty2,   x1, y2, 0,
-        tx0, ty2,   x0, y2, 0,
+        tx0, ty1, 0,  1,  x0,  y1,  0,  1,
+        tx1, ty1, 0,  1,  x1,  y1,  0,  1,
+        tx1, ty2, 0,  1,  x1,  y2,  0,  1,
+        tx0, ty2, 0,  1,  x0,  y2,  0,  1,
         # Middle stretch
-        tx1, ty1,   x1, y1, 0,
-        tx2, ty1,   x2, y1, 0,
-        tx2, ty2,   x2, y2, 0,
-        tx1, ty2,   x1, y2, 0,
+        tx1, ty1, 0,  1,  x1,  y1,  0,  1,
+        tx2, ty1, 0,  1,  x2,  y1,  0,  1,
+        tx2, ty2, 0,  1,  x2,  y2,  0,  1,
+        tx1, ty2, 0,  1,  x1,  y2,  0,  1,
         # Middle right
-        tx2, ty1,   x2, y1, 0,
-        tx3, ty1,   x3, y1, 0,
-        tx3, ty2,   x3, y2, 0,
-        tx2, ty2,   x2, y2, 0,
+        tx2, ty1, 0,  1,  x2,  y1,  0,  1,
+        tx3, ty1, 0,  1,  x3,  y1,  0,  1,
+        tx3, ty2, 0,  1,  x3,  y2,  0,  1,
+        tx2, ty2, 0,  1,  x2,  y2,  0,  1,
         # Bottom left
-        tx0, ty0,   x0, y0, 0,
-        tx1, ty0,   x1, y0, 0,
-        tx1, ty1,   x1, y1, 0,
-        tx0, ty1,   x0, y1, 0,
+        tx0, ty0, 0,  1,  x0,  y0,  0,  1,
+        tx1, ty0, 0,  1,  x1,  y0,  0,  1,
+        tx1, ty1, 0,  1,  x1,  y1,  0,  1,
+        tx0, ty1, 0,  1,  x0,  y1,  0,  1,
         # Bottom stretch
-        tx1, ty0,   x1, y0, 0,
-        tx2, ty0,   x2, y0, 0,
-        tx2, ty1,   x2, y1, 0,
-        tx1, ty1,   x1, y1, 0,
+        tx1, ty0, 0,  1,  x1,  y0,  0,  1,
+        tx2, ty0, 0,  1,  x2,  y0,  0,  1,
+        tx2, ty1, 0,  1,  x2,  y1,  0,  1,
+        tx1, ty1, 0,  1,  x1,  y1,  0,  1,
         # Bottom right
-        tx2, ty0,   x2, y0, 0,
-        tx3, ty0,   x3, y0, 0,
-        tx3, ty1,   x3, y1, 0,
-        tx2, ty1,   x2, y1, 0)
+        tx2, ty0, 0,  1,  x2,  y0,  0,  1,
+        tx3, ty0, 0,  1,  x3,  y0,  0,  1,
+        tx3, ty1, 0,  1,  x3,  y1,  0,  1,
+        tx2, ty1, 0,  1,  x2,  y1,  0,  1)
     glPushAttrib(GL_ENABLE_BIT)
     glEnable(texture.target)
     glBindTexture(texture.target, texture.id)
 
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT)
-    glInterleavedArrays(GL_T2F_V3F, 0, (GLfloat*len(rounded_array))(*rounded_array))
+    glInterleavedArrays(GL_T4F_V4F, 0, (GLfloat*len(rounded_array))(*rounded_array))
     glDrawArrays(GL_QUADS, 0, 4*9)
     glPopClientAttrib()
     glPopAttrib()
