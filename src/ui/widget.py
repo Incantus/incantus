@@ -84,15 +84,23 @@ class Label(Widget):
         return locals()
     value = property(**value())
 
+    def color():
+        def fget(self): return self._color
+        def fset(self, value):
+            self._color = value
+            self.main_text.color = value
+        return locals()
+    color = property(**color())
+
     def __init__(self, value, size=20, color=(1,1,1,1), shadow=True, halign="left", valign="bottom", background=False, pos=euclid.Vector3(0,0,0), border=False, width=None, fontname=None):
         super(Label,self).__init__(pos)
         self._fixed_width = width
         self._value = None
+        self._color = color
         self.shadow = shadow
         self.halign = halign
         self.valign = valign
         self.background = background
-        self.color = color
         self.fontname = fontname if fontname else global_fontname
         self.size = size
         self.font = font.load(self.fontname, self.size, dpi=96)
