@@ -206,7 +206,7 @@ class PlayView(Widget):
             self.other_perms.insert(0, guicard)
             guicard._row = self.other_perms
         guicard._orientation.set(euclid.Quaternion.new_rotate_axis(-math.pi/2, euclid.Vector3(1,0,0)))
-        if self.is_opponent_view: guicard.orientation *= euclid.Quaternion.new_rotate_axis(math.pi, euclid.Vector3(0,0,1))
+        #if self.is_opponent_view: guicard.orientation *= euclid.Quaternion.new_rotate_axis(math.pi, euclid.Vector3(0,0,1))
         if card.tapped: guicard.tap()
         self.layout()
 
