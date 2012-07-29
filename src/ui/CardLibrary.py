@@ -30,6 +30,9 @@ class _CardLibrary:
         self.triggered = pyglet.resource.texture("triggered.png")
         self.activated = pyglet.resource.texture("activated.png")
 
+        # XXX This is a hack
+        Card.build_fbo()
+
     def close(self):
         self.cardfile.close()
 
@@ -89,15 +92,21 @@ class _CardLibrary:
     def getCard(self, gamecard, card_cls=Card):
         key = gamecard.key
         name = img_key = key[1]
-        if img_key in self.img_cache: cardImage = self.img_cache[img_key]
+        if img_key in self.img_cache: cardImage, orig = self.img_cache[img_key]
         else:
-            cardImage = self.loadImage(name)
-            self.img_cache[img_key] = cardImage
-        return card_cls(gamecard, cardImage, self.back)
+            orig = self.loadImage(name)
+
+            cardImage = pyglet.image.Texture.create(orig.width, orig.height)
+            card_cls._render(cardImage, orig, gamecard, tiny=True)
+
+            self.img_cache[img_key] = (cardImage, orig)
+        card = card_cls(gamecard, cardImage, self.back)
+        card._art = orig
+        return card
 
     def getStackCard(self, gamecard, text="", style="regular"):
         card = self.getCard(gamecard)
-        return StackCard(card.gamecard, card.front, card.back, text, style)
+        return StackCard(card.gamecard, card.front, card.back, card._art, text, style)
     def getActivatedCard(self, gamecard, text):
         return self.getStackCard(gamecard, text, style="activated")
     def getTriggeredCard(self, gamecard, text):

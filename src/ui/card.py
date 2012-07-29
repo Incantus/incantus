@@ -62,6 +62,8 @@ class Card(anim.Animable):
     renderlist = None
     fbo = None
 
+    renderwidth, renderheight = 397, 553
+
     def __init__(self, gamecard, front, back):
         self.gamecard = gamecard
         self.front = front
@@ -75,18 +77,21 @@ class Card(anim.Animable):
         self.visible = anim.constant(1.0)
         self.alpha = anim.constant(1.0)
         if not Card.cardlist: Card.cardlist = self.build_displaylist(self.width, self.height)
-        self.renderwidth, self.renderheight = 736, 1050
-        self.renderwidth, self.renderheight = 368, 525
-        if not Card.fbo: self.build_fbo()
+        #self.renderwidth, self.renderheight = 736, 1050
+        #self.renderwidth, self.renderheight = 368, 525
+        #self.renderwidth, self.renderheight = 397, 553
+        if not Card.fbo: Card.build_fbo()
         if not Card.renderlist: Card.renderlist = self.build_renderlist(self.renderwidth, self.renderheight)
-    def build_fbo(self):
+
+    @classmethod
+    def build_fbo(cls):
         id = ctypes.c_uint()
         glGenFramebuffersEXT(1, ctypes.byref(id))
         fbo = id.value
-        
+
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo)
-        
-        width, height = self.renderwidth, self.renderheight
+
+        width, height = cls.renderwidth, cls.renderheight
         #img = pyglet.image.Texture.create(self.width, self.height, force_rectangle=True)
         img = pyglet.image.Texture.create(width, height, force_rectangle=True)
         #glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, img.target, img.id, 0);
@@ -99,17 +104,24 @@ class Card(anim.Animable):
         #if not status == GL_FRAMEBUFFER_COMPLETE_EXT:
         #    raise Exception()
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-        Card.fbo = fbo
-        Card._img = img
+        cls.fbo = fbo
+        cls._img = img
     def del_fbo(self):
         glDeleteFramebuffersEXT(1, self.fbo)
 
     def render_extra(self, width, height): pass
-    def render(self, img=None):
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, self.fbo)
-        if not img: img = Card._img
+    def render(self):
+        Card._render(Card._img, self._art, self.gamecard)
+
+    @classmethod
+    def _render(cls, img, front, gamecard, tiny=False):
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, cls.fbo)
         glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, img.target, img.id, 0);
-        width, height = self.renderwidth, self.renderheight
+        width, height = img.width, img.height
+        wf, hf = (width/397.), (height/553.)
+        tiny_font = "pixelmix"
+        tfont_size = 6
+
         #//-------------------------
         glPushAttrib(GL_VIEWPORT_BIT);
         glViewport(0, 0, width, height)
@@ -122,13 +134,13 @@ class Card(anim.Animable):
         glLoadIdentity()
         glOrtho(0.0, width, 0.0, height, -1.0, 1.0)
         
-        glClearColor(1.,1.,1.,1.)
+        glClearColor(0.,0.,0.,0.)
         glClear(GL_COLOR_BUFFER_BIT)
+        #glClearColor(1.,1.,1.,1.)
         
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         
-        gamecard = self.gamecard
         cmap = dict(zip(["White", "Blue", "Black", "Red", "Green"], "WUBRG"))
         cmap1 = dict(zip("WUBRG", range(5)))
         colors = tuple(sorted([cmap[str(c)] for c in gamecard.color], key=lambda c:cmap1[c]))
@@ -171,40 +183,39 @@ class Card(anim.Animable):
                     overlay_color, overlay_blend = colors
                     final_overlay = "Gld"
 
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
-        frame.blit(0,0)
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
+        #glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        #glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
+        frame.blit(0,0, width=width, height=height)
+        #glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
    
-        def blend(texture):
-            first_p = 0.35*width
-            second_p = width-first_p
-        
-            start, end = second_p, width
+        def blend(texture, width, height):
+            tw, th = texture.width, texture.height
+            
             glEnable(texture.target)
             glBindTexture(texture.target, texture.id)
             glBegin(GL_QUADS)
             glColor4f(1., 1., 1., 1.0)
-            glTexCoord2f(start, 0)
-            glVertex3f(start, 0, 0)
-            glTexCoord2f(end, 0)
-            glVertex3f(end, 0, 0)
-            glTexCoord2f(end, height)
-            glVertex3f(end, height, 0)
-            glTexCoord2f(start, height)
-            glVertex3f(start, height, 0)
+            glTexCoord2f(0.65*tw, 0)
+            glVertex3f(0.65*width, 0, 0)
+            glTexCoord2f(tw, 0)
+            glVertex3f(width, 0, 0)
+            glTexCoord2f(tw, th)
+            glVertex3f(width, height, 0)
+            glTexCoord2f(0.65*tw, th)
+            glVertex3f(0.65*width, height, 0)
 
             glColor4f(1., 1., 1., 0)
-            glTexCoord2f(first_p, 0)
-            glVertex3f(first_p, 0, 0)
+            glTexCoord2f(0.35*tw, 0)
+            glVertex3f(0.35*width, 0, 0)
             glColor4f(1., 1., 1., 1)
-            glTexCoord2f(second_p, 0)
-            glVertex3f(second_p, 0, 0)
+            glTexCoord2f(0.65*tw, 0)
+            glVertex3f(0.65*width, 0, 0)
             glColor4f(1., 1., 1., 1)
-            glTexCoord2f(second_p, height)
-            glVertex3f(second_p, height, 0)
+            glTexCoord2f(0.65*tw, th)
+            glVertex3f(0.65*width, height, 0)
             glColor4f(1., 1., 1., 0)
-            glTexCoord2f(first_p, height)
-            glVertex3f(first_p, height, 0)
+            glTexCoord2f(0.35*tw, th)
+            glVertex3f(0.35*width, height, 0)
 
             glEnd()
             glDisable(texture.target)
@@ -214,32 +225,93 @@ class Card(anim.Animable):
             blend(ImageCache.get_texture("frames/%s.png"%blend_color))
         
         if overlay_color:
-            ImageCache.get_texture("overlays/%s.png"%overlay_color).blit(0,0)
+            t = ImageCache.get_texture("overlays/%s.png"%overlay_color)
+            t.blit(0,0,width=wf*t.width,height=hf*t.height)
+
             if overlay_blend:
-                blend(ImageCache.get_texture("overlays/%s.png"%overlay_blend))
+                t = ImageCache.get_texture("overlays/%s.png"%overlay_blend)
+                blend(t, width=width, height=height)
         
         if final_overlay:
-            ImageCache.get_texture("overlays/%s-overlay.png"%final_overlay).blit(0,0)
+            t = ImageCache.get_texture("overlays/%s-overlay.png"%final_overlay)
+            t.blit(0,0,width=wf*t.width,height=hf*t.height)
+
+        # draw card image
+        #glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        front.get_region(8, 125, 185, 135).blit(0.087*width, 0.4484*height, width=0.824*width, height=0.4368*height)
+        #glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
        
+        # Draw all card text first
+        name = unicode(gamecard.name)
+        font_name = "MatrixBold" if not tiny else tiny_font
+        font_size = 0.043*width if not tiny else tfont_size
+        name_label = pyglet.text.Label(name,
+                          font_name=font_name, font_size=font_size,
+                          color=(0,0,0,255),
+                          x=0.098*width, y=0.902*height)
+        supertypes = unicode(gamecard.supertypes)
+        types = unicode(gamecard.types)
+        subtypes = unicode(gamecard.subtypes)
+        typeline = u""
+        if supertypes: typeline += supertypes + " "
+        typeline += types
+        if subtypes: typeline += u" - %s"%subtypes
+        font_size = 0.038*width if not tiny else tfont_size
+        type_label = pyglet.text.Label(typeline,
+                          font_name=font_name, font_size=font_size,
+                          color=(0,0,0,255),
+                          x=0.098*width, y=0.40*height)
+        text = unicode("\n\n".join([str(a).replace("~", name) for a in list(gamecard.abilities)]))
+        if not text:
+            text = gamecard.text.replace('~', name).split('\n')
+            text = unicode('\n'.join(text[:4]))
+
+        if text:
+            document = mtg_decoder.decode_text(text)
+            font_name = "Helvetica" if not tiny else tiny_font
+            font_size = 0.035*width if not tiny else tfont_size
+            document.set_style(0, len(document.text),
+                dict(font_name=font_name, font_size=font_size, color=(0,0,0,255)))
+
+            #textbox = pyglet.text.layout.IncrementalTextLayout(document,
+            #                  int(0.82*width), int(0.25*height),
+            #                  multiline=True)
+
+            textbox = pyglet.text.DocumentLabel(document,
+                    width=0.80*width, height=0.25*height,
+                    multiline=True)
+
+            textbox.x = int(0.501*width); textbox.y = int(0.25*height)
+            textbox.anchor_x = "center"; textbox.anchor_y = "center"
+            textbox.content_valign = 'center'
+            textbox.draw()
+
+        for text in [name_label, type_label]:
+            text.draw()
+
         # mana costs
-        mana_x, mana_y, diff_x = 0.885*width, 0.918*height, 0.057*width
+        tf = 1.9 if tiny else 1
+        mana_x, mana_y, diff_x = 0.883*width, 0.916*height, 0.053*width*tf
         mana = set("BCGRUWXYZ")
         for c in str(gamecard.cost)[::-1]:
             if c in mana: 
-                ImageCache.get(c).blit(mana_x, mana_y)
+                if tiny: c = 's%s'%c
+                ms = ImageCache.get(c)
+                ms.blit(mana_x, mana_y,
+                        width=tf*wf*ms.width, height=tf*hf*ms.height)
             else: 
-                ImageCache.get("C").blit(mana_x, mana_y)
+                ms = ImageCache.get("C" if not tiny else "sC")
+                ms.blit(mana_x, mana_y,
+                        width=tf*wf*ms.width, height=tf*hf*ms.height)
+                font_name = "MPlantin"# if not tiny else tiny_font
+                font_size = 0.043*width*tf
                 pyglet.text.Label(c,
-                   font_name="MPlantin", font_size=0.047*width,
+                   font_name=font_name, font_size=font_size,
                    color=(0,0,0,255),
-                   x=mana_x+0.012*width, y=mana_y+0.007*height).draw()
+                   x=mana_x, y=mana_y+1,
+                   anchor_x="center", anchor_y="center").draw()
 
             mana_x -= diff_x
-
-        # expansion symbol
-        exp = ImageCache.get_texture("sets/M10_C.png")
-        exp.blit(0.842*width, 0.388*height)
-
 
         if gamecard.types == Creature:
             if num_colors == 0: 
@@ -252,52 +324,26 @@ class Card(anim.Animable):
                 else: col = "Gld"
                 pt = ImageCache.get_texture("pt/%s.png"%col)
 
-            pt.blit(0,0)
+            pt.blit(0,0,width=wf*pt.width,height=hf*pt.height)
         
+            font_name = "MatrixBoldSmallCaps" if not tiny else tiny_font
+            font_size = 0.051*width if not tiny else tfont_size+1
             ptbox = pyglet.text.Label('%s/%s'%(gamecard.power, gamecard.toughness),
-                              font_name="MatrixBoldSmallCaps", font_size=0.0489*width,
+                              font_name=font_name, font_size=font_size,
                               color=(0,0,0,255),
-                              x=0.853*width, y=0.050*height,
+                              x=0.828*width, y=0.072*height,
                               anchor_x="center", anchor_y="baseline")
 
             ptbox.draw()
-        
-        # draw card image
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
-        self.front.get_region(8, 125, 185, 135).blit(0.054*width, 0.4428*height, width=0.889*width, height=0.4619*height)
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
 
-        # card text
-        name = unicode(gamecard.name)
-        name_label = pyglet.text.Label(name,
-                          font_name="MatrixBold", font_size=0.047*width,
-                          color=(0,0,0,255),
-                          x=0.0652*width, y=0.925*height)
-        supertypes = unicode(gamecard.supertypes)
-        types = unicode(gamecard.types)
-        subtypes = unicode(gamecard.subtypes)
-        typeline = u""
-        if supertypes: typeline += supertypes + " "
-        typeline += types
-        if subtypes: typeline += u" \u2014 " + subtypes
-        type_label = pyglet.text.Label(typeline,
-                          font_name="MatrixBold", font_size=0.0407*width,
-                          color=(0,0,0,255),
-                          x=0.0733*width, y=0.395*height)
-        text = unicode("\n\n".join([str(a).replace("~", name) for a in list(gamecard.abilities)[:4]]))
-        if text:
-            document = mtg_decoder.decode_text(text)
-            document.set_style(0, len(document.text), dict(font_name='MPlantin', font_size=0.038*width, color=(0,0,0,255)))
-            textbox = pyglet.text.DocumentLabel(document,
-                              multiline=True, width=width*0.85,
-                              x=width/2, y=height*.23,
-                              anchor_x="center", anchor_y="center")
-            textbox.draw()
+        # expansion symbol
+        exp = ImageCache.get_texture("sets/M10_C.png")
+        exp.anchor_x = exp.width / 2.
+        exp.anchor_y = exp.height / 2.
+        exp.blit(0.866*width, 0.413*height,
+                 width=tf*wf*exp.width, height=tf*hf*exp.height)
 
-        for text in [name_label, type_label]:
-            text.draw()
-
-        self.render_extra(width, height)
+        #self.render_extra(width, height)
         
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
@@ -306,7 +352,7 @@ class Card(anim.Animable):
         glPopAttrib()
         glPopAttrib()
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0)
-        #self._img.save("temp.png")
+        #if not tiny: img.save("%s.png"%gamecard.name)
     def build_renderlist(self, width, height):
         renderlist = glGenLists(1)
         width, height = width/2, height/2
@@ -391,8 +437,9 @@ class StackCard(Card):
     highlighting = anim.Animatable()
     borderedlist = None
     COLORS = ColorDict()
-    def __init__(self, gamecard, front, back, text="", style="regular"):
+    def __init__(self, gamecard, front, back, art, text="", style="regular"):
         super(StackCard,self).__init__(gamecard,front,back)
+        self._art = art
         self.highlighting = anim.animate(0, 0, dt=0.2, method="step")
         self.size = anim.animate(self.size, self.size, dt=0.2, method="sine")
         self.alpha = anim.animate(0, 0, dt=1.0, method="ease_out_circ")
@@ -400,7 +447,7 @@ class StackCard(Card):
         self.stackwidth, self.stackheight = 368, 414
         if self.style == "regular":
             self._texture = pyglet.image.Texture.create(self.renderwidth, self.renderheight, force_rectangle=True)
-            self.render(self._texture)
+            Card._render(self._texture, self._art, self.gamecard)
         else:
             self._texture = pyglet.image.Texture.create(self.stackwidth, self.stackheight, force_rectangle=True)
             self.text = text
@@ -485,12 +532,12 @@ class StackCard(Card):
        
         blend_frac = 0.5
         blend_y = blend_frac*135
-        artsolid = self.front.get_region(8, 125+blend_y, 185, 135-blend_y)
+        artsolid = self._art.get_region(8, 125+blend_y, 185, 135-blend_y)
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
         artsolid.blit(0.054*width, 0.54564*height, width=0.889*width, height=(0.5857*height)*blend_frac)
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
 
-        artfade = self.front.get_region(8, 125, 185, blend_y)
+        artfade = self._art.get_region(8, 125, 185, blend_y)
     
         tc = artfade.tex_coords
         glEnable(artfade.target)
@@ -531,7 +578,7 @@ class StackCard(Card):
                           font_size=0.047*width, leading=0, color=(0,0,0,255)))
         namebox = pyglet.text.DocumentLabel(document, multiline=True,
                           width = width*0.85,
-                          x = width/2.05, y=0.905*height,
+                          x = width/2.05, y=0.91*height,
                           anchor_x="center", anchor_y="baseline")
 
         document = mtg_decoder.decode_text(self.text.replace('~', name))
@@ -551,7 +598,7 @@ class StackCard(Card):
         glPopAttrib()
         glPopAttrib()
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0)
-        #img.save("temp2.png")
+        #img.save("%s_ability.png"%self.gamecard.name)
     def highlight(self):
         if self.highlighting == 0:
             self.highlighting = anim.animate(0,1,dt=0.75)
@@ -853,7 +900,7 @@ class PlayCard(Card):
             glColor4f(self.alpha, self.alpha, self.alpha, self.alpha)
             glCallList(self.cardlist)
             #self.info_box.render()
-            self.text.render()
+            #self.text.render()
             #self.damage_text.render()
             glDisable(self._texture.target)
             for c in self.counters: c.draw()
