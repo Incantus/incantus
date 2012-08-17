@@ -4,7 +4,7 @@ from GameObjects import GameObject
 from GameEvent import CardEnteringZoneFrom, CardLeftZone, CardEnteredZone, CardCeasesToExist, TimestepEvent, ShuffleEvent
 
 __all__ = ["Zone", "GraveyardZone", "HandZone", "ExileZone", "LibraryZone",
-           "BattlefieldZone"]
+           "BattlefieldZone", "CommandZone"]
 
 all_cards = lambda card: True
 
@@ -182,3 +182,6 @@ class BattlefieldView(object):
         card.initialize_controller(self.player)
         return card
     def __str__(self): return "battlefield"
+
+class CommandZone(NonBattlefieldMixin, AddCardsMixin, OrderedZone):
+    name = "command"

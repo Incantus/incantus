@@ -1,4 +1,5 @@
 import weakref, copy
+from Util import isiterable
 from GameEvent import ControllerChanged, PowerToughnessModifiedEvent
 from symbols.subtypes import all_basic_lands
 
@@ -95,6 +96,10 @@ class characteristic(_base_characteristic):
     def evaluate(self, fields):
         fields.clear()
         fields.update(self._characteristics)
+    def copy(self):
+        duplicate = copy.copy(self)
+        duplicate._characteristics = copy.copy(duplicate._characteristics)
+        return duplicate
 
 class no_characteristic(characteristic): pass
 
@@ -155,7 +160,7 @@ class stacked_characteristic(object):
     copyable = property(fget = lambda self: self._stacking[self._after_last_copyable_index-1])
     def set_copy(self, chargroup, extra_chars=None):
         # find last copy effect
-        chargroup = copy.copy(chargroup)
+        chargroup = chargroup.copy()
         if extra_chars:
             if not isiterable(extra_chars): extra_chars = (extra_chars,)
             chargroup.add(*extra_chars)
@@ -196,7 +201,7 @@ class stacked_type(stacked_characteristic):
     def _insert_into_stacking(self, char, pos=-1):
         if pos == -1: self._stacking.append(char)
         else: self._stacking.insert(pos, char)
-        if str(self._card.zone) == "battlefield": self._card.add_basecls()
+        if str(self._card.zone) == "battlefield": self._card.activate()
         self._card.send(self.change_event)
         def remove():
             if not self._card.is_LKI and char in self._stacking:

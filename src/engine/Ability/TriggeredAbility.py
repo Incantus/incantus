@@ -41,7 +41,10 @@ class TriggeredAbility(Ability):
         for trigger in self.triggers:
             trigger.clear_trigger()
     def playAbility(self, **trigger_keys):
-        ability = TriggeredStackAbility(self.effect_generator, trigger_keys, self.source, txt=self.txt)
+        #ability = TriggeredStackAbility(self.effect_generator, trigger_keys, self.source, txt=self.txt)
+        if self.effect_generator.__doc__: txt = self.effect_generator.__doc__
+        else: txt = self.txt
+        ability = TriggeredStackAbility(self.effect_generator, trigger_keys, self.source, txt=txt)
         self.source.controller.stack.add_triggered(ability)
     def copy(self):
         return TriggeredAbility([t.copy() for t in self.triggers], self.effect_generator, self.zone, self.txt)

@@ -25,6 +25,6 @@ class Ability(object):
     enabled = property(fget=lambda self: self._status_count > 0)
 
     def copy(self): return copy.copy(self)
-    def __str__(self): return self.txt
+    def __str__(self): return self.txt.replace("~", "%s"%self.source.name)
     def __repr__(self): return "<%s%s %o: %s>"%('**' if self.enabled else '', self.__class__.__name__, id(self), self.txt)
 

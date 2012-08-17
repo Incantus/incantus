@@ -33,6 +33,7 @@ class MultipleCosts(Cost):
         for i, c in enumerate(costs):
             if isinstance(c, str): costs[i] = ManaCost(c)
         self.costs = costs
+    X = property(fget=lambda self: self.final_costs[0].X if hasattr(self, "final_costs") and isinstance(self.final_costs[0], ManaCost) else 0)
     def consolidate(self, costs):
         # This combines all mana costs
         manacost = []
@@ -313,8 +314,18 @@ class ChangeZoneCost(Cost):
 
 class ExileFromLibraryCost(ChangeZoneCost):
     def __init__(self, number=1, position='top'):
-        super(ExileFromLibraryCost, self).__init__(from_zone="library", to_zone="exhile", cardtype=isCard, number=number)
+        super(ExileFromLibraryCost, self).__init__(from_zone="library", to_zone="exile", cardtype=isCard, number=number)
         self.position = position
+    def compute(self, source, player):
+        if self.position == "top":
+            self._cards = self.library.top(self.number)
+        elif self.position == "bottom":
+            self._cards = self.library.bottom(self.number)
+        return True
+
+class GraveyardFromLibraryCost(ChangeZoneCost):
+    def __init__(self, number=1, position='top'):
+        super(GraveyardFromLibraryCost, self).__init__(from_zone="library", to_zone="graveyard", cardtype=isCard, number=number)
     def compute(self, source, player):
         if self.position == "top":
             self._cards = self.library.top(self.number)
@@ -472,9 +483,10 @@ class RevealCost(Cost):
         return "Reveal %s"%txt
 
 class DiscardCost(Cost):
-    def __init__(self, cardtype=None, number=1):
+    def __init__(self, cardtype=None, number=1, random=False):
         self.number = number
         self.cardtype = cardtype
+        self.random = random
     def precompute(self, source, player):
         if self.cardtype: return len(player.hand.get(self.cardtype)) >= self.number
         else: return True
@@ -487,6 +499,9 @@ class DiscardCost(Cost):
             # Discard this card
             if str(source.zone) == "hand": self.discards = [source]
             else: return False
+        elif self.random:
+            import random
+            self.discards.extend(list(random.sample(self.hand, self.number)))
         else:
             if self.number > 1: a='s'
             else: a = ''

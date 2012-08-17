@@ -1,16 +1,16 @@
-from engine.Match import isCard, isCreature, isLand
+from engine.Match import isCard, isCreature, isLand, isPermanent
 from engine.GameEvent import UntapStepEvent, UpkeepStepEvent
 from engine.CardRoles import permanent_method
 from ActivatedAbility import ActivatedAbility
 from StaticAbility import CardStaticAbility
 from Target import NoTarget, Target
 from Trigger import PhaseTrigger
-from EffectsUtilities import do_override, override_effect, do_when
+from EffectsUtilities import do_override, override_effect, do_when, combine
 from Limit import no_limit, sorcery_limit
 from Cost import ManaCost
 
 __all__ = ["attach_artifact", "equip", "fortify", "enchant",
-           "optionally_untap", "doesntUntapAbility",
+           "optionally_untap", "this_card_doesnt_untap",
            "doesnt_untap_controllers_next_untap_step",
            "doesnt_untap_your_next_untap_step",
            "draw_card_next_upkeep",
@@ -59,8 +59,8 @@ def doesnt_untap_your_next_untap_step(target):
         return False
     do_when(lambda: do_override(target, "canUntapDuringUntapStep", canUntap), UntapStepEvent(), lambda player: player==controller)
 
-def doesntUntapAbility(txt):
-    return CardStaticAbility(effects=override_effect("canUntapDuringUntapStep", lambda self: False), txt=txt)
+def this_card_doesnt_untap():
+    return CardStaticAbility(effects=override_effect("canUntapDuringUntapStep", lambda self: False), txt="~ doesn't untap during your untap step.")
 
 # draw a card at the beginning of the next turn's upkeep
 def draw_card_next_upkeep():
@@ -79,7 +79,7 @@ def indestructible(target):
 
 def this_card_is_indestructible():
     def indestructible_effect(target):
-        yield target.indestructible(target)
+        yield target.indestructible()
     return CardStaticAbility(effects=indestructible_effect, txt="~ is indestructible.")
 
 #class ThresholdAbility(ActivatedAbility):

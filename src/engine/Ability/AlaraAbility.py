@@ -94,7 +94,7 @@ def cascade():
                 exiled.remove(exile)
                 exile.play_without_mana_cost(controller)
             # move exiled cards back to bottom of library in random order
-            shuffle(exiled)
+            if exiled: shuffle(exiled)
             for card in exiled:
                 card.move_to("library", position='bottom')
                 yield

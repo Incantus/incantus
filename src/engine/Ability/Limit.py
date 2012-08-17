@@ -74,6 +74,11 @@ class SorceryLimit(Limit):
         from engine.GameKeeper import Keeper
         return Keeper.isSorceryTiming(card.controller)
 
+# This is used by mana abilities that can't be activated, for instance, as you're casting a spell. See Lion's Eye Diamond.
+class InstantLimit(Limit):
+    def __call__(self, card):
+        return True
+
 class ThresholdLimit(Limit):
     def __call__(self, card):
         return len(card.controller.graveyard) >= 7

@@ -14,7 +14,8 @@ def transmute(cost):
         target = yield NoTarget()
         CMC = source.converted_mana_cost
         for card in controller.choose_from_zone(number=1, cardtype=isCard.with_condition(lambda c: c.converted_mana_cost == CMC), zone="library", action="card with converted mana cost %s to put into your hand"%CMC, required=False):
-            controller.reveal_cards(card)
+            controller.reveal_cards((card,))
+            yield
             card.move_to("hand")
         yield
     return ActivatedAbility(effects, limit=sorcery_limit, zone="hand", txt="Transmute %s"%str(cost), keyword="transmute")

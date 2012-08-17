@@ -1,14 +1,22 @@
 from MtGObject import MtGObject
 from Util import isiterable
-from GameObjects import Card, Token, CardCopy
+from GameObjects import Card, Token, CardCopy, EmblemObject
 from GameKeeper import Keeper
 from GameEvent import GameFocusEvent, DrawCardEvent, DiscardCardEvent, CardUntapped, LifeGainedEvent, LifeLostEvent, TargetedByEvent, InvalidTargetEvent, LogEvent, AttackerSelectedEvent, BlockerSelectedEvent, AttackersResetEvent, BlockersResetEvent, BlockersReorderedEvent, PermanentSacrificedEvent, TimestepEvent, AbilityPlayedEvent, CardSelectedEvent, AllDeselectedEvent, GameOverException, DealsDamageToEvent
+from Ability.StackAbility import StackAbility
+from Ability.CastingAbility import CastSpell
 from Mana import ManaPool, generate_hybrid_choices
-from Zone import LibraryZone, HandZone, GraveyardZone, ExileZone
+from Zone import LibraryZone, HandZone, GraveyardZone, ExileZone, CommandZone
 from Action import CancelAction, PassPriority, OKAction
 from Match import isCreature, isPermanent, isPlayer, isCard, isLandCard, isPlaneswalker, OpponentMatch
-from stacked_function import replace, override
+from stacked_function import replace, override, overridable, do_sum
 from Ability.Cost import ManaCost
+
+def check_concede(player, self):
+    if not player == self: return False
+    else:
+        if self.you_may("concede"):
+            self.concede()
 
 class life(int):
     def __add__(self, other):
@@ -52,6 +60,7 @@ class Player(MtGObject):
         self.hand = HandZone()
         self.graveyard = GraveyardZone()
         self.exile = ExileZone()
+        self.command = CommandZone()
         self.battlefield = battlefield.get_view(self)
         self.stack = stack
         self.manapool = ManaPool()
@@ -79,6 +88,8 @@ class Player(MtGObject):
         if msg: msg = " %s and"%msg
         self.getIntention(msg="%s%s loses the game!"%(self, msg), notify=True)
         raise GameOverException()
+    def concede(self):
+        self.lose("concedes")
     def add_mana(self, *amount):
         if len(amount) > 1:
             amount = self.make_selection([('Add %s'%''.join(['{%s}'%c for c in col]), col) for col in amount], 1, prompt="Choose mana to add")
@@ -107,9 +118,12 @@ class Player(MtGObject):
         override(copy, "modifyNewRole", modifyNewRole)
         return self.exile.add_new_card(copy)
     def create_tokens(self, info, number=1, tag=''):
-        return [self.exile.add_new_card(Token.create(info, owner=self)) for _ in range(number)]
+        return [self.exile.add_new_card(Token.create(info, owner=self, tag=tag)) for _ in range(number)]
     def play_tokens(self, info, number=1, tag=''):
-        return [token.move_to("battlefield") for token in self.create_tokens(info, number)]
+        return [token.move_to("battlefield") for token in self.create_tokens(info, number, tag)]
+    def create_emblem(self, ability):
+        emblem = EmblemObject.create(ability=ability, owner=self)
+        return self.command.add_new_card(emblem)
     def make_selection(self, sellist, number=1, required=True, prompt=''):
         if isinstance(sellist[0], tuple): idx=False
         else: idx=True
@@ -119,8 +133,9 @@ class Player(MtGObject):
         import symbols
         subtypes = set()
         creature_types = lambda c: c.types.intersects(set((symbols.Creature, symbols.Tribal)))
-        for cards in (getattr(player, zone).get(creature_types) for zone in ["battlefield", "graveyard", "exile", "library", "hand"] for player in Keeper.players):
+        for cards in (getattr(player, zone).get(creature_types) for zone in ["battlefield", "graveyard", "exile", "library", "hand", "command"] for player in Keeper.players):
             for card in cards: subtypes.update(card.subtypes.current)
+        subtypes.intersection_update(symbols.all_creatures)
         return self.make_selection(sorted(subtypes), prompt='Choose a creature type')
     def choose_opponent(self):
         if len(self.opponents) == 1:
@@ -145,25 +160,43 @@ class Player(MtGObject):
         else: return selected
     def choose_from_zone(self, number=1, cardtype=isCard, zone="battlefield", action='', required=True, all=False):
         cards_in_zone = getattr(self, zone).get(cardtype)
+        # If all is True, we should extend cards_in_zone; otherwise, it may falsely register that nothing is there when it's just controlled by your opponents.
+        if all == True and zone == "battlefield": # Should this extend to any other zones?
+            for opponent in self.opponents:
+                cards_in_zone.extend(getattr(opponent, zone).get(cardtype)) # Well, I'll leave this a getattr() just in case.
         if zone == "library" and not cardtype == isCard: required = False
         if len(cards_in_zone) == 0 and not zone == "library": cards = []
         elif number >= len(cards_in_zone) and required: cards = cards_in_zone
         else:
             cards = []
             if zone == "battlefield" or zone == "hand":
-                a = 's' if number > 1 else ''
-                total = number
-                prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
-                while number > 0:
-                    card = self.getTarget(cardtype, zone=zone, from_player=None if all else "you", required=required, prompt=prompt)
-                    if card == False: break
-                    if card in cards:
-                        prompt = "Card already selected - select again"
-                        self.send(InvalidTargetEvent(), target=card)
-                    else:
-                        cards.append(card)
-                        number -= 1
-                        prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
+                if number > -1:
+                    a = 's' if number > 1 else ''
+                    total = number
+                    prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
+                    while number > 0:
+                        card = self.getTarget(cardtype, zone=zone, from_player=None if all else "you", required=required, prompt=prompt)
+                        if card == False: break
+                        if card in cards:
+                            prompt = "Card already selected - select again"
+                            self.send(InvalidTargetEvent(), target=card)
+                        else:
+                            cards.append(card)
+                            number -= 1
+                            prompt = "Select %s%s to %s: %d left of %d"%(cardtype, a, action, number, total)
+                else:
+                    number = 0
+                    prompt = "Select any number of %s to %s: %d selected so far"%(cardtype, action, number)
+                    while number < cards_in_zone:
+                        card = self.getTarget(cardtype, zone=zone, from_player=None if all else "you", required=required, prompt=prompt)
+                        if card == False: break
+                        if card in cards:
+                            prompt = "Card already selected - select again"
+                            self.send(InvalidTargetEvent(), target=card)
+                        else:
+                            cards.append(card)
+                            number += 1
+                            prompt = "Select any number of %s to %s: %d selected so far"%(cardtype, action, number)
             else:
                 selection = list(getattr(self, zone))
                 if number >= -1:
@@ -194,10 +227,18 @@ class Player(MtGObject):
         if number == -1: number = len(self.hand)
         cards = self.choose_from_zone(number, cardtype, "hand", "discard")
         return [self.discard(card) for card in cards]
+    def discard_at_random(self, number=1):
+        import random
+        if len(self.hand) <= number: return self.force_discard(-1)
+        else:
+            return [self.discard(card) for card in random.sample(self.hand, number)]
     def discard_down(self):
         number = len(self.hand) - self.hand_limit
         if number > 0: return self.force_discard(number)
         else: return []
+    def flip_coin(self):
+        import random
+        return random.choice((True, False))
     def sacrifice(self, perm):
         if perm.controller == self and str(perm.zone) == "battlefield":
             card = perm.move_to("graveyard")
@@ -206,12 +247,13 @@ class Player(MtGObject):
         else: return None
     def force_sacrifice(self, number=1, cardtype=isPermanent):
         perms = self.choose_from_zone(number, cardtype, "battlefield", "sacrifice")
-        for perm in perms: self.sacrifice(perm)
-        return len(perms)
+        newperms = []
+        for perm in perms: newperms.append(self.sacrifice(perm))
+        return newperms
     def skip_next_turn(self, msg):
         def condition(keeper):
-            if keeper.player_cycler.peek() == self:
-                keeper.nextActivePlayer()
+            if keeper.players.peek() == self:
+                keeper.players.next()
                 return True
             else: return False
         def skipTurn(keeper):
@@ -219,11 +261,14 @@ class Player(MtGObject):
             skipTurn.expire()
         return replace(Keeper, "newTurn", skipTurn, condition=condition, msg=msg)
     def take_extra_turn(self):
-        Keeper.player_cycler.insert(self)
+        Keeper.players.insert(self)
+    @overridable(do_sum)
+    def get_special_actions(self):
+        return [check_concede]
     def setup_special_action(self, action):
         #408.2i. Some effects allow a player to take an action at a later time, usually to end a continuous effect or to stop a delayed triggered ability. This is a special action. A player can stop a delayed triggered ability from triggering or end a continuous effect only if the ability or effect allows it and only when he or she has priority. The player who took the action gets priority after this special action.
         #408.2j. Some effects from static abilities allow a player to take an action to ignore the effect from that ability for a duration. This is a special action. A player can take an action to ignore an effect only when he or she has priority. The player who took the action gets priority after this special action. (Only 3 cards use this: Damping Engine, Lost in Thought, Volrath's Curse)
-        raise NotImplementedError()
+        return override(self, "get_special_actions", lambda self: [action])
 
     # Rule engine functions
     def mulligan(self, number):
@@ -315,19 +360,24 @@ class Player(MtGObject):
                     break
                 else:
                     if not creature in attackers and creature.canAttack():
-                        attackers.add(creature)
-                        self.send(AttackerSelectedEvent(), attacker=creature)
+                        possible_opponents = [opponent for opponent in opponents if creature.canAttackSpecific(opponent)]
+                        if possible_opponents:
+                            attackers.add(creature)
+                            self.send(AttackerSelectedEvent(), attacker=creature)
 
-                        # Now select who to attack
-                        if multiple_opponents:
-                            while True:
-                                target = self.getTarget(target_types=(OpponentMatch(self), isPlaneswalker), zone="battlefield", prompt="Select opponent to attack")
-                                if target in opponents:
-                                    creature.setOpponent(target)
-                                    break
-                                else: prompt = "Can't attack %s. Select again"%target
-                        else: creature.setOpponent(opponents[0])
-                        prompt = "%s selected - select another"%creature
+                            # Now select who to attack
+                            if len(possible_opponents) > 1:
+                                while True:
+                                    target = self.getTarget(target_types=(OpponentMatch(self), isPlaneswalker), zone="battlefield", prompt="Select opponent to attack")
+                                    if target in possible_opponents:
+                                        creature.setOpponent(target)
+                                        break
+                                    else: prompt = "Can't attack %s. Select again"%target
+                            else: creature.setOpponent(possible_opponents[0])
+                            prompt = "%s selected - select another"%creature
+                        else:
+                            self.send(InvalidTargetEvent(), target=creature)
+                            prompt = "%s can't attack any available opponent - select another"%creature
                     elif creature in attackers:
                         self.send(InvalidTargetEvent(), target=creature)
                         prompt = "%s already in combat - select another"%creature
@@ -444,7 +494,7 @@ class Player(MtGObject):
     def doNonInstantAction(self):
         return self.getAction(prompt="Play Spells, Activated Abilities, or Pass Priority")
     def doInstantAction(self):
-        return self.getAction(prompt="Play Instants, Activated Abilities or Pass Priority")
+        return self.getAction(prompt="Play Instants, Activated Abilities, or Pass Priority")
     def chooseAndDoAbility(self, card, abilities):
         numabilities = len(abilities)
         if numabilities == 0: return False
@@ -472,7 +522,7 @@ class Player(MtGObject):
             sel = action.selection
             if not isPlayer(sel) and sel.controller == self: return action
             else: return False
-        
+
         context = {"get_ability": True, "process": convert_gui_action}
         prompt = "Need %s - play mana abilities (Esc to cancel)"%"".join(['{%s}'%r for r in required])
         # This loop seems really ugly - is there a way to structure it better?
@@ -487,10 +537,12 @@ class Player(MtGObject):
         return not cancel
     def getAction(self, prompt=''):
         def convert_gui_action(action):
-            if isinstance(action, PassPriority) or isinstance(action, OKAction) : return action
+            if isinstance(action, PassPriority) or isinstance(action, OKAction): return action
             elif isinstance(action, CancelAction): return False
             sel = action.selection
-            if not isPlayer(sel) and sel.controller == self: return action
+            if isinstance(sel, StackAbility): return False
+            elif isinstance(sel, CastSpell): sel = sel.source
+            if sel == self or (not isPlayer(sel) and sel.controller == self): return action
             else: return False
 
         #context = {"get_ability": True, "process": convert_gui_action}
@@ -502,19 +554,30 @@ class Player(MtGObject):
             if isinstance(action, PassPriority) or isinstance(action, OKAction):
                 passed = True
                 break
-            card = action.selection
-            abilities = [(str(ability), ability) for ability in card.abilities.activated()]
-            # Include the playing ability if not on the battlefield
-            if not str(card.zone) == "battlefield" and card.playable():
-                abilities.append(("Play %s"%card, card))
+            object = action.selection
+            if object == self:
+                abilities = [(action.__doc__, action) for action in object.get_special_actions()]
+            else:
+                abilities = [(str(ability), ability) for ability in object.abilities.activated()]
+
+                # Special actions!
+                abilities.extend([("SPECIAL: "+action.__doc__, action) for action in object.get_special_actions()])
+
+                # Include the playing ability if not on the battlefield
+                if not str(object.zone) == "battlefield" and object.playable():
+                    abilities.append(("Play %s"%object, object))
+
             num = len(abilities)
             if num == 0: continue
             elif num == 1:
                 ability = abilities[0][1]
             else:
-                ability = self.make_selection(abilities, 1, required=False, prompt="%s: Select"%card)
+                ability = self.make_selection(abilities, 1, required=False, prompt="%s: Select"%object)
                 if ability == False: continue
-            if ability.play(self): break
+            if hasattr(ability, "play"):
+                if ability.play(self): break
+            else:
+                if ability(object, self): break
         return not passed
 
     def getIntention(self, prompt='', msg="", options=("Yes", "No"), notify=False):

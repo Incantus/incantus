@@ -13,6 +13,7 @@ class KickerCost(SpecialCost):
         if player.you_may("pay the kicker cost of %s"%self.cost):
             if super(KickerCost, self).precompute(source, player):
                 source.kicked.add(str(self.cost))
+                source.kicked.times += 1
                 self.kicked = True
         return True
     def compute(self, source, player):
@@ -27,12 +28,20 @@ class KickerCost(SpecialCost):
     payment = property(fget=payment)
 
 class kicked(set):
+    def __init__(self, *args, **kw):
+        self.times = 0
+        super(kicked, self).__init__(*args, **kw)
     def __eq__(self, other): return other in self
 
 def kicker(cost):
     def effects(card):
         card.kicked = kicked()
+        #yield (do_override(card, "_get_additional_costs", lambda self: KickerCost(cost)),
+        #      do_override(card, "modifyNewRole", lambda self, new, zone: setattr(new, "kicked", self.kicked)))
+        def modifyNewRole(self, new, zone):
+            if str(zone) == "battlefield":
+                setattr(new, "kicked", self.kicked)
         yield (do_override(card, "_get_additional_costs", lambda self: KickerCost(cost)),
-              do_override(card, "modifyNewRole", lambda self, new, zone: setattr(new, "kicked", self.kicked)))
+              do_override(card, "modifyNewRole", modifyNewRole))
     return CardStaticAbility(effects, zone="stack", keyword="kicker")
 
