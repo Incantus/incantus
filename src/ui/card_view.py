@@ -22,9 +22,6 @@ sixteenfv = GLfloat*16
 import math
 import CardLibrary
 
-from engine.Ability.CastingAbility import CastSpell
-from engine.Ability.ActivatedAbility import ActivatedAbility
-
 class CardView(Widget):
     focus_size = 1.0 #0.8
     def __init__(self, pos, reverse_draw=False):
@@ -89,6 +86,7 @@ class HandView(CardView):
         #    self.dir = 1
         #    align = "right"
         self.dir = 1
+        self.vdir = -1 if is_opponent else 1
         align = "left"
         #self.hand_size = Label("0", size=30, halign=align, valign="center")
         self.is_opponent = is_opponent
@@ -172,7 +170,7 @@ class HandView(CardView):
             elif card.pos.x+card.width/2 > self.avail_width: pos_shift = self.avail_width - card.width/1.5
             else: pos_shift = card.pos.x
             card._pos.set_transition(dt=0.2, method="sine") #self.pos_transition)
-            card.pos = euclid.Vector3(pos_shift, (self.height+card.height/2)*self.dir, 0)
+            card.pos = euclid.Vector3(pos_shift, (self.height+card.height/2)*self.vdir, 0)
             card.size = 1.0
     def restore_card(self, card):
         #if self.zooming == 1.0: # This will finish the zooming motion
@@ -311,6 +309,8 @@ class StackView(CardView):
         self._is_spaced = not self._is_spaced
         self.layout()
     def announce(self, ability, startt=0):
+        from engine.Ability.CastingAbility import CastSpell
+        from engine.Ability.ActivatedAbility import ActivatedAbility
         if isinstance(ability, CastSpell): func = CardLibrary.CardLibrary.getStackCard
         elif isinstance(ability, ActivatedAbility): func = CardLibrary.CardLibrary.getActivatedCard
         else: func = CardLibrary.CardLibrary.getTriggeredCard
