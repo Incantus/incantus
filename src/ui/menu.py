@@ -87,11 +87,11 @@ class MainMenu(IncantusMenu):
         pyglet.app.exit()
 
 class InGameMenu(IncantusMenu):
-    def __init__(self):
+    def __init__(self, layer):
         super(InGameMenu, self).__init__()
         items = []
         items.append(MenuItem('Resume Game', self.on_quit))
-        items.append(SubMenuItem('Options', OptionsMenu()))
+        items.append(SubMenuItem('Options', OptionsMenu(layer)))
         items.append(MenuItem('Exit Game', self.on_quit_game))
         self.create_menu(items)
     def on_quit(self):
@@ -102,20 +102,27 @@ class InGameMenu(IncantusMenu):
         Incantus.quit()
 
 class OptionsMenu(IncantusMenu):
-    def __init__(self):
+    def __init__(self, layer=None):
         super(OptionsMenu, self).__init__('Options')
         items = []
         items.append( ToggleMenuItem('Music: ', self.on_music, soundfx.toggle_music) )
         items.append( ToggleMenuItem('Sound Effects: ', self.on_soundfx, soundfx.toggle_fx) )
         items.append( MultipleMenuItem(
-                        'Sound volume: ',
+                        'Music volume: ',
                         self.on_music_volume,
                         ['Mute','10','20','30','40','50','60','70','80','90','100'],
-                        int(soundfx.volume * 10) )
+                        int(soundfx.music_volume * 10) )
+                    )
+        items.append( MultipleMenuItem(
+                        'Sound volume: ',
+                        self.on_sound_volume,
+                        ['Mute','10','20','30','40','50','60','70','80','90','100'],
+                        int(soundfx.sound_volume * 10) )
                     )
         items.append( ToggleMenuItem('Show FPS: ', self.on_show_fps, director.show_FPS) )
         items.append( ToggleMenuItem('Fullscreen: ', self.on_fullscreen, director.window.fullscreen) )
         items.append( MenuItem('Back', self.on_quit) )
+        self.layer = layer
         self.create_menu(items)
     def on_fullscreen( self, value ):
         director.window.set_fullscreen( value )
@@ -123,7 +130,12 @@ class OptionsMenu(IncantusMenu):
         director.show_FPS = value
     def on_music_volume( self, idx ):
         vol = idx / 10.0
-        soundfx.volume = vol
+        soundfx.music_volume = vol
+        if self.layer:
+            self.layer.soundfx.update_music_volume()
+    def on_sound_volume( self, idx ):
+        vol = idx / 10.0
+        soundfx.sound_volume = vol
     def on_music( self, value ):
         soundfx.toggle_music = value
     def on_soundfx( self, value ):
