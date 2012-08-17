@@ -152,8 +152,11 @@ class Card(anim.Animable):
         final_overlay = None
         if gamecard.types == Land:
             frame = ImageCache.get_texture("frames/Land.png")
-            abilities = map(str,gamecard.abilities)
+            abilities = gamecard.text.split("\n") if tiny else map(str,gamecard.abilities)
             mana = list(itertools.chain(*[re.findall("{([WUBRG])}", a) for a in abilities if "Add " in a]))
+            subtypes = map(str,gamecard.subtypes)
+            for t, c in (("Plains", "W"), ("Island", "U"), ("Swamp", "B"), ("Mountain", "R"), ("Forest", "G")):
+                if t in subtypes and not c in mana: mana.append(c)
             num_colors = len(mana)
             if num_colors == 0: pass
             elif num_colors <= 2:
