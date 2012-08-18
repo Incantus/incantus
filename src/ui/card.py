@@ -146,6 +146,11 @@ class Card(anim.Animable):
         colors = tuple(sorted([cmap[str(c)] for c in gamecard.color], key=lambda c:cmap1[c]))
         num_colors = len(colors)
 
+        # draw card image
+        #glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        front.get_region(8, 125, 185, 135).blit(0.087*width, 0.445*height, width=0.824*width, height=0.4368*height)
+        #glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
+
         blend_color = None
         overlay_color = None
         overlay_blend = None
@@ -239,11 +244,6 @@ class Card(anim.Animable):
             t = ImageCache.get_texture("overlays/%s-overlay.png"%final_overlay)
             t.blit(0,0,width=wf*t.width,height=hf*t.height)
 
-        # draw card image
-        #glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
-        front.get_region(8, 125, 185, 135).blit(0.087*width, 0.4484*height, width=0.824*width, height=0.4368*height)
-        #glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
-       
         # Draw all card text first
         name = unicode(gamecard.name)
         font_name = "MatrixBold" if not tiny else tiny_font
