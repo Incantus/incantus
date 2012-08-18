@@ -139,7 +139,7 @@ class Card(anim.Animable):
         #glClearColor(1.,1.,1.,1.)
         
         glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
         
         cmap = dict(zip(["White", "Blue", "Black", "Red", "Green"], "WUBRG"))
         cmap1 = dict(zip("WUBRG", range(5)))
@@ -212,7 +212,7 @@ class Card(anim.Animable):
             glTexCoord2f(0.65*tw, th)
             glVertex3f(0.65*width, height, 0)
 
-            glColor4f(1., 1., 1., 0)
+            glColor4f(0, 0, 0, 0)
             glTexCoord2f(0.35*tw, 0)
             glVertex3f(0.35*width, 0, 0)
             glColor4f(1., 1., 1., 1)
@@ -221,7 +221,7 @@ class Card(anim.Animable):
             glColor4f(1., 1., 1., 1)
             glTexCoord2f(0.65*tw, th)
             glVertex3f(0.65*width, height, 0)
-            glColor4f(1., 1., 1., 0)
+            glColor4f(0, 0, 0, 0)
             glTexCoord2f(0.35*tw, th)
             glVertex3f(0.35*width, height, 0)
 
