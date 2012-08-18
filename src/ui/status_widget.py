@@ -570,7 +570,10 @@ class LibraryImage(Image):
         super(LibraryImage,self).__init__(self.back)
     def update(self, library):
         top_card = library.top()
-        self.img = CardLibrary.CardLibrary.getCard(top_card).front
+        if top_card:
+            self.img = CardLibrary.CardLibrary.getCard(top_card).front
+        else:
+            self.img = self.back
     def render(self):
         padding = 2*self.padding
         arrow_width = 8
