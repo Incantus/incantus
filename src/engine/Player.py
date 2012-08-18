@@ -580,11 +580,12 @@ class Player(MtGObject):
                 if ability(object, self): break
         return not passed
 
-    def getIntention(self, prompt='', msg="", options=("Yes", "No"), notify=False):
+    def getIntention(self, prompt='', msg="", options=None, notify=False):
         def filter(action):
             if not (isinstance(action, OKAction) or isinstance(action, CancelAction)): return False
             else: return action
         if not msg: msg = prompt
+        if options is None: options = ("OK" if notify else ("Yes", "No"))
         context = {'get_choice': True, 'msg': msg, 'notify': notify, 'options': options, 'process': filter}
         #if not prompt: prompt = "Declare intention"
         result = self.input(context, "%s: %s"%(self.name,prompt))
