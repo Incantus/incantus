@@ -138,7 +138,7 @@ class ZoneAnimator(object):
         dispatcher.connect(self.leave_stack, signal=GameEvent.AbilityRemovedFromStack(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.controller_changed, signal=GameEvent.ControllerChanged(), priority=dispatcher.UI_PRIORITY)
 
-        dispatcher.connect(self.setup_redzone, signal=GameEvent.AttackStepEvent(), priority=dispatcher.UI_PRIORITY)
+        #dispatcher.connect(self.setup_redzone, signal=GameEvent.AttackStepEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.select_attacker, signal=GameEvent.AttackerSelectedEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.reset_attackers, signal=GameEvent.AttackersResetEvent(), priority=dispatcher.UI_PRIORITY)
         dispatcher.connect(self.declare_attackers, signal=GameEvent.DeclareAttackersEvent(), priority=dispatcher.UI_PRIORITY)
@@ -224,6 +224,8 @@ class ZoneAnimator(object):
         self.red_zone.setup_attack_zone()
         self.red_zone.setup_block_zone()
     def select_attacker(self, sender, attacker):
+        if not self.red_zone:
+            self.setup_redzone(sender)
         self.red_zone.add_attacker(attacker)
     def reset_attackers(self):
         self.red_zone.reset_attackers()
