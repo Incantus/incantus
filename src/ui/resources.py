@@ -21,6 +21,7 @@ font.add_file("./data/fonts/MPlantin.ttf")
 font.add_file("./data/fonts/MPlantinI.ttf")
 font.add_file("./data/fonts/MatrixB.ttf")
 font.add_file("./data/fonts/MatrixBSmallCaps.ttf")
+font.add_file("./data/fonts/Pixelmix.ttf")
 
 resource.reindex()
 
@@ -29,23 +30,27 @@ class ImageCache(object):
     @staticmethod
     def get(key): return ImageCache.cache.get(key,None)
     @staticmethod
-    def _load(filename, key):
+    def _load(filename, key, anchor=False):
         cache = ImageCache.cache
         value = resource.image(filename)
+        if anchor:
+            value.anchor_x = value.width / 2
+            value.anchor_y = value.height / 2
         cache[key] = value
     @staticmethod
-    def _load_multi(filename, labels, rows, columns):
+    def _load_multi(filename, labels, rows, columns, anchor=False):
         cache = ImageCache.cache
         multiimage = image.ImageGrid(resource.image(filename), rows, columns)
-        for label, texture in zip(labels, multiimage):
-            key = label
+        for key, texture in zip(labels, multiimage):
+            if anchor:
+                texture.anchor_x = texture.width / 2
+                texture.anchor_y = texture.height / 2
             cache[key] = texture
     @staticmethod
     def load_images():
         colors = ["red", "white", "black", "colorless", "green", "blue"]
-        ImageCache._load_multi("mana.png", colors, 2, 3)
-        ImageCache._load_multi("mana/cmana.png", "BCGRUWXYZ", 3, 3)
-        ImageCache._load_multi("text_symbols.png", map(lambda l: 's'+l, 'BCGQRTUWXYZ '), 4, 3)
+        ImageCache._load_multi("mana/cmana.png", "BCGRUWXYZ", 3, 3, anchor=True)
+        ImageCache._load_multi("text_symbols.png", map(lambda l: 's'+l, 'BCGQRTUWXYZ '), 4, 3, anchor=True)
         #status = ["exile", "graveyard", "library", "hand"]
         status = ["graveyard", "exile", "hand", "library"]
         ImageCache._load_multi("status1.png", status, 2, 2)
