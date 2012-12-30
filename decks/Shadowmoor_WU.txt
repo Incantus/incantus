@@ -1,0 +1,24 @@
+10 Island
+14 Plains
+1 Barrenton Medic
+3 Glamer Spinners
+1 Kithkin Rabble
+1 Mistmeadow Witch
+2 Niveous Wisps
+2 Parapet Watchers
+2 Puresight Merrow
+1 Scrapbasket
+1 Silkbind Faerie
+2 Somnomancer
+2 Thistledown Duo
+1 Thistledown Liege
+1 Twilight Shepherd
+1 Watchwing Scarecrow
+3 Zealous Guardian
+1 Armored Ascension
+2 Curse of Chains
+1 Mine Excavation
+2 Prison Term
+1 Repel Intruders
+3 Steel of the Godhead
+2 Thoughtweft Gambit

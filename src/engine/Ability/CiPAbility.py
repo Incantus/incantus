@@ -26,7 +26,7 @@ def attach_on_enter():
             return True
         else: return False
     def during(self):
-        self.attach(attaching_to[0])
+        self.attach(attaching_to[0], during=True)
     def effects(source):
         yield CiP(source, during, before=before, txt="Attach to card")
     return CiPAbility(effects, txt="")
@@ -41,8 +41,8 @@ def enter_tapped(self):
     '''Enters the battlefield tapped'''
     self.tapped = True
 
-def enters_battlefield_tapped(txt="~ enters the battlefield tapped."):
-    return enters_battlefield_with(enter_tapped, txt)
+def enters_battlefield_tapped():
+    return enters_battlefield_with(enter_tapped, '~ enters the battlefield tapped.')
 
 no_before = lambda source: True
 def CiP(obj, during, before=no_before, condition=None, txt=''):

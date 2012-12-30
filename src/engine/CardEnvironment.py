@@ -1,3 +1,4 @@
+import random
 from random import shuffle
 from symbols import *
 from stacked_function import *
@@ -46,5 +47,17 @@ from Ability.NemesisAbility import *
 from Ability.ConfluxAbility import *
 from Ability.InvasionAbility import *
 from Ability.UnimplementedAbility import *
+from Ability.WorldwakeAbility import *
+from Ability.TimeSpiralAbility import *
+from Ability.ZendikarAbility import *
+from Ability.RiseOfTheEldraziAbility import *
+from Ability.OdysseyAbility import *
+from Ability.TormentAbility import *
+from Ability.LegendsAbility import *
+from Ability.ScarsOfMirrodinAbility import *
+from Ability.MirrodinBesiegedAbility import *
+from Ability.Magic2012Ability import *
+from Ability.DarkAscensionAbility import *
+from Ability.PlanarChaosAbility import *
 
 nan = None

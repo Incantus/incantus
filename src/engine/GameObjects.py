@@ -3,7 +3,7 @@ from symbols import Land, Instant, Sorcery
 from GameEvent import NameModifiedEvent, CostModifiedEvent, TextModifiedEvent, ColorModifiedEvent, TypesModifiedEvent, SubtypesModifiedEvent, SupertypesModifiedEvent, PowerToughnessModifiedEvent, LoyaltyModifiedEvent
 from abilities import abilities, stacked_abilities
 from characteristics import characteristic, stacked_variable, stacked_characteristic, stacked_type
-from CardRoles import Permanent, SpellRole, CopySpellRole, NoRole, LandNonBattlefieldRole, OtherNonBattlefieldRole, TokenNonBattlefieldRole, TokenPermanent
+from CardRoles import Permanent, SpellRole, CopySpellRole, EmblemRole, NoRole, LandNonBattlefieldRole, OtherNonBattlefieldRole, TokenNonBattlefieldRole, TokenPermanent
 import CardDatabase
 
 class GameObject(MtGObject):
@@ -89,17 +89,29 @@ class Card(GameObject):
         return newrole
 
 class Token(GameObject):
-    def __init__(self, info, owner):
+    def __init__(self, info, owner, tag=None):
         super(Token, self).__init__(owner)
-        if isinstance(info, dict): info = CardDatabase.convertToTxt(info)
+        if isinstance(info, dict):
+            if not tag:
+                tag = ""
+                if "P/T" in info:
+                    tag += "%d/%d"%info["P/T"]
+                for attr in ("color", "supertypes", "subtypes", "types", "abilities", "name"):
+                    if attr in info:
+                        tag += " %s"%(' '.join(info[attr]) if isinstance(info[attr], (list, tuple)) else info[attr])
+            if not tag: tag = "NO TAG" # Empty info dictionary (usually used by token copies)
+            info = CardDatabase.convertToTxt(info)
+        elif not tag:
+            print "Non-dict token (%s...) has no tag!"%repr(info[:30])
+            tag = "NO TAG"
         CardDatabase.execCode(self, info)
         self.out_battlefield_role = self.stack_role = TokenNonBattlefieldRole
         self.in_battlefield_role = TokenPermanent
-        self._add_to_map(self.base_name)
+        self._add_to_map(tag)
 
     @classmethod
-    def create(cls, info, owner):
-        token = cls(info, owner)
+    def create(cls, info, owner, tag=None):
+        token = cls(info, owner, tag)
         newrole = token.new_role(token.out_battlefield_role)
         newrole.is_LKI = False # so we can move it onto the battlefield the first time
         return newrole
@@ -120,3 +132,17 @@ class CardCopy(GameObject):
         return copy.new_role(copy.out_battlefield_role)
     def __str__(self):
         return "Card Copy: %s"%self.name
+
+class EmblemObject(GameObject):
+    def __init__(self, ability, owner):
+        super(EmblemObject, self).__init__(owner)
+        self.out_battlefield_role = EmblemRole
+        self.base_text = ability.txt
+        self.base_abilities.add(ability)
+        self._add_to_map(self.base_text)
+    @classmethod
+    def create(cls, ability, owner):
+        copy = cls(ability, owner)
+        return copy.new_role(copy.out_battlefield_role)
+    def __str__(self):
+        return "Emblem: %s"%self.base_text

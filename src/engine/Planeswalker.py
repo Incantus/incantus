@@ -10,11 +10,11 @@ class planeswalker_abilities(stacked_abilities):
     def __init__(self, source, abilities):
         super(planeswalker_abilities, self).__init__(source, abilities._stacking[0])
         self.walker_limit = planeswalker_sorcery+CountLimit(1)
-        self.change_limit(abilities._stacking[0]._abilities)
-    def add(self, abilities):
-        self.change_limit(abilities)
-        super(planeswalker_abilities, self).add(abilities)
-    def change_limit(self, abilities):
+        self.change_limit(*abilities._stacking[0]._abilities)
+    def add(self, *abilities):
+        self.change_limit(*abilities)
+        super(planeswalker_abilities, self).add(*abilities)
+    def change_limit(self, *abilities):
         for a in abilities:
             if hasattr(a, "activated"): a.limit += self.walker_limit
 

@@ -14,6 +14,7 @@ class CastSpell(CostAbility):
         player = self.controller
         old_zone = self.source.zone
         self.source = self.source.move_to(player.stack)
+        self.source._spell_controller = self.controller
         if super(CastSpell, self).do_announce():
             return True
         else:

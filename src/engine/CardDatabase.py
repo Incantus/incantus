@@ -5,6 +5,8 @@ import cPickle as pickle
 
 class CardNotImplemented(Exception): pass
 
+CARD_DELIM = "-"*5
+
 class CardDatabase(object):
     def __init__(self):
         dirname = "./data/"
@@ -16,28 +18,47 @@ class CardDatabase(object):
         self._dbs = []
         for filename in dbnames:
             self._dbs.append(bsddb.hashopen(filename))
-        self._txtcards = set(os.path.basename(c) for c in glob.glob("./data/cards/*"))
+        #self._txtcards = set(os.path.basename(c) for c in glob.glob("./data/cards/*"))
+        self._txts = {}
+        for dirpath, dirnames, filenames in os.walk("./data/cards/", topdown=False):
+            for filename in filenames:
+                file = open(os.path.join(dirpath, filename))
+                current = []
+                for line in file:
+                    if not line.startswith(CARD_DELIM): current.append(line.rstrip())
+                    else:
+                        name = line[line.index(" ")+1:].strip()
+                        if not name in self._txts:
+                            self._txts[name] = '\n'.join(current)
+                        current = []
+                file.close()
         self._invalid = set()
     def _convkey(self, key):
         return key.encode("rot13")
     def __getitem__(self, name):
         if not name in self._invalid:
             # Check txt files
-            altname = name.replace(" ", "_").replace("'","").replace(",","")
-            if altname in self._txtcards:
-                return (file("./data/cards/%s"%altname).read(), True, False, False)
+            if name in self._txts:
+                #return (self._txts[name].replace("~", name), True, False, False)
+                # Let's start doing runtime replacement...
+                return (self._txts[name], True, False, False)
+            #altname = name.replace(" ", "_").replace("'","").replace(",","")
+            #if altname in self._txtcards:
+            #    return (file("./data/cards/%s"%altname).read(), True, False, False)
             key = self._convkey(name)
             for db in self._dbs:
                 if key in db:
                     text, impl, tested, error = pickle.loads(db[key])
-                    # Find all ~ (tilde's) and replace with name
-                    text = text.encode("rot13").replace("~", name)
+                    ## Find all ~ (tilde's) and replace with name
+                    #text = text.encode("rot13").replace("~", name)
+                    # Not anymore... runtime replacement is far better.
+                    text = text.encode("rot13")
                     return (text, impl, tested, error)
             else:
                 self.unimplemented(name)
                 print "%s not implemented"%name
         return (default_tmpl%repr(name), True, False, False)
-    def keys(self): return sum([[self._convkey(k) for k in db.keys()] for db in self._dbs])
+    def keys(self): return sum([[self._convkey(k) for k in db.keys()] for db in self._dbs]) + [name for name in self._txts]
     def __contains__(self, key): return self._convkey(key) in self.db
     def unimplemented(self, name): self._invalid.add(name)
     def close(self): return self.db.close()

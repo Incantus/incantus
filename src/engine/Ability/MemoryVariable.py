@@ -3,8 +3,10 @@ from engine.Match import isPlayer
 from engine.GameEvent import *
 
 __all__ = ["timestep_damage_tracker", "damage_tracker",
-           "graveyard_tracker", "spell_record",
-           "combat_tracker", "cards_tracker", "life_tracker"]
+           "graveyard_tracker", "spell_record", "land_record",
+           "combat_tracker", "cards_tracker", "life_tracker",
+           "cast_from_hand_tracker", "cast_from_graveyard_tracker",
+           "battlefield_tracker", "turn_tracker"]
 
 class MemoryVariable(MtGObject):
     def __init__(self):
@@ -18,7 +20,6 @@ class MemoryVariable(MtGObject):
     #def __str__(self):
     #    return str(self.value())
 
-# XXX Do I still need this?
 class ZoneMoveVariable(MemoryVariable):
     def __init__(self, from_zone, to_zone):
         self.from_zone = from_zone
@@ -41,6 +42,24 @@ class ZoneMoveVariable(MemoryVariable):
     def __iter__(self): return iter(self.get())
     def get_linked(self, card):
         return self.moved.get(card, None)
+
+class EnterZoneVariable(MemoryVariable):
+    def __init__(self, zone):
+        self.zone = zone
+        self.moved = set()
+        self.register(self.entered, CardEnteredZone())
+        super(EnterZoneVariable, self).__init__()
+    def reset(self):
+        self.moved = set()
+    def entered(self, sender, card):
+        if str(sender) == self.zone:
+            self.moved.add(card)
+    def __len__(self): return len(self.moved)
+    def value(self): return len(self)
+    def __contains__(self, card): return card in self.moved
+    def get(self, match=lambda c: True):
+        return [card for card in self.moved if match(card)]
+    def __iter__(self): return iter(self.get())
 
 class DamageTrackingVariable(MemoryVariable):
     def __init__(self):
@@ -98,9 +117,9 @@ class LifeChangeTrackingVariable(MemoryVariable):
         self.lost = {}
         self.gained = {}
     def value(self): raise NotImplementedError # What exactly would this return?
-    def lose(self, sender, amount):
-        if not sender in self.lost: self.lost[sender] = amount
-        else: self.lost[sender] += amount
+    def lose(self, sender, amount): # We want to return a positive value, so subtract amount.
+        if not sender in self.lost: self.lost[sender] = -amount
+        else: self.lost[sender] -= amount
     def gain(self, sender, amount):
         if not sender in self.gained: self.gained[sender] = amount
         else: self.gained[sender] += amount
@@ -142,6 +161,25 @@ class SpellRecordVariable(MemoryVariable):
             return temp
         else: return []
 
+class LandRecordVariable(MemoryVariable):
+    def __init__(self):
+        self.reset()
+        self.register(self.played, event=LandPlayedEvent())
+        super(LandRecordVariable, self).__init__()
+    def reset(self):
+        self.record = {}
+    def played(self, sender, card):
+        if not sender in self.record: self.record[sender] = set()
+        self.record[sender].add(card)
+    def value(self): return sum([len(self.record[player]) for player in self.record])
+    def get(self, condition=lambda s: True, player=None):
+        if player and player in self.record: return [land for land in self.record[player] if condition(land)]
+        elif not player:
+            temp = []
+            for player in self.record: temp.extend([land for land in self.record[player] if condition(land)])
+            return temp
+        else: return []
+
 # Now serves two purposes: Purpose one, looking back over the entire turn (for cards like Norritt) to see who attacked/blocked (and whether or not they blocked a certain card).
 # Purpose two is looking back at the previous combat step, which I discovered is needed for a couple cards whose combat states are cleared before they can refer to them (Greater Werewolf). I'm sure it will have other uses as well, but I don't really have the time to go fishing for every card that needs to refer to combat information, so I'll just leave it be and as we find uses for it, we'll use it. -MageKing17
 class CombatTrackingVariable(MemoryVariable):
@@ -149,7 +187,7 @@ class CombatTrackingVariable(MemoryVariable):
         self.reset()
         self.register(self.attacker, event=AttackerDeclaredEvent())
         self.register(self.blocker, event=BlockerDeclaredEvent())
-        self.register(self.clear_local, event=TurnFinishedEvent())
+        self.register(self.clear_local, event=BeginCombatEvent())
         super(CombatTrackingVariable, self).__init__()
     def reset(self):
         self.attackers = {}
@@ -180,6 +218,21 @@ class CombatTrackingVariable(MemoryVariable):
         if entire_turn and attacker in self.attacked: return self.attacked[attacker]
         elif attacker in self.attackers: return self.attackers[attacker]
         else: return []
+
+class TurnTrackingVariable(MemoryVariable):
+    def __init__(self):
+        self.turns = {}
+        self.register(self.newturn, event=NewTurnEvent())
+    def value(self):
+        max = 0
+        for player, turns in self.turns.items():
+            if turns > max: max = turns
+        return max
+    def newturn(self, player):
+        if not player in self.turns: self.turns[player] = 0
+        self.turns[player] += 1
+    def get(self, player):
+        return self.turns.get(player, 0)
 
 # This should never be referred to... it's solely to make damage triggers work properly
 class TimestepDamageTrackingVariable(MemoryVariable):
@@ -218,6 +271,11 @@ timestep_damage_tracker = TimestepDamageTrackingVariable()
 damage_tracker = DamageTrackingVariable()
 graveyard_tracker = ZoneMoveVariable(from_zone="battlefield", to_zone="graveyard")
 spell_record = SpellRecordVariable()
+land_record = LandRecordVariable()
 combat_tracker = CombatTrackingVariable()
 cards_tracker = CardDrawingTrackingVariable()
 life_tracker = LifeChangeTrackingVariable()
+cast_from_hand_tracker = ZoneMoveVariable(from_zone="hand", to_zone="stack")
+cast_from_graveyard_tracker = ZoneMoveVariable(from_zone="graveyard", to_zone="stack")
+battlefield_tracker = EnterZoneVariable(zone="battlefield")
+turn_tracker = TurnTrackingVariable()

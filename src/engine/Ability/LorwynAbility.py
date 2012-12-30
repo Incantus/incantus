@@ -43,10 +43,10 @@ def clash(controller, opponent=None):
 
 def champion(types=None, subtypes=None):
     if types:
-        if isinstance(types, tuple): types = set(types)
+        if isinstance(types, (list, tuple)): types = set(types)
         else: types = set((types,))
     if subtypes:
-        if isinstance(subtypes, tuple): subtypes = set(subtypes)
+        if isinstance(subtypes, (list, tuple)): subtypes = set(subtypes)
         else: subtypes = set((subtypes,))
 
     if types and subtypes:

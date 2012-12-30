@@ -69,8 +69,8 @@ isPermanent = ZoneMatch("battlefield", "permanent")
 isLegendaryPermanent = isPermanent.with_condition(lambda c: c.supertypes == Legendary)
 isPermanentCard = isCard.with_condition(lambda c: c.types.intersects(set([Artifact, Enchantment, Creature, Land, Planeswalker])))
 
-isToken = isPermanent.with_condition(lambda c: hasattr(c, "_token"))
-isNonToken = isPermanent.with_condition(lambda c: not hasattr(c, "_token"))
+isToken = isPermanent.with_condition(lambda c: c._token)
+isNonToken = isPermanent.with_condition(lambda c: not c._token)
 
 # Type specific matching
 class TypeMatch(Match):
@@ -138,12 +138,12 @@ class AbilityMatch(Match):
         else: return str(self.ability_type.__name__)
 
 #from Ability.StackAbility import StackAbility
-#from Ability.CastingAbility import CastSpell, CastSorcerySpell, CastInstantSpell
+from Ability.CastingAbility import CastSpell, CastSorcerySpell, CastInstantSpell
 #from Ability.ActivatedAbility import ActivatedAbility
 #from Ability.TriggeredAbility import TriggeredStackAbility
 #isStackAbility = AbilityMatch(StackAbility, "Ability")
 #isActivatedAbility = AbilityMatch(ActivatedAbility, "Activated Ability")
 #isTriggeredAbility = AbilityMatch(TriggeredStackAbility, "Triggered Ability")
-#isSpell = AbilityMatch(CastSpell, "Spell")
-#isInstantSpell = AbilityMatch(CastInstantSpell, "Instant")
-#isSorcerySpell = AbilityMatch(CastSorcerySpell, "Sorcery")
+isSpell = AbilityMatch(CastSpell, "Spell")
+isInstantSpell = AbilityMatch(CastInstantSpell, "Instant")
+isSorcerySpell = AbilityMatch(CastSorcerySpell, "Sorcery")

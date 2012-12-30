@@ -63,6 +63,8 @@ class GameKeeper(MtGObject):
     active_player = property(fget=lambda self: self.players.active)
     current_player = active_player
 
+    mods_loaded = False
+
     def init(self, players):
         self.current_phase = "Pregame"
         self.stack = StackZone(self)
@@ -90,7 +92,7 @@ class GameKeeper(MtGObject):
         mulligan_count = 7
         while another_mulligan:
             players = [player for player in players 
-                       if player.getIntention("Would you like to mulligan?", options=('Mulligan', 'Keep all %d'%mulligan_count))]
+                       if player.getIntention("Would you like to mulligan?")]
             if len(players) > 0:
                 mulligan_count -= 1
                 for player in players:
@@ -106,15 +108,17 @@ class GameKeeper(MtGObject):
             raise g
 
     def loadMods(self):
-        import glob, traceback, CardEnvironment
-        for mod in glob.glob("./data/rulemods/*.py"):
-            code = open(mod, "r").read()
-            try:
-                exec code in vars(CardEnvironment)
-            except Exception:
-                code = code.split("\n")
-                print "\n%s\n"%'\n'.join(["%03d\t%s"%(i+1, line) for i, line in zip(range(len(code)), code)])
-                traceback.print_exc(4)
+        if not self.mods_loaded:
+            import glob, traceback, CardEnvironment
+            for mod in glob.glob("./data/rulemods/*.py"):
+                code = open(mod, "r").read()
+                try:
+                    exec code in vars(CardEnvironment)
+                except Exception:
+                    code = code.split("\n")
+                    print "\n%s\n"%'\n'.join(["%03d\t%s"%(i+1, line) for i, line in zip(range(len(code)), code)])
+                    traceback.print_exc(4)
+            self.mods_loaded = True
 
     def cleanup(self):
         for player in self.players: player.reset()
@@ -281,8 +285,8 @@ class GameKeeper(MtGObject):
         # Remove all attackers and blockers that are no longer valid
         for attacker, blockers in combat_assignment.items():
             # Do the attacker first - make sure it is still valid
-            if Match.isCreature(attacker) and attacker.in_combat:
-                newblockers = [blocker for blocker in blockers if Match.isCreature(blocker) and blocker.in_combat]
+            if Match.isCreature(attacker) and attacker.in_combat and not attacker.is_LKI:
+                newblockers = [blocker for blocker in blockers if Match.isCreature(blocker) and blocker.in_combat and not blocker.is_LKI]
                 new_combat_list.append((attacker, newblockers))
 
         # These guys are still valid

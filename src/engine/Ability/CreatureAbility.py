@@ -24,7 +24,7 @@ __all__ = ["keyword_effect", "KeywordOnlyAbility",
            "protection_from_artifacts", "protection_from_everything",
            "protection_from_multicolored", "protection_from_monocolored",
            "this_card_must_attack", "this_card_can_only_block", "this_card_is_unblockable",
-           "prevent_damage", "redirect_damage"]
+           "this_card_cant_block", "prevent_damage", "redirect_damage", "fight"]
 
 def keyword_effect(target):
     yield lambda: None
@@ -49,7 +49,7 @@ def landwalk(condition, keyword):
 
 def basic_landwalk(landtype):
     condition = lambda land: land.subtypes == landtype
-    return landwalk(condition, keyword=landtype.lower()+"walk")
+    return landwalk(condition, keyword=str(landtype).lower()+"walk")
 
 plainswalk = partial(basic_landwalk, Plains)
 swampwalk = partial(basic_landwalk, Swamp)
@@ -158,7 +158,7 @@ def flanking():
         yield
     return TriggeredAbility(Trigger(BlockerDeclaredEvent(), condition), effects, keyword='flanking')
 
-# This is for auras which say "Enchanted creature gains protection from <attribute>. This protection does not remove CARDNAME." 
+# This is for auras which say "Enchanted creature gains protection from <attribute>. This protection does not remove CARDNAME."
 def aura_protection(aura, condition, attribute):
     keyword = "protection from %s"%attribute
     # DEBT is an acronym. It stands for Damage, Enchantments/Equipment, Blocking, and Targeting
@@ -176,6 +176,11 @@ def this_card_must_attack():
     def checkAttack(self, attackers, not_attacking):
         return self in attackers or not self.canAttack()
     return CardStaticAbility(effects=override_effect("checkAttack", checkAttack), txt="~ must attack each turn if able.")
+
+def this_card_cant_block():
+    def canBlock(self):
+        return False
+    return CardStaticAbility(effects=override_effect("canBlock", canBlock), txt="~ can't block.")
 
 def this_card_can_only_block(keyword):
     def canBlockAttacker(self, attacker):
@@ -253,6 +258,10 @@ def redirect_damage(from_target, to_target, amount, next=True, txt='', condition
         return dmg
     redirectDamage.curr_amt = amount
     return do_replace(from_target, "assignDamage", redirectDamage, msg=txt, condition=condition)
+
+def fight(creature1, creature2):
+    creature1.deal_damage(creature2, creature1.power)
+    creature2.deal_damage(creature1, creature2.power)
 
 # XXX This works with blockers blocking multiple attackers, but not with the current damage calculation
 # since we don't compute a total combat_damage array

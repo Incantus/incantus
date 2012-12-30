@@ -1,6 +1,7 @@
 import weakref
 from GameEvent import AbilitiesModifiedEvent
 from Util import isiterable
+from Ability.Limit import MultipleLimits, InstantLimit
 
 __all__ = ["abilities", "stacked_abilities"]
 
@@ -101,7 +102,7 @@ class stacked_abilities(object):
         found = False
         for group in self._stacking:
             for ability in group:
-                if tag == ability.tag:
+                if hasattr(ability, "tag") and tag == ability.tag:
                     found = True
                     break
             if found: break
@@ -155,7 +156,7 @@ class stacked_abilities(object):
         return self.process_stacked("cast", [])[-1]
     def attached(self): return self.process_stacked("attached", [])
     def activated(self): return self.process_stacked("activated", [])
-    def mana_abilities(self): return [ability for ability in self.activated() if hasattr(ability, "mana_ability")]
+    def mana_abilities(self): return [ability for ability in self.activated() if hasattr(ability, "mana_ability") and not (isinstance(ability.limit, InstantLimit) or (isinstance(ability.limit, MultipleLimits) and any((True for limit in ability.limit.limits if isinstance(limit, InstantLimit)))))]
     def __len__(self): return self.process_stacked("__len__", 0)
     def __contains__(self, keyword): return self.process_stacked("__contains__", False, keyword) > 0
     def __iter__(self):

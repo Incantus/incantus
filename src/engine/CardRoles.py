@@ -54,6 +54,7 @@ class CardRole(MtGObject):
         self.zone = None
         self._counters = []
         self.attachments = []
+
     @overridable(logical_and)
     def canBeTargetedBy(self, targeter): return True
     @overridable(logical_and)
@@ -81,7 +82,7 @@ class CardRole(MtGObject):
     def leavingZone(self):
         self.is_LKI = True
         self.abilities.leavingZone()
-        self.zone = None
+        #self.zone = None
     # DSL functions
     def move_to(self, zone, position="top"):
         if not self.is_LKI:
@@ -113,13 +114,18 @@ class CardRole(MtGObject):
     counters = property(fget=lambda self: self._counters)
     def cda_power_toughness(self, power, toughness):
         expire = []
-        if power: expire.append(self.base_power.cda(power))
-        if toughness: expire.append(self.base_toughness.cda(toughness))
+        if power is not None: expire.append(self.base_power.cda(power))
+        if toughness is not None: expire.append(self.base_toughness.cda(toughness))
         return combine(*expire)
     power = property(fget=lambda self: int(self.base_power))
     toughness = property(fget=lambda self: int(self.base_toughness))
     loyalty = property(fget=lambda self: int(self.base_loyalty))
     def clone(self, other, exclude=set(), extra={}):
+        # Allow "lazy" exclusion: typing exclude="color" or exclude="name" or even exclude=("color", "name") will still result in the needed set.
+        if not isinstance(exclude, set):
+            if not isinstance(exclude, (list, tuple)):
+                exclude = (exclude,)
+            exclude = set(exclude)
         # copyable values
         reverse = []
         copyable = set(["name", "cost", "text", "abilities", "color", "supertypes", "subtypes", "types", "base_power", "base_toughness", "base_loyalty"])
@@ -136,11 +142,17 @@ class CardRole(MtGObject):
     def __del__(self):
         #print "Deleting %s role for %3d)%s in zone %s"%(self.__class__.__name__, self.key[0],self.name, self.zone)
         pass
+    @overridable(do_sum)
+    def get_special_actions(self):
+        return []
+    def setup_special_action(self, action):
+        return override(self, "get_special_actions", lambda self: [action])
 
 # Idea for spells - just have the OutBattlefieldRole mirror a cast spell in terms of when it
 # can be played and its cost
 # Cards on the stack
 class SpellRole(CardRole):
+    controller = property(lambda self: self._spell_controller)
     def activate(self):
         if self.subtypes == Aura: self.abilities.add(attach_on_enter())
         super(SpellRole, self).activate()
@@ -179,6 +191,7 @@ class CopySpellRole(SpellRole):
         newrole.is_LKI = True
         newrole.send(NonCardLeavingZone())
         return newrole
+
 
 class NonBattlefieldRole(CardRole):
     @overridable(logical_or)
@@ -225,7 +238,6 @@ class OtherNonBattlefieldRole(NonBattlefieldRole):
         play_ability.source = self
         return play_ability.announce()
 
-
 class LandNonBattlefieldRole(NonBattlefieldRole):
     def activate(self):
         self._timing = sorcery_limit
@@ -247,6 +259,15 @@ class TokenNonBattlefieldRole(CardRole):
     def move_to_battlefield_tapped(self, txt):
         CiP(self, enter_tapped, txt=txt)
         self.move_to("battlefield")
+
+class EmblemRole(CardRole):
+    def move_to(self, zone, position="top"):
+        if not str(zone) == "command":
+            # How would this ever happen?
+            print "Hey, you! Don't try to put an emblem anywhere but the command zone!"
+            return False
+    def __str__(self):
+        return self.text
 
 # This handles cards that can't exist in certain zones (like lands on the stack,
 # non-permanents on the battlefield
@@ -426,7 +447,7 @@ class CreatureType(object):
     def assignDamage(self, amt, source, combat=False):
         # Damage is always greater than 0
         if not self.is_LKI:
-            if "wither" in source.abilities: self.add_counters(PowerToughnessCounter(-1, -1), amt)
+            if "wither" in source.abilities or "infect" in source.abilities: self.add_counters(PowerToughnessCounter(-1, -1), amt)
             else: self.__damage += amt
             if "deathtouch" in source.abilities: self.deathtouched = True
         source.send(DealsDamageToEvent(), to=self, amount=amt, combat=combat)
@@ -450,6 +471,9 @@ class CreatureType(object):
     @overridable(logical_and)
     def canAttack(self):
         return (not self.tapped) and (not self.in_combat) and self.continuouslyOnBattlefield()
+    @overridable(logical_and)
+    def canAttackSpecific(self, other):
+        return True
     @overridable(logical_and)
     def checkBlock(self, combat_assignment, not_blocking):
         return True
@@ -558,13 +582,14 @@ class AttachmentType(object):
     def leavingZone(self):
         self.unattach(True)
         super(AttachmentType,self).leavingZone()
-    def attach(self, target):
-        if self._attached_to != None: self.unattach()
-        self._attached_to = target
-        self._attached_to.attachments.append(self)
-        for ability in self.attached_abilities: ability.enable(self)
-        self.send(AttachedEvent(), attached=self._attached_to)
-        return self.unattach
+    def attach(self, target, during=False):
+        if (during or self.canBeAttachedTo(target)) and not self._attached_to == target: # Rule 701.3b: "...If an effect tries to attach an Aura, Equipment, or Fortification to the object it's already attached to, the effect does nothing."
+            if self._attached_to != None: self.unattach()
+            self._attached_to = target
+            self._attached_to.attachments.append(self)
+            for ability in self.attached_abilities: ability.enable(self)
+            self.send(AttachedEvent(), attached=self._attached_to)
+        return self.unattach # XXX - Should this really return anything?
     def unattach(self, is_LKI=False):
         if self._attached_to:
             for ability in self.attached_abilities: ability.disable()
@@ -572,12 +597,13 @@ class AttachmentType(object):
             self.send(UnAttachedEvent(), unattached=self._attached_to)
             if not is_LKI: self._attached_to = None
     def isValidAttachment(self, attachment=None):
-        return self.canBeAttachedTo(self.attached_to)
+        if attachment == None: attachment = self.attached_to
+        return self.canBeAttachedTo(attachment)
     def canBeAttachedTo(self, attachment):
         if self.target_player:
             check_player = (self.target_player == "you" and attachment.controller == self.controller) or (self.target_player == "opponent" and attachment.controller in self.controller.opponents)
         else: check_player = True
-        return (attachment and str(attachment.zone) == self.target_zone and check_player and self.target_type(attachment) and attachment.canBeAttachedBy(self))
+        return (attachment and not attachment.is_LKI and str(attachment.zone) == self.target_zone and check_player and self.target_type(attachment) and attachment.canBeAttachedBy(self))
 
 
 def card_method(func):

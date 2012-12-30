@@ -19,7 +19,7 @@ class InvalidTarget(object):
     def __getattr__(self, attr): return self.no_op
 
 class MultipleTargets(object):
-    def __init__(self, target_types, number=1, up_to=False, distribute=0, distribute_type='', msg='', selector="controller", player=None, zone="battlefield"):
+    def __init__(self, target_types, number=1, up_to=False, distribute=0, distribute_type='', msg='', selector="controller", player=None, zone="battlefield", min=0):
         self.number = number
         self.distribute = distribute
         self.distribute_type = distribute_type
@@ -40,6 +40,7 @@ class MultipleTargets(object):
             else: return False
         self.match_type = match_type
         self.zone = zone
+        self.min = min # Sometimes you get "up to three target blahs", and sometimes you get "between two or three target blahs". Hopefully this should cover both.
     def get_targeted(self):
         if self.distribute == 0: return self.target
         else: return [(target, self.distribution.get(target, 0)) for target in self.target] # only return valid targets
@@ -91,7 +92,7 @@ class MultipleTargets(object):
         while i < self.number:
             target = selector.getTarget(self.target_types,zone=self.zone,from_player=self.player,required=False,prompt=self.get_prompt(i, source.name))
             if target == False:
-                if not self.up_to or len(targets) == 0: return False
+                if not self.up_to or len(targets) < self.min: return False
                 else: break
             elif target.canBeTargetedBy(source) and not target in targets:
                 targets.append(target)

@@ -3,8 +3,7 @@ from engine.pydispatch.robustapply import function
 from engine.GameEvent import CleanupEvent
 from engine.stacked_function import global_override, override, replace
 
-__all__ = ["no_condition", "do_when", "do_until",
-           "combine", "until_end_of_turn",
+__all__ = ["no_condition", "do_when", "do_until", "combine", "until_end_of_turn",
            "do_override", "do_replace", "override_effect",
            "robustApply"]
 

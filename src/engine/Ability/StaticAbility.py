@@ -150,10 +150,10 @@ class Conditional(MtGObject):
             self.__enabled = False
 
 class ConditionalStaticAbility(Conditional, CardStaticAbility):
-    def __init__(self, effects, conditional, zone="battlefield", txt=''):
-        super(ConditionalStaticAbility, self).__init__(effects, zone, txt)
+    def __init__(self, effects, conditional, zone="battlefield", txt='', keyword=''):
+        super(ConditionalStaticAbility, self).__init__(effects, zone, txt, keyword)
         self.init_conditional(conditional)
-    def copy(self): return self.__class__(self.effect_generator, self.conditional, self.zone, self.txt)
+    def copy(self): return self.__class__(self.effect_generator, self.conditional, self.zone, self.txt, self.keyword)
 
 class ConditionalTrackingAbility(Conditional, CardTrackingAbility):
     def __init__(self, effects, condition, conditional, events = [], tracking="battlefield", zone="battlefield", txt=''):

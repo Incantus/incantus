@@ -21,7 +21,7 @@ def graft(value):
         yield NoTarget()
         if source.num_counters("+1+1") > 0:
             if controller.you_may("move a +1/+1 counter from %s to %s"%(source, card)):
-                source.remove_counters(PowerToughnessCounter(1,1))
+                source.remove_counters("+1+1")
                 card.add_counters(PowerToughnessCounter(1,1))
         yield
     graft_Triggered = TriggeredAbility(EnterTrigger("battlefield", condition, player="any"),

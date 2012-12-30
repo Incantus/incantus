@@ -96,17 +96,22 @@ def iterall(iterables):
 def parse_hybrid(manastr):
     hybrid = []
     choices = []
+    choice = ""
     parsing_hybrid = False
     for c in manastr:
         if not c in "()/{}":
             if not parsing_hybrid: choices.append([c])
-            else: hybrid.append(c)
+            else: choice += c
         elif c == '(' or c == '{':
             parsing_hybrid = True
             hybrid = []
-        elif c == '/': pass
+            choice = ""
+        elif c == '/':
+            hybrid.append(choice)
+            choice = ""
         elif c == ')' or c == '}':
             parsing_hybrid = False
+            hybrid.append(choice)
             choices.append(hybrid)
     return choices
 
@@ -114,10 +119,12 @@ def convert_hybrid_string(manastr):
     mana = {}
     v = 0
     for c in manastr:
-        if not (c in Colors.realColors or c == 'X'): v += int(c)
+        if not set(c).difference(set("0123456789")): v += int(c)
+        #if not (c in Colors.realColors or c == 'X'): v += int(c)
         else:
-            if not c in mana: mana[c] = 0
-            mana[c] += 1
+            for char in c:
+                if not char in mana: mana[char] = 0
+                mana[char] += 1
     symbols = tuple(''.join([c*mana[c] for c in "XWUBRG" if c in mana]))
     if v: symbols = (str(v),)+symbols
     return symbols

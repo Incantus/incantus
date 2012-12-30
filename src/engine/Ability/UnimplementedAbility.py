@@ -3,29 +3,14 @@ from StaticAbility import CardStaticAbility
 def no_effects(source):
     yield lambda: None
 
-def suspend(number):
-    return CardStaticAbility(no_effects, keyword="suspend", zone="non-battlefield")
-
-def intimidate():
-    return CardStaticAbility(no_effects, keyword="intimidate", zone="battlefield")
-
-def rampage(n):
-    return CardStaticAbility(no_effects, keyword="rampage", zone="battlefield")
-
 def cumulative_upkeep(cost):
     return CardStaticAbility(no_effects, keyword="cumulative upkeep", zone="battlefield")
 
-def phasing(n):
+def phasing():
     return CardStaticAbility(no_effects, keyword="phasing", zone="battlefield")
 
 def buyback(cost):
     return CardStaticAbility(no_effects, keyword="buyback", zone="battlefield")
-
-def flashback(cost):
-    return CardStaticAbility(no_effects, keyword="flashback", zone="battlefield")
-
-def madness(cost):
-    return CardStaticAbility(no_effects, keyword="madness", zone="battlefield")
 
 def morph(cost):
     return CardStaticAbility(no_effects, keyword="morph", zone="battlefield")
@@ -67,7 +52,7 @@ def bloodthirst(n):
     return CardStaticAbility(no_effects, keyword="bloodthirst", zone="non-battlefield")
 
 def bloodthirst_x():
-    return CardStaticAbility(no_effects, keyword="bloodthirst", zone="non-battlefield")
+    return CardStaticAbility(no_effects, txt="Bloodthirst X", keyword="bloodthirst", zone="non-battlefield")
 
 def haunt():
     return CardStaticAbility(no_effects, keyword="haunt", zone="battlefield")
@@ -75,16 +60,11 @@ def haunt():
 def replicate(cost):
     return CardStaticAbility(no_effects, keyword="replicate", zone="stack")
 
-#forecast
-
 def graft(n):
     return CardStaticAbility(no_effects, keyword="graft", zone="non-battlefield")
 
 def ripple(n):
     return CardStaticAbility(no_effects, keyword="ripple", zone="stack")
-
-def split_second():
-    return CardStaticAbility(no_effects, keyword="split second", zone="stack")
 
 def aura_swap(cost):
     return CardStaticAbility(no_effects, keyword="aura swap", zone="battlefield")
@@ -106,3 +86,12 @@ def transfigure(n):
 
 def conspire():
     return CardStaticAbility(no_effects, keyword="conspire", zone="stack")
+
+def rebound():
+    return CardStaticAbility(no_effects, keyword="rebound", zone="stack")
+
+def miracle(cost):
+    return CardStaticAbility(no_effects, keyword="miracle", zone="hand")
+
+def soulbond():
+    return CardStaticAbility(no_effects, keyword="soulbond", zone="battlefield")
