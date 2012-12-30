@@ -138,13 +138,18 @@ class Card(anim.Animable):
         glClear(GL_COLOR_BUFFER_BIT)
         #glClearColor(1.,1.,1.,1.)
         
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        #glEnable(GL_BLEND)
+        #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         
         cmap = dict(zip(["White", "Blue", "Black", "Red", "Green"], "WUBRG"))
         cmap1 = dict(zip("WUBRG", range(5)))
         colors = tuple(sorted([cmap[str(c)] for c in gamecard.color], key=lambda c:cmap1[c]))
         num_colors = len(colors)
+
+        # draw card image
+        #glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        front.get_region(8, 125, 185, 135).blit(0.087*width, 0.445*height, width=0.824*width, height=0.4368*height)
+        #glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
 
         blend_color = None
         overlay_color = None
@@ -152,8 +157,11 @@ class Card(anim.Animable):
         final_overlay = None
         if gamecard.types == Land:
             frame = ImageCache.get_texture("frames/Land.png")
-            abilities = map(str,gamecard.abilities)
+            abilities = gamecard.text.split("\n") if tiny else map(str,gamecard.abilities)
             mana = list(itertools.chain(*[re.findall("{([WUBRG])}", a) for a in abilities if "Add " in a]))
+            subtypes = map(str,gamecard.subtypes)
+            for t, c in (("Plains", "W"), ("Island", "U"), ("Swamp", "B"), ("Mountain", "R"), ("Forest", "G")):
+                if t in subtypes and not c in mana: mana.append(c)
             num_colors = len(mana)
             if num_colors == 0: pass
             elif num_colors <= 2:
@@ -191,34 +199,37 @@ class Card(anim.Animable):
         def blend(texture, width, height):
             tw, th = texture.width, texture.height
             
+            pt1, pt2 = 0.35, 0.65
             glEnable(texture.target)
             glBindTexture(texture.target, texture.id)
+            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
             glBegin(GL_QUADS)
             glColor4f(1., 1., 1., 1.0)
-            glTexCoord2f(0.65*tw, 0)
-            glVertex3f(0.65*width, 0, 0)
+            glTexCoord2f(pt2*tw, 0)
+            glVertex3f(pt2*width, 0, 0)
             glTexCoord2f(tw, 0)
             glVertex3f(width, 0, 0)
             glTexCoord2f(tw, th)
             glVertex3f(width, height, 0)
-            glTexCoord2f(0.65*tw, th)
-            glVertex3f(0.65*width, height, 0)
+            glTexCoord2f(pt2*tw, th)
+            glVertex3f(pt2*width, height, 0)
 
-            glColor4f(1., 1., 1., 0)
-            glTexCoord2f(0.35*tw, 0)
-            glVertex3f(0.35*width, 0, 0)
+            glColor4f(0., 0., 0., 0)
+            glTexCoord2f(pt1*tw, 0)
+            glVertex3f(pt1*width, 0, 0)
             glColor4f(1., 1., 1., 1)
-            glTexCoord2f(0.65*tw, 0)
-            glVertex3f(0.65*width, 0, 0)
+            glTexCoord2f(pt2*tw, 0)
+            glVertex3f(pt2*width, 0, 0)
             glColor4f(1., 1., 1., 1)
-            glTexCoord2f(0.65*tw, th)
-            glVertex3f(0.65*width, height, 0)
-            glColor4f(1., 1., 1., 0)
-            glTexCoord2f(0.35*tw, th)
-            glVertex3f(0.35*width, height, 0)
+            glTexCoord2f(pt2*tw, th)
+            glVertex3f(pt2*width, height, 0)
+            glColor4f(0., 0., 0., 0)
+            glTexCoord2f(pt1*tw, th)
+            glVertex3f(pt1*width, height, 0)
 
             glEnd()
             glDisable(texture.target)
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             glColor4f(1., 1., 1., 1.)
         
         if blend_color:
@@ -236,11 +247,6 @@ class Card(anim.Animable):
             t = ImageCache.get_texture("overlays/%s-overlay.png"%final_overlay)
             t.blit(0,0,width=wf*t.width,height=hf*t.height)
 
-        # draw card image
-        #glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
-        front.get_region(8, 125, 185, 135).blit(0.087*width, 0.4484*height, width=0.824*width, height=0.4368*height)
-        #glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_FALSE)
-       
         # Draw all card text first
         name = unicode(gamecard.name)
         font_name = "MatrixBold" if not tiny else tiny_font
@@ -523,8 +529,8 @@ class StackCard(Card):
         glClear(GL_COLOR_BUFFER_BIT)
 
         # draw card image
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        #glEnable(GL_BLEND)
+        #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         
         glColor4f(1., 1., 1., 1.0)
         #art = self.front.get_region(8, 125, 185, 135)

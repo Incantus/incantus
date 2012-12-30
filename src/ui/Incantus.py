@@ -96,6 +96,9 @@ class IncantusLayer(Layer):
         glEnable ( GL_COLOR_MATERIAL )
         glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
 
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
     def on_enter(self):
         super(IncantusLayer, self).on_enter()
         self.on_resize(self.width, self.height)
@@ -190,12 +193,13 @@ class IncantusLayer(Layer):
             self.finish_turn = True
             self.process_action(engine.Action.PassPriority())
         elif symbol == key.F1:
-            show_ingame_menu()
+            show_ingame_menu(self)
         elif symbol == key.F2:
             self.phase_controller.activate(other=False)
         elif symbol == key.F3:
             self.phase_controller.activate(other=True)
         elif symbol == key.Q:
+            self.soundfx.disconnect()
             quit()
         elif symbol == key.F7:
             pyglet.image.get_buffer_manager().get_color_buffer().save('screenshot.png')
@@ -340,6 +344,7 @@ class IncantusLayer(Layer):
             result = self.dump_to_replay.read()
         except replaydump.ReplayFinishedException:
             # Switch the input to the greenlet_input
+	    self.soundfx.connect()
             self.player1.dirty_input = self.greenlet_input
             self.player2.dirty_input = self.greenlet_input
             result = self.greenlet_input(context, prompt)
@@ -365,6 +370,7 @@ class IncantusLayer(Layer):
         try:
             self.rules_engine.switch(action)
         except engine.GameEvent.GameOverException:
+            self.soundfx.disconnect()
             # Game over
             quit()
 
@@ -453,6 +459,7 @@ class IncantusLayer(Layer):
 
         Keeper.init(players)
         self.make_connections((player1, None, my_avatar), (player2, None, other_avatar))
+	self.soundfx.disconnect() # When replaying, don't blare sound at us.
 
         # XXX This is hacky - need to change it
         replaydump.players = dict([(player.name,player) for player in players])
@@ -572,9 +579,9 @@ def observe_game(player_name, host, port):
     defrd.addCallback(lambda avatar: connected(client, avatar))
     return defrd
 
-def show_ingame_menu():
+def show_ingame_menu(layer):
     from menu import HierarchicalMenu, InGameMenu
-    director.push(Scene(HierarchicalMenu(InGameMenu())))
+    director.push(Scene(HierarchicalMenu(InGameMenu(layer))))
 
 def quit():
     director.pop()

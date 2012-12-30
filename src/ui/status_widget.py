@@ -31,10 +31,13 @@ class Button(Widget):
     def render_after_transform(self):
         w, h = self.width, self.height
         glColor4f(1.0, 1.0, 1.0, 1.0)
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
         #render_9_part("box3" if not self.toggled else "box5",
-        render_9_part("button2" if not self.toggled else "button3",
+        #render_9_part("button2" if not self.toggled else "button3",
+        render_9_part("button" if not self.toggled else "button_pressed",
                       w, h,
                       x = -w/2, y = -h/2)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         self.label.draw()
 
 class MessageDialog(Widget):
@@ -570,7 +573,10 @@ class LibraryImage(Image):
         super(LibraryImage,self).__init__(self.back)
     def update(self, library):
         top_card = library.top()
-        self.img = CardLibrary.CardLibrary.getCard(top_card).front
+        if top_card:
+            self.img = CardLibrary.CardLibrary.getCard(top_card).front
+        else:
+            self.img = self.back
     def render(self):
         padding = 2*self.padding
         arrow_width = 8

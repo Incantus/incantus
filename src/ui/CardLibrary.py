@@ -9,15 +9,15 @@ from lrucache import LRUCache
 
 from card import Card, PlayCard, HandCard, StackCard
 
-token_img_info = [("10e", ["Soldier","Zombie","Dragon","Goblin","Saproling","Wasp"]),
-("lorwyn",["Avatar","Elemental","Kithkin Soldier","Merfolk Wizard","Goblin Rogue","Elemental Shaman","Beast","Elemental","Elf Warrior","Wolf","Shapeshifter"]),
-("morningtide",["Giant Warrior","Faerie Rogue","Treefolk Shaman"]),
-("dueldecks",["Elemental","Elf Warrior","Goblin"]),
-("shadowmoor",["Kithkin Soldier","Spirit","Rat","Elemental","Elf Warrior","Spider","Wolf","Faerie Rogue","Elemental","Giant Warrior","Goblin Warrior","Elf Warrior"]),]
-token_cards = {}
-for ed, names in token_img_info:
-    for i,n in enumerate(names):
-        token_cards[n] = (ed,i+1)
+#token_img_info = [("10e", ["Soldier","Zombie","Dragon","Goblin","Saproling","Wasp"]),
+#("lorwyn",["Avatar","Elemental","Kithkin Soldier","Merfolk Wizard","Goblin Rogue","Elemental Shaman","Beast","Elemental","Elf Warrior","Wolf","Shapeshifter"]),
+#("morningtide",["Giant Warrior","Faerie Rogue","Treefolk Shaman"]),
+#("dueldecks",["Elemental","Elf Warrior","Goblin"]),
+#("shadowmoor",["Kithkin Soldier","Spirit","Rat","Elemental","Elf Warrior","Spider","Wolf","Faerie Rogue","Elemental","Giant Warrior","Goblin Warrior","Elf Warrior"]),]
+#token_cards = {}
+#for ed, names in token_img_info:
+#    for i,n in enumerate(names):
+#        token_cards[n] = (ed,i+1)
 
 class _CardLibrary:
     img_cache = LRUCache(size=50)
@@ -53,17 +53,11 @@ class _CardLibrary:
         if name in self.cardfile: data = self.cardfile[name]
         else:
             if cardtype == "Token":
-                if name in token_cards:
-                    ed, number = token_cards[name]
-                    try:
-                        img_file = urllib.urlopen("http://magiccards.info/tokens/thumb/%s-%03d.jpg"%(ed,number))
-                        data = img_file.read()
-                        img_file.close()
-                        if "404 - Not Found" in data: return self.back
-                        else: self.cardfile[name] = data
-                    except:
-                        print sys.exc_info()
-                        return self.back
+                imgname = name.replace("/","-").replace(" ","_").replace("*","X")
+                if os.path.exists("./data/tokenimg/%s.jpg"%imgname):
+                    img_file = file("./data/tokenimg/%s.jpg"%imgname, 'rb')
+                    data = img_file.read()
+                    img_file.close()
                 else: return self.back
             else:
                 # Try local directory
