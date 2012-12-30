@@ -689,7 +689,7 @@ class ZoneView(CardView):
         if self.dir == -1: y = -self.height
         else: y = 0
         if self.visible == 1:
-            alpha = 0.8
+            alpha = 1.0
             glColor4f(1., 1., 1., alpha)
             w, h = self.width+self.selected_width+self.padding*2, self.height+self.padding*4
             x = -self.padding
@@ -699,11 +699,13 @@ class ZoneView(CardView):
             if len(self.cards) > 1:
                 glColor4f(1., 1., 1., 1.)
                 l, b, r, t = self.scroll_bar
-                render_9_part("box6", 
-                    width=r-l, height=t-b, x=l, y=b)
+                glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA)
+                render_9_part("track",
+                    width=r-l, height=20, x=l, y=b)
                 l, b, r, t = self.scroll
-                render_9_part("box2",
-                        width=r-l, height=t-b-2, x=l, y=b+1)
+                render_9_part("thumb",
+                        width=r-l, height=20, x=l, y=b)
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
             arrow_width = 10
             glColor4f(0,0,0,alpha)
             glBegin(GL_TRIANGLES)

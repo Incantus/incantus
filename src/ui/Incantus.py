@@ -96,6 +96,9 @@ class IncantusLayer(Layer):
         glEnable ( GL_COLOR_MATERIAL )
         glColorMaterial ( GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
 
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
     def on_enter(self):
         super(IncantusLayer, self).on_enter()
         self.on_resize(self.width, self.height)

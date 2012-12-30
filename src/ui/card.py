@@ -138,8 +138,8 @@ class Card(anim.Animable):
         glClear(GL_COLOR_BUFFER_BIT)
         #glClearColor(1.,1.,1.,1.)
         
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        #glEnable(GL_BLEND)
+        #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         
         cmap = dict(zip(["White", "Blue", "Black", "Red", "Green"], "WUBRG"))
         cmap1 = dict(zip("WUBRG", range(5)))
@@ -529,8 +529,8 @@ class StackCard(Card):
         glClear(GL_COLOR_BUFFER_BIT)
 
         # draw card image
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        #glEnable(GL_BLEND)
+        #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         
         glColor4f(1., 1., 1., 1.0)
         #art = self.front.get_region(8, 125, 185, 135)
